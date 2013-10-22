@@ -1,0 +1,30 @@
+/** \mainpage LIBQIF: A Quantitative Information Flow C++ Toolkit Library
+*
+* A fundamental concern in computer security is to control information flow, whether to protect confidential information from being leaked, or to protect trusted information from being tainted. 
+A classic approach is to try to enforce non interference, which is a property stating that the observables (behavior, outputs) of a system are independent from the secrets. This means that an adversary cannot deduce anything about the secrets from the observables. 
+Unfortunately, achieving non interference is often not possible, because often there is a correlation between secrets and observables, either  “by design’’ or due to some physical feature of the computation (side channels). One promising approach to relaxing noninterference, is to develop a quantitative theory of information flow that allows us reason about “how much” information is being leaked, thus paving the way to the possibility of tolerating “small” leaks.
+*
+* The basis of such a theory is a measure of leakage. One of the most successful approaches is based on information theory, the idea being that a system is seen as a (noisy) channel, whose inputs corresponds to the secrets, and the outputs to the observables. There are two main “classical’’ variants of this approach:  
+- Shannon-Entropy Leakage is the most established and useful notion of entropy in information theory, because of its mathematical properties and its correspondence with the channel transmission rate. 
+- Min-entropy leakage is a leakage measure based on the amount by which a channel increases the vulnerability of a secret to being guessed correctly in one try by an adversary.
+
+* The common idea in these information-theoretic approaches is that the entropy of the input provides a measure of its vulnerability.
+The notion of leakage can be expressed as the difference between the initial uncertainty
+about the secret and the remaining uncertainty about the secret: 
+
+
+\par information leakage = initial uncertainty - remaining uncertainty.
+
+* In a more recent approach, g-leakage, the benefit that an adversary derives from a certain guess about a secret is specified using a gain function g. Gain functions allow a wide variety of operational scenarios to be modeled, including those where the adversary benefits from guessing a value close to the secret, guessing a part of the secret, guessing a property of the secret, or guessing the secret within some number of tries.
+
+* In the area of statistical databases, one of the most prominent approaches for protecting an individual’s privacy when releasing aggregate information is that of Differential Privacy. This notion ensures that changes to a single individual’s value have negligible effect on the query’s outcome. This notion is closely related to information flow since differentially private mechanisms can be seen as information theoretic channels, and bounds can be obtained for the information leakage of those channels.
+*
+* A primary use of the library is to compute QIF measures as well as to generate plots, useful for understanding their behaviour. Moreover, the library will allow to compute optimal differentially private mechanisms, compare the utility of known mechanisms, compare the leakage of channels, compute gain functions that separate channels, and various other functionalities related to QIF.
+*
+* This work was developed at L’Ecole Polytechnique-INRIA Saclay in France, under the leadership of Catuscia Palamidessi and Konstantinos Chatzikokolakis and supported by the project MEALS.
+*
+* <img src="libqif.png" alt="Screenshot">
+*
+*
+* \author Martinelli Fernán
+**/
