@@ -26,7 +26,7 @@ int main()
 
     std::string pepe = "1 0 0; 0 1 0; 0 0 1"; 
     Channel C2= Channel(pepe);
-
+ 
     
 
     //Creating the gain function matrix
