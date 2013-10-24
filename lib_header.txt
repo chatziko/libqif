@@ -1,0 +1,17 @@
+This is the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+
+Authors:
+
+Bordenabe Nicolás - nbordenabe@gmail.com - Ecole Polytechnique (France)
+Chatzikokolakis Konstantinos - kostas@chatzi.org - Ecole Polytechnique (France)
+Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+
+You will find some LIBQIF use examples on the samples directory.
+
+The library documentation is at the documentation directory. More specifically in the file index.html
+
+The command to compile the example is: 
+
+g++ -I./inc -L./ -o samples/sample1 samples/Main.cpp libqif.a
+
