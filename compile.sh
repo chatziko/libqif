@@ -30,17 +30,17 @@ ar -rvs libqif.a Channel.o inc/Channel.h Graph.o inc/Graph.h Gain.o inc/Gain.h P
 mv libqif.a lib/
 
 # Documentation --------------------------------------------------------------------
-echo "Creating Library Documentation"
+#echo "Creating Library Documentation"
 
 # preparing doxygen files
-cd doxygen/
-mv Doxyfile footer.html init stylesheet.css mainpage.dox header.html ../
-cd ..
+# cd doxygen/
+# mv Doxyfile footer.html init stylesheet.css mainpage.dox header.html ../
+# cd ..
 #requires doxygen
 # doxygen Doxyfile
 
 # restoring the doxygen files
-mv Doxyfile footer.html init stylesheet.css mainpage.dox header.html doxygen/
+# mv Doxyfile footer.html init stylesheet.css mainpage.dox header.html doxygen/
 
 # TESTING ---------------------------------------------------------------------------
 echo "testing the LIBQIF library"
