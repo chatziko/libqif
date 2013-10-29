@@ -1,5 +1,5 @@
 #include "Channel.h"
-
+/* Author: Fernan Martinelli*/
 
 /*
 Channel::Channel (double** new_channel )

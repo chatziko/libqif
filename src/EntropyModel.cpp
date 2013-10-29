@@ -1,7 +1,7 @@
 #include "EntropyModel.h"
 //#include <stack-c.h>
 //#include <call_scilab.h>
-
+/* Author: Fernan Martinelli*/
 EntropyModel::EntropyModel()
 {
 	//Its not implemented yet

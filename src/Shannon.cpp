@@ -1,5 +1,5 @@
 #include "Shannon.h"
-
+/* Author: Fernan Martinelli*/
 Shannon::Shannon(Channel c)
 {
 	C=&c;	

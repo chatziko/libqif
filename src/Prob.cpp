@@ -1,5 +1,5 @@
 #include "Prob.h"
-
+/* Author: Fernan Martinelli*/
 Prob::Prob (double* new_vector )
 {
 	//VER COMO IMPLEMENTAR ESTO.. NO ESTA DIRECTAMENTE EN ARMADILLO

@@ -1,5 +1,5 @@
 #include "Guessing.h"
-
+/* Author: Fernan Martinelli*/
 Guessing::Guessing(Channel c)
 {
 	
