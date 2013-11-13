@@ -1,9 +1,31 @@
 #ifndef _QIF_Prob_h_
 #define _QIF_Prob_h_
+/*
+This file belongs to the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
+Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+LIBQIF Version: 1.0
+Date: 12th Nov 2013 
+========================================================================
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+=========================================================================
+*/
 #include <armadillo>
-using namespace arma;
-
+#include "types.h"
 /*! \class Prob
  *  \brief A probability distribution vector class.
  *
@@ -12,6 +34,7 @@ using namespace arma;
 class Prob
 {
 	public:
+		StringType str;
 		//! A normal constructor member taking 1 argument.
 		/*!
 		\param elements_number is an integer which represents the number of elements of the new vector.
@@ -21,7 +44,7 @@ class Prob
 		\pre Probability distribution vector: the sum of all the elements must be 1.
 		\sa ~Probability_vector()
 		*/
-		Prob (double* new_vector_elements );
+		//Prob (double* new_vector_elements );
 
 		//! A normal constructor member taking 1 argument.
 		/*!
@@ -32,19 +55,21 @@ class Prob
 		\pre Probability distribution vector: the sum of all the elements must be 1.
 		\sa ~Probability_vector()
 		*/
-		Prob (char* new_vector_elements );
+		Prob(StringType& new_vector_elements);
+
+		Prob(VectorType& vector_elements);
 		
 		//! normal destroyer member.
 		/*!
 		\sa Probability_vector()
 		*/
-		~Prob ();
+		//~Prob ();
 		
 		//! A function which returns the length of the vector.
 		/*!
 		\return The test results
 		*/
-		int size();
+		IntType size();
 		
 		//! A function wich takes an index position and returns the choosen element.
 		/*!
@@ -53,10 +78,10 @@ class Prob
 		\return The element at position index.
 		\sa size()
 		*/
-		double at ( int index );
+		DoubleType at(IntType index);
 		
 	protected:
-		vec V;/*!< This is a vector defined in the Armadillo Library */
+		VectorType prob_vector;/*!< This is a vector defined in the Armadillo Library */
 
 		/*! \brief This method checks the invariant representation of the class.
 		 *
@@ -65,13 +90,13 @@ class Prob
 		 */
 		bool rep_ok()
 		{
-			vec::iterator c = V.begin();
-			vec::iterator d = V.end();
+			arma::vec::iterator c = prob_vector.begin();
+			arma::vec::iterator d = prob_vector.end();
 
 			double sum = 0; //sumation used to check.
 			bool result = true; //flag used to control.
 
-			for ( mat::iterator i = c; i != d && result; ++i )
+			for ( arma::vec::iterator i = c; i != d && result; ++i )
 			{
 				sum += ( *i );
 				result = result && ( *i ) >= 0; // all the elements are greater than or equal to 0.

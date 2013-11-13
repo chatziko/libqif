@@ -1,5 +1,5 @@
-#ifndef _QIF_Guessing_h_
-#define _QIF_Guessing_h_
+#ifndef _QIF_Types_h_
+#define _QIF_Types_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,32 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
-/*! \class Guessing
- *  \brief The guessing model of entropy.
- *
- *  For most information about this theory see 
- */
-class Guessing : public EntropyModel
-{
-	public:
-		Guessing(Channel& c);
-		
-//		~Guessing();
-		
-		DoubleType vulnerability(Prob& pi);
-			
-		DoubleType cond_vulnerability(Prob& pi);
-			
-		DoubleType leakage(Prob& pi);
-			
-		DoubleType entropy(Prob& pi);
-			
-		DoubleType cond_entropy(Prob& pi);
-			
-		DoubleType capacity();	
+#include <string>
+#include <armadillo>
+//#include "Channel.h"
+//#include "Prob.h"
 
-		virtual const char* class_name() { return "Guessing";}
-};
+//typedef Prob& ParamToQIFFunctions;
+//typedef Channel& ParamToQIFConstructors;
+typedef arma::mat MatrixType;
+typedef arma::vec VectorType;
+typedef std::string StringType;
+typedef double DoubleType;
+typedef int IntType;
 
 #endif

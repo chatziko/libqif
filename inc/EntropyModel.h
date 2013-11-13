@@ -1,7 +1,34 @@
 #ifndef _QIF_EntropyModel_h_
 #define _QIF_EntropyModel_h_
+/*
+This file belongs to the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
+Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+LIBQIF Version: 1.0
+Date: 12th Nov 2013 
+========================================================================
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+=========================================================================
+*/
+#include <fstream>
 #include "Prob.h"
+#include "Channel.h"
+#include "Gain.h"
+//#include <typeinfo>
 
 /*! \class EntropyModel
  *  \brief A generic model of entropy that defines the basic function to compute and plot.
@@ -29,17 +56,17 @@ class EntropyModel
 		//---------------------------------------------------------
 		//theorethic algorithms
 		
-		virtual double vulnerability(Prob pi) = 0;
+		virtual DoubleType vulnerability(Prob& pi)=0;
 		
-		virtual double cond_vulnerability(Prob pi) = 0;
+		virtual DoubleType cond_vulnerability(Prob& pi)=0;
 		
-		virtual double leakage(Prob pi)= 0;
+		virtual DoubleType leakage(Prob& pi)=0;
 		
-		virtual double entropy(Prob pi)= 0;
+		virtual DoubleType entropy(Prob& pi)=0;
 		
-		virtual double cond_entropy(Prob pi)= 0;
+		virtual DoubleType cond_entropy(Prob& pi)=0;
 		
-		virtual double capacity()= 0;
+		virtual DoubleType capacity()=0;
 		
 		//----------------------------------------------------------
 		//plotter functions
@@ -99,14 +126,19 @@ class EntropyModel
 		\sa change_to_scilab(),change_to_gnuplot(),change_to_matlab().
 		*/
 		void change_to_maple();
+
+		virtual const char* class_name() { return "EntropyModel";}
 		
 	protected:
-		int plotter;  /*!< This integer will be used as a flag to determine with which plotter draw.
+		int plotter_flag;  /*!< This integer will be used as a flag to determine with which plotter draw.
 			by default will be -1. \n
 			0 : SciLab \n
 			1 : GNU-Plot \n
 			2 : MatLab \n
 			3 : Maple  */
+	protected:
+		Channel* C;	
+	protected:
+		Gain* g;	
 };
-
 #endif
