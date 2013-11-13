@@ -1,7 +1,4 @@
-#ifndef _QIF_Guessing_h_
-#define _QIF_Guessing_h_
-/*
-This file belongs to the LIBQIF library.
+This files belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
@@ -23,33 +20,6 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
-*/
-#include "EntropyModel.h"
-/*! \class Guessing
- *  \brief The guessing model of entropy.
- *
- *  For most information about this theory see 
- */
-class Guessing : public EntropyModel
-{
-	public:
-		Guessing(Channel& c);
-		
-//		~Guessing();
-		
-		DoubleType vulnerability(Prob& pi);
-			
-		DoubleType cond_vulnerability(Prob& pi);
-			
-		DoubleType leakage(Prob& pi);
-			
-		DoubleType entropy(Prob& pi);
-			
-		DoubleType cond_entropy(Prob& pi);
-			
-		DoubleType capacity();	
+WARNING:
 
-		virtual const char* class_name() { return "Guessing";}
-};
-
-#endif
+Do not remove the .sci files from this directory. !!

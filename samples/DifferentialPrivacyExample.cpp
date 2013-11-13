@@ -1,5 +1,3 @@
-#ifndef _QIF_Guessing_h_
-#define _QIF_Guessing_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,32 +22,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
-/*! \class Guessing
- *  \brief The guessing model of entropy.
- *
- *  For most information about this theory see 
- */
-class Guessing : public EntropyModel
+#include <iostream>
+#include <string>
+
+#include "Mechanism.h"
+
+int main()
 {
-	public:
-		Guessing(Channel& c);
-		
-//		~Guessing();
-		
-		DoubleType vulnerability(Prob& pi);
-			
-		DoubleType cond_vulnerability(Prob& pi);
-			
-		DoubleType leakage(Prob& pi);
-			
-		DoubleType entropy(Prob& pi);
-			
-		DoubleType cond_entropy(Prob& pi);
-			
-		DoubleType capacity();	
+	std::cout << "Using QIF Library Example" << std::endl;
+   
+	//the following line is an example of how to write the graph edges   
+    std::string graph_elements = "1 2; 1 3; 2 3";
+    //this graph have 3 vertex.
+    Graph graph = Graph(3,graph_elements);
 
-		virtual const char* class_name() { return "Guessing";}
-};
+    std::string channel_elements ="1 0 0; 0 1 0; 0 0 1";
+    Mechanism mechanism= Mechanism(channel_elements,graph);
 
-#endif
+    //this example asks with epsilon=0.05
+    bool result= mechanism.is_differential_private(0.05);
+}

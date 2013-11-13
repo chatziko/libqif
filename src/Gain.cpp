@@ -1,6 +1,28 @@
 #include "Gain.h"
-#include <string>
-/* Author: Fernan Martinelli*/
+/*
+This file belongs to the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
+Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+LIBQIF Version: 1.0
+Date: 12th Nov 2013 
+========================================================================
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+=========================================================================
+*/
 /*
 Gain::Gain (double** new_gain_function )
 {
@@ -8,51 +30,55 @@ Gain::Gain (double** new_gain_function )
 	//int new_size= sizeof(new_gain_function)/sizeof(*new_gain_function);
 }
 */
-Gain::Gain (char* new_gain_elements )
+Gain::Gain(StringType& new_gain_elements)
 {
-	C=mat(new_gain_elements);
+	matrix=arma::mat(new_gain_elements);
+	str=new_gain_elements;
+	//if(!this->rep_ok()){throw 1;}
 }
 
-Gain::Gain (mat new_gain_elements )
+Gain::Gain(MatrixType& new_gain_elements)
 {
-	C=mat(new_gain_elements);
+	matrix=arma::mat(new_gain_elements);
+	//if(!this->rep_ok()){throw 1;}
 }
-
+/*
 Gain::~Gain()
 {
-	C.~mat();
+	matrix.~mat();
 }
-
+*/
 int Gain::inputs_number()
 {
-	return C.n_cols;
+	return matrix.n_cols;
 }
 
 int Gain::guesses_number()
 {
-	return C.n_rows;
+	return matrix.n_rows;
+}
+/*
+Gain Gain::zeros(IntType inputs,IntType outputs)
+{
+	matrix= arma::mat(inputs,outputs);
+	matrix.zeros();
+	return Gain(matrix);
 }
 
-Gain Gain::zeros ( int inputs, int outputs )
+Gain Gain::ones(IntType inputs,IntType outputs)
 {
-	C= mat(inputs,outputs);
-	C.zeros();
-	return Gain(C);
+	matrix=arma::mat(inputs,outputs);
+	matrix.ones();
+	return Gain(matrix);
 }
-
-Gain Gain::ones ( int inputs, int outputs )
+*/
+Gain Gain::new_id_function(IntType size)
 {
-	C= mat(inputs,outputs);
-	C.ones();
-	return Gain(C);
-}
-
-Gain Gain::new_id_function ( int size )
-{
+	if(size<0){throw 1;}
 	std::string new_gain_elements=std::string("");
 	int i,j;
-	for(i=0;i<size;i++){
-		for(j=0;j<size;j++){
+	for(i=0;i<size;++i){
+		for(j=0;j<size;++j){
 			if(i==j)
 				new_gain_elements+=std::string(" 1");
 			else
@@ -60,67 +86,68 @@ Gain Gain::new_id_function ( int size )
 		}
 		new_gain_elements+=std::string(" ; ");	
 	}
-	return Gain(new_gain_elements.c_str());
+	str=new_gain_elements;
+	return Gain(new_gain_elements);
 }
 
 Gain Gain::clone()
 {
-	return Gain(C);
+	return Gain(matrix);
 }
 
 bool Gain::is_symmetric()
 {
-	bool flag= (C.n_cols == C.n_rows);
+	bool flag=(matrix.n_cols == matrix.n_rows);
 	int i,j;
-	for(i=0;i<C.n_cols && flag;i++){
-		for(j=0;j<C.n_rows && flag;j++){
-			flag= flag && C.at(i,j)==C.at(j,i);
+	for(i=0;i<matrix.n_cols && flag;++i){
+		for(j=0;j<matrix.n_rows && flag;++j){
+			flag=flag && matrix.at(i,j)==matrix.at(j,i);
 		}
 	}
 	return flag;
 }
-
+/*
 bool Gain::is_partial_symmetric()
 {
 	//Its not implemented yet
 	return true;
 }
 
-bool Gain::is_equal_to (const Gain& other )
+bool Gain::is_equal_to(const Gain& other)
 {
-	/*bool flag= (C.n_rows == other.n_rows);
-	flag= flag && (C.n_cols == other.n_cols);
+	bool flag= (matrix.n_rows == other.n_rows);
+	flag= flag && (matrix.n_cols == other.n_cols);
 	int i,j;
-	for(i=0;i<C.n_cols && flag;i++){
-		for(j=0;j<C.n_rows && flag;j++){
-			flag= flag && C.at(i,j)==other.at(j,i);
+	for(i=0;i<matrix.n_cols && flag;i++){
+		for(j=0;j<matrix.n_rows && flag;j++){
+			flag= flag && matrix.at(i,j)==other.at(j,i);
 		}
 	}
-	return flag;*/
+	return flag;
 	return true;
-}
+}*/
 
-vec Gain::get_row ( int index )
+VectorType Gain::get_row(IntType index)
 {
-	return C.row(index);
+	return matrix.row(index);
 }
 		
-vec Gain::get_column ( int index )
+VectorType Gain::get_column(IntType index)
 {
-	return C.col(index);
+	return matrix.col(index);
 }
-		
-void Gain::set_row ( int index,vec new_row_elements )
+/*		
+void Gain::set_row(IntType index,arma::vec& new_row_elements)
 {
-	//Its not implemented yet
-}
-
-void Gain::set_row ( int index,char* new_row_elements )
-{
-	vec new_row= vec(new_row_elements);
-	set_row (index,new_row);
+	
 }
 
-double Gain::at ( int index_x ,int index_y ){
-	return C.at(index_x,index_y);
+void Gain::set_row(IntType index,std::string& new_row_elements)
+{
+	arma::vec new_row= arma::vec(new_row_elements);
+	set_row(index,new_row);
+}
+*/
+DoubleType Gain::at(IntType index_x ,IntType index_y){
+	return matrix.at(index_x,index_y);
 }

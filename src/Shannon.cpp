@@ -1,65 +1,95 @@
 #include "Shannon.h"
-/* Author: Fernan Martinelli*/
-Shannon::Shannon(Channel c)
+/*
+This file belongs to the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
+Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+LIBQIF Version: 1.0
+Date: 12th Nov 2013 
+========================================================================
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+=========================================================================
+*/
+Shannon::Shannon(Channel& channel)
 {
-	C=&c;	
+	C=&channel;	
 }
 	
-Shannon::~Shannon()
-{
-	C->~Channel();	
-}
+//Shannon::~Shannon()
+//{
+//	C->~Channel();	
+//}
+
 //-------------- declaring the theoric algoritmhs implementation
-
-
-double Shannon::vulnerability(Prob pi)
+DoubleType Shannon::vulnerability(Prob& pi)
 {
 	throw 1; //It is not supported
 }
 		
-double Shannon::cond_vulnerability(Prob pi)
+DoubleType Shannon::cond_vulnerability(Prob& pi)
 {
 	throw 1; //It is not supported
 }			
 
-double Shannon::entropy(Prob pi)
+DoubleType Shannon::entropy(Prob& pi)
 {
-	int x;
+	if(C->inputs_number()!=pi.size())
+	{
+		throw 1; // X must be equal for both
+	}
 	double sum_x=0;
-	for(x=0;x<C->inputs_number();x++){
-		sum_x+= pi.at(x) * (log (pi.at(x)) / log(2));
+	for(int x=0;x<C->inputs_number();x++){
+		sum_x+= pi.at(x) * (log(pi.at(x)) / log(2));
 	}
 	return -sum_x;
 	// - sum x pi(x) log2 p(x)
 	//log2 p(x) = log p(x) / log (2)
 }		
 
-double Shannon::cond_entropy(Prob pi)
+DoubleType Shannon::cond_entropy(Prob& pi)
 {
-	int y,x;
-	double sum_y=0;
-	double sum_x;
-	
-	for(y=0;y<C->outputs_number();y++){
-		sum_x=0;
-		for(x=0; x<C->inputs_number();x++){
-			sum_x+= C->at(x,y) * (log (C->at(x,y)) / log(2));
-		}
-		sum_y+= pi.at(y) - sum_x;
+	if(C->inputs_number()!=pi.size())
+	{
+		throw 1; // X must be equal for both
 	}
-	return sum_y;
-	//sum y p(y) - sum x C[x,y] log2 C[x,y]
+	double sum_y;
+	double sum_x=0;
+	for(int x=0; x<C->inputs_number();x++){
+		sum_y=0;
+		for(int y=0;y<C->outputs_number();y++){
+			sum_y+= C->at(x,y) * (log (C->at(x,y)) / log(2));
+		}
+		sum_x+= pi.at(x) * sum_y;
+	}
+	return -sum_x;
+	//- sum x p(x) * (sum y C[x,y] log2 C[x,y])
 	//log2 C[x,y] = log C[x,y] / log (2)
 }		
 
-double Shannon::leakage(Prob pi)
+DoubleType Shannon::leakage(Prob& pi)
 {
-	return (entropy(pi)-cond_entropy(pi));
+	if(C->inputs_number()!=pi.size())
+	{
+		throw 1; // X must be equal for both
+	}
+	return(entropy(pi)-cond_entropy(pi));
 }	
 
-double Shannon::capacity()
+DoubleType Shannon::capacity()
 {
-	//
-	//
+	//implements the Blahut-Arimoto Algorithm
 	return 0;
 }

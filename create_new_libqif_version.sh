@@ -10,6 +10,7 @@ mkdir LIBQIF-v$version
 
 cp -R html/ LIBQIF-v$version/docs/
 cp -R inc/ LIBQIF-v$version/inc/
+cp -R sci_files/ LIBQIF-v$version/sci_files/
 cp lib/libqif.a LIBQIF-v$version/libqif.a
 cp licence.txt LIBQIF-v$version/licence.txt
 cp -R samples/ LIBQIF-v$version/samples/

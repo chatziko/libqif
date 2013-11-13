@@ -1,5 +1,3 @@
-#ifndef _QIF_Guessing_h_
-#define _QIF_Guessing_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,32 +22,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
-/*! \class Guessing
- *  \brief The guessing model of entropy.
- *
- *  For most information about this theory see 
- */
-class Guessing : public EntropyModel
+#include <iostream>
+#include <string>
+
+#include "Shannon.h"
+#include "MinEntropy.h"
+#include "Guessing.h"
+#include "GLeakage.h"
+int main()
 {
-	public:
-		Guessing(Channel& c);
-		
-//		~Guessing();
-		
-		DoubleType vulnerability(Prob& pi);
-			
-		DoubleType cond_vulnerability(Prob& pi);
-			
-		DoubleType leakage(Prob& pi);
-			
-		DoubleType entropy(Prob& pi);
-			
-		DoubleType cond_entropy(Prob& pi);
-			
-		DoubleType capacity();	
+	
+    std::cout << "Using QIF Library Example" << std::endl;
+       
+    //Creating the channel matrix
+    std::string channel_elements ="1 0 0; 0 1 0; 0 0 1";
+    Channel C= Channel(channel_elements);
+    std::cout << C.str << std::endl;
 
-		virtual const char* class_name() { return "Guessing";}
-};
+    //Creating the gain function matrix reusing the channel elements
+    Gain g=Gain(channel_elements);
+    
+    //Creating the probability distribution
+    std::string vector_elements ="0.3333 0.3333 0.3334";
+    Prob p1= Prob(vector_elements);
 
-#endif
+    std::cout << "Calculating the GLeakage" << std::endl;
+    //Calculating the GLeakage
+    GLeakage gl= GLeakage(C,g);
+    double Lg=gl.leakage(p1);
+    std::cout << "Lg " << Lg << std::endl;
+    std::cout << "Calculating ends" << std::endl;
+
+    Shannon sl = Shannon(C);
+    MinEntropy ml = MinEntropy(C);
+    Guessing gul = Guessing(C);
+    //Using the Plotter 
+    gl.change_to_scilab();
+    gl.plot3d_leakage();
+
+    sl.change_to_scilab();
+    sl.plot3d_entropy();
+}

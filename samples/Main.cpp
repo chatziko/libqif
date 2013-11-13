@@ -1,65 +1,45 @@
-#include <iostream>
-#include <string>
+/*
+This file belongs to the LIBQIF library.
+A Quantitative Information Flow C++ Toolkit Library.
+Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
+Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
+LIBQIF Version: 1.0
+Date: 12th Nov 2013 
+========================================================================
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
-#include "Shannon.h"
-#include "MinEntropy.h"
-#include "Guessing.h"
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+=========================================================================
+*/
+#include "GLeakage.h"
+#include <string> 
+
 int main()
 {
-	
-    std::cout << "Using QIF Library Example" << std::endl;
-   
-    
-    // NOT SOPPORTED FOR THE MOMENT
-    /*double channel_elements[3][3]={{1,0,0},{0,1,0},{0,0,1}};
-    (double[3])* point= {{1,0,0},{0,1,0},{0,0,1}};
-    */
-    //IN JUST ONE LINE: Channel C= Channel({{1,0,0},{0,1,0},{0,0,1}});
-    //IN JUST ONE LINE: Gain_function g=Gain_function("1 0 0; 0 1 0; 0 0 1");
-    
-    //Creating the channel matrix
-    char* channel_elements =(char *)malloc((strlen("1 0 0; 0 1 0; 0 0 1")+1)*sizeof(char));
-    strcpy(channel_elements, "1 0 0; 0 1 0; 0 0 1");
+    std::string channel_elements ="1 0 0; 0 1 0; 0 0 1";
+    Channel C= Channel(channel_elements);
 
-    
-    Channel C= Channel((char*)"1 0 0; 0 1 0; 0 0 1");
+    std::string gain_elements ="1 0 0; 0 1 0; 0 0 1";
+    Gain g=Gain(gain_elements);
 
-    std::string pepe = "1 0 0; 0 1 0; 0 0 1"; 
-    Channel C2= Channel(pepe);
- 
-    
+    GLeakage gl = GLeakage(C,g);
 
-    //Creating the gain function matrix
-    //char* gain_function_elements =(char *)malloc((strlen("1 0 0; 0 1 0; 0 0 1")+1)*sizeof(char));
-    //strcpy(gain_function_elements, "1 0 0; 0 1 0; 0 0 1");
-    //Gain g=Gain(gain_function_elements);
-    
-    //Creating the probability distribution
-    //double vector_elements[3]={1/3,1/3,1/3};
-    char* vector_elements =(char *)malloc((strlen("1/3 1/3 1/3")+1)*sizeof(char));
-    strcpy(vector_elements, "1/3 1/3 1/3");
+    gl.change_to_scilab();
+    gl.plot3d_leakage();
+
+    std::string vector_elements = "0.333 0.333 0.334";
     Prob p1= Prob(vector_elements);
-    std::cout << "Calculating the GLeakage" << std::endl;
-    //Calculating the GLeakage
-    //GLeakage gl= GLeakage(C,g);
-    Shannon sl = Shannon(C);
-    MinEntropy ml = MinEntropy(C);
-    Guessing gul = Guessing(C);
-    std::cout << "Calculating ends" << std::endl;
 
-    //double Lg=gl.leakage(p1);
-    //double Ls=sl.leakage(p1);
-    
-    //std::cout << "Lg " << Lg << std::endl;
-    //std::cout << "Ls " << Ls << std::endl;
-     
-    //Using the Plotter 
-    //gl.plot3d_vulnerability();
-    sl.change_to_scilab();
-    sl.plot3d_leakage();
-    
-    
-    //Using Linear Programming
-    //LinearProgram lp;
-    //vec v= lp.solve("1 1 1; 10 4 5; 2 2 6","","10 6 4","-100; -600; -300");
+    double lgl=gl.leakage(p1);
 }
