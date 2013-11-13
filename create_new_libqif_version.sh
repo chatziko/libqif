@@ -11,7 +11,7 @@ mkdir LIBQIF-v$version
 cp -R html/ LIBQIF-v$version/docs/
 cp -R inc/ LIBQIF-v$version/inc/
 cp -R sci_files/ LIBQIF-v$version/sci_files/
-cp lib/libqif.a LIBQIF-v$version/libqif.a
+cp lib/liblibqif.a LIBQIF-v$version/liblibqif.a
 cp licence.txt LIBQIF-v$version/licence.txt
 cp -R samples/ LIBQIF-v$version/samples/
 
@@ -31,6 +31,6 @@ echo "" >> versions.txt
 
 tar czf LIBQIF-v$version.tar.gz LIBQIF-v$version
 sudo rm -r LIBQIF-v$version/
-mv LIBQIF-v$version.tar.gz bin/LIBQIF-v$version.tar.gz
+mv LIBQIF-v$version.tar.gz bin/LIBQIF-v$version-linux-32bits.tar.gz
 
-echo The new version is in the file bin/LIBQIF-v$version.tar.gz
+echo The new version is in the file bin/LIBQIF-v$version-linux-32bits.tar.gz

@@ -1,3 +1,9 @@
 This file contains the details of each new LIBQIF version.
 
 ==========================================================
+DATE: 
+mar nov 12 22:19:30 ART 2013
+Version number: 1.0
+Features: 
+Reported bugs: 
+
