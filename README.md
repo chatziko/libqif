@@ -7,6 +7,7 @@ For LIBQIF _contributers_ :
 - There is an script for the instalation of the needeed libraries called installing_needeed_libs.sh
 - There is an script for compile the LIBQIF library called compile.sh
 - There is an script for generating the LIBQIF documentation with doxygen called create_documentation.sh
+ There is an script for running the test cases called run_tests.sh
 - There is an script for generation a new version of LIBQIF creating a .tar.gz on the bin/ directory.
 
 The repository structure: 
@@ -19,3 +20,4 @@ The repository structure:
 - samples: It contains some LIBQIF use examples.
 - papers: It contains the papers that are referenced from the library documentation
 - lib: It contains all the libraries needeed for developing LIBQIF 
+- sci_files: It contains the files for generating the plots with .sci extension.
