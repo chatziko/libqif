@@ -22,24 +22,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "GLeakage.h"
-#include <string> 
+#include <iostream>
+#include <string>
 
+#include "Shannon.h"
+#include "MinEntropy.h"
+#include "Guessing.h"
+#include "GLeakage.h"
 int main()
 {
+	
+    std::cout << "Using QIF Library Example" << std::endl;
+       
+    //Creating the channel matrix
     std::string channel_elements ="1 0 0; 0 1 0; 0 0 1";
     Channel C= Channel(channel_elements);
+    std::cout << C.str << std::endl;
 
-    std::string gain_elements ="1 0 0; 0 1 0; 0 0 1";
-    Gain g=Gain(gain_elements);
+    //Creating the gain function matrix reusing the channel elements
+    Gain g=Gain(channel_elements);
+    
+    //Creating the probability distribution
+    std::string vector_elements ="0.3333 0.3333 0.3334";
+    Prob p1= Prob(vector_elements);
 
-    GLeakage gl = GLeakage(C,g);
+    std::cout << "Calculating the GLeakage" << std::endl;
+    //Calculating the GLeakage
+    GLeakage gl= GLeakage(C,g);
+    double Lg=gl.leakage(p1);
+    std::cout << "Lg " << Lg << std::endl;
+    std::cout << "Calculating ends" << std::endl;
 
+    Shannon sl = Shannon(C);
+    MinEntropy ml = MinEntropy(C);
+    Guessing gul = Guessing(C);
+    //Using the Plotter 
     gl.change_to_scilab();
     gl.plot3d_leakage();
 
-    std::string vector_elements = "0.333 0.333 0.334";
-    Prob p1= Prob(vector_elements);
-
-    double lgl=gl.leakage(p1);
+    sl.change_to_scilab();
+    sl.plot3d_entropy();
 }
