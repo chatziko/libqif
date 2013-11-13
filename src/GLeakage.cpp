@@ -1,4 +1,5 @@
 #include "GLeakage.h"
+/* Author: Fernan Martinelli*/
 GLeakage::GLeakage(Channel c,Gain gain)
 {
 	C=&c;

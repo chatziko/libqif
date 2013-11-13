@@ -1,6 +1,6 @@
 #include "Gain.h"
 #include <string>
-
+/* Author: Fernan Martinelli*/
 /*
 Gain::Gain (double** new_gain_function )
 {

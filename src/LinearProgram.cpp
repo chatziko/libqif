@@ -1,7 +1,7 @@
 #include "LinearProgram.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+/* Author: Fernan Martinelli*/
 vec LinearProgram::solve(char* equality,char * inequality,char * objective){
 	return solve(mat(equality),mat(inequality),vec(objective));
 }

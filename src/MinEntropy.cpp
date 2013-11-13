@@ -1,5 +1,5 @@
 #include "MinEntropy.h"
-
+/* Author: Fernan Martinelli*/
 MinEntropy::MinEntropy(Channel c)
 {
 	C=&c;
