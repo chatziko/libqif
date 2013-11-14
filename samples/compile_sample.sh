@@ -23,7 +23,7 @@
 
 #=========================================================================
 g++ -I../inc -g -o exampleProgram Main.cpp ../lib/liblibqif.a
-g++ -I../inc -g -o AnotherLIBQIFExample AnotherLIBQIFExample.cpp ../lib/liblibqif.a
-g++ -I../inc -g -o GLeakageCaseStudy1 GLeakageCaseStudy1.cpp ../lib/liblibqif.a
-g++ -I../inc -g -o GLeakageCaseStudy2 GLeakageCaseStudy2.cpp ../lib/liblibqif.a
-g++ -I../inc -g -o DifferentialPrivacyExample DifferentialPrivacyExample.cpp ../lib/liblibqif.a
+g++ -I../inc -g -o AnotherLIBQIFExample AnotherLIBQIFExample.cpp ../liblibqif.a
+g++ -I../inc -g -o GLeakageCaseStudy1 GLeakageCaseStudy1.cpp ../liblibqif.a
+g++ -I../inc -g -o GLeakageCaseStudy2 GLeakageCaseStudy2.cpp ../liblibqif.a
+g++ -I../inc -g -o DifferentialPrivacyExample DifferentialPrivacyExample.cpp ../liblibqif.a
