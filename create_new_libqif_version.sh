@@ -14,6 +14,19 @@ cp -R sci_files/ LIBQIF-v$version/sci_files/
 cp lib/liblibqif.a LIBQIF-v$version/liblibqif.a
 cp licence.txt LIBQIF-v$version/licence.txt
 cp -R samples/ LIBQIF-v$version/samples/
+mkdir LIBQIF-v$version/thirdparty/
+cp -R lib/armadillo-3.920.1/ LIBQIF-v$version/thirdparty/armadillo-3.920.1/
+
+touch LIBQIF-v$version/INSTALL.sh
+echo "#!/bin/sh" >> LIBQIF-v$version/INSTALL.sh
+echo "# creating the libraries needeed by libqif" >> LIBQIF-v$version/INSTALL.sh
+echo "echo Installing armadillo" >> LIBQIF-v$version/INSTALL.sh
+echo "cd thirdparty/armadillo-3.920.1/" >> LIBQIF-v$version/INSTALL.sh
+echo "cmake ." >> LIBQIF-v$version/INSTALL.sh
+echo "make" >> LIBQIF-v$version/INSTALL.sh
+echo "sudo make install" >> LIBQIF-v$version/INSTALL.sh
+echo "cd .." >> LIBQIF-v$version/INSTALL.sh
+echo "cd .." >> LIBQIF-v$version/INSTALL.sh
 
 touch LIBQIF-v$version/Readme.txt
 echo "This version was generated on" >> LIBQIF-v$version/Readme.txt
