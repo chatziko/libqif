@@ -1,9 +1,10 @@
 This file contains the details of each new LIBQIF version.
 
 ==========================================================
+
 DATE: 
-mar nov 12 22:19:30 ART 2013
+jue nov 14 14:48:55 ART 2013
 Version number: 1.0
-Features: 
-Reported bugs: 
+Features: QIF measures implemented + Scilab 2D and 3D plots in .sci files
+Reported bugs: Shannon capacity is not working. There is not control in mechanism class about the channel and the graph sizes.
 

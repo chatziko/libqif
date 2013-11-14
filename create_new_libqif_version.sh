@@ -23,8 +23,7 @@ cat lib_header.txt >> LIBQIF-v$version/Readme.txt
 
 echo "DATE: " >> versions.txt
 date >> versions.txt
-echo "Version number: " >> versions.txt
-echo $version >> versions.txt
+echo "Version number: "$version >> versions.txt
 echo "Features: " >> versions.txt
 echo "Reported bugs: " >> versions.txt
 echo "" >> versions.txt
