@@ -22,7 +22,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #=========================================================================
-g++ -I../inc -g -o exampleProgram Main.cpp ../lib/liblibqif.a
+g++ -I../inc -g -o exampleProgram Main.cpp ../liblibqif.a
 g++ -I../inc -g -o AnotherLIBQIFExample AnotherLIBQIFExample.cpp ../liblibqif.a
 g++ -I../inc -g -o GLeakageCaseStudy1 GLeakageCaseStudy1.cpp ../liblibqif.a
 g++ -I../inc -g -o GLeakageCaseStudy2 GLeakageCaseStudy2.cpp ../liblibqif.a

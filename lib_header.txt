@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 
+Important: Run INSTALL.sh to LIBQIF library instalation.
+
+=========================================================================
 You will find some LIBQIF use examples on the samples directory.
 
 The library documentation is at the documentation directory. More specifically in the file index.html
