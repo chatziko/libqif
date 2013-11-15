@@ -8,3 +8,4 @@ Version number: 1.0
 Features: QIF measures implemented + Scilab 2D and 3D plots in .sci files
 Reported bugs: Shannon capacity is not working. There is not control in mechanism class about the channel and the graph sizes.
 
+

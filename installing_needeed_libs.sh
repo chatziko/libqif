@@ -4,6 +4,7 @@
 # ----------------------------------------------------------------------------------
 echo "Installing armadillo"
 cd lib/armadillo-3.920.1/
+./configure
 cmake .
 make
 sudo make install
