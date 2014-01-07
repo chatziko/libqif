@@ -401,5 +401,39 @@ sub is_equal_to {
 	return $self->matrix == $C->matrix;
 }
 
+sub for_all_priors {
+	my ($n, $step, $sub, $so_far, $k, $remaining) = @_;
+
+	return for_all_priors($n, $step, $sub, QIF::Matrix->new([[]]), 0, 1)
+		unless $so_far;
+
+	if($k == $n-1) {
+		$so_far->[0][$k] = $remaining;
+		$sub->($so_far);
+
+	} else {
+		for(my $p = 0; $p <= $remaining; $p += $step) {
+			$so_far->[0][$k] = $p;
+			for_all_priors($n, $step, $sub, $so_far, $k+1, $remaining-$p);
+		}
+	}
+}
+
+sub max_over_priors {
+	my ($n, $step, $sub) = @_;
+	my $best_pi;
+	my $max = -1e10;
+
+	for_all_priors($n, $step, sub {
+		my ($pi) = @_;
+		my $z = $sub->($pi);
+		return unless $z > $max;
+
+		$max = $z;
+		$best_pi = $pi->clone;
+	});
+
+	return wantarray ? ($max, $best_pi) : $max;
+}
 
 1;
