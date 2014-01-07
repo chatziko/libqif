@@ -1,0 +1,1 @@
+g++ -W -Wall -Wextra -pedantic -O3 -std=c++11 geo.cpp -lgsl -lgslcblas -larmadillo -lm -o geo
