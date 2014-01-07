@@ -1,6 +1,7 @@
 package QIF::Compare::FindGain;
 use Moose;
 
+use QIF::Matrix qw/:all/;
 use QIF::Channel;
 use QIF::LinearProgram;
 
@@ -10,8 +11,6 @@ has c2	=> (is => 'rw', isa => 'QIF::Channel', required => 1);
 has prior => (is => 'rw', isa => 'QIF::Matrix', required => 0);
 has solved => (is => 'rw', isa => 'Num', required => 0, default => 0);
 
-
-my $epsilon = 1e-6;
 
 # $K is the number of guesses
 sub compare {
@@ -27,12 +26,14 @@ sub compare {
 
 	my $p = $self->prior || $self->prior(QIF::Matrix->uniform($X));
 
+        my $max = 0;           # record the biggest vulnerability difference seen so far, and the G that causes it.
+        my $bestG;
+
 	# we generate all possible combinations of "best guesses" for each column
 	# for each combination we generate the corresponding linear program, if it's feasible and the optimal is negative
 	# then C1 has greater vulnerability for that solution
 	#
 	my $combs = _create_comb($K, $Y1+$Y2);
-	my $G;
 	my $n = 0;
 	for my $comb (@$combs) {
 		$n++;
@@ -42,27 +43,31 @@ sub compare {
 		my $program = $self->_build_program($K, $k_per_y1, $k_per_y2);
 		my ($z, $sol) = $program->solve;
 
-		# continue in case of no solution or 0 solution
-		defined $z && !_equal($z, 0)		or next;
+		# continue in case of no solution or a non-record solution
+		defined $z && !_less_than_or_eq($z, $max)		or next;
 
-		# build $G from the solution
-		$G = QIF::Matrix->empty;	
+		$max = $z;
+
+		# build $bestG from the solution
+		$bestG = QIF::Matrix->empty;
 		for my $x (0..$X-1) {
 			for my $k (0..$K-1) {
-				$G->[$x][$k] = $sol->[0][$x*$K+$k];
+				$bestG->[$x][$k] = $sol->[0][$x*$K+$k];
 			}
 		}
 
+		#print "[found a max: " . $z . " with gain function\n" . $bestG . "]\n\n";
+
 		# precaution check: test that the answer is the same as the vulnerability difference
-		my $v1 = $self->c1->g_vulnerability($p, $G);
-		my $v2 = $self->c2->g_vulnerability($p, $G);
+		my $v1 = $self->c1->g_vulnerability($p, $bestG);
+		my $v2 = $self->c2->g_vulnerability($p, $bestG);
 		_equal($v1 - $v2, $z) 		or die "$z is not the same as the leakage difference (".($v1-$v2).")";
 
-		last;
+		#last;          # commented this out so that we try *all* combinations
 	}
 	$self->solved($n);
 
-	return $G;
+	return $bestG;
 }
 
 sub _build_program {
@@ -186,13 +191,6 @@ sub _create_comb {
 		$perm = $temp;
 	}
 	return $perm;
-}
-
-sub _equal {
-	my ($a, $b) = @_;
-	return $QIF::Matrix::USE_RAT
-		? $a == $b
-		: $a > $b - $epsilon && $a < $b + $epsilon;
 }
 
 1;

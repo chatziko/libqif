@@ -1,6 +1,7 @@
 package QIF::Compare;
 use Moose;
 
+use QIF::Matrix qw/:all/;
 use QIF::Channel;
 use QIF::LinearProgram;
 
@@ -10,8 +11,6 @@ has c2	=> (is => 'rw', isa => 'QIF::Channel', required => 1);
 has Gs	=> (is => 'rw', isa => 'ArrayRef[QIF::Matrix]', default => sub { [] });
 has solved => (is => 'rw', isa => 'Num', required => 0, default => 0);
 
-
-my $epsilon = 1e-6;
 
 sub compare {
 	my ($self) = @_;
@@ -38,8 +37,11 @@ sub _compare_g {
 	# then C1 has greater vulnerability for that solution
 	#
 	my $combs = _create_comb($K, $Y1+$Y2);
-	my $res;
 	my $n = 0;
+
+	my $max = 0;		# record the biggest vulnerability difference seen so far, and the prior that causes it.
+	my $bestprior;
+
 	for my $comb (@$combs) {
 		$n++;
 		my $k_per_y1 = [splice @$comb, 0, $Y1];		# first $Y1 elements are for C1
@@ -48,20 +50,23 @@ sub _compare_g {
 		my $program = $self->_build_program($G, $k_per_y1, $k_per_y2);
 		my ($z, $x) = $program->solve;
 
-		# continue in case of no solution or 0 solution
-		defined $z && !_equal($z, 0)		or next;
+		# continue in case of no solution or a non-record solution
+		defined $z && !_less_than_or_eq($z, $max)		or next;
+
+		# print "[found a max: " . $z . " with prior " . $x . "]\n\n";
+		$max = $z;
+		$bestprior = $x;
 
 		# precaution check: test that the answer is the same as the vulnerability difference
 		my $v1 = $self->c1->g_vulnerability($x, $G);
 		my $v2 = $self->c2->g_vulnerability($x, $G);
 		_equal($v1 - $v2, $z) 		or die "$z is not the same as the leakage difference (".($v1-$v2).")";
 
-		$res = $x;
-		last;
+		#last;		# commented this out so that we try *all* combinations
 	}
 	$self->solved($n);
 
-	return $res;
+	return $bestprior;
 }
 
 sub add_function {
@@ -265,13 +270,6 @@ sub _remove_subsets {
 		push @res, $set		unless grep { _subseteq($set, $_) } @$sets, @res;
 	}
 	return \@res;
-}
-
-sub _equal {
-	my ($a, $b) = @_;
-	return $QIF::Matrix::USE_RAT
-		? $a == $b
-		: $a > $b - $epsilon && $a < $b + $epsilon;
 }
 
 1;
