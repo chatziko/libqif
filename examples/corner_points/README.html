@@ -1,0 +1,72 @@
+<html>
+<body>
+<h2>Corner Points Computation</h2>
+
+This tool computes the set of corner points of the probability of error for a given
+channel. Using the corner points the script can compute 3 things:
+<ul>
+   <li> The maximum probability of error
+   <li> The maximum ratio prob-error/Santhi-Vardy bound (used to improve the bound)
+   <li> The maximum ratio prob-error/Hellman-Raviv bound (used to improve the bound)
+</ul>
+
+The tool can be run from both the command line and a simple GUI.
+
+<h4>Using the GUI</h4>
+
+To launch the GUI type
+<pre>  perl gui.pl</pre>
+The GUI requires the Perl/TK library to be installed in the system. On debian/ubuntu systems
+this can be done by
+<pre>  sudo apt-get install perl-tk</pre>
+The GUI allows to enter the channel matrix, select the quantity to compute and check whether
+to use multiple processors or not (use this option in systems with multiple processors or multiple
+cores for better performance). Pressing the <b>OK</b> button starts the computation and displays
+the results.
+
+
+<h4>Using the command line</h4>
+
+To use the command line version type
+<pre>  perl run.pl [--maximize=ratio-sv|ratio-hr|prob-error] [--fork]</pre>
+
+<i>Arguments</i>
+<pre>
+  --maximize=ratio-sv|ratio-hr|prob-error
+     Selects what quantity to maximize (see above)
+
+  --fork
+     Can be used in systems with multiple processors (or cores). It splits the
+     computation into processors to increase performance.
+</pre>
+
+The script doesn't have any input, the matrix should be given by modifying the
+$matrix variable in the beginning of the run.pl script. Note that the complexity
+of the algorithm is exponential so the matrix has to be small!
+
+<h4>More info</h4>
+
+More information about the algorithm can be found in the following papers:
+
+<ul>
+   <li> K. Chatzikokolakis, C. Palamidessi, P. Panangaden.
+    On the Bayes Risk in Information-Hiding Protocols.
+	Journal of Computer Security, to appear.
+	<a href="http://www.lix.polytechnique.fr/~kostas/papers/jcs08.pdf">pdf</a>
+
+	<li> K. Chatzikokolakis, C. Palamidessi, P. Panangaden.
+    Probability of Error in Information-Hiding Protocols.
+	Proceedings of CSF20, IEEE Computer Society Press, pp. 341-354, 2007.
+	<a href="http://www.lix.polytechnique.fr/~catuscia/papers/ProbabilityError/full.pdf">pdf</a>
+</ul>
+
+
+TODO
+<ul>
+ <li> The script currently doesn't work for matrices with zero elements (this should be easy to fix)
+ <li> Graphical interface
+ <li> Performance enhancements based on the alternative characterization of the JCS paper
+</ul>
+
+</body>
+</html>
