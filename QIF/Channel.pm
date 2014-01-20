@@ -2,7 +2,7 @@ package QIF::Channel;
 use Moose;
 use Moose::Util::TypeConstraints;
 
-use List::Util qw/sum max/;
+use List::Util qw/sum max min/;
 
 use QIF::Matrix;
 
@@ -351,6 +351,22 @@ sub factorize {
 	$self == $C * $X		or die "factorize solution is invalid";
 
 	return $X;
+}
+
+sub bounded_entropy_distance {
+	my ($class, $x, $y) = @_;
+	my $n = $x->cols;
+	$n == $y->cols	or die 'size mismatch';
+
+	my $max = 0;
+	for(0..$n-1) {
+		my $m = max($x->[0][$_], $y->[0][$_]);
+		next if $m < 1e-7;
+
+		my $l = abs($x->[0][$_] - $y->[0][$_]) / $m;
+		$max = $l	if $max < $l;
+	}
+	return $max;
 }
 
 # to_string
