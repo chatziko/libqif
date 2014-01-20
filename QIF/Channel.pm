@@ -452,4 +452,96 @@ sub max_over_priors {
 	return wantarray ? ($max, $best_pi) : $max;
 }
 
+# max_prob_error
+#
+# Returns the maximum probability of error over all priors, using the subgradient descent method.
+# Kostas: if I remember correctly this is based on the Java code to be included in Prism.
+# Not sure whether I have tested the perl code.
+
+sub max_prob_error {
+	my ($self, $e) = @_;
+	$e ||= 1E-6;		# default value
+
+	my $c = $self->matrix;
+	my $n = @$c;
+
+	my $alpha = 1;
+
+	my $x = [(1/$n)x$n];
+	my $max = $self->prob_error($x);
+	my $max_x = $x;
+
+	my $k;
+	LOOP: for($k = 1; $k < 10000; $k++) {
+		my $new_x = [@$x];
+		my $grad = _prob_error_subgradient($c, $x);
+		$new_x->[$_] -= $alpha/$k * $grad->[$_]
+			for 0..$n-1;
+
+		# projection
+		_project_to_simplex($new_x);
+
+		my $new_val = $self->prob_error($new_x);
+		if($new_val > $max) {
+			last LOOP if $new_val - $max < $e;
+			$max = $new_val;
+			$max_x = $new_x;
+		}
+
+		$x = $new_x;
+	}
+
+	return $max, $max_x, $k;
+}
+
+sub _project_to_simplex {
+	my ($x) = @_;
+	my %done;
+	my $n = @$x;
+
+	while(1) {
+		my $t = (sum(@$x)-1)/$n;
+		my $n1 = 0;
+
+		for my $i (0..@$x-1) {
+			next if $done{$i};
+
+			$x->[$i] -= $t;
+			if($x->[$i] < 0) {
+				$x->[$i] = 0;
+				$done{$i} = 1;
+				$n1++;
+			}
+		}
+
+		last if $n1 == 0;		# no negative elements
+		$n -= $n1;
+	}
+}
+
+sub _prob_error_subgradient {
+	my ($c, $x) = @_;
+
+	my $n = @$c;
+	my $m = @{$c->[0]};
+
+	my $subgrad = [(0)x$n];
+
+	for my $j (0..$m-1) {
+		my $max = $c->[0][$j] * $x->[0];
+		my $max_i = 0;
+		for my $i (1..$n-1) {
+			my $temp = $c->[$i][$j] * $x->[$i];
+			if($temp > $max) {
+				$max = $temp;
+				$max_i = $i;
+			}
+		}
+
+		$subgrad->[$max_i] += $c->[$max_i][$j];
+	}
+
+	return $subgrad;
+}
+
 1;
