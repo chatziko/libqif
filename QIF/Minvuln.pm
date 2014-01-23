@@ -3,6 +3,10 @@
 # Try it with examples/minvuln.pl
 # It is just a slight modification of the module Compare, in future
 # we'll find a better place to put it.
+# I changed the sign of the coefficients of the objective functions,
+# so that the linear problem will minimize it. The value of the
+# objective function is negated as well, that's why we start with a
+# max of -2. The prior obtained is just fine.
 
 package QIF::Minvuln;
 use Moose;
@@ -45,8 +49,7 @@ sub _compare_g {
 	my $combs = _create_comb($K, $Y1);
 	my $n = 0;
 
-	my $max = 0;		# record the biggest vulnerability difference seen so far, and the prior that causes it.
-        my $min = 2;
+	my $max = -2;		# record the biggest vulnerability difference seen so far, and the prior that causes it.
 	my $bestprior;
 
 	for my $comb (@$combs) {
@@ -56,21 +59,19 @@ sub _compare_g {
 
 		my $program = $self->_build_program($G, $k_per_y1);
 		my ($z, $x) = $program->solve;
-
+                
 		# continue in case of no solution or a non-record solution
-#		defined $z && !_less_than_or_eq($z, $max)		or next;
-		defined $z && _less_than($z, $min)		or next;
-#		defined $z 		or next;
+#                if (defined $z){ print "[found : " . $z . " with prior " . $x . "]\n\n"; }
+		defined $z && !_less_than_or_eq($z, $max)		or next;
 
-#		print "[found a max: " . $z . " with prior " . $x . "]\n\n";
-#		$max = $z;
-		$min = $z;
+		print "[found a min: " . $z . " with prior " . $x . "]\n\n";
+		$max = $z;
 		$bestprior = $x;
 
 		# precaution check: test that the answer is the same as the vulnerability difference
 		my $v1 = $self->c1->g_vulnerability($x, $G);
 #		my $v2 = $self->c2->g_vulnerability($x, $G);
-		_equal($v1, $z) 		or die "$z is not the same as the leakage difference (".($v1).")";
+		_equal($v1, -$z) 		or die "$z is not the same as the leakage difference (".($v1).")";
 
 		#last;		# commented this out so that we try *all* combinations
 	}
@@ -190,11 +191,12 @@ sub _build_program {
 		push @coeff, $c;
 	}
 	push @coeff, 0;		# constant coeff 0
+        @coeff = map {-$_} @coeff; # changing sing we _minimize_ the objective function
 	push @$obj, \@coeff;
 
 	# add one more inequality asking that the objective function is positive
 	#
-	push @$ineq, [map {-$_} @coeff];		# negate to turn <= into >=
+	#push @$ineq, [map {-$_} @coeff];		# negate to turn <= into >=
 
 	# done
 	return QIF::LinearProgram->new(objective => $obj, equalities => $eq, inequalities => $ineq);
