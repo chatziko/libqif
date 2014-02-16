@@ -85,7 +85,7 @@ int Channel::outputs_number()
 bool Channel::is_symmetric()
 {
 	bool flag=(matrix.n_cols == matrix.n_rows);
-	int i,j;
+	uint i,j;
 	for(i=0;i<matrix.n_cols && flag;++i){
 		for(j=0;j<matrix.n_rows && flag;++j){
 			flag=flag && matrix.at(i,j)==matrix.at(j,i);

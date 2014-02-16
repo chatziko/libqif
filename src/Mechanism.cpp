@@ -49,7 +49,7 @@ return true
 			if(graph->is_an_edge(x,x2))
 			{
 				//for each y in Y:
-				for (int y = 0; y < matrix.n_cols; ++y)
+				for (uint y = 0; y < matrix.n_cols; ++y)
 				{
 					//if C[x,y] > e^epsilon * C[x',y]:
 					if (matrix.at(x,y) > exp(epsilon) * matrix.at(x2,y))

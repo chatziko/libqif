@@ -30,7 +30,8 @@ Graph::Graph(IntType vertex_num,StringType& edges)
     std::vector < std::pair<int,int> > new_edges;
     StringType copy=edges;
     StringType current;
-    IntType pos,pairs=0,i=0;
+    IntType pos,pairs=0;
+	UIntType i = 0;
     while(i<copy.size()){
         pos=copy.find(";");
         current= copy.substr(i,pos);
@@ -73,7 +74,7 @@ Graph::Graph(IntType vertex_num, std::vector< std::pair<int, int> > & edges)
         }
     }*/
     //std::cerr << "HOME is not defined." << std::endl;
-    for(int i=0; i<edges.size(); i++) {
+    for(uint i=0; i<edges.size(); i++) {
         int v1 = edges[i].first;
         int v2 = edges[i].second;
         

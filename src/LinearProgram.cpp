@@ -125,10 +125,9 @@ VectorType LinearProgram::solve(MatrixType equality,MatrixType inequality,Vector
 	//calls the routine glp_set_obj_dir in order to set the optimization direction flag, where GLP_MAX means maximization.
 	glp_set_obj_dir(lp, GLP_MAX);
 	
-	int i;
 	//rows: eq ------------------------------------
 	glp_add_rows(lp, n_constraints);
-	for(i=0;i<rows_constraints.n_rows;++i){
+	for(uint i=0;i<rows_constraints.n_rows;++i){
 		glp_set_row_bnds(lp, rows_constraints.at(i,0), GLP_UP, 0.0, -inequality.at(i,inequality.n_cols-1));
 	}
 	//---------------------------------------------
@@ -137,22 +136,21 @@ VectorType LinearProgram::solve(MatrixType equality,MatrixType inequality,Vector
 	glp_add_cols(lp, n_variables);
 	
 	//bounds : ineq
-	for(i=1;i<=n_variables;++i){
+	for(int i=1;i<=n_variables;++i){
 		glp_set_col_bnds(lp, i, GLP_LO, 0.0, -inequality.at(i-1,inequality.n_cols-1));
 	}
 	//---------------------------------------------
 	
 	//objective coefficients-----------------------
-	for(i=1;i<=n_variables;++i){
+	for(int i=1;i<=n_variables;++i){
 		glp_set_obj_coef(lp, i, objective.at(i-1));
 	}
 	//---------------------------------------------
 	
 	//Row indices of each element are stored in the array ia, column indices are stored in the array ja, and numerical
 	//values of corresponding elements are stored in the array ar.
-	int j;
-	for(i=0;i<n_variables;++i){
-		for(j=0;j<n_constraints;++j){
+	for(int i=0;i<n_variables;++i){
+		for(int j=0;j<n_constraints;++j){
 			ia[i*n_constraints+j]=i+1, ja[i*n_constraints+j]=j+1, ar[i*n_constraints+j]=equality.at(i,j);
 		}
 	}
@@ -165,7 +163,7 @@ VectorType LinearProgram::solve(MatrixType equality,MatrixType inequality,Vector
 	z=glp_get_obj_val(lp);
 	//obtain computed values of structural variables (columns), 
 	//which correspond to the optimal basic solution found by the solver.
-	for(i=0;i<n_variables;++i){
+	for(int i=0;i<n_variables;++i){
 		x[i]=glp_get_col_prim(lp, i+1);
 	}
 	

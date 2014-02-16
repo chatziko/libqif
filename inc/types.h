@@ -36,5 +36,6 @@ typedef arma::vec VectorType;
 typedef std::string StringType;
 typedef double DoubleType;
 typedef int IntType;
+typedef uint UIntType;
 
 #endif
