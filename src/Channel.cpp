@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
+using namespace arma;
+
 /*
 Channel::Channel (double** new_channel )
 {
@@ -37,11 +39,20 @@ Channel::Channel(StringType& new_channel_elements)
 	if(!this->rep_ok()){throw 1;}
 }
 
-Channel::Channel(MatrixType& new_channel_elements)
+Channel::Channel(MatrixType& m)
+	: matrix(m)
 {
-	matrix=arma::mat(new_channel_elements);
+	//cout << "matrix &" << "\n";
 	if(!this->rep_ok()){throw 1;}
 }
+
+Channel::Channel(MatrixType&& m)
+	: matrix(m)
+{
+	//cout << "matrix &&" << "\n";
+	if(!this->rep_ok()){throw 1;}
+}
+
 /*
 Channel::~Channel()
 {
@@ -49,22 +60,8 @@ Channel::~Channel()
 }
 */
 
-Channel Channel::new_id_channel(IntType size)
-{
-	if(size<0){throw 1;}
-	std::string new_channel_elements=std::string("");
-	int i,j;
-	for(i=0;i<size;++i){
-		for(j=0;j<size;++j){
-			if(i==j)
-				new_channel_elements+=std::string(" 1");
-			else
-				new_channel_elements+=std::string(" 0");
-		}
-		new_channel_elements+=std::string(" ; ");	
-	}
-	str=new_channel_elements;
-	return Channel(new_channel_elements);
+Channel Channel::identity(UIntType size) {
+	return Channel(eye<mat>(size, size));
 }
 
 Channel Channel::clone()

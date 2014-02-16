@@ -49,29 +49,20 @@ TEST(Gain, NoCorrectElements) {
 	ASSERT_ANY_THROW(Gain new_gain = Gain (new_gain_elements););
 }
 
-TEST(G_new_id_function, Negative) {
-	ASSERT_ANY_THROW(Gain new_gain = new_gain.new_id_function(-1););
-}
-
 TEST(G_new_id_function, Zero) {
-	Gain new_gain = new_gain.new_id_function(0);
+	Gain new_gain = Gain::identity(0);
 	EXPECT_EQ(0, new_gain.inputs_number());
 	EXPECT_EQ(0, new_gain.guesses_number());
 }
 
 TEST(G_new_id_function, Positive) {
-	Gain new_gain = new_gain.new_id_function(3);
+	Gain new_gain = Gain::identity(3);
 	EXPECT_EQ(3, new_gain.inputs_number());
 	EXPECT_EQ(3, new_gain.guesses_number());
-	for (int i = 0; i < new_gain.inputs_number(); ++i) {
-		for (int j = 0; j < new_gain.guesses_number(); ++j) {
-			if(i==j){
-				EXPECT_EQ(1, new_gain.at(i,j));
-			}else{
-				EXPECT_EQ(0, new_gain.at(i,j));
-			}
-		}
-	}
+
+	for (int i = 0; i < new_gain.inputs_number(); ++i)
+		for (int j = 0; j < new_gain.guesses_number(); ++j)
+			EXPECT_EQ(i == j ? 1 : 0, new_gain.at(i,j));
 }
 
 /* Untested functions:

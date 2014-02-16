@@ -50,6 +50,8 @@ class Gain
 		\sa ~Channel() new_id_channel (int size)
 		*/
 		Gain(StringType& new_gain_elements);
+
+		Gain(MatrixType&& m);
 		
 		//! A normal destroyer member.
 		/*!
@@ -73,7 +75,7 @@ class Gain
 		
 //		Gain ones(IntType inputs,IntType guesses);
 		
-		Gain new_id_function(IntType size);
+		static Gain identity(UIntType size);
 		
 		//! Create another new gain function with the same content.
 		/*!

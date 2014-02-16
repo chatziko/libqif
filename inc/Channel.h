@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <armadillo>
 #include <string>
 #include "types.h"
+
 /*! \class Channel
  *  \brief A channel matrix class.
  *
@@ -58,6 +59,8 @@ class Channel
 		Channel(StringType& new_channel_elements);
 		
 		Channel(MatrixType& new_channel_elements);
+
+		Channel(MatrixType&& m);
 		
 		//! A normal destroyer member.
 		/*!
@@ -71,7 +74,7 @@ class Channel
 		\return A new identity channel.
 		\sa ~Channel()
 		*/
-		Channel new_id_channel(IntType size);
+		static Channel identity(UIntType size);
 		
 		//! Create another new channel with the same content.
 		/*!

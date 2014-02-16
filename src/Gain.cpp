@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
+
+using namespace arma;
+
 /*
 Gain::Gain (double** new_gain_function )
 {
@@ -42,6 +45,11 @@ Gain::Gain(MatrixType& new_gain_elements)
 	matrix=arma::mat(new_gain_elements);
 	//if(!this->rep_ok()){throw 1;}
 }
+
+Gain::Gain(MatrixType&& m)
+	: matrix(m)
+{}
+
 /*
 Gain::~Gain()
 {
@@ -72,22 +80,9 @@ Gain Gain::ones(IntType inputs,IntType outputs)
 	return Gain(matrix);
 }
 */
-Gain Gain::new_id_function(IntType size)
-{
-	if(size<0){throw 1;}
-	std::string new_gain_elements=std::string("");
-	int i,j;
-	for(i=0;i<size;++i){
-		for(j=0;j<size;++j){
-			if(i==j)
-				new_gain_elements+=std::string(" 1");
-			else
-				new_gain_elements+=std::string(" 0");
-		}
-		new_gain_elements+=std::string(" ; ");	
-	}
-	str=new_gain_elements;
-	return Gain(new_gain_elements);
+
+Gain Gain::identity(UIntType size) {
+	return Gain(eye<mat>(size, size));
 }
 
 Gain Gain::clone()
