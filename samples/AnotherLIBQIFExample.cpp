@@ -37,7 +37,7 @@ int main()
     //Creating the channel matrix
     std::string channel_elements ="1 0 0; 0 1 0; 0 0 1";
     Channel C= Channel(channel_elements);
-    std::cout << C.str << std::endl;
+    std::cout << C << std::endl;
 
     //Creating the gain function matrix reusing the channel elements
     Gain g=Gain(channel_elements);

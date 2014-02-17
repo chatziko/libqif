@@ -77,6 +77,7 @@ Graph::Graph(IntType vertex_num, std::vector< std::pair<int, int> > & edges)
     for(uint i=0; i<edges.size(); i++) {
         int v1 = edges[i].first;
         int v2 = edges[i].second;
+		if(v1 < 1 || v1 > V || v2 < 1 || v2 > V) throw 1;
         
         adjacency(v1-1,v2-1) = 1;
         adjacency(v2-1,v1-1) = 1;

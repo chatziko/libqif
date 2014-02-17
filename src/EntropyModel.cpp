@@ -96,7 +96,7 @@ void EntropyModel::plot2d_vulnerability()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -104,7 +104,7 @@ void EntropyModel::plot2d_vulnerability()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -202,7 +202,7 @@ void EntropyModel::plot2d_cond_vulnerability()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -210,7 +210,7 @@ void EntropyModel::plot2d_cond_vulnerability()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -303,7 +303,7 @@ void EntropyModel::plot2d_leakage()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -311,7 +311,7 @@ void EntropyModel::plot2d_leakage()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -416,7 +416,7 @@ void EntropyModel::plot2d_entropy()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -424,7 +424,7 @@ void EntropyModel::plot2d_entropy()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -529,7 +529,7 @@ void EntropyModel::plot2d_cond_entropy()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -537,7 +537,7 @@ void EntropyModel::plot2d_cond_entropy()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -645,7 +645,7 @@ void EntropyModel::plot3d_vulnerability()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -653,7 +653,7 @@ void EntropyModel::plot3d_vulnerability()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -734,7 +734,7 @@ void EntropyModel::plot3d_cond_vulnerability()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -742,7 +742,7 @@ void EntropyModel::plot3d_cond_vulnerability()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -821,7 +821,7 @@ void EntropyModel::plot3d_leakage()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -829,7 +829,7 @@ void EntropyModel::plot3d_leakage()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -920,7 +920,7 @@ void EntropyModel::plot3d_entropy()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -928,7 +928,7 @@ void EntropyModel::plot3d_entropy()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}
@@ -1019,7 +1019,7 @@ void EntropyModel::plot3d_cond_entropy()
 			inputFile.close();
 			//writing channel C
 			std::string channel_c="C = [";
-			channel_c +=C->str;
+			//TODOchannel_c +=C->str;
 			channel_c +="];";
 			outputFile << channel_c << std::endl;
 
@@ -1027,7 +1027,7 @@ void EntropyModel::plot3d_cond_entropy()
 			if(className.compare("GLeakage")==0)
 			{ 
 				std::string gain_g="g = [";
-				gain_g += g->str;
+			//TODOgain_g += g->str;
 				gain_g +="];";
 				outputFile << gain_g << std::endl;
 			}

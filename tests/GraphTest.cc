@@ -28,11 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace std;
 
-TEST(Graph, NoIntegerNodes) {
-	string new_graph_elements = "1 2;3 0.5";
-	ASSERT_ANY_THROW(Graph graph = Graph(3,new_graph_elements););
-}
-
 TEST(Graph, NegativeNodes) {
 	string new_graph_elements = "-1 2;3 2";
 	ASSERT_ANY_THROW(Graph graph = Graph(3,new_graph_elements););

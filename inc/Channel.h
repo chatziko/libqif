@@ -34,10 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
  */
 class Channel
+	: public arma::mat
 {
 	public:	
-		StringType str;
-		
+		// inherit the constructors from parent
+		using arma::mat::Mat;
+
 		// ! A normal constructor member taking 1 argument.  
 		/* !
 		\param new_channel_elements is an array of double argument wich contains the new elements of the channel ordered by row by row.
@@ -95,26 +97,12 @@ class Channel
 		*/
 		int outputs_number();
 		
-		//! Checks if the channel is simmetrimatrix.
+		//! Checks if the channel is symmetric.
 		/*!
-		\return Return True iff the channel matrix is simmetrimatrix.
+		\return Return True iff the channel matrix is symmetric.
 		\sa is_partial_simmetric()
 		*/
 		bool is_symmetric();
-		
-		//! Checks if the channel is partial simmetrimatrix.
-		/*!
-		\return Return True iff the channel matrix is partial simmetrimatrix.
-		\sa is_simmetric()
-		*/
-		//bool is_partial_symmetric();
-		
-		//! Checks if the argument is equal to the current channel.
-		/*!
-		\param other is a Channel.
-		\return Return True iff the argument channel matrix is equal to this.
-		*/
-		//bool is_equal_to(const Channel& other);
 		
 		//! Return the row at the position the index argument.
 		/*!
@@ -133,27 +121,8 @@ class Channel
 		\sa outputs_number(), get_row (index)
 		*/
 		VectorType get_column(IntType index);
-		
-		//! Changes the column at the position of the index argument.
-		/*!
-		\param index is an integer argument which corresponds to the row position on the channel.
-		\pre The index argument must be between 0 and inputs_number()-1.
-		\pre The number of elements in new_row_elements must be outputs_number().
-		*/
-		//void set_row(IntType index,VectorType& new_row_elements);
-		
-		//! Changes the column at the position of the index argument.
-		/*!
-		\param index is an integer argument which corresponds to the row position on the channel.
-		\pre The index argument must be between 0 and inputs_number()-1.
-		\pre The number of elements in new_row_elements must be outputs_number().
-		*/
-		//void set_row(IntType index,StringType& new_row_elements);
-		
-		DoubleType at(IntType index_x,IntType index_y);
-		
+
 	protected:
-		MatrixType matrix; /*!< This is a matrix defined in the Armadillo Library */
 		/*! \brief This method checks the invariant representation of the class.
 		 *
 		 *
@@ -161,12 +130,12 @@ class Channel
 		 */
 		bool rep_ok()
 		{
-			int x = matrix.n_rows; //number of matrix rows
-			int y = matrix.n_cols; //number of matrix columns
+			int x = this->n_rows;
+			int y = this->n_cols;
 			bool result = true; //flag used to control.
 			for (int row = 0; row < x; ++row)
 			{
-				arma::rowvec current_vector= matrix.row(row);
+				arma::rowvec current_vector= this->row(row);
 				arma::vec::iterator c = current_vector.begin();
 				arma::vec::iterator d = current_vector.end();
 

@@ -26,106 +26,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace arma;
 
-/*
-Channel::Channel (double** new_channel )
+Channel::Channel(StringType& s)
+	: mat(s)
 {
-	//VER COMO IMPLEMENTAR ESTO.. NO ESTA DIRECTAMENTE EN ARMADILLO
-}
-*/
-Channel::Channel(StringType& new_channel_elements)
-{
-	matrix=arma::mat(new_channel_elements);
-	str=new_channel_elements;
-	if(!this->rep_ok()){throw 1;}
+	if(!this->rep_ok())
+		throw 1;
 }
 
 Channel::Channel(MatrixType& m)
-	: matrix(m)
+	: mat(m)
 {
-	//cout << "matrix &" << "\n";
-	if(!this->rep_ok()){throw 1;}
+	if(!this->rep_ok())
+		throw 1;
 }
 
 Channel::Channel(MatrixType&& m)
-	: matrix(m)
+	: mat(m)
 {
-	//cout << "matrix &&" << "\n";
-	if(!this->rep_ok()){throw 1;}
+	if(!this->rep_ok())
+		throw 1;
 }
-
-/*
-Channel::~Channel()
-{
-	matrix.~mat();
-}
-*/
 
 Channel Channel::identity(UIntType size) {
-	return Channel(eye<mat>(size, size));
+	Channel c(1,1);
+	c.eye(size, size);
+	return c;
 }
 
-Channel Channel::clone()
-{
-	return Channel(matrix);
+int Channel::inputs_number() {
+	return this->n_rows;
 }
 
-int Channel::inputs_number()
-{
-	return matrix.n_rows;
+int Channel::outputs_number() {
+	return this->n_cols;
 }
 
-int Channel::outputs_number()
-{
-	return matrix.n_cols;
-}
+bool Channel::is_symmetric() {
+	if(this->n_cols != this->n_rows) return false;
 
-bool Channel::is_symmetric()
-{
-	bool flag=(matrix.n_cols == matrix.n_rows);
 	uint i,j;
-	for(i=0;i<matrix.n_cols && flag;++i){
-		for(j=0;j<matrix.n_rows && flag;++j){
-			flag=flag && matrix.at(i,j)==matrix.at(j,i);
-		}
-	}
-	return flag;
-}
-/*
-bool Channel::is_partial_symmetric()
-{
-	//Its not implemented yet
+	for(i = 0; i < this->n_cols; i++)
+		for(j = i+1; j < this->n_rows; j++)
+			if(this->at(i,j) != this->at(j,i)) return false;
+
 	return true;
 }
 
-bool Channel::is_equal_to(const Channel& other)
-{
-	//Its not implemented yet
-	return true;
-}
-*/
+// TODO: delete
 VectorType Channel::get_row(IntType index)
 {
-	return matrix.row(index);
-}
-		
-VectorType Channel::get_column(IntType index)
-{
-	return matrix.col(index);
-}
-/*		
-void Channel::set_row(IntType index,VectorType& new_row_elements)
-{
-	
+	return this->row(index);
 }
 
-void Channel::set_row(IntType index,StringType& new_row_elements)
+VectorType Channel::get_column(IntType index)
 {
-	arma::vec new_row= arma::vec(new_row_elements);
-	set_row(index,new_row);
-}
-*/
-DoubleType Channel::at(IntType index_x,IntType index_y)
-{
-	return matrix.at(index_x,index_y);
+	return this->col(index);
 }
 
