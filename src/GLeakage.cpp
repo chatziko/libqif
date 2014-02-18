@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 GLeakage::GLeakage(Channel& channel, Gain& gain_function) {
-	if(channel.n_rows != gain_function.inputs_number()) {
-		throw 1; // X must be equal for both
+	if(channel.n_rows != gain_function.n_cols) {
+		throw 1;
 	}
 	C = &channel;
 	g = &gain_function;
@@ -56,9 +56,9 @@ DoubleType GLeakage::vulnerability(Prob& pi) {
 	//the names w x and y are from the formulas.
 	double sum_x;
 	double max_w = 0;
-	for(int w = 0; w < g->guesses_number(); ++w) {
+	for(int w = 0; w < g->n_rows; ++w) {
 		sum_x = 0;
-		for(int x = 0; x < g->inputs_number(); ++x) {
+		for(int x = 0; x < g->n_cols; ++x) {
 			sum_x += pi.at(x) * g->at(w, x);
 		}
 		if(sum_x > max_w) {
@@ -79,9 +79,9 @@ DoubleType GLeakage::cond_vulnerability(Prob& pi) {
 
 	for(int y = 0; y < C->n_cols; ++y) {
 		max_w = 0;
-		for(int w = 0; w < g->guesses_number(); ++w) {
+		for(int w = 0; w < g->n_rows; ++w) {
 			sum_x = 0;
-			for(int x = 0; x < g->inputs_number(); ++x) {
+			for(int x = 0; x < g->n_cols; ++x) {
 				sum_x += pi.at(x) * g->at(w, x) * C->at(x, y);
 			}
 			if(sum_x > max_w) {
