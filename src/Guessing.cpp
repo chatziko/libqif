@@ -42,7 +42,7 @@ DoubleType Guessing::cond_vulnerability(Prob& pi) {
 }
 
 DoubleType Guessing::leakage(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
@@ -58,7 +58,7 @@ DoubleType G(Prob& pi) {
 }
 
 DoubleType Guessing::entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//Sort pi
@@ -70,15 +70,15 @@ DoubleType Guessing::entropy(Prob& pi) {
 }
 
 DoubleType Guessing::cond_entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	DoubleType result = 0;
 	//for all y
-	for(int y = 0; y < C->outputs_number(); y++) {
+	for(int y = 0; y < C->n_cols; y++) {
 		//create the vector vy = pi(1)* C[1,y] ... pi(x)* C[x,y]
-		VectorType new_vector = arma::vec(C->inputs_number());
-		for(int x = 0; x < C->inputs_number(); x++) {
+		VectorType new_vector = arma::vec(C->n_rows);
+		for(int x = 0; x < C->n_rows; x++) {
 			new_vector[x] = pi.at(x) * C->at(x, y);
 		}
 		//Sort vy

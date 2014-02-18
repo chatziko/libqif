@@ -54,7 +54,7 @@ EntropyModel::~EntropyModel() {
 
 void EntropyModel::plot2d_vulnerability() {
 	//correct size control
-	if(C->inputs_number() != 2) {
+	if(C->n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 
@@ -157,7 +157,7 @@ void EntropyModel::plot2d_vulnerability() {
 
 void EntropyModel::plot2d_cond_vulnerability() {
 	//correct size control
-	if(C->inputs_number() != 2) {
+	if(C->n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 
@@ -260,7 +260,7 @@ void EntropyModel::plot2d_cond_vulnerability() {
 
 void EntropyModel::plot2d_leakage() {
 	//correct size control
-	if(C->inputs_number() != 2) {
+	if(C->n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -366,7 +366,7 @@ void EntropyModel::plot2d_leakage() {
 
 void EntropyModel::plot2d_entropy() {
 	//correct size control
-	if(C->inputs_number() != 2) {
+	if(C->n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -472,7 +472,7 @@ void EntropyModel::plot2d_entropy() {
 
 void EntropyModel::plot2d_cond_entropy() {
 	//correct size control
-	if(C->inputs_number() != 2) {
+	if(C->n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -578,7 +578,7 @@ void EntropyModel::plot2d_cond_entropy() {
 
 void EntropyModel::plot3d_vulnerability() {
 	//correct size control
-	if(C->inputs_number() != 3) {
+	if(C->n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -664,7 +664,7 @@ void EntropyModel::plot3d_vulnerability() {
 
 void EntropyModel::plot3d_cond_vulnerability() {
 	//correct size control
-	if(C->inputs_number() != 3) {
+	if(C->n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -750,7 +750,7 @@ void EntropyModel::plot3d_cond_vulnerability() {
 
 void EntropyModel::plot3d_leakage() {
 	//correct size control
-	if(C->inputs_number() != 3) {
+	if(C->n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -842,7 +842,7 @@ void EntropyModel::plot3d_leakage() {
 
 void EntropyModel::plot3d_entropy() {
 	//correct size control
-	if(C->inputs_number() != 3) {
+	if(C->n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -934,7 +934,7 @@ void EntropyModel::plot3d_entropy() {
 
 void EntropyModel::plot3d_cond_entropy() {
 	//correct size control
-	if(C->inputs_number() != 3) {
+	if(C->n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 

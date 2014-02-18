@@ -34,11 +34,11 @@ MinEntropy::MinEntropy(Channel& channel) {
 
 //-------------- declaring the theoric algoritmhs implementation
 DoubleType MinEntropy::vulnerability(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	double max_x = 0;
-	for(int x = 0; x < C->inputs_number(); x++) {
+	for(int x = 0; x < C->n_rows; x++) {
 		if(pi.at(x) > max_x) {
 			max_x = pi.at(x);
 		}
@@ -48,16 +48,16 @@ DoubleType MinEntropy::vulnerability(Prob& pi) {
 }
 
 DoubleType MinEntropy::cond_vulnerability(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	double sum_x;
 	double max_x;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->outputs_number(); y++) {
+	for(int y = 0; y < C->n_cols; y++) {
 		max_x = 0;
-		for(int x = 0; x < C->inputs_number(); x++) {
+		for(int x = 0; x < C->n_rows; x++) {
 			sum_x = pi.at(x) * C->at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;
@@ -70,21 +70,21 @@ DoubleType MinEntropy::cond_vulnerability(Prob& pi) {
 }
 
 DoubleType MinEntropy::leakage(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
 DoubleType MinEntropy::entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
 DoubleType MinEntropy::cond_entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(cond_vulnerability(pi));
@@ -95,9 +95,9 @@ DoubleType MinEntropy::capacity() {
 	double max_x;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->outputs_number(); y++) {
+	for(int y = 0; y < C->n_cols; y++) {
 		max_x = 0;
-		for(int x = 0; x < C->inputs_number(); x++) {
+		for(int x = 0; x < C->n_rows; x++) {
 			sum_x = C->at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;

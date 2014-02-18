@@ -78,18 +78,6 @@ class Channel :
 		*/
 		static Channel identity(UIntType size);
 
-		//! Provides the number of channel rows.
-		/*!
-		\return The number of channel rows(number of inputs).
-		*/
-		int inputs_number();
-
-		//! Provides the number of channel columns.
-		/*!
-		\return The number of channel columns(number of outputs).
-		*/
-		int outputs_number();
-
 		//! Checks if the channel is symmetric.
 		/*!
 		\return Return True iff the channel matrix is symmetric.

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 GLeakage::GLeakage(Channel& channel, Gain& gain_function) {
-	if(channel.inputs_number() != gain_function.inputs_number()) {
+	if(channel.n_rows != gain_function.inputs_number()) {
 		throw 1; // X must be equal for both
 	}
 	C = &channel;
@@ -50,7 +50,7 @@ void * GLeakage::compare_over_gain(Channel& other_channel,Prob& prior)
 //-------------- declaring the theoric algoritmhs implementation
 DoubleType GLeakage::vulnerability(Prob& pi) {
 
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//the names w x and y are from the formulas.
@@ -69,7 +69,7 @@ DoubleType GLeakage::vulnerability(Prob& pi) {
 }
 
 DoubleType GLeakage::cond_vulnerability(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//the names w x and y are from the formulas.
@@ -77,7 +77,7 @@ DoubleType GLeakage::cond_vulnerability(Prob& pi) {
 	double max_w;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->outputs_number(); ++y) {
+	for(int y = 0; y < C->n_cols; ++y) {
 		max_w = 0;
 		for(int w = 0; w < g->guesses_number(); ++w) {
 			sum_x = 0;
@@ -94,28 +94,28 @@ DoubleType GLeakage::cond_vulnerability(Prob& pi) {
 }
 
 DoubleType GLeakage::leakage(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return log(cond_vulnerability(pi) / vulnerability(pi));
 }
 
 DoubleType GLeakage::additive_leakage(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
 DoubleType GLeakage::entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
 DoubleType GLeakage::cond_entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(cond_vulnerability(pi));

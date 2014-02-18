@@ -42,11 +42,11 @@ DoubleType Shannon::cond_vulnerability(Prob& pi) {
 }
 
 DoubleType Shannon::entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	double sum_x = 0;
-	for(int x = 0; x < C->inputs_number(); x++) {
+	for(int x = 0; x < C->n_rows; x++) {
 		sum_x += pi.at(x) * (log(pi.at(x)) / log(2));
 	}
 	return -sum_x;
@@ -55,14 +55,14 @@ DoubleType Shannon::entropy(Prob& pi) {
 }
 
 DoubleType Shannon::cond_entropy(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	double sum_y;
 	double sum_x = 0;
-	for(int x = 0; x < C->inputs_number(); x++) {
+	for(int x = 0; x < C->n_rows; x++) {
 		sum_y = 0;
-		for(int y = 0; y < C->outputs_number(); y++) {
+		for(int y = 0; y < C->n_cols; y++) {
 			sum_y += C->at(x, y) * (log(C->at(x, y)) / log(2));
 		}
 		sum_x += pi.at(x) * sum_y;
@@ -73,7 +73,7 @@ DoubleType Shannon::cond_entropy(Prob& pi) {
 }
 
 DoubleType Shannon::leakage(Prob& pi) {
-	if(C->inputs_number() != pi.size()) {
+	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return(entropy(pi) - cond_entropy(pi));

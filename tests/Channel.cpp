@@ -31,10 +31,10 @@ using namespace std;
 TEST(Channel, CorrectSizeAndElements) {
 	string new_channel_elements = "1 0 0;0 1 0";
 	Channel new_channel = Channel(new_channel_elements);
-	EXPECT_EQ(2, new_channel.inputs_number());
-	EXPECT_EQ(3, new_channel.outputs_number());
-	for(int i = 0; i < new_channel.inputs_number(); ++i) {
-		for(int j = 0; j < new_channel.outputs_number(); ++j) {
+	EXPECT_EQ(2, new_channel.n_rows);
+	EXPECT_EQ(3, new_channel.n_cols);
+	for(int i = 0; i < new_channel.n_rows; ++i) {
+		for(int j = 0; j < new_channel.n_cols; ++j) {
 			if(i == j) {
 				EXPECT_EQ(1, new_channel.at(i, j));
 			} else {
@@ -52,17 +52,17 @@ TEST(Channel, NoCorrectElements) {
 TEST(identity, Zero) {
 	Channel new_channel = Channel::identity(0);
 	new_channel.identity(0);
-	EXPECT_EQ(0, new_channel.inputs_number());
-	EXPECT_EQ(0, new_channel.outputs_number());
+	EXPECT_EQ(0, new_channel.n_rows);
+	EXPECT_EQ(0, new_channel.n_cols);
 }
 
 TEST(identity, Positive) {
 	Channel new_channel = new_channel.identity(3);
-	EXPECT_EQ(3, new_channel.inputs_number());
-	EXPECT_EQ(3, new_channel.outputs_number());
+	EXPECT_EQ(3, new_channel.n_rows);
+	EXPECT_EQ(3, new_channel.n_cols);
 
-	for(int i = 0; i < new_channel.inputs_number(); ++i)
-		for(int j = 0; j < new_channel.outputs_number(); ++j)
+	for(int i = 0; i < new_channel.n_rows; ++i)
+		for(int j = 0; j < new_channel.n_cols; ++j)
 			EXPECT_EQ(i == j ? 1 : 0, new_channel.at(i, j));
 }
 

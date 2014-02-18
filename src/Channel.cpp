@@ -53,14 +53,6 @@ Channel Channel::identity(UIntType size) {
 	return c;
 }
 
-int Channel::inputs_number() {
-	return this->n_rows;
-}
-
-int Channel::outputs_number() {
-	return this->n_cols;
-}
-
 bool Channel::is_symmetric() {
 	if(this->n_cols != this->n_rows) return false;
 
