@@ -85,24 +85,6 @@ class Channel :
 		*/
 		bool is_symmetric();
 
-		//! Return the row at the position the index argument.
-		/*!
-		\param index is an integer argument which corresponds to the row position on the channel.
-		\pre The index argument must be between 0 and inputs_number()-1.
-		\return The row at the position required.
-		\sa inputs_number(),get_column (index)
-		*/
-		VectorType get_row(IntType index);
-
-		//! Return the column at the position the index argument.
-		/*!
-		\param index is an integer argument which corresponds to the column position on the channel.
-		\pre The index argument must be between 0 and outputs_number()-1.
-		\return The columun at the position required.
-		\sa outputs_number(), get_row (index)
-		*/
-		VectorType get_column(IntType index);
-
 	protected:
 		/*! \brief This method checks the invariant representation of the class.
 		 *

@@ -73,8 +73,4 @@ Channel clone();
 bool is_symmetric();
 bool is_partial_symmetric();
 bool is_equal_to ( const Channel& other );
-vec get_row ( int index );
-vec get_column ( int index );
-void set_row ( int index,vec new_row_elements );
-void set_row ( int index,char* new_row_elements );
 */

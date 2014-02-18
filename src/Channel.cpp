@@ -64,12 +64,3 @@ bool Channel::is_symmetric() {
 	return true;
 }
 
-// TODO: delete
-VectorType Channel::get_row(IntType index) {
-	return this->row(index);
-}
-
-VectorType Channel::get_column(IntType index) {
-	return this->col(index);
-}
-
