@@ -4,7 +4,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,15 +30,15 @@ using namespace std;
 
 TEST(Gain, CorrectSizeAndElements) {
 	string new_gain_elements = "1 0 0; 0 1 0";
-	Gain new_gain = Gain (new_gain_elements);
+	Gain new_gain = Gain(new_gain_elements);
 	EXPECT_EQ(3, new_gain.inputs_number());
 	EXPECT_EQ(2, new_gain.guesses_number());
-	for (int i = 0; i < new_gain.inputs_number(); ++i) {
-		for (int j = 0; j < new_gain.guesses_number(); ++j) {
-			if(i==j){
-				EXPECT_EQ(1, new_gain.at(i,j));
-			}else{
-				EXPECT_EQ(0, new_gain.at(i,j));
+	for(int i = 0; i < new_gain.inputs_number(); ++i) {
+		for(int j = 0; j < new_gain.guesses_number(); ++j) {
+			if(i == j) {
+				EXPECT_EQ(1, new_gain.at(i, j));
+			} else {
+				EXPECT_EQ(0, new_gain.at(i, j));
 			}
 		}
 	}
@@ -46,7 +46,7 @@ TEST(Gain, CorrectSizeAndElements) {
 
 TEST(Gain, NoCorrectElements) {
 	string new_gain_elements = "1 2;3 0.5 2";
-	ASSERT_ANY_THROW(Gain new_gain = Gain (new_gain_elements););
+	ASSERT_ANY_THROW(Gain new_gain = Gain(new_gain_elements););
 }
 
 TEST(G_new_id_function, Zero) {
@@ -60,9 +60,9 @@ TEST(G_new_id_function, Positive) {
 	EXPECT_EQ(3, new_gain.inputs_number());
 	EXPECT_EQ(3, new_gain.guesses_number());
 
-	for (int i = 0; i < new_gain.inputs_number(); ++i)
-		for (int j = 0; j < new_gain.guesses_number(); ++j)
-			EXPECT_EQ(i == j ? 1 : 0, new_gain.at(i,j));
+	for(int i = 0; i < new_gain.inputs_number(); ++i)
+		for(int j = 0; j < new_gain.guesses_number(); ++j)
+			EXPECT_EQ(i == j ? 1 : 0, new_gain.at(i, j));
 }
 
 /* Untested functions:

@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,14 +33,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
  */
-class Channel
-	: public arma::mat
-{
-	public:	
-		// inherit the constructors from parent
+class Channel :
+	public arma::mat {
+
+	public:
+		// inherit the constructors from parent (C++11 feature)
 		using arma::mat::Mat;
 
-		// ! A normal constructor member taking 1 argument.  
+		// ! A normal constructor member taking 1 argument.
 		/* !
 		\param new_channel_elements is an array of double argument wich contains the new elements of the channel ordered by row by row.
 		\pre Correct size: the length of each array on new_channel_elements must be the same.
@@ -49,8 +49,8 @@ class Channel
 		\sa ~Channel() new_id_channel (int size)
 		*/
 		//Channel (double** new_channel_elements );
-		
-		//! A normal constructor member taking 1 argument.  
+
+		//! A normal constructor member taking 1 argument.
 		/*!
 		\param new_channel_elements an array of double argument wich contains the new elements of the channel ordered by row by row.
 		\pre Correct size: the length of each row on new_channel_elements must be the same.
@@ -59,17 +59,17 @@ class Channel
 		\sa ~Channel() new_id_channel (int size)
 		*/
 		Channel(StringType& new_channel_elements);
-		
+
 		Channel(MatrixType& new_channel_elements);
 
 		Channel(MatrixType&& m);
-		
+
 		//! A normal destroyer member.
 		/*!
 		\sa Channel()
 		*/
 		//~Channel();
-		
+
 		//! Generates a new identity channel with the size specified in the argument.
 		/*!
 		\param size an integer argument which corresponds to the number of rows and columns of the channel.
@@ -77,33 +77,26 @@ class Channel
 		\sa ~Channel()
 		*/
 		static Channel identity(UIntType size);
-		
-		//! Create another new channel with the same content.
-		/*!
-		\return A new channel with the same content of this.
-		\sa ~Channel()
-		*/
-		Channel clone();
-		
+
 		//! Provides the number of channel rows.
 		/*!
 		\return The number of channel rows(number of inputs).
 		*/
 		int inputs_number();
-		
+
 		//! Provides the number of channel columns.
 		/*!
 		\return The number of channel columns(number of outputs).
 		*/
 		int outputs_number();
-		
+
 		//! Checks if the channel is symmetric.
 		/*!
 		\return Return True iff the channel matrix is symmetric.
 		\sa is_partial_simmetric()
 		*/
 		bool is_symmetric();
-		
+
 		//! Return the row at the position the index argument.
 		/*!
 		\param index is an integer argument which corresponds to the row position on the channel.
@@ -112,7 +105,7 @@ class Channel
 		\sa inputs_number(),get_column (index)
 		*/
 		VectorType get_row(IntType index);
-		
+
 		//! Return the column at the position the index argument.
 		/*!
 		\param index is an integer argument which corresponds to the column position on the channel.
@@ -128,28 +121,24 @@ class Channel
 		 *
 		 *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
 		 */
-		bool rep_ok()
-		{
+		bool rep_ok() {
 			int x = this->n_rows;
 			int y = this->n_cols;
 			bool result = true; //flag used to control.
-			for (int row = 0; row < x; ++row)
-			{
-				arma::rowvec current_vector= this->row(row);
+			for(int row = 0; row < x; ++row) {
+				arma::rowvec current_vector = this->row(row);
 				arma::vec::iterator c = current_vector.begin();
 				arma::vec::iterator d = current_vector.end();
 
 				int j = 0; //index used to check if should change the row.
 				double sum = 0; //sumation used to check.
-				
-				for ( arma::vec::iterator i = c; i != d && result; i++ )
-				{
-					sum += ( *i );
-					result = result && ( *i ) >= 0; // all the elements are greater than or equal to 0.
+
+				for(arma::vec::iterator i = c; i != d && result; i++) {
+					sum += (*i);
+					result = result && (*i) >= 0;   // all the elements are greater than or equal to 0.
 					j++;
 
-					if ( j == y )
-					{
+					if(j == y) {
 						result = result && sum == 1; //the sum of each row is 1.
 						j = 0;
 						sum = 0;

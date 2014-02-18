@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,16 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Channel.h"
 #include "Graph.h"
 #include <math.h>
-class Mechanism : public Channel
-{
+class Mechanism : public Channel {
 	public:
-		Mechanism(StringType& new_channel_elements,Graph& new_graph);
-		
+		Mechanism(StringType& new_channel_elements, Graph& new_graph);
+
 //		~Mechanism();
-		
+
 		bool is_differential_private(DoubleType epsilon);
 
-		//double smallest_epsilon_dp(); 
+		//double smallest_epsilon_dp();
 	protected:
 		Graph* graph;
 };

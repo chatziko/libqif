@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,19 +29,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <utility>
 #include "types.h"
 
-class Graph
-{
+class Graph {
 	public:
 		Graph(IntType vertex_num, StringType& edges);
 
-		Graph(IntType vertex_num, std::vector< std::pair<int, int> > & edges);
-		
+		Graph(IntType vertex_num, std::vector< std::pair<int, int> >& edges);
+
 //		~Graph();
 
 		IntType vertex_number();
 		bool is_an_edge(IntType v1, IntType v2);
 		IntType get_distance(IntType v1, IntType v2);
-		
+
 	protected:
 		IntType V;
 		MatrixType adjacency;

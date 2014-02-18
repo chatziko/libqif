@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

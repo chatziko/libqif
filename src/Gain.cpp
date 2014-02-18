@@ -5,7 +5,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,22 +33,20 @@ Gain::Gain (double** new_gain_function )
 	//int new_size= sizeof(new_gain_function)/sizeof(*new_gain_function);
 }
 */
-Gain::Gain(StringType& new_gain_elements)
-{
-	matrix=arma::mat(new_gain_elements);
-	str=new_gain_elements;
+Gain::Gain(StringType& new_gain_elements) {
+	matrix = arma::mat(new_gain_elements);
+	str = new_gain_elements;
 	//if(!this->rep_ok()){throw 1;}
 }
 
-Gain::Gain(MatrixType& new_gain_elements)
-{
-	matrix=arma::mat(new_gain_elements);
+Gain::Gain(MatrixType& new_gain_elements) {
+	matrix = arma::mat(new_gain_elements);
 	//if(!this->rep_ok()){throw 1;}
 }
 
 Gain::Gain(MatrixType&& m)
-	: matrix(m)
-{}
+	: matrix(m) {
+}
 
 /*
 Gain::~Gain()
@@ -56,13 +54,11 @@ Gain::~Gain()
 	matrix.~mat();
 }
 */
-int Gain::inputs_number()
-{
+int Gain::inputs_number() {
 	return matrix.n_cols;
 }
 
-int Gain::guesses_number()
-{
+int Gain::guesses_number() {
 	return matrix.n_rows;
 }
 /*
@@ -85,18 +81,16 @@ Gain Gain::identity(UIntType size) {
 	return Gain(eye<mat>(size, size));
 }
 
-Gain Gain::clone()
-{
+Gain Gain::clone() {
 	return Gain(matrix);
 }
 
-bool Gain::is_symmetric()
-{
-	bool flag=(matrix.n_cols == matrix.n_rows);
-	uint i,j;
-	for(i=0;i<matrix.n_cols && flag;++i){
-		for(j=0;j<matrix.n_rows && flag;++j){
-			flag=flag && matrix.at(i,j)==matrix.at(j,i);
+bool Gain::is_symmetric() {
+	bool flag = (matrix.n_cols == matrix.n_rows);
+	uint i, j;
+	for(i = 0; i < matrix.n_cols && flag; ++i) {
+		for(j = 0; j < matrix.n_rows && flag; ++j) {
+			flag = flag && matrix.at(i, j) == matrix.at(j, i);
 		}
 	}
 	return flag;
@@ -122,19 +116,17 @@ bool Gain::is_equal_to(const Gain& other)
 	return true;
 }*/
 
-VectorType Gain::get_row(IntType index)
-{
+VectorType Gain::get_row(IntType index) {
 	return matrix.row(index);
 }
-		
-VectorType Gain::get_column(IntType index)
-{
+
+VectorType Gain::get_column(IntType index) {
 	return matrix.col(index);
 }
-/*		
+/*
 void Gain::set_row(IntType index,arma::vec& new_row_elements)
 {
-	
+
 }
 
 void Gain::set_row(IntType index,std::string& new_row_elements)
@@ -143,6 +135,6 @@ void Gain::set_row(IntType index,std::string& new_row_elements)
 	set_row(index,new_row);
 }
 */
-DoubleType Gain::at(IntType index_x ,IntType index_y){
-	return matrix.at(index_x,index_y);
+DoubleType Gain::at(IntType index_x , IntType index_y) {
+	return matrix.at(index_x, index_y);
 }

@@ -4,7 +4,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,15 +30,15 @@ using namespace std;
 
 TEST(Channel, CorrectSizeAndElements) {
 	string new_channel_elements = "1 0 0;0 1 0";
-	Channel new_channel = Channel (new_channel_elements);
+	Channel new_channel = Channel(new_channel_elements);
 	EXPECT_EQ(2, new_channel.inputs_number());
 	EXPECT_EQ(3, new_channel.outputs_number());
-	for (int i = 0; i < new_channel.inputs_number(); ++i) {
-		for (int j = 0; j < new_channel.outputs_number(); ++j) {
-			if(i==j){
-				EXPECT_EQ(1, new_channel.at(i,j));
-			}else{
-				EXPECT_EQ(0, new_channel.at(i,j));
+	for(int i = 0; i < new_channel.inputs_number(); ++i) {
+		for(int j = 0; j < new_channel.outputs_number(); ++j) {
+			if(i == j) {
+				EXPECT_EQ(1, new_channel.at(i, j));
+			} else {
+				EXPECT_EQ(0, new_channel.at(i, j));
 			}
 		}
 	}
@@ -61,9 +61,9 @@ TEST(identity, Positive) {
 	EXPECT_EQ(3, new_channel.inputs_number());
 	EXPECT_EQ(3, new_channel.outputs_number());
 
-	for (int i = 0; i < new_channel.inputs_number(); ++i)
-		for (int j = 0; j < new_channel.outputs_number(); ++j)
-			EXPECT_EQ(i == j ? 1 : 0, new_channel.at(i,j));
+	for(int i = 0; i < new_channel.inputs_number(); ++i)
+		for(int j = 0; j < new_channel.outputs_number(); ++j)
+			EXPECT_EQ(i == j ? 1 : 0, new_channel.at(i, j));
 }
 
 /* Untested functions:
@@ -76,5 +76,5 @@ bool is_equal_to ( const Channel& other );
 vec get_row ( int index );
 vec get_column ( int index );
 void set_row ( int index,vec new_row_elements );
-void set_row ( int index,char* new_row_elements );		
+void set_row ( int index,char* new_row_elements );
 */

@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,16 +30,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include "types.h"
 
-class LinearProgram
-{
+class LinearProgram {
 	public:
-	
-	VectorType solve(StringType& equality,StringType& inequality,StringType& objective);
-	
-	VectorType solve(MatrixType equality,MatrixType inequality,VectorType objective);
-	
-	VectorType solve(StringType& equality,StringType& inequality,StringType& objective,StringType& rows_constraints);
-	
-	VectorType solve(MatrixType equality,MatrixType inequality,VectorType objective,MatrixType rows_constraints);
+
+		VectorType solve(StringType& equality, StringType& inequality, StringType& objective);
+
+		VectorType solve(MatrixType equality, MatrixType inequality, VectorType objective);
+
+		VectorType solve(StringType& equality, StringType& inequality, StringType& objective, StringType& rows_constraints);
+
+		VectorType solve(MatrixType equality, MatrixType inequality, VectorType objective, MatrixType rows_constraints);
 };
 #endif

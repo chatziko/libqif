@@ -5,7 +5,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,29 +26,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace arma;
 
-Channel::Channel(StringType& s)
-	: mat(s)
-{
+Channel::Channel(StringType& s) :
+	mat(s) {
+
 	if(!this->rep_ok())
 		throw 1;
 }
 
-Channel::Channel(MatrixType& m)
-	: mat(m)
-{
+Channel::Channel(MatrixType& m) :
+	mat(m) {
+
 	if(!this->rep_ok())
 		throw 1;
 }
 
-Channel::Channel(MatrixType&& m)
-	: mat(m)
-{
+Channel::Channel(MatrixType&& m) :
+	mat(m) {
+
 	if(!this->rep_ok())
 		throw 1;
 }
 
 Channel Channel::identity(UIntType size) {
-	Channel c(1,1);
+	Channel c(1, 1);
 	c.eye(size, size);
 	return c;
 }
@@ -64,22 +64,20 @@ int Channel::outputs_number() {
 bool Channel::is_symmetric() {
 	if(this->n_cols != this->n_rows) return false;
 
-	uint i,j;
+	uint i, j;
 	for(i = 0; i < this->n_cols; i++)
-		for(j = i+1; j < this->n_rows; j++)
-			if(this->at(i,j) != this->at(j,i)) return false;
+		for(j = i + 1; j < this->n_rows; j++)
+			if(this->at(i, j) != this->at(j, i)) return false;
 
 	return true;
 }
 
 // TODO: delete
-VectorType Channel::get_row(IntType index)
-{
+VectorType Channel::get_row(IntType index) {
 	return this->row(index);
 }
 
-VectorType Channel::get_column(IntType index)
-{
+VectorType Channel::get_column(IntType index) {
 	return this->col(index);
 }
 

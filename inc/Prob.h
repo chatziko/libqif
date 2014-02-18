@@ -6,7 +6,7 @@ A Quantitative Information Flow C++ Toolkit Library.
 Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
 Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
 LIBQIF Version: 1.0
-Date: 12th Nov 2013 
+Date: 12th Nov 2013
 ========================================================================
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,8 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * This class satisfies that the sum of all the elements is equal to 1 and each element is greater than or equal to 0.
  */
-class Prob
-{
+class Prob {
 	public:
 		StringType str;
 		//! A normal constructor member taking 1 argument.
@@ -58,19 +57,19 @@ class Prob
 		Prob(StringType& new_vector_elements);
 
 		Prob(VectorType& vector_elements);
-		
+
 		//! normal destroyer member.
 		/*!
 		\sa Probability_vector()
 		*/
 		//~Prob ();
-		
+
 		//! A function which returns the length of the vector.
 		/*!
 		\return The test results
 		*/
 		IntType size();
-		
+
 		//! A function wich takes an index position and returns the choosen element.
 		/*!
 		\param inputs an integer argument which corresponds to the choosen position.
@@ -79,7 +78,7 @@ class Prob
 		\sa size()
 		*/
 		DoubleType at(IntType index);
-		
+
 	protected:
 		VectorType prob_vector;/*!< This is a vector defined in the Armadillo Library */
 
@@ -88,18 +87,16 @@ class Prob
 		 *
 		 *  A probability vector must satisfy that the sum of all elements is 1 and each element is greater than or equal to 0.
 		 */
-		bool rep_ok()
-		{
+		bool rep_ok() {
 			arma::vec::iterator c = prob_vector.begin();
 			arma::vec::iterator d = prob_vector.end();
 
 			double sum = 0; //sumation used to check.
 			bool result = true; //flag used to control.
 
-			for ( arma::vec::iterator i = c; i != d && result; ++i )
-			{
-				sum += ( *i );
-				result = result && ( *i ) >= 0; // all the elements are greater than or equal to 0.
+			for(arma::vec::iterator i = c; i != d && result; ++i) {
+				sum += (*i);
+				result = result && (*i) >= 0;   // all the elements are greater than or equal to 0.
 			}
 			result = result && sum == 1; //the sum of each row is 1.
 			return result;
