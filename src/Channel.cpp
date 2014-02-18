@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace arma;
 
+Channel::Channel() {
+}
+
 Channel::Channel(StringType& s) :
 	mat(s) {
 
@@ -48,7 +51,7 @@ Channel::Channel(MatrixType&& m) :
 }
 
 Channel Channel::identity(UIntType size) {
-	Channel c(1, 1);
+	Channel c;
 	c.eye(size, size);
 	return c;
 }

@@ -58,11 +58,13 @@ class Channel :
 		\pre Probability distribution channel: the sum each outputs_number elements must be 1.
 		\sa ~Channel() new_id_channel (int size)
 		*/
-		Channel(StringType& new_channel_elements);
+		Channel();
 
-		Channel(MatrixType& new_channel_elements);
+		Channel(StringType&);
 
-		Channel(MatrixType&& m);
+		Channel(MatrixType&);
+
+		Channel(MatrixType&&);
 
 		//! A normal destroyer member.
 		/*!
