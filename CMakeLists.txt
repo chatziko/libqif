@@ -4,7 +4,7 @@ project(libqif)
 
 add_definitions(-std=c++11)
 
-include_directories(inc)
+include_directories(include)
 
 # build shard lib
 #

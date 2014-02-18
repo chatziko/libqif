@@ -6,5 +6,5 @@ astyle \
 	--pad-oper --unpad-paren \
 	--align-pointer=type --align-reference=type \
 	-n \
-	src/*.cpp inc/*.h tests/*.cpp samples/*.cpp
+	src/*.cpp include/*.h tests/*.cpp samples/*.cpp
 
