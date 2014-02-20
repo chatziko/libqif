@@ -30,7 +30,7 @@ using namespace std;
 
 TEST(S_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
@@ -39,7 +39,7 @@ TEST(S_vulnerability, not_supported) {
 
 TEST(S_cond_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
@@ -48,7 +48,7 @@ TEST(S_cond_vulnerability, not_supported) {
 
 TEST(Shannon_QIF_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
@@ -58,7 +58,7 @@ TEST(Shannon_QIF_functions, incorrect_X_size) {
 }
 
 /* Untested functions:
-Shannon(Channel c);
+Shannon(chan c);
 ~Shannon();
 double leakage(Prob pi);
 double entropy(Prob pi);

@@ -39,7 +39,7 @@ class GLeakage : public EntropyModel {
 		/*!
 		\sa ~GLeakage().
 		*/
-		GLeakage(Channel& c, Gain& g);
+		GLeakage(chan& c, Gain& g);
 
 		//! A normal destroyer member.
 		/*!
@@ -61,9 +61,9 @@ class GLeakage : public EntropyModel {
 
 		double capacity();
 		/*
-		void * compare_over_prior(Channel& other_channel);
+		void * compare_over_prior(chan& other_channel);
 
-		void * compare_over_gain(Channel& other_channel,Prob& prior);
+		void * compare_over_gain(chan& other_channel,Prob& prior);
 		*/
 		virtual const char* class_name() {
 			return "GLeakage";

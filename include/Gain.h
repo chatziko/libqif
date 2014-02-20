@@ -43,7 +43,7 @@ class Gain :
 		/* !
 		\param new_gain_elements is an array of double argument wich contains the new elements of the gain matrix ordered by row by row.
 		\pre Correct size: the length of each array on new_gain_elements must be the same.
-		\sa ~Channel() new_id_function (int size)
+		\sa ~chan() new_id_function (int size)
 		*/
 		//Gain (double** new_gain_function );
 
@@ -51,7 +51,7 @@ class Gain :
 		/*!
 		\param new_gain_elements an string argument wich contains the new elements of the gain matrix ordered by row by row.
 		\pre Correct size: the length of each row on new_gain_elements must be the same.
-		\sa ~Channel() new_id_channel (int size)
+		\sa ~chan() new_id_channel (int size)
 		*/
 
 		static Gain identity(uint size) {

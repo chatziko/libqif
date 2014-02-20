@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Guessing::Guessing(Channel& channel) {
+Guessing::Guessing(chan& channel) {
 	C = &channel;
 }
 

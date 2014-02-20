@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <armadillo>
 #include <string>
 
 #include "types.h"
@@ -35,12 +34,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
  */
+
+template<typename eT>
 class Channel :
-	public arma::mat {
+	public Mat<eT> {
 
 	public:
 		// inherit the constructors from parent (C++11 feature)
-		using arma::mat::Mat;
+		using Mat<eT>::Mat;
 
 		// ! A normal constructor member taking 1 argument.
 		/* !
@@ -64,9 +65,9 @@ class Channel :
 
 		Channel(std::string&);
 
-		Channel(mat&);
+		Channel(Mat<eT>&);
 
-		Channel(mat&&);
+		Channel(Mat<eT>&&);
 
 		//! A normal destroyer member.
 		/*!
@@ -80,10 +81,10 @@ class Channel :
 		\return A new identity channel.
 		\sa ~Channel()
 		*/
-		inline Channel& identity()       { if(!is_square()) throw 1; eye(); return *this; }
-		inline Channel& identity(uint n) { eye(n, n); return *this; }
+		inline Channel<eT>& identity()       { if(!this->is_square()) throw 1; this->eye(); return *this; }
+		inline Channel<eT>& identity(uint n) { this->eye(n, n); return *this; }
 
-		Channel& randu();
+		Channel<eT>& randu();
 
 		//! Checks if the channel is symmetric.
 		/*!
@@ -102,32 +103,32 @@ class Channel :
 
 
 namespace arma {
-	template<>
-	struct is_Mat_only< Channel > :
-		is_Mat_only< mat > {};
+	template<typename eT>
+	struct is_Mat_only< Channel<eT> > :
+		is_Mat_only< Mat<eT> > {};
 
-	template<>
-	struct is_Mat_only< const Channel > :
-		is_Mat_only< const mat > {};
+	template<typename eT>
+	struct is_Mat_only< const Channel<eT> > :
+		is_Mat_only< const Mat<eT> > {};
 
-	template<>
-	struct is_Mat< Channel > :
-		is_Mat_only< mat > {};
+	template<typename eT>
+	struct is_Mat< Channel<eT> > :
+		is_Mat_only< Mat<eT> > {};
 
-	template<>
-	struct is_Mat< const Channel > :
-		is_Mat_only< const mat > {};
+	template<typename eT>
+	struct is_Mat< const Channel<eT> > :
+		is_Mat_only< const Mat<eT> > {};
 
-	template<>
-	struct Proxy< Channel > :
-		Proxy< mat > {
-		using Proxy< mat >::Proxy;
+	template<typename eT>
+	struct Proxy< Channel<eT> > :
+		Proxy< Mat<eT> > {
+		using Proxy< Mat<eT> >::Proxy;
 	};
 
-	template<>
-	struct Proxy< const Channel > :
-		Proxy< const mat > {
-		using Proxy< const mat >::Proxy;
+	template<typename eT>
+	struct Proxy< const Channel<eT> > :
+		Proxy< const Mat<eT> > {
+		using Proxy< const Mat<eT> >::Proxy;
 	};
 }
 

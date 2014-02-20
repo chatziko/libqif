@@ -30,7 +30,7 @@ using namespace std;
 
 TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	MinEntropy minEntropy = MinEntropy(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
@@ -42,7 +42,7 @@ TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 }
 
 /* Untested functions:
-MinEntropy(Channel c);
+MinEntropy(chan c);
 ~MinEntropy();
 double vulnerability(Prob pi);
 double cond_vulnerability(Prob pi);

@@ -138,7 +138,7 @@ class EntropyModel {
 			2 : MatLab \n
 			3 : Maple  */
 	protected:
-		Channel* C;
+		chan* C;
 	protected:
 		Gain* g;
 };

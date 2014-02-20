@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class Guessing : public EntropyModel {
 	public:
-		Guessing(Channel& c);
+		Guessing(chan& c);
 
 //		~Guessing();
 

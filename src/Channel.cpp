@@ -27,29 +27,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "aux.h"
 
 
-Channel::Channel(std::string& s) :
-	mat(s) {
+template<typename eT>
+Channel<eT>::Channel(std::string& s) :
+	Mat<eT>(s) {
 
 	if(!this->is_proper())
 		throw 1;
 }
 
-Channel::Channel(mat& m) :
-	mat(m) {
+template<typename eT>
+Channel<eT>::Channel(Mat<eT>& m) :
+	Mat<eT>(m) {
 
 	if(!this->is_proper())
 		throw 1;
 }
 
-Channel::Channel(mat&& m) :
-	mat(m) {
+template<typename eT>
+Channel<eT>::Channel(Mat<eT>&& m) :
+	Mat<eT>(m) {
 
 	if(!this->is_proper())
 		throw 1;
 }
 
-Channel& Channel::randu() {
-	mat::randu();
+template<typename eT>
+Channel<eT>& Channel<eT>::randu() {
+	Mat<eT>::randu();
 
 	//cout <<  arma::sum(*this, 1);
 	//each_col() /= sums;
@@ -57,7 +61,8 @@ Channel& Channel::randu() {
 	return *this;
 }
 
-bool Channel::is_symmetric() {
+template<typename eT>
+bool Channel<eT>::is_symmetric() {
 	if(this->n_cols != this->n_rows) return false;
 
 	uint i, j;
@@ -68,12 +73,13 @@ bool Channel::is_symmetric() {
 	return true;
 }
 
-bool Channel::is_proper() {
-	for(uint i = 0; i < n_rows; i++) {
+template<typename eT>
+bool Channel<eT>::is_proper() {
+	for(uint i = 0; i < this->n_rows; i++) {
 		double sum = 0;
-		for(uint j = 0; j < n_cols; j++) {
+		for(uint j = 0; j < this->n_cols; j++) {
 			// elements should be non-negative
-			double elem = at(i, j);
+			double elem = this->at(i, j);
 			if(less_than(elem, 0))
 				return false;
 
@@ -87,23 +93,31 @@ bool Channel::is_proper() {
 	return true;
 }
 
-bool Channel::all(std::function<bool(double)> f) {
+template<typename eT>
+bool Channel<eT>::all(std::function<bool(double)> f) {
 	for(double x : *this)
 		if(!f(x))
 			return false;
 	return true;
 }
 
-bool Channel::any(std::function<bool(double)> f) {
+template<typename eT>
+bool Channel<eT>::any(std::function<bool(double)> f) {
 	for(double x : *this)
 		if(f(x))
 			return true;
 	return false;
 }
 
-bool Channel::is_zero() {
+template<typename eT>
+bool Channel<eT>::is_zero() {
 	return all([](double x){
 		return equal(x, 0);
 	});
 }
+
+// This will actually compile an instantiation of the class.
+// TODO: the other solution is to put everything in the .h file, maybe it's // better
+//
+template class Channel<double>;
 

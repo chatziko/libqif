@@ -43,7 +43,7 @@ namespace arma {
 
 int main() {
 	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Channel C(3,3);
+	chan C(3,3);
 	C.randu();
 
 	Mat<rat> v;
@@ -61,7 +61,7 @@ int main() {
 	//mr.each_col() += v;
 	cout << mr << "\n";
 
-	cout << "--" << all(mech > 1) << "--";
+	cout << "--" << all(C > 0) << "--";
 
 	std::string gain_elements = "1 0 0; 0 1 0; 0 0 1";
 	Gain g = Gain(gain_elements);

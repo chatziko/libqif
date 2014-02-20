@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace std;
 
-TEST(Channel, CorrectSizeAndElements) {
+TEST(chan, CorrectSizeAndElements) {
 	string new_channel_elements = "1 0 0;0 1 0";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	EXPECT_EQ(2, new_channel.n_rows);
 	EXPECT_EQ(3, new_channel.n_cols);
 	for(int i = 0; i < new_channel.n_rows; ++i) {
@@ -44,20 +44,20 @@ TEST(Channel, CorrectSizeAndElements) {
 	}
 }
 
-TEST(Channel, NoCorrectElements) {
+TEST(chan, NoCorrectElements) {
 	string new_channel_elements = "1 2;3 0.5";
-	ASSERT_ANY_THROW(Channel new_channel = Channel(new_channel_elements););
+	ASSERT_ANY_THROW(chan new_channel = chan(new_channel_elements););
 }
 
 TEST(identity, Zero) {
-	Channel new_channel;
+	chan new_channel;
 	new_channel.identity(0);
 	EXPECT_EQ(0, new_channel.n_rows);
 	EXPECT_EQ(0, new_channel.n_cols);
 }
 
 TEST(identity, Positive) {
-	Channel new_channel;
+	chan new_channel;
 	new_channel.identity(3);
 	EXPECT_EQ(3, new_channel.n_rows);
 	EXPECT_EQ(3, new_channel.n_cols);
@@ -68,10 +68,10 @@ TEST(identity, Positive) {
 }
 
 /* Untested functions:
-Channel (std::string& new_channel_elements);
-~Channel();
-Channel clone();
+chan (std::string& new_channel_elements);
+~chan();
+chan clone();
 bool is_symmetric();
 bool is_partial_symmetric();
-bool is_equal_to ( const Channel& other );
+bool is_equal_to ( const chan& other );
 */

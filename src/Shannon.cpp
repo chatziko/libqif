@@ -23,14 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Shannon::Shannon(Channel& channel) {
+Shannon::Shannon(chan& channel) {
 	C = &channel;
 }
-
-//Shannon::~Shannon()
-//{
-//	C->~Channel();
-//}
 
 //-------------- declaring the theoric algoritmhs implementation
 double Shannon::vulnerability(Prob& pi) {

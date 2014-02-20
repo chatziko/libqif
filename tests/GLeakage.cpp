@@ -30,7 +30,7 @@ using namespace std;
 
 TEST(GLeakage, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	string new_gain_elements = "1 0 0;0 1 0";
 	Gain new_gain = Gain(new_gain_elements);
 	ASSERT_ANY_THROW(GLeakage gleakage = GLeakage(new_channel, new_gain););
@@ -38,7 +38,7 @@ TEST(GLeakage, incorrect_X_size) {
 
 TEST(GLeakage_QIF_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	string new_gain_elements = "1 0;0 1";
 	Gain new_gain = Gain(new_gain_elements);
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
@@ -53,7 +53,7 @@ TEST(GLeakage_QIF_functions, incorrect_X_size) {
 
 TEST(GLeakage_plotter_functions, plot_without_selected_engine) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	string new_gain_elements = "1 0;0 1";
 	Gain new_gain = Gain(new_gain_elements);
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
@@ -65,7 +65,7 @@ TEST(GLeakage_plotter_functions, plot_without_selected_engine) {
 
 	//------------------------------------------------------
 	new_channel_elements = "1 0 0;0 1 0;0 0 1";
-	new_channel = Channel(new_channel_elements);
+	new_channel = chan(new_channel_elements);
 	new_gain_elements = "1 0 0;0 1 0;0 0 1";
 	new_gain = Gain(new_gain_elements);
 	gleakage = GLeakage(new_channel, new_gain);
@@ -78,7 +78,7 @@ TEST(GLeakage_plotter_functions, plot_without_selected_engine) {
 
 TEST(GLeakage_plotter_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	string new_gain_elements = "1 0;0 1";
 	Gain new_gain = Gain(new_gain_elements);
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
@@ -90,7 +90,7 @@ TEST(GLeakage_plotter_functions, incorrect_X_size) {
 	ASSERT_ANY_THROW(gleakage.plot3d_cond_entropy(););
 	//--------------------------------------------------
 	new_channel_elements = "1 0 0;0 1 0;0 0 1";
-	new_channel = Channel(new_channel_elements);
+	new_channel = chan(new_channel_elements);
 	new_gain_elements = "1 0 0;0 1 0;0 0 1";
 	new_gain = Gain(new_gain_elements);
 	gleakage = GLeakage(new_channel, new_gain);
@@ -104,7 +104,7 @@ TEST(GLeakage_plotter_functions, incorrect_X_size) {
 
 TEST(G_capacity, not_supported) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	string new_gain_elements = "1 0;0 1";
 	Gain new_gain = Gain(new_gain_elements);
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
@@ -118,6 +118,6 @@ double leakage(Prob pi);
 double entropy(Prob pi);
 double cond_entropy(Prob pi);
 double capacity();
-void * compare_over_prior(Channel other_channel);
-void * compare_over_gain(Channel other_channel,Prob prior);
+void * compare_over_prior(chan other_channel);
+void * compare_over_gain(chan other_channel,Prob prior);
 */

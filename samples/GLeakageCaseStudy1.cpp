@@ -35,9 +35,9 @@ int main() {
 	std::string id = "1 0 0; 0 1 0; 0 0 1";
 	std::string k_tries = "1 1 0; 1 0 1; 0 1 1";
 
-	Channel C_rand = Channel(random);
-	Channel C_balanced = Channel(balanced);
-	Channel C_id = Channel(id);
+	chan C_rand = chan(random);
+	chan C_balanced = chan(balanced);
+	chan C_id = chan(id);
 
 	Gain g_id = Gain(id);
 	Gain g_metrics = Gain(metrics);

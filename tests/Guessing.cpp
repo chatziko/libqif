@@ -30,7 +30,7 @@ using namespace std;
 
 TEST(Gu_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
@@ -39,7 +39,7 @@ TEST(Gu_vulnerability, not_supported) {
 
 TEST(Gu_cond_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
@@ -48,7 +48,7 @@ TEST(Gu_cond_vulnerability, not_supported) {
 
 TEST(Guessing_QIF_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
-	Channel new_channel = Channel(new_channel_elements);
+	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
@@ -58,7 +58,7 @@ TEST(Guessing_QIF_functions, incorrect_X_size) {
 }
 
 /* Untested functions:
-Guessing(Channel c);
+Guessing(chan c);
 ~Guessing();
 double vulnerability(Prob pi);
 double cond_vulnerability(Prob pi);

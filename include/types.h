@@ -26,9 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <armadillo>
 
-typedef uint32_t uint;
+template<typename eT> class Channel;		// forward
 
-typedef arma::mat mat;
-typedef arma::vec vec;
+using arma::Mat;
+using arma::mat;
+using arma::vec;
+
+typedef Channel<double> chan;
+
+typedef uint32_t uint;
 
 #endif

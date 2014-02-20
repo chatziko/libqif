@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class MinEntropy : public EntropyModel {
 	public:
 
-		MinEntropy(Channel& c);
+		MinEntropy(chan& c);
 
 //		~MinEntropy();
 

@@ -30,7 +30,7 @@ int main() {
 	std::cout << "Using LIBQIF Library Example" << std::endl;
 
 	std::string channel_elements = "0.3 0.7; 0.7 0.3; 0.3 0.7";
-	Channel C = Channel(channel_elements);
+	chan C = chan(channel_elements);
 
 	std::string function_elements = "1 0 0; 0 1 0; 0 0 1";
 	Gain g = Gain(function_elements);
