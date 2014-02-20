@@ -1,5 +1,5 @@
-#ifndef _QIF_Graph_h_
-#define _QIF_Graph_h_
+#ifndef _QIF_precompiled_h_
+#define _QIF_precompiled_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,25 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <vector>
-#include <utility>
-#include "types.h"
 
-class Graph {
-	public:
-		Graph(uint vertex_num, std::string& edges);
+// this header gets precompiled, include here all heavy stuff
 
-		Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges);
+#include <armadillo>
 
-//		~Graph();
-
-		uint vertex_number();
-		bool is_an_edge(uint v1, uint v2);
-		uint get_distance(uint v1, uint v2);
-
-	protected:
-		uint V;
-		mat adjacency;
-		mat distances;
-};
 #endif

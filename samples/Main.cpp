@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Mechanism.h"
 
 #include <string>
-#include <armadillo>
 #include <boost/rational.hpp>
 
 using namespace std;

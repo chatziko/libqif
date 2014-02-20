@@ -13,6 +13,8 @@ foreach(SOURCE ${SAMPLE_SOURCES})
 	add_executable(${DEST} ${SOURCE})
 	target_link_libraries(${DEST} qif)									# link sample against libqif
 
+	add_precompiled_header(${DEST} ../include/precompiled.h)
+
 	add_dependencies(samples ${DEST})
 endforeach()
 
