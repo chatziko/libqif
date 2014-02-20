@@ -48,7 +48,7 @@ void * GLeakage::compare_over_gain(Channel& other_channel,Prob& prior)
 }
 */
 //-------------- declaring the theoric algoritmhs implementation
-DoubleType GLeakage::vulnerability(Prob& pi) {
+double GLeakage::vulnerability(Prob& pi) {
 
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
@@ -68,7 +68,7 @@ DoubleType GLeakage::vulnerability(Prob& pi) {
 	return max_w;
 }
 
-DoubleType GLeakage::cond_vulnerability(Prob& pi) {
+double GLeakage::cond_vulnerability(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -93,34 +93,34 @@ DoubleType GLeakage::cond_vulnerability(Prob& pi) {
 	return sum_y;
 }
 
-DoubleType GLeakage::leakage(Prob& pi) {
+double GLeakage::leakage(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return log(cond_vulnerability(pi) / vulnerability(pi));
 }
 
-DoubleType GLeakage::additive_leakage(Prob& pi) {
+double GLeakage::additive_leakage(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
-DoubleType GLeakage::entropy(Prob& pi) {
+double GLeakage::entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
-DoubleType GLeakage::cond_entropy(Prob& pi) {
+double GLeakage::cond_entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(cond_vulnerability(pi));
 }
 
-DoubleType GLeakage::capacity() {
+double GLeakage::capacity() {
 	throw 1; //It is not supported
 }

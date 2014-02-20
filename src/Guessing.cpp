@@ -33,15 +33,15 @@ Guessing::Guessing(Channel& channel) {
 //}
 
 //-------------- declaring the theoric algoritmhs implementation
-DoubleType Guessing::vulnerability(Prob& pi) {
+double Guessing::vulnerability(Prob& pi) {
 	throw 1; //It is not supported
 }
 
-DoubleType Guessing::cond_vulnerability(Prob& pi) {
+double Guessing::cond_vulnerability(Prob& pi) {
 	throw 1; //It is not supported
 }
 
-DoubleType Guessing::leakage(Prob& pi) {
+double Guessing::leakage(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -49,35 +49,35 @@ DoubleType Guessing::leakage(Prob& pi) {
 }
 
 //internal function to implement entropy and conditional entropy
-DoubleType G(Prob& pi) {
-	DoubleType sum = 0;
+double G(Prob& pi) {
+	double sum = 0;
 	for(int x = 0; x < pi.size(); ++x) {
 		sum += x * pi.at(x);
 	}
 	return sum;
 }
 
-DoubleType Guessing::entropy(Prob& pi) {
+double Guessing::entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//Sort pi
-	VectorType prob_vector = arma::vec(pi.str);
+	vec prob_vector = arma::vec(pi.str);
 	sort(prob_vector, 1);
 	pi = Prob(prob_vector);
 	//Call G
 	return G(pi);
 }
 
-DoubleType Guessing::cond_entropy(Prob& pi) {
+double Guessing::cond_entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
-	DoubleType result = 0;
+	double result = 0;
 	//for all y
 	for(int y = 0; y < C->n_cols; y++) {
 		//create the vector vy = pi(1)* C[1,y] ... pi(x)* C[x,y]
-		VectorType new_vector = arma::vec(C->n_rows);
+		vec new_vector = arma::vec(C->n_rows);
 		for(int x = 0; x < C->n_rows; x++) {
 			new_vector[x] = pi.at(x) * C->at(x, y);
 		}
@@ -90,6 +90,6 @@ DoubleType Guessing::cond_entropy(Prob& pi) {
 	return result;
 }
 
-DoubleType Guessing::capacity() {
+double Guessing::capacity() {
 	throw 1; //It is not supported
 }

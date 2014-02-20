@@ -31,19 +31,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Graph {
 	public:
-		Graph(IntType vertex_num, StringType& edges);
+		Graph(uint vertex_num, std::string& edges);
 
-		Graph(IntType vertex_num, std::vector< std::pair<int, int> >& edges);
+		Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges);
 
 //		~Graph();
 
-		IntType vertex_number();
-		bool is_an_edge(IntType v1, IntType v2);
-		IntType get_distance(IntType v1, IntType v2);
+		uint vertex_number();
+		bool is_an_edge(uint v1, uint v2);
+		uint get_distance(uint v1, uint v2);
 
 	protected:
-		IntType V;
-		MatrixType adjacency;
-		MatrixType distances;
+		uint V;
+		mat adjacency;
+		mat distances;
 };
 #endif

@@ -33,15 +33,15 @@ Shannon::Shannon(Channel& channel) {
 //}
 
 //-------------- declaring the theoric algoritmhs implementation
-DoubleType Shannon::vulnerability(Prob& pi) {
+double Shannon::vulnerability(Prob& pi) {
 	throw 1; //It is not supported
 }
 
-DoubleType Shannon::cond_vulnerability(Prob& pi) {
+double Shannon::cond_vulnerability(Prob& pi) {
 	throw 1; //It is not supported
 }
 
-DoubleType Shannon::entropy(Prob& pi) {
+double Shannon::entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -54,7 +54,7 @@ DoubleType Shannon::entropy(Prob& pi) {
 	//log2 p(x) = log p(x) / log (2)
 }
 
-DoubleType Shannon::cond_entropy(Prob& pi) {
+double Shannon::cond_entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -72,14 +72,14 @@ DoubleType Shannon::cond_entropy(Prob& pi) {
 	//log2 C[x,y] = log C[x,y] / log (2)
 }
 
-DoubleType Shannon::leakage(Prob& pi) {
+double Shannon::leakage(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return(entropy(pi) - cond_entropy(pi));
 }
 
-DoubleType Shannon::capacity() {
+double Shannon::capacity() {
 	//implements the Blahut-Arimoto Algorithm
 	return 0;
 }

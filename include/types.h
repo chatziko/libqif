@@ -24,18 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <string>
 #include <armadillo>
-//#include "Channel.h"
-//#include "Prob.h"
 
-//typedef Prob& ParamToQIFFunctions;
-//typedef Channel& ParamToQIFConstructors;
-typedef arma::mat MatrixType;
-typedef arma::vec VectorType;
-typedef std::string StringType;
-typedef double DoubleType;
-typedef int IntType;
-typedef uint UIntType;
+typedef uint32_t uint;
+
+typedef arma::mat mat;
+typedef arma::vec vec;
 
 #endif

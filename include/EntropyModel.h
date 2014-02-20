@@ -55,17 +55,17 @@ class EntropyModel {
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual DoubleType vulnerability(Prob& pi) = 0;
+		virtual double vulnerability(Prob& pi) = 0;
 
-		virtual DoubleType cond_vulnerability(Prob& pi) = 0;
+		virtual double cond_vulnerability(Prob& pi) = 0;
 
-		virtual DoubleType leakage(Prob& pi) = 0;
+		virtual double leakage(Prob& pi) = 0;
 
-		virtual DoubleType entropy(Prob& pi) = 0;
+		virtual double entropy(Prob& pi) = 0;
 
-		virtual DoubleType cond_entropy(Prob& pi) = 0;
+		virtual double cond_entropy(Prob& pi) = 0;
 
-		virtual DoubleType capacity() = 0;
+		virtual double capacity() = 0;
 
 		//----------------------------------------------------------
 		//plotter functions

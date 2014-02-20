@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class Prob {
 	public:
-		StringType str;
+		std::string str;
 		//! A normal constructor member taking 1 argument.
 		/*!
 		\param elements_number is an integer which represents the number of elements of the new vector.
@@ -54,9 +54,9 @@ class Prob {
 		\pre Probability distribution vector: the sum of all the elements must be 1.
 		\sa ~Probability_vector()
 		*/
-		Prob(StringType& new_vector_elements);
+		Prob(std::string& new_vector_elements);
 
-		Prob(VectorType& vector_elements);
+		Prob(vec& vector_elements);
 
 		//! normal destroyer member.
 		/*!
@@ -68,7 +68,7 @@ class Prob {
 		/*!
 		\return The test results
 		*/
-		IntType size();
+		uint size();
 
 		//! A function wich takes an index position and returns the choosen element.
 		/*!
@@ -77,10 +77,10 @@ class Prob {
 		\return The element at position index.
 		\sa size()
 		*/
-		DoubleType at(IntType index);
+		double at(uint index);
 
 	protected:
-		VectorType prob_vector;/*!< This is a vector defined in the Armadillo Library */
+		vec prob_vector;/*!< This is a vector defined in the Armadillo Library */
 
 		/*! \brief This method checks the invariant representation of the class.
 		 *

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
-Prob::Prob(StringType& new_vector) {
+Prob::Prob(std::string& new_vector) {
 	prob_vector = arma::vec(new_vector);
 	str = new_vector;
 	if(!this->rep_ok()) {
@@ -32,7 +32,7 @@ Prob::Prob(StringType& new_vector) {
 	}
 }
 
-Prob::Prob(VectorType& new_vector) {
+Prob::Prob(vec& new_vector) {
 	prob_vector = arma::vec(new_vector);
 	if(!this->rep_ok()) {
 		throw 1;
@@ -46,10 +46,10 @@ Prob::~Prob()
 }
 */
 
-int Prob::size() {
+uint Prob::size() {
 	return prob_vector.size();
 }
 
-DoubleType Prob::at(IntType index) {
+double Prob::at(uint index) {
 	return prob_vector.at(index); //OJO : VER SI ES NECESARIO CONTROLAR EL RANGO.
 }

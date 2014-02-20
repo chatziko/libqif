@@ -33,7 +33,7 @@ MinEntropy::MinEntropy(Channel& channel) {
 //}
 
 //-------------- declaring the theoric algoritmhs implementation
-DoubleType MinEntropy::vulnerability(Prob& pi) {
+double MinEntropy::vulnerability(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -47,7 +47,7 @@ DoubleType MinEntropy::vulnerability(Prob& pi) {
 	// max x pi(x)
 }
 
-DoubleType MinEntropy::cond_vulnerability(Prob& pi) {
+double MinEntropy::cond_vulnerability(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -69,28 +69,28 @@ DoubleType MinEntropy::cond_vulnerability(Prob& pi) {
 	//sum y max x pi(x) C[x,y]
 }
 
-DoubleType MinEntropy::leakage(Prob& pi) {
+double MinEntropy::leakage(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
-DoubleType MinEntropy::entropy(Prob& pi) {
+double MinEntropy::entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
-DoubleType MinEntropy::cond_entropy(Prob& pi) {
+double MinEntropy::cond_entropy(Prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(cond_vulnerability(pi));
 }
 
-DoubleType MinEntropy::capacity() {
+double MinEntropy::capacity() {
 	double sum_x;
 	double max_x;
 	double sum_y = 0;

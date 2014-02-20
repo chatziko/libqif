@@ -29,14 +29,48 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 class Mechanism : public Channel {
 	public:
-		Mechanism(StringType& new_channel_elements, Graph& new_graph);
+		using Channel::Channel;
+
+		Mechanism() {};
+		Mechanism(std::string& new_channel_elements, Graph& new_graph);
 
 //		~Mechanism();
 
-		bool is_differential_private(DoubleType epsilon);
+		bool is_differential_private(double epsilon);
 
 		//double smallest_epsilon_dp();
 	protected:
 		Graph* graph;
 };
+
+namespace arma {
+	template<>
+	struct is_Mat_only< Mechanism > :
+		is_Mat_only< Channel > {};
+
+	template<>
+	struct is_Mat_only< const Mechanism > :
+		is_Mat_only< const Channel > {};
+
+	template<>
+	struct is_Mat< Mechanism > :
+		is_Mat_only< Channel > {};
+
+	template<>
+	struct is_Mat< const Mechanism > :
+		is_Mat_only< const Channel > {};
+
+	template<>
+	struct Proxy< Mechanism > :
+		Proxy< Channel > {
+		using Proxy< Channel >::Proxy;
+	};
+
+	template<>
+	struct Proxy< const Mechanism > :
+		Proxy< const Channel > {
+		using Proxy< const Channel >::Proxy;
+	};
+}
+
 #endif

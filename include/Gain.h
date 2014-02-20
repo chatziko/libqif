@@ -54,7 +54,11 @@ class Gain :
 		\sa ~Channel() new_id_channel (int size)
 		*/
 
-		static Gain identity(UIntType size);
+		static Gain identity(uint size) {
+			Gain g;
+			g.eye(size, size);
+			return g;
+		}
 
 };
 #endif

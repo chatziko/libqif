@@ -50,14 +50,15 @@ TEST(Channel, NoCorrectElements) {
 }
 
 TEST(identity, Zero) {
-	Channel new_channel = Channel::identity(0);
+	Channel new_channel;
 	new_channel.identity(0);
 	EXPECT_EQ(0, new_channel.n_rows);
 	EXPECT_EQ(0, new_channel.n_cols);
 }
 
 TEST(identity, Positive) {
-	Channel new_channel = new_channel.identity(3);
+	Channel new_channel;
+	new_channel.identity(3);
 	EXPECT_EQ(3, new_channel.n_rows);
 	EXPECT_EQ(3, new_channel.n_cols);
 

@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <armadillo>
 #include <string>
+
 #include "types.h"
+#include "aux.h"
 
 /*! \class Channel
  *  \brief A channel matrix class.
@@ -58,13 +60,13 @@ class Channel :
 		\pre Probability distribution channel: the sum each outputs_number elements must be 1.
 		\sa ~Channel() new_id_channel (int size)
 		*/
-		Channel();
+		Channel() {};
 
-		Channel(StringType&);
+		Channel(std::string&);
 
-		Channel(MatrixType&);
+		Channel(mat&);
 
-		Channel(MatrixType&&);
+		Channel(mat&&);
 
 		//! A normal destroyer member.
 		/*!
@@ -78,7 +80,10 @@ class Channel :
 		\return A new identity channel.
 		\sa ~Channel()
 		*/
-		static Channel identity(UIntType size);
+		inline Channel& identity()       { if(!is_square()) throw 1; eye(); return *this; }
+		inline Channel& identity(uint n) { eye(n, n); return *this; }
+
+		Channel& randu();
 
 		//! Checks if the channel is symmetric.
 		/*!
@@ -87,37 +92,43 @@ class Channel :
 		*/
 		bool is_symmetric();
 
-	protected:
-		/*! \brief This method checks the invariant representation of the class.
-		 *
-		 *
-		 *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
-		 */
-		bool rep_ok() {
-			int x = this->n_rows;
-			int y = this->n_cols;
-			bool result = true; //flag used to control.
-			for(int row = 0; row < x; ++row) {
-				arma::rowvec current_vector = this->row(row);
-				arma::vec::iterator c = current_vector.begin();
-				arma::vec::iterator d = current_vector.end();
+		bool is_proper();
 
-				int j = 0; //index used to check if should change the row.
-				double sum = 0; //sumation used to check.
+		bool all(std::function<bool(double)>);
+		bool any(std::function<bool(double)>);
 
-				for(arma::vec::iterator i = c; i != d && result; i++) {
-					sum += (*i);
-					result = result && (*i) >= 0;   // all the elements are greater than or equal to 0.
-					j++;
-
-					if(j == y) {
-						result = result && sum == 1; //the sum of each row is 1.
-						j = 0;
-						sum = 0;
-					}
-				}
-			}
-			return result;
-		}
+		bool is_zero();
 };
+
+
+namespace arma {
+	template<>
+	struct is_Mat_only< Channel > :
+		is_Mat_only< mat > {};
+
+	template<>
+	struct is_Mat_only< const Channel > :
+		is_Mat_only< const mat > {};
+
+	template<>
+	struct is_Mat< Channel > :
+		is_Mat_only< mat > {};
+
+	template<>
+	struct is_Mat< const Channel > :
+		is_Mat_only< const mat > {};
+
+	template<>
+	struct Proxy< Channel > :
+		Proxy< mat > {
+		using Proxy< mat >::Proxy;
+	};
+
+	template<>
+	struct Proxy< const Channel > :
+		Proxy< const mat > {
+		using Proxy< const mat >::Proxy;
+	};
+}
+
 #endif

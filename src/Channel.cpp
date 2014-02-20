@@ -1,4 +1,3 @@
-#include "Channel.h"
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,36 +23,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
-using namespace arma;
+#include "Channel.h"
+#include "aux.h"
 
-Channel::Channel() {
-}
 
-Channel::Channel(StringType& s) :
+Channel::Channel(std::string& s) :
 	mat(s) {
 
-	if(!this->rep_ok())
+	if(!this->is_proper())
 		throw 1;
 }
 
-Channel::Channel(MatrixType& m) :
+Channel::Channel(mat& m) :
 	mat(m) {
 
-	if(!this->rep_ok())
+	if(!this->is_proper())
 		throw 1;
 }
 
-Channel::Channel(MatrixType&& m) :
+Channel::Channel(mat&& m) :
 	mat(m) {
 
-	if(!this->rep_ok())
+	if(!this->is_proper())
 		throw 1;
 }
 
-Channel Channel::identity(UIntType size) {
-	Channel c;
-	c.eye(size, size);
-	return c;
+Channel& Channel::randu() {
+	mat::randu();
+
+	//cout <<  arma::sum(*this, 1);
+	//each_col() /= sums;
+
+	return *this;
 }
 
 bool Channel::is_symmetric() {
@@ -65,5 +66,44 @@ bool Channel::is_symmetric() {
 			if(this->at(i, j) != this->at(j, i)) return false;
 
 	return true;
+}
+
+bool Channel::is_proper() {
+	for(uint i = 0; i < n_rows; i++) {
+		double sum = 0;
+		for(uint j = 0; j < n_cols; j++) {
+			// elements should be non-negative
+			double elem = at(i, j);
+			if(less_than(elem, 0))
+				return false;
+
+			sum += elem;
+		}
+
+		// rows should add up to 1
+		if(!equal(sum, 1))
+			return false;
+	}
+	return true;
+}
+
+bool Channel::all(std::function<bool(double)> f) {
+	for(double x : *this)
+		if(!f(x))
+			return false;
+	return true;
+}
+
+bool Channel::any(std::function<bool(double)> f) {
+	for(double x : *this)
+		if(f(x))
+			return true;
+	return false;
+}
+
+bool Channel::is_zero() {
+	return all([](double x){
+		return equal(x, 0);
+	});
 }
 

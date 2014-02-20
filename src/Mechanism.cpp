@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Mechanism::Mechanism(StringType& new_channel_elements, Graph& new_graph) :
+Mechanism::Mechanism(std::string& new_channel_elements, Graph& new_graph) :
 	Channel(new_channel_elements) {
 
 	graph = &new_graph;
@@ -34,7 +34,7 @@ Mechanism::Mechanism(StringType& new_channel_elements, Graph& new_graph) :
 //Its not implemented yet
 //}
 
-bool Mechanism::is_differential_private(DoubleType epsilon) {
+bool Mechanism::is_differential_private(double epsilon) {
 	/* Algorithm
 	for each (x, x') in edges(G):
 	    for each y in Y:

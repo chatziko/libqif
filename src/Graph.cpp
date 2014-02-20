@@ -24,13 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Graph::Graph(IntType vertex_num, StringType& edges) {
+Graph::Graph(uint vertex_num, std::string& edges) {
 	//traslate the string to a vector of integer 1pairs
 	std::vector < std::pair<int, int> > new_edges;
-	StringType copy = edges;
-	StringType current;
-	IntType pos, pairs = 0;
-	UIntType i = 0;
+	std::string copy = edges;
+	std::string current;
+	uint pos, pairs = 0;
+	uint i = 0;
 	while(i < copy.size()) {
 		pos = copy.find(";");
 		current = copy.substr(i, pos);
@@ -56,7 +56,7 @@ Graph::Graph(IntType vertex_num, StringType& edges) {
 	Graph(vertex_num, new_edges);
 }
 
-Graph::Graph(IntType vertex_num, std::vector< std::pair<int, int> >& edges) {
+Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	//std::cerr << "HOME is not defined." << std::endl;
 	if(vertex_num < 0) {
 		throw 1;
@@ -119,14 +119,14 @@ Graph::Graph(IntType vertex_num, std::vector< std::pair<int, int> >& edges) {
 //    distances.~mat();
 //}
 
-IntType Graph::vertex_number() {
+uint Graph::vertex_number() {
 	return V;
 }
 
-int Graph::get_distance(IntType v1, IntType v2) {
+uint Graph::get_distance(uint v1, uint v2) {
 	return distances(v1 - 1, v2 - 1);
 }
 
-bool Graph::is_an_edge(IntType v1, IntType v2) {
+bool Graph::is_an_edge(uint v1, uint v2) {
 	return adjacency(v1 - 1, v2 - 1) == 1;
 }

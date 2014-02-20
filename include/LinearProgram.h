@@ -33,12 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class LinearProgram {
 	public:
 
-		VectorType solve(StringType& equality, StringType& inequality, StringType& objective);
+		vec solve(std::string& equality, std::string& inequality, std::string& objective);
 
-		VectorType solve(MatrixType equality, MatrixType inequality, VectorType objective);
+		vec solve(mat equality, mat inequality, vec objective);
 
-		VectorType solve(StringType& equality, StringType& inequality, StringType& objective, StringType& rows_constraints);
+		vec solve(std::string& equality, std::string& inequality, std::string& objective, std::string& rows_constraints);
 
-		VectorType solve(MatrixType equality, MatrixType inequality, VectorType objective, MatrixType rows_constraints);
+		vec solve(mat equality, mat inequality, vec objective, mat rows_constraints);
 };
 #endif

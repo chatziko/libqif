@@ -25,22 +25,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-VectorType LinearProgram::solve(StringType& equality, StringType& inequality, StringType& objective) {
-	MatrixType eq = arma::mat(equality); // the matrix with the equalities
-	MatrixType ineq = arma::mat(inequality); // the matrix with the inequalities
-	VectorType obj = arma::vec(objective); //the objective function as a vector
+
+vec LinearProgram::solve(std::string& equality, std::string& inequality, std::string& objective) {
+	mat eq = arma::mat(equality); // the matrix with the equalities
+	mat ineq = arma::mat(inequality); // the matrix with the inequalities
+	vec obj = arma::vec(objective); //the objective function as a vector
 	return solve(eq, ineq, obj);
 }
 
-VectorType LinearProgram::solve(StringType& equality, StringType& inequality, StringType& objective, StringType& rows_constraints) {
-	MatrixType eq = arma::mat(equality); // the matrix with the equalities
-	MatrixType ineq = arma::mat(inequality); // the matrix with the inequalities
-	VectorType obj = arma::vec(objective); //the objective function as a vector
-	MatrixType constraints = arma::mat(rows_constraints); // the matrix with the lineal system constrains
+vec LinearProgram::solve(std::string& equality, std::string& inequality, std::string& objective, std::string& rows_constraints) {
+	mat eq = arma::mat(equality); // the matrix with the equalities
+	mat ineq = arma::mat(inequality); // the matrix with the inequalities
+	vec obj = arma::vec(objective); //the objective function as a vector
+	mat constraints = arma::mat(rows_constraints); // the matrix with the lineal system constrains
 	return solve(eq, ineq, obj, constraints);
 }
 
-VectorType LinearProgram::solve(MatrixType equality, MatrixType inequality, VectorType objective) {
+vec LinearProgram::solve(mat equality, mat inequality, vec objective) {
 	int n_variables = objective.size();
 	int n_constraints = equality.n_rows;
 
@@ -106,11 +107,11 @@ VectorType LinearProgram::solve(MatrixType equality, MatrixType inequality, Vect
 	glp_delete_prob(lp);
 
 	//Its not implemented yet
-	VectorType a;
+	vec a;
 	return a;
 }
 
-VectorType LinearProgram::solve(MatrixType equality, MatrixType inequality, VectorType objective, MatrixType rows_constraints) {
+vec LinearProgram::solve(mat equality, mat inequality, vec objective, mat rows_constraints) {
 	int n_variables = objective.size();
 	int n_constraints = equality.n_rows;
 
@@ -174,7 +175,7 @@ VectorType LinearProgram::solve(MatrixType equality, MatrixType inequality, Vect
 	glp_delete_prob(lp);
 
 	//Its not implemented yet
-	VectorType a;
+	vec a;
 	return a;
 }
 

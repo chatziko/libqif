@@ -23,11 +23,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "GLeakage.h"
+#include "Mechanism.h"
+
 #include <string>
+#include <armadillo>
+#include <boost/rational.hpp>
+
+using namespace std;
+using namespace arma;
+
+typedef boost::rational<int> rat;
+
+namespace arma {
+	template<typename eT>
+	struct is_supported_elem_type< boost::rational<eT> > {
+		static const bool value = true;
+	};
+}
 
 int main() {
 	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Channel C = Channel(channel_elements);
+	Channel C(3,3);
+	C.randu();
+
+	Mat<rat> v;
+	v.eye(3,1);
+
+	Mechanism mech;
+	mech.eye(3,3);
+
+	mat m;
+	m.eye(3,3);
+
+	Mat<rat> mr("1/2 1/3;1/4 3");
+	//rat r ("1/2");
+	//mr.eye(3,3);
+	//mr.each_col() += v;
+	cout << mr << "\n";
+
+	cout << "--" << all(mech > 1) << "--";
 
 	std::string gain_elements = "1 0 0; 0 1 0; 0 0 1";
 	Gain g = Gain(gain_elements);
