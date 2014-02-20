@@ -17,6 +17,8 @@ add_subdirectory(tests EXCLUDE_FROM_ALL)								# build tests
 
 add_subdirectory(samples EXCLUDE_FROM_ALL)								# build samples
 
-add_custom_target(everything)											# 'all' is just for library, 'everything' depends on everything
-add_dependencies(everything all tests samples)
+add_subdirectory(doxygen EXCLUDE_FROM_ALL)								# build doc
+
+add_custom_target(allcode)												# 'all' builds just the library, 'allcode' builds also tests and samples
+add_dependencies(allcode all tests samples)
 
