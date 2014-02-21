@@ -23,30 +23,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "Channel.h"
+#include "tests_aux.h"
 #include "gtest/gtest.h"
 #include <string>
 
 using namespace std;
 
-TEST(chan, CorrectSizeAndElements) {
-	string new_channel_elements = "1 0 0;0 1 0";
-	chan new_channel = chan(new_channel_elements);
-	EXPECT_EQ(2, new_channel.n_rows);
-	EXPECT_EQ(3, new_channel.n_cols);
-	for(uint i = 0; i < new_channel.n_rows; ++i) {
-		for(uint j = 0; j < new_channel.n_cols; ++j) {
-			if(i == j) {
-				EXPECT_EQ(1, new_channel.at(i, j));
-			} else {
-				EXPECT_EQ(0, new_channel.at(i, j));
-			}
-		}
-	}
-}
+TEST(chan, constructors) {
+	const char* s = "1 0 0; 0 1 0";
+	mat  m(s);
+	chan c(s);
 
-TEST(chan, NoCorrectElements) {
-	string new_channel_elements = "1 2;3 0.5";
-	ASSERT_ANY_THROW(chan new_channel = chan(new_channel_elements););
+	expect_channel( "", chan()               ); // empty
+	expect_channel( s,  chan(s)              ); // char*
+	expect_channel( s,  chan(std::string(s)) ); // std::string
+	expect_channel( s,  chan(m)              ); // mat
+	expect_channel( s,  chan(c)              ); // copy
+	expect_channel( s,  chan(chan(s))        ); // move (Note: most likely the compiler is removing the move call completely, see http://en.cppreference.com/w/cpp/language/copy_elision)
+	expect_channel( s,  chan(mat(s))         ); // mat, move semantics
+
+	// malformed channel
+	// Note: "cout <<" is to avoid the compiler removing the code as unused!
+	//
+	const char* s2 = "1 2;3 0.5";
+	mat m2(s2);
+
+	EXPECT_ANY_THROW( cout << chan(s2);              ); // char*
+	EXPECT_ANY_THROW( cout << chan(std::string(s2)); ); // std::string
+	EXPECT_ANY_THROW( cout << chan(m2);              ); // mat
+	EXPECT_ANY_THROW( cout << chan(mat(s2));         ); // mat, move semantics
 }
 
 TEST(identity, Zero) {

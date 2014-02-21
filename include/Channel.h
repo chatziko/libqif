@@ -61,19 +61,28 @@ class Channel :
 		\pre Probability distribution channel: the sum each outputs_number elements must be 1.
 		\sa ~Channel() new_id_channel (int size)
 		*/
-		Channel() {};
+		inline Channel() {}
 
-		Channel(std::string&);
+		inline Channel(const char*        s) : Mat<eT>(s) { force_proper(); }
+		inline Channel(const std::string& s) : Mat<eT>(s) { force_proper(); }
 
-		Channel(Mat<eT>&);
+		inline Channel(const Channel<eT>& c) : Mat<eT>(c) {}
+		inline Channel(Channel<eT>&&      c) : Mat<eT>(c) {}
 
-		Channel(Mat<eT>&&);
+		inline Channel(const Mat<eT>&     m) : Mat<eT>(m) { force_proper(); }
+		inline Channel(Mat<eT>&&          m) : Mat<eT>(m) { force_proper(); }
+
+		inline const Channel& operator=(const Channel&  c) { Mat<eT>::operator=(c); return *this; }
+		inline const Channel& operator=(const Channel&& c) { Mat<eT>::operator=(c); return *this; }
+
+		inline const Channel& operator=(const Mat<eT>&  c) { Mat<eT>::operator=(c); force_proper(); return *this; }
+		inline const Channel& operator=(const Mat<eT>&& c) { Mat<eT>::operator=(c); force_proper(); return *this; }
 
 		//! A normal destroyer member.
 		/*!
 		\sa Channel()
 		*/
-		//~Channel();
+		//~Channel() { std::cout << "destroy\n"; }
 
 		//! Generates a new identity channel with the size specified in the argument.
 		/*!
@@ -81,24 +90,31 @@ class Channel :
 		\return A new identity channel.
 		\sa ~Channel()
 		*/
-		inline Channel<eT>& identity()       { if(!this->is_square()) throw 1; this->eye(); return *this; }
-		inline Channel<eT>& identity(uint n) { this->eye(n, n); return *this; }
+		// Note: inherited methods must be called as this->method since no declaration is available
+		//
+		inline const Channel<eT>& identity()			{ if(!this->is_square()) throw 1; this->eye(); return *this; }
+		inline const Channel<eT>& identity(uint n)		{ this->eye(n, n); return *this; }
 
-		Channel<eT>& randu();
+		inline const Channel<eT>& randu()				{ Mat<eT>::randu();     normalize(); return *this; }
+		inline const Channel<eT>& randu(uint s)			{ Mat<eT>::randu(s);    normalize(); return *this; }
+		inline const Channel<eT>& randu(uint r, uint c)	{ Mat<eT>::randu(r, c); normalize(); return *this; }
+
+		inline const Channel<eT>& normalize()			{ this->each_col() /= sum(*this, 1); return *this; }
 
 		//! Checks if the channel is symmetric.
 		/*!
 		\return Return True iff the channel matrix is symmetric.
 		\sa is_partial_simmetric()
 		*/
-		bool is_symmetric();
+		bool is_symmetric() const;
 
-		bool is_proper();
+		bool is_proper() const;
+		inline void force_proper() const { if(!is_proper()) throw 1; }
 
-		bool all(std::function<bool(double)>);
-		bool any(std::function<bool(double)>);
+		bool all(std::function<bool(double)>) const;
+		bool any(std::function<bool(double)>) const;
 
-		bool is_zero();
+		bool is_zero() const;
 };
 
 

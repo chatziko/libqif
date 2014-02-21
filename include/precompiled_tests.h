@@ -1,5 +1,5 @@
-#ifndef _QIF_Types_h_
-#define _QIF_Types_h_
+#ifndef _QIF_precompiled_tests_h_
+#define _QIF_precompiled_tests_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,17 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <armadillo>
-#include <boost/rational.hpp>
 
-template<typename eT> class Channel;		// forward
+// for tests, include all precompiled headers, plus gtest/gtest.h
 
-using arma::Mat;
-using arma::mat;
-using arma::vec;
-
-typedef Channel<double> chan;
-
-typedef uint32_t uint;
+#include "precompiled.h"
+#include "gtest/gtest.h"
 
 #endif

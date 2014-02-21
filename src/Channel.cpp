@@ -28,41 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 template<typename eT>
-Channel<eT>::Channel(std::string& s) :
-	Mat<eT>(s) {
-
-	if(!this->is_proper())
-		throw 1;
-}
-
-template<typename eT>
-Channel<eT>::Channel(Mat<eT>& m) :
-	Mat<eT>(m) {
-
-	if(!this->is_proper())
-		throw 1;
-}
-
-template<typename eT>
-Channel<eT>::Channel(Mat<eT>&& m) :
-	Mat<eT>(m) {
-
-	if(!this->is_proper())
-		throw 1;
-}
-
-template<typename eT>
-Channel<eT>& Channel<eT>::randu() {
-	Mat<eT>::randu();
-
-	//cout <<  arma::sum(*this, 1);
-	//each_col() /= sums;
-
-	return *this;
-}
-
-template<typename eT>
-bool Channel<eT>::is_symmetric() {
+bool Channel<eT>::is_symmetric() const {
 	if(this->n_cols != this->n_rows) return false;
 
 	uint i, j;
@@ -74,7 +40,7 @@ bool Channel<eT>::is_symmetric() {
 }
 
 template<typename eT>
-bool Channel<eT>::is_proper() {
+bool Channel<eT>::is_proper() const {
 	for(uint i = 0; i < this->n_rows; i++) {
 		double sum = 0;
 		for(uint j = 0; j < this->n_cols; j++) {
@@ -94,7 +60,7 @@ bool Channel<eT>::is_proper() {
 }
 
 template<typename eT>
-bool Channel<eT>::all(std::function<bool(double)> f) {
+bool Channel<eT>::all(std::function<bool(double)> f) const {
 	for(double x : *this)
 		if(!f(x))
 			return false;
@@ -102,7 +68,7 @@ bool Channel<eT>::all(std::function<bool(double)> f) {
 }
 
 template<typename eT>
-bool Channel<eT>::any(std::function<bool(double)> f) {
+bool Channel<eT>::any(std::function<bool(double)> f) const {
 	for(double x : *this)
 		if(f(x))
 			return true;
@@ -110,7 +76,7 @@ bool Channel<eT>::any(std::function<bool(double)> f) {
 }
 
 template<typename eT>
-bool Channel<eT>::is_zero() {
+bool Channel<eT>::is_zero() const {
 	return all([](double x){
 		return equal(x, 0);
 	});
