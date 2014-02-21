@@ -111,14 +111,20 @@ class Channel :
 		bool is_proper() const;
 		inline void force_proper() const { if(!is_proper()) throw 1; }
 
-		bool all(std::function<bool(double)>) const;
-		bool any(std::function<bool(double)>) const;
+		bool all(std::function<bool(const eT&)>) const;
+		bool any(std::function<bool(const eT&)>) const;
 
 		bool is_zero() const;
 };
 
 
 namespace arma {
+	// make armadillo support boost::rational<eT> as element type
+	template<typename eT>
+	struct is_supported_elem_type< boost::rational<eT> > {
+		static const bool value = true;
+	};
+
 	template<typename eT>
 	struct is_Mat_only< Channel<eT> > :
 		is_Mat_only< Mat<eT> > {};

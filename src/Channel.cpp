@@ -42,34 +42,34 @@ bool Channel<eT>::is_symmetric() const {
 template<typename eT>
 bool Channel<eT>::is_proper() const {
 	for(uint i = 0; i < this->n_rows; i++) {
-		double sum = 0;
+		eT sum = 0;
 		for(uint j = 0; j < this->n_cols; j++) {
 			// elements should be non-negative
-			double elem = this->at(i, j);
-			if(less_than(elem, 0))
+			const eT& elem = this->at(i, j);
+			if(less_than(elem, eT(0)))
 				return false;
 
 			sum += elem;
 		}
 
 		// rows should add up to 1
-		if(!equal(sum, 1))
+		if(!equal(sum, eT(1)))
 			return false;
 	}
 	return true;
 }
 
 template<typename eT>
-bool Channel<eT>::all(std::function<bool(double)> f) const {
-	for(double x : *this)
+bool Channel<eT>::all(std::function<bool(const eT&)> f) const {
+	for(const eT& x : *this)
 		if(!f(x))
 			return false;
 	return true;
 }
 
 template<typename eT>
-bool Channel<eT>::any(std::function<bool(double)> f) const {
-	for(double x : *this)
+bool Channel<eT>::any(std::function<bool(const eT&)> f) const {
+	for(const eT& x : *this)
 		if(f(x))
 			return true;
 	return false;
@@ -77,8 +77,8 @@ bool Channel<eT>::any(std::function<bool(double)> f) const {
 
 template<typename eT>
 bool Channel<eT>::is_zero() const {
-	return all([](double x){
-		return equal(x, 0);
+	return all([](const eT& x){
+		return equal(x, eT(0));
 	});
 }
 
@@ -86,4 +86,6 @@ bool Channel<eT>::is_zero() const {
 // TODO: the other solution is to put everything in the .h file, maybe it's // better
 //
 template class Channel<double>;
+template class Channel<float>;
+template class Channel<rat>;
 

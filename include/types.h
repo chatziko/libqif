@@ -32,9 +32,17 @@ template<typename eT> class Channel;		// forward
 using arma::Mat;
 using arma::mat;
 using arma::vec;
-
-typedef Channel<double> chan;
+using boost::rational;
 
 typedef uint32_t uint;
+
+typedef rational<uint> rat;
+
+typedef Mat<rat> rmat;
+
+typedef Channel<double>  chan;
+typedef Channel<float>  fchan;
+typedef Channel<rat>    rchan;
+
 
 #endif

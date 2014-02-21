@@ -31,7 +31,7 @@ using namespace std;
 
 TEST(chan, constructors) {
 	const char* s = "1 0 0; 0 1 0";
-	mat  m(s);
+	mat m(s);
 	chan c(s);
 
 	expect_channel( "", chan()               ); // empty
@@ -45,13 +45,38 @@ TEST(chan, constructors) {
 	// malformed channel
 	// Note: "cout <<" is to avoid the compiler removing the code as unused!
 	//
-	const char* s2 = "1 2;3 0.5";
+	const char* s2 = "1 2; 3 0.5";
 	mat m2(s2);
 
 	EXPECT_ANY_THROW( cout << chan(s2);              ); // char*
 	EXPECT_ANY_THROW( cout << chan(std::string(s2)); ); // std::string
 	EXPECT_ANY_THROW( cout << chan(m2);              ); // mat
 	EXPECT_ANY_THROW( cout << chan(mat(s2));         ); // mat, move semantics
+}
+
+TEST(rchan, constructors) {
+	const char* s = "1/1 0/1 0/1; 0/1 1/1 0/1";
+	rmat m(s);
+	rchan c(s);
+
+	expect_channel( "", rchan()               ); // empty
+	expect_channel( s,  rchan(s)              ); // char*
+	expect_channel( s,  rchan(std::string(s)) ); // std::string
+	expect_channel( s,  rchan(m)              ); // rmat
+	expect_channel( s,  rchan(c)              ); // copy
+	expect_channel( s,  rchan(rchan(s))       ); // move (Note: most likely the compiler is removing the move call completely, see http://en.cppreference.com/w/cpp/language/copy_elision)
+	expect_channel( s,  rchan(rmat(s))        ); // rmat, move semantics
+
+	// malformed rchannel
+	// Note: "cout <<" is to avoid the compiler removing the code as unused!
+	//
+	const char* s2 = "1/1 2/1; 3/1 1/2";
+	rmat m2(s2);
+
+	EXPECT_ANY_THROW( cout << rchan(s2);              ); // char*
+	EXPECT_ANY_THROW( cout << rchan(std::string(s2)); ); // std::string
+	EXPECT_ANY_THROW( cout << rchan(m2);              ); // mat
+	EXPECT_ANY_THROW( cout << rchan(rmat(s2));        ); // mat, move semantics
 }
 
 TEST(identity, Zero) {
