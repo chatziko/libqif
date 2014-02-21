@@ -56,9 +56,9 @@ double GLeakage::vulnerability(Prob& pi) {
 	//the names w x and y are from the formulas.
 	double sum_x;
 	double max_w = 0;
-	for(int w = 0; w < g->n_rows; ++w) {
+	for(uint w = 0; w < g->n_rows; ++w) {
 		sum_x = 0;
-		for(int x = 0; x < g->n_cols; ++x) {
+		for(uint x = 0; x < g->n_cols; ++x) {
 			sum_x += pi.at(x) * g->at(w, x);
 		}
 		if(sum_x > max_w) {
@@ -77,11 +77,11 @@ double GLeakage::cond_vulnerability(Prob& pi) {
 	double max_w;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->n_cols; ++y) {
+	for(uint y = 0; y < C->n_cols; ++y) {
 		max_w = 0;
-		for(int w = 0; w < g->n_rows; ++w) {
+		for(uint w = 0; w < g->n_rows; ++w) {
 			sum_x = 0;
-			for(int x = 0; x < g->n_cols; ++x) {
+			for(uint x = 0; x < g->n_cols; ++x) {
 				sum_x += pi.at(x) * g->at(w, x) * C->at(x, y);
 			}
 			if(sum_x > max_w) {

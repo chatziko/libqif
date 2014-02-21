@@ -41,7 +41,7 @@ double Shannon::entropy(Prob& pi) {
 		throw 1; // X must be equal for both
 	}
 	double sum_x = 0;
-	for(int x = 0; x < C->n_rows; x++) {
+	for(uint x = 0; x < C->n_rows; x++) {
 		sum_x += pi.at(x) * (log(pi.at(x)) / log(2));
 	}
 	return -sum_x;
@@ -55,9 +55,9 @@ double Shannon::cond_entropy(Prob& pi) {
 	}
 	double sum_y;
 	double sum_x = 0;
-	for(int x = 0; x < C->n_rows; x++) {
+	for(uint x = 0; x < C->n_rows; x++) {
 		sum_y = 0;
-		for(int y = 0; y < C->n_cols; y++) {
+		for(uint y = 0; y < C->n_cols; y++) {
 			sum_y += C->at(x, y) * (log(C->at(x, y)) / log(2));
 		}
 		sum_x += pi.at(x) * sum_y;

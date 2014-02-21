@@ -33,8 +33,8 @@ TEST(chan, CorrectSizeAndElements) {
 	chan new_channel = chan(new_channel_elements);
 	EXPECT_EQ(2, new_channel.n_rows);
 	EXPECT_EQ(3, new_channel.n_cols);
-	for(int i = 0; i < new_channel.n_rows; ++i) {
-		for(int j = 0; j < new_channel.n_cols; ++j) {
+	for(uint i = 0; i < new_channel.n_rows; ++i) {
+		for(uint j = 0; j < new_channel.n_cols; ++j) {
 			if(i == j) {
 				EXPECT_EQ(1, new_channel.at(i, j));
 			} else {
@@ -62,8 +62,8 @@ TEST(identity, Positive) {
 	EXPECT_EQ(3, new_channel.n_rows);
 	EXPECT_EQ(3, new_channel.n_cols);
 
-	for(int i = 0; i < new_channel.n_rows; ++i)
-		for(int j = 0; j < new_channel.n_cols; ++j)
+	for(uint i = 0; i < new_channel.n_rows; ++i)
+		for(uint j = 0; j < new_channel.n_cols; ++j)
 			EXPECT_EQ(i == j ? 1 : 0, new_channel.at(i, j));
 }
 

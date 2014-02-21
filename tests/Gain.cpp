@@ -33,8 +33,8 @@ TEST(Gain, CorrectSizeAndElements) {
 	Gain new_gain = Gain(new_gain_elements);
 	EXPECT_EQ(3, new_gain.n_cols);
 	EXPECT_EQ(2, new_gain.n_rows);
-	for(int i = 0; i < new_gain.n_cols; ++i) {
-		for(int j = 0; j < new_gain.n_rows; ++j) {
+	for(uint i = 0; i < new_gain.n_cols; ++i) {
+		for(uint j = 0; j < new_gain.n_rows; ++j) {
 			if(i == j) {
 				EXPECT_EQ(1, new_gain.at(i, j));
 			} else {
@@ -60,8 +60,8 @@ TEST(G_new_id_function, Positive) {
 	EXPECT_EQ(3, new_gain.n_cols);
 	EXPECT_EQ(3, new_gain.n_rows);
 
-	for(int i = 0; i < new_gain.n_cols; ++i)
-		for(int j = 0; j < new_gain.n_rows; ++j)
+	for(uint i = 0; i < new_gain.n_cols; ++i)
+		for(uint j = 0; j < new_gain.n_rows; ++j)
 			EXPECT_EQ(i == j ? 1 : 0, new_gain.at(i, j));
 }
 

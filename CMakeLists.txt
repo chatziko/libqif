@@ -4,7 +4,7 @@ project(libqif)
 
 include(PrecompiledHeader.cmake)										# for add_precompiled_header
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -Wall)
 
 include_directories(include)
 

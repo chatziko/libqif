@@ -34,11 +34,11 @@ TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 	MinEntropy minEntropy = MinEntropy(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
-	ASSERT_ANY_THROW(double r = minEntropy.vulnerability(prior););
-	ASSERT_ANY_THROW(double r = minEntropy.cond_vulnerability(prior););
-	ASSERT_ANY_THROW(double r = minEntropy.entropy(prior););
-	ASSERT_ANY_THROW(double r = minEntropy.cond_entropy(prior););
-	ASSERT_ANY_THROW(double r = minEntropy.leakage(prior););
+	ASSERT_ANY_THROW(minEntropy.vulnerability(prior););
+	ASSERT_ANY_THROW(minEntropy.cond_vulnerability(prior););
+	ASSERT_ANY_THROW(minEntropy.entropy(prior););
+	ASSERT_ANY_THROW(minEntropy.cond_entropy(prior););
+	ASSERT_ANY_THROW(minEntropy.leakage(prior););
 }
 
 /* Untested functions:

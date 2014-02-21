@@ -43,8 +43,8 @@ bool Mechanism::is_differential_private(double epsilon) {
 	return true
 	*/
 //for each (x, x') in edges(G):
-	for(int x = 0; x < graph->vertex_number(); ++x) {
-		for(int x2 = 0; x2 < graph->vertex_number(); ++x2) {
+	for(uint x = 0; x < graph->vertex_number(); ++x) {
+		for(uint x2 = 0; x2 < graph->vertex_number(); ++x2) {
 			if(graph->is_an_edge(x, x2)) {
 				//for each y in Y:
 				for(uint y = 0; y < this->n_cols; ++y) {

@@ -34,7 +34,7 @@ TEST(S_vulnerability, not_supported) {
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
-	ASSERT_ANY_THROW(double r = shannon.vulnerability(prior));
+	ASSERT_ANY_THROW(shannon.vulnerability(prior));
 }
 
 TEST(S_cond_vulnerability, not_supported) {
@@ -43,7 +43,7 @@ TEST(S_cond_vulnerability, not_supported) {
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	Prob prior = Prob(new_prior_elements);
-	ASSERT_ANY_THROW(double r = shannon.cond_vulnerability(prior););
+	ASSERT_ANY_THROW(shannon.cond_vulnerability(prior););
 }
 
 TEST(Shannon_QIF_functions, incorrect_X_size) {
@@ -52,9 +52,9 @@ TEST(Shannon_QIF_functions, incorrect_X_size) {
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
-	ASSERT_ANY_THROW(double r = shannon.entropy(prior););
-	ASSERT_ANY_THROW(double r = shannon.cond_entropy(prior););
-	ASSERT_ANY_THROW(double r = shannon.leakage(prior););
+	ASSERT_ANY_THROW(shannon.entropy(prior););
+	ASSERT_ANY_THROW(shannon.cond_entropy(prior););
+	ASSERT_ANY_THROW(shannon.leakage(prior););
 }
 
 /* Untested functions:

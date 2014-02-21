@@ -44,11 +44,11 @@ TEST(GLeakage_QIF_functions, incorrect_X_size) {
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
 	string new_prior_elements = "0.33 0.33 0.34";
 	Prob prior = Prob(new_prior_elements);
-	ASSERT_ANY_THROW(double r = gleakage.vulnerability(prior););
-	ASSERT_ANY_THROW(double r = gleakage.cond_vulnerability(prior););
-	ASSERT_ANY_THROW(double r = gleakage.entropy(prior););
-	ASSERT_ANY_THROW(double r = gleakage.cond_entropy(prior););
-	ASSERT_ANY_THROW(double r = gleakage.leakage(prior););
+	ASSERT_ANY_THROW(gleakage.vulnerability(prior););
+	ASSERT_ANY_THROW(gleakage.cond_vulnerability(prior););
+	ASSERT_ANY_THROW(gleakage.entropy(prior););
+	ASSERT_ANY_THROW(gleakage.cond_entropy(prior););
+	ASSERT_ANY_THROW(gleakage.leakage(prior););
 }
 
 TEST(GLeakage_plotter_functions, plot_without_selected_engine) {

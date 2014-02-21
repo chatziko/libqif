@@ -51,7 +51,7 @@ double Guessing::leakage(Prob& pi) {
 //internal function to implement entropy and conditional entropy
 double G(Prob& pi) {
 	double sum = 0;
-	for(int x = 0; x < pi.size(); ++x) {
+	for(uint x = 0; x < pi.size(); ++x) {
 		sum += x * pi.at(x);
 	}
 	return sum;
@@ -75,10 +75,10 @@ double Guessing::cond_entropy(Prob& pi) {
 	}
 	double result = 0;
 	//for all y
-	for(int y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C->n_cols; y++) {
 		//create the vector vy = pi(1)* C[1,y] ... pi(x)* C[x,y]
 		vec new_vector = arma::vec(C->n_rows);
-		for(int x = 0; x < C->n_rows; x++) {
+		for(uint x = 0; x < C->n_rows; x++) {
 			new_vector[x] = pi.at(x) * C->at(x, y);
 		}
 		//Sort vy

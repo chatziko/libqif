@@ -39,5 +39,5 @@ int main() {
 	Mechanism mechanism = Mechanism(channel_elements, graph);
 
 	//this example asks with epsilon=0.05
-	bool result = mechanism.is_differential_private(0.05);
+	mechanism.is_differential_private(0.05);
 }

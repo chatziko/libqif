@@ -38,7 +38,7 @@ double MinEntropy::vulnerability(Prob& pi) {
 		throw 1; // X must be equal for both
 	}
 	double max_x = 0;
-	for(int x = 0; x < C->n_rows; x++) {
+	for(uint x = 0; x < C->n_rows; x++) {
 		if(pi.at(x) > max_x) {
 			max_x = pi.at(x);
 		}
@@ -55,9 +55,9 @@ double MinEntropy::cond_vulnerability(Prob& pi) {
 	double max_x;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C->n_cols; y++) {
 		max_x = 0;
-		for(int x = 0; x < C->n_rows; x++) {
+		for(uint x = 0; x < C->n_rows; x++) {
 			sum_x = pi.at(x) * C->at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;
@@ -95,9 +95,9 @@ double MinEntropy::capacity() {
 	double max_x;
 	double sum_y = 0;
 
-	for(int y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C->n_cols; y++) {
 		max_x = 0;
-		for(int x = 0; x < C->n_rows; x++) {
+		for(uint x = 0; x < C->n_rows; x++) {
 			sum_x = C->at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;

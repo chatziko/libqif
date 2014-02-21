@@ -73,8 +73,8 @@ Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	}*/
 	//std::cerr << "HOME is not defined." << std::endl;
 	for(uint i = 0; i < edges.size(); i++) {
-		int v1 = edges[i].first;
-		int v2 = edges[i].second;
+		uint v1 = edges[i].first;
+		uint v2 = edges[i].second;
 		if(v1 < 1 || v1 > V || v2 < 1 || v2 > V) throw 1;
 
 		adjacency(v1 - 1, v2 - 1) = 1;
@@ -85,8 +85,8 @@ Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	// Just use Floyd-Warshall
 
 	// Initialization (we use V+1 as infinity)
-	for(int i = 0; i < V; i++) {
-		for(int j = 0; j < V; j++) {
+	for(uint i = 0; i < V; i++) {
+		for(uint j = 0; j < V; j++) {
 			if(i == j) distances(i, j) = 0;
 			else if(adjacency(i, j) == 1) distances(i, j) = 1;
 			else distances(i, j) = V + 1;
@@ -94,9 +94,9 @@ Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	}
 
 	// Main algorithm
-	for(int k = 0; k < V; k++) {
-		for(int i = 0; i < V; i++) {
-			for(int j = 0; j < V; j++) {
+	for(uint k = 0; k < V; k++) {
+		for(uint i = 0; i < V; i++) {
+			for(uint j = 0; j < V; j++) {
 				if(distances(i, j) > distances(i, k) + distances(k, j)) {
 					distances(i, j) = distances(i, k) + distances(k, j);
 				}
@@ -105,8 +105,8 @@ Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	}
 
 	// We set the infinity values to -1
-	for(int i = 0; i < V; i++) {
-		for(int j = 0; j < V; j++) {
+	for(uint i = 0; i < V; i++) {
+		for(uint j = 0; j < V; j++) {
 			if(distances(i, j) > V) distances(i, j) = -1;
 		}
 	}
