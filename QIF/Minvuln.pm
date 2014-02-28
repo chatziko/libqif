@@ -26,13 +26,13 @@ sub compute {
 	my ($self) = @_;
 
 	for my $G (@{$self->Gs}) {
-		my $res = $self->_compare_g($G);
+		my $res = $self->_minimize_vuln($G);
 		return $res, $G if $res;
 	}
 	return undef;
 }
 
-sub _compare_g {
+sub _minimize_vuln {
 	my ($self, $G) = @_;
 
 	my $M1 = $self->c1->matrix;
@@ -64,7 +64,7 @@ sub _compare_g {
 #                if (defined $z){ print "[found : " . $z . " with prior " . $x . "]\n\n"; }
 		defined $z && !_less_than_or_eq($z, $max)		or next;
 
-		print "[found a min: " . $z . " with prior " . $x . "]\n\n";
+#		print "[found a min: " . $z . " with prior " . $x . "]\n\n";
 		$max = $z;
 		$bestprior = $x;
 
@@ -79,6 +79,72 @@ sub _compare_g {
 
 	return $bestprior;
 }
+
+
+# Same as above but returns all the results, so that we can check if
+# there are more than one minimum and if the corresponding priors
+# provides better prior vulnerability. 
+# This method should just be called by OCaml.
+
+sub compute_all {
+	my ($self) = @_;
+
+	for my $G (@{$self->Gs}) {
+		my (@priors, @vulns) = $self->_minimize_vuln_all($G);
+		return @priors, @vulns
+	}
+	return undef;
+}
+
+sub _minimize_vuln_all {
+	my ($self, $G) = @_;
+
+	my $M1 = $self->c1->matrix;
+#	my $M2 = $self->c2->matrix;
+
+	my $Y1 = $M1->cols;
+#	my $Y2 = $M2->cols;
+	my $K = $G->cols; # |W| in the paper
+
+	# we generate all possible combinations of "best guesses" for each column
+	# for each combination we generate the corresponding linear program, if it's feasible and the optimal is negative
+	# then C1 has greater vulnerability for that solution
+	#
+	my $combs = _create_comb($K, $Y1);
+	my $n = 0;
+
+	my @vulns;		# record the biggest vulnerability difference seen so far, and the prior that causes it.
+	my @priors;
+
+	for my $comb (@$combs) {
+		$n++;
+
+		my $k_per_y1 = $comb;
+
+		my $program = $self->_build_program($G, $k_per_y1);
+		my ($z, $x) = $program->solve;
+                
+		# continue in case of no solution or a non-record solution
+#                if (defined $z){ print "[found : " . $z . " with prior " . $x . "]\n\n"; }
+#		defined $z && !_less_than_or_eq($z, $max)		or next;
+		defined $z 		or next;
+#		print "[found a min: " . $z . " with prior " . $x . "]\n\n";
+		push (@vulns, $z);
+		push (@priors, $x);
+
+		# precaution check: test that the answer is the same as the vulnerability difference
+		my $v1 = $self->c1->g_vulnerability($x, $G);
+		_equal($v1, -$z) 		or die "$z is not the same as the leakage difference (".($v1).")";
+
+		#last;		# commented this out so that we try *all* combinations
+	}
+	$self->solved($n);
+
+	return (\@priors,\@vulns);
+}
+
+
+
 
 sub add_function {
 	my ($self, $G) = @_;
@@ -180,6 +246,7 @@ sub _build_program {
 
 	# objective function
 	#   V(C1) - V(C2) = sum_x p_x ( sum_y1 M1_x,y1 G_x,kb - sum_y2 M2_x,y2 G_x,kb )
+	#   V(C1) = sum_x p_x ( sum_y1 M1_x,y1 G_x,kb)
 	# if positive the C1 has greater leakage
 	#
 	my @coeff;
@@ -191,7 +258,7 @@ sub _build_program {
 		push @coeff, $c;
 	}
 	push @coeff, 0;		# constant coeff 0
-        @coeff = map {-$_} @coeff; # changing sing we _minimize_ the objective function
+        @coeff = map {-$_} @coeff; # changing sign we _minimize_ the objective function
 	push @$obj, \@coeff;
 
 	# add one more inequality asking that the objective function is positive
