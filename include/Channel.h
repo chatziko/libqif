@@ -127,6 +127,18 @@ namespace arma {
 	};
 
 	template<typename eT>
+	struct is_Mat< Channel<eT> > :
+		is_Mat_only< Mat<eT> > {};
+
+	template<typename eT>
+	struct Proxy< Channel<eT> > :
+		Proxy< Mat<eT> > {
+		using Proxy< Mat<eT> >::Proxy;
+	};
+
+	/* NOT SURE IF THE STUFF BELOW IS NEEDED
+
+	template<typename eT>
 	struct is_Mat_only< Channel<eT> > :
 		is_Mat_only< Mat<eT> > {};
 
@@ -135,24 +147,15 @@ namespace arma {
 		is_Mat_only< const Mat<eT> > {};
 
 	template<typename eT>
-	struct is_Mat< Channel<eT> > :
-		is_Mat_only< Mat<eT> > {};
-
-	template<typename eT>
 	struct is_Mat< const Channel<eT> > :
 		is_Mat_only< const Mat<eT> > {};
-
-	template<typename eT>
-	struct Proxy< Channel<eT> > :
-		Proxy< Mat<eT> > {
-		using Proxy< Mat<eT> >::Proxy;
-	};
 
 	template<typename eT>
 	struct Proxy< const Channel<eT> > :
 		Proxy< const Mat<eT> > {
 		using Proxy< const Mat<eT> >::Proxy;
 	};
+	*/
 }
 
 #endif
