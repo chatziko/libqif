@@ -33,8 +33,8 @@ TEST(Mechanism, CorrectSizeAndElements) {
 	string graph_elements = "1 2;1 3;2 3";
 	Graph graph = Graph(3, graph_elements);
 	Mechanism m = Mechanism(new_channel_elements, graph);
-	EXPECT_EQ(2, m.n_rows);
-	EXPECT_EQ(3, m.n_cols);
+	EXPECT_EQ(2u, m.n_rows);
+	EXPECT_EQ(3u, m.n_cols);
 }
 
 TEST(Mechanism, NoCorrectElements) {

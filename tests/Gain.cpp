@@ -31,8 +31,8 @@ using namespace std;
 TEST(Gain, CorrectSizeAndElements) {
 	string new_gain_elements = "1 0 0; 0 1 0";
 	Gain new_gain = Gain(new_gain_elements);
-	EXPECT_EQ(3, new_gain.n_cols);
-	EXPECT_EQ(2, new_gain.n_rows);
+	EXPECT_EQ(3u, new_gain.n_cols);
+	EXPECT_EQ(2u, new_gain.n_rows);
 	for(uint i = 0; i < new_gain.n_cols; ++i) {
 		for(uint j = 0; j < new_gain.n_rows; ++j) {
 			if(i == j) {
@@ -51,14 +51,14 @@ TEST(Gain, NoCorrectElements) {
 
 TEST(G_new_id_function, Zero) {
 	Gain new_gain = Gain::identity(0);
-	EXPECT_EQ(0, new_gain.n_cols);
-	EXPECT_EQ(0, new_gain.n_rows);
+	EXPECT_EQ(0u, new_gain.n_cols);
+	EXPECT_EQ(0u, new_gain.n_rows);
 }
 
 TEST(G_new_id_function, Positive) {
 	Gain new_gain = Gain::identity(3);
-	EXPECT_EQ(3, new_gain.n_cols);
-	EXPECT_EQ(3, new_gain.n_rows);
+	EXPECT_EQ(3u, new_gain.n_cols);
+	EXPECT_EQ(3u, new_gain.n_rows);
 
 	for(uint i = 0; i < new_gain.n_cols; ++i)
 		for(uint j = 0; j < new_gain.n_rows; ++j)

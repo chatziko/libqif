@@ -82,15 +82,15 @@ TEST(rchan, constructors) {
 TEST(identity, Zero) {
 	chan new_channel;
 	new_channel.identity(0);
-	EXPECT_EQ(0, new_channel.n_rows);
-	EXPECT_EQ(0, new_channel.n_cols);
+	EXPECT_EQ(0u, new_channel.n_rows);
+	EXPECT_EQ(0u, new_channel.n_cols);
 }
 
 TEST(identity, Positive) {
 	chan new_channel;
 	new_channel.identity(3);
-	EXPECT_EQ(3, new_channel.n_rows);
-	EXPECT_EQ(3, new_channel.n_cols);
+	EXPECT_EQ(3u, new_channel.n_rows);
+	EXPECT_EQ(3u, new_channel.n_cols);
 
 	for(uint i = 0; i < new_channel.n_rows; ++i)
 		for(uint j = 0; j < new_channel.n_cols; ++j)

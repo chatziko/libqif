@@ -36,7 +36,7 @@ TEST(Prob, NoCorrectElements) {
 TEST(Prob, CorrectElements) {
 	string new_vector_elements = "0.2 0.5 0.3";
 	Prob new_vector = Prob(new_vector_elements);
-	EXPECT_EQ(3, new_vector.size());
+	EXPECT_EQ(3u, new_vector.size());
 }
 
 /* Untested functions:
