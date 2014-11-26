@@ -87,5 +87,8 @@ bool Channel<eT>::is_zero() const {
 //
 template class Channel<double>;
 template class Channel<float>;
+
+#include "Rational.h"
+template class rational<uintmax_t>;
 template class Channel<rat>;
 

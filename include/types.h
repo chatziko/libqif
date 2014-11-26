@@ -25,18 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include <armadillo>
-#include <boost/rational.hpp>
 
 template<typename eT> class Channel;		// forward
+template<typename IntType> class rational;	// forward
+
+template<typename IntType> using Rational = rational<IntType>;
 
 using arma::Mat;
 using arma::mat;
 using arma::vec;
-using boost::rational;
 
 typedef uint32_t uint;
 
-typedef rational<uint> rat;
+typedef Rational<uintmax_t> rat;
 
 typedef Mat<rat> rmat;
 

@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 
 #include "types.h"
+#include "Rational.h"
 #include "aux.h"
 
 /*! \class Channel
@@ -35,6 +36,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  A channel must satisfy that the sum each row is 1 and each element is greater than or equal to 0.
  */
+
+// randomizer class
+// The goal is to have a different implementation of Channel<eT>::randu depending on
+// the type of eT. However, template instantiation works for classes, not
+// functions, we would need to instantiate the whole Channel class.
+// By having Channel<eT>::randu call randomizer<eT>::randu, we can instiate only
+// the randomizer class.
+//
+template<typename eT>
+struct randomizer {
+	inline static void randu(Channel<eT> &c) {
+		c.Mat<eT>::randu();
+		c.normalize();
+	};
+};
+
+template<typename IntType>
+struct randomizer< Rational<IntType> > {
+	inline static void randu(Channel<Rational<IntType>>& c) {
+		// randu for rationals
+		// Problem: how to select uniformly a rational
+		// We could generate a double and convert to rational, however
+		// having too many rationals with different denominators is problematic,
+		// summing them creates an overflow and is_proper returns false.
+		// So we simply take a common denominator (4096) and generate nominator
+		// uniformly in [0,den]
+		//
+		const int den = 4096;
+		Mat<int> m(1, 1);
+
+		for(auto& e : c) {
+			m = arma::randi<Mat<int>>(1, 1, arma::distr_param(0, den));		// use whatever random number generator armadillo is using
+			e.assign(m.at(0,0), den);
+		}
+		c.normalize();
+	};
+};
 
 template<typename eT>
 class Channel :
@@ -96,9 +134,9 @@ class Channel :
 		inline const Channel<eT>& identity()			{ if(!this->is_square()) throw 1; this->eye(); return *this; }
 		inline const Channel<eT>& identity(uint n)		{ this->eye(n, n); return *this; }
 
-		inline const Channel<eT>& randu()				{ Mat<eT>::randu();     normalize(); return *this; }
-		inline const Channel<eT>& randu(uint s)			{ Mat<eT>::randu(s);    normalize(); return *this; }
-		inline const Channel<eT>& randu(uint r, uint c)	{ Mat<eT>::randu(r, c); normalize(); return *this; }
+		inline const Channel<eT>& randu()				{ randomizer<eT>::randu(*this); return *this; }
+		inline const Channel<eT>& randu(uint s)			{ this->set_size(s, s); return this->randu(); }
+		inline const Channel<eT>& randu(uint r, uint c)	{ this->set_size(r, c); return this->randu(); }
 
 		inline const Channel<eT>& normalize()			{ this->each_col() /= sum(*this, 1); return *this; }
 
@@ -120,12 +158,6 @@ class Channel :
 
 
 namespace arma {
-	// make armadillo support boost::rational<eT> as element type
-	template<typename eT>
-	struct is_supported_elem_type< boost::rational<eT> > {
-		static const bool value = true;
-	};
-
 	template<typename eT>
 	struct is_Mat< Channel<eT> > :
 		is_Mat_only< Mat<eT> > {};

@@ -97,6 +97,49 @@ TEST(identity, Positive) {
 			EXPECT_EQ(i == j ? 1 : 0, new_channel.at(i, j));
 }
 
+TEST(chan, randu) {
+	chan new_channel(10, 10);
+	new_channel.randu();
+
+	EXPECT_EQ(10u, new_channel.n_rows);
+	EXPECT_EQ(10u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+
+	new_channel.randu(5);
+
+	EXPECT_EQ(5u, new_channel.n_rows);
+	EXPECT_EQ(5u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+
+	new_channel.randu(4, 6);
+
+	EXPECT_EQ(4u, new_channel.n_rows);
+	EXPECT_EQ(6u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+}
+
+TEST(rchan, randu) {
+	rchan new_channel(200, 200);
+	new_channel.randu();
+
+	EXPECT_EQ(200u, new_channel.n_rows);
+	EXPECT_EQ(200u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+
+	new_channel.randu(5);
+
+	EXPECT_EQ(5u, new_channel.n_rows);
+	EXPECT_EQ(5u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+
+	new_channel.randu(4, 6);
+
+	EXPECT_EQ(4u, new_channel.n_rows);
+	EXPECT_EQ(6u, new_channel.n_cols);
+	EXPECT_EQ(true, new_channel.is_proper());
+}
+
+
 /* Untested functions:
 chan (std::string& new_channel_elements);
 ~chan();
