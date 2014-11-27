@@ -58,13 +58,18 @@ class Prob :
 		inline const Prob& operator=(const Row<eT>&  c) { Row<eT>::operator=(c); force_proper(); return *this; }
 		inline const Prob& operator=(const Row<eT>&& c) { Row<eT>::operator=(c); force_proper(); return *this; }
 
-		inline const Prob<eT>& uniform() {
+		inline const Prob<eT>& uniform()		{ this->fill(eT(1)/eT(this->n_cols)); return *this; }
+		inline const Prob<eT>& uniform(uint s)	{ this->set_size(s); return this->uniform(); }
+
+		inline const Prob<eT>& dirac(uint i)	{ this->zeros(); this->at(i) = eT(1); return *this; }
+
+		inline const Prob<eT>& randu() {
 			Channel<eT> c(1, this->n_cols);
 			c.randu();
 			this->row(0) = c.row(0);
 			return *this;
 		}
-		inline const Prob<eT>& uniform(uint s)		{ this->set_size(s); return this->uniform(); }
+		inline const Prob<eT>& randu(uint s)	{ this->set_size(s); return this->randu(); }
 
 		bool is_proper() const;
 		inline void force_proper() const { if(!is_proper()) throw 1; }

@@ -200,10 +200,13 @@ public:
 	inline                  rational(double f) { rational_from_double(f, *this, IntType(default_md)); }
 	inline const rational& operator=(double f) { rational_from_double(f, *this, IntType(default_md)); return *this; }
 
-	// allow to use numeric constants, eg rational<...>(1) without ambiguity
-	// (convert constant 1 to int, not to double)
+	// explicit conversion from native int types, eg rational<...>(1), rational<...>(i)
+	// without ambiguity with double (convert i to IntType, not to double)
+	// TODO: this will actually fail if IntType = int or unsigned int cause we already have a constructor like this
+	//       Maybe there's a SFINAE solution
 	//
-	inline rational(int i) : num(IntType(i)), den(1) {}
+	inline rational(int				i) : num(IntType(i)), den(1) {}
+	inline rational(unsigned int	i) : num(IntType(i)), den(1) {}
 
 	// Some operators are not directly defined by boost::rational, but are inherited from superclasses
 	// (boost::addable etc). We add them here.

@@ -23,22 +23,99 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "Prob.h"
+#include "tests_aux.h"
 #include "gtest/gtest.h"
 #include <string>
+#include <type_traits>
 
 using namespace std;
 
-TEST(Prob, NoCorrectElements) {
-	string new_vector_elements = "1 2 0.5";
-	ASSERT_ANY_THROW(prob new_vector = prob(new_vector_elements););
+
+// define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
+template <typename T>
+class ProbTest : public ::testing::Test {};
+
+TYPED_TEST_CASE_P(ProbTest);
+
+
+TYPED_TEST_P(ProbTest, constructors) {
+	typedef TypeParam eT;
+
+	const char* s = std::is_same<eT, rat>::value
+		? "1/2 1/4 1/4"
+		: "0.5 0.25 0.25";
+	Row<eT> m(s);
+	Prob<eT> p(s);
+
+	expect_prob( s,  Prob<eT>(s)              ); // char*
+	expect_prob( s,  Prob<eT>(std::string(s)) ); // std::string
+	expect_prob( s,  Prob<eT>(m)              ); // Row
+	expect_prob( s,  Prob<eT>(p)              ); // copy
+	expect_prob( s,  Prob<eT>(Prob<eT>(s))    ); // move (Note: most likely the compiler is removing the move call completely, see http://en.cppreference.com/w/cpp/language/copy_elision)
+	expect_prob( s,  Prob<eT>(Row<eT>(s))     ); // Row, move semantics
+
+	// malformed prob
+	// Note: "cout <<" is to avoid the compiler removing the code as unused!
+	//
+	const char* s2 = std::is_same<eT, rat>::value
+		? "1/2 1/3 1/8"
+		: "0.1 0.1 0.3";
+	Row<eT> m2(s2);
+
+	EXPECT_ANY_THROW( cout << Prob<eT>(s2);              ); // char*
+	EXPECT_ANY_THROW( cout << Prob<eT>(std::string(s2)); ); // std::string
+	EXPECT_ANY_THROW( cout << Prob<eT>(m2);              ); // Row
+	EXPECT_ANY_THROW( cout << Prob<eT>(Row<eT>(s2));     ); // Row, move semantics
 }
 
-TEST(Prob, CorrectElements) {
-	string new_vector_elements = "0.2 0.5 0.3";
-	prob new_vector = prob(new_vector_elements);
-	EXPECT_EQ(3u, new_vector.size());
+TYPED_TEST_P(ProbTest, uniform) {
+	typedef TypeParam eT;
+
+	Prob<eT> p;
+	p.uniform(1);
+	expect_prob(1, p);
+
+	p.uniform(4);
+	const char* s = std::is_same<eT, rat>::value
+		? "1/4 1/4 1/4 1/4"
+		: "0.25 0.25 0.25 0.25";
+	expect_prob(s, p);
 }
 
-/* Untested functions:
-~Prob ();
-*/
+TYPED_TEST_P(ProbTest, randu) {
+	typedef TypeParam eT;
+
+	Prob<eT> p(200);
+	p.randu();
+	expect_prob(200, p);
+
+	p.randu(5);
+	expect_prob(5, p);
+}
+
+TYPED_TEST_P(ProbTest, dirac) {
+	typedef TypeParam eT;
+
+	Prob<eT> p(4);
+	p.dirac(0);
+	const char* s = std::is_same<eT, rat>::value
+		? "1/1 0/1 0/1 0/1"
+		: "1 0 0 0";
+	expect_prob(s, p);
+
+	p.dirac(2);
+	s = std::is_same<eT, rat>::value
+		? "0/1 0/1 1/1 0/1"
+		: "0 0 1 0";
+	expect_prob(s, p);
+}
+
+
+
+// run the ProbTest test-case for double, float, rat
+//
+REGISTER_TYPED_TEST_CASE_P(ProbTest, constructors, uniform, randu, dirac);
+
+typedef ::testing::Types<double, float, rat> ProbTypes;
+INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, ProbTypes);
+
