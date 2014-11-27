@@ -37,15 +37,15 @@ class MinEntropy : public EntropyModel {
 
 //		~MinEntropy();
 
-		double vulnerability(Prob& pi);
+		double vulnerability(prob& pi);
 
-		double cond_vulnerability(Prob& pi);
+		double cond_vulnerability(prob& pi);
 
-		double leakage(Prob& pi);
+		double leakage(prob& pi);
 
-		double entropy(Prob& pi);
+		double entropy(prob& pi);
 
-		double cond_entropy(Prob& pi);
+		double cond_entropy(prob& pi);
 
 		double capacity();
 

@@ -33,7 +33,7 @@ MinEntropy::MinEntropy(chan& channel) {
 //}
 
 //-------------- declaring the theoric algoritmhs implementation
-double MinEntropy::vulnerability(Prob& pi) {
+double MinEntropy::vulnerability(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -47,7 +47,7 @@ double MinEntropy::vulnerability(Prob& pi) {
 	// max x pi(x)
 }
 
-double MinEntropy::cond_vulnerability(Prob& pi) {
+double MinEntropy::cond_vulnerability(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -69,21 +69,21 @@ double MinEntropy::cond_vulnerability(Prob& pi) {
 	//sum y max x pi(x) C[x,y]
 }
 
-double MinEntropy::leakage(Prob& pi) {
+double MinEntropy::leakage(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
-double MinEntropy::entropy(Prob& pi) {
+double MinEntropy::entropy(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
-double MinEntropy::cond_entropy(Prob& pi) {
+double MinEntropy::cond_entropy(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}

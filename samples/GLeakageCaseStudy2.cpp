@@ -41,10 +41,10 @@ int main() {
 	std::string vector3_elements = "0.5 0.5 0";
 	std::string vector4_elements = "0.25 0.5 0.25";
 
-	Prob p1 = Prob(vector1_elements);
-	Prob p2 = Prob(vector2_elements);
-	Prob p3 = Prob(vector3_elements);
-	Prob p4 = Prob(vector4_elements);
+	prob p1 = prob(vector1_elements);
+	prob p2 = prob(vector2_elements);
+	prob p3 = prob(vector3_elements);
+	prob p4 = prob(vector4_elements);
 
 	//GLeakage
 	GLeakage gl = GLeakage(C, g);

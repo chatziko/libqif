@@ -24,81 +24,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
+
 #include "types.h"
+#include "Channel.h"
+
 /*! \class Prob
  *  \brief A probability distribution vector class.
  *
  * This class satisfies that the sum of all the elements is equal to 1 and each element is greater than or equal to 0.
  */
-class Prob {
+template<typename eT>
+class Prob :
+	public Row<eT> {
+
 	public:
-		std::string str;
-		//! A normal constructor member taking 1 argument.
-		/*!
-		\param elements_number is an integer which represents the number of elements of the new vector.
-		\param new_vector is a pointer to a doubles array which the elements of the new probability vector.
-		\pre Correct size: the elements_number argument must coincide with the length of the array new_vector_elements.
-		\pre Correct elements: each element of new_vector_elements must be a number between 0 and 1.
-		\pre Probability distribution vector: the sum of all the elements must be 1.
-		\sa ~Probability_vector()
-		*/
-		//Prob (double* new_vector_elements );
+		// inherit the constructors from parent (C++11 feature)
+		using Row<eT>::Row;
 
-		//! A normal constructor member taking 1 argument.
-		/*!
-		\param elements_number is an integer which represents the number of elements of the new vector.
-		\param new_vector is a pointer to a doubles array which the elements of the new probability vector.
-		\pre Correct size: the elements_number argument must coincide with the length of the array new_vector_elements.
-		\pre Correct elements: each element of new_vector_elements must be a number between 0 and 1.
-		\pre Probability distribution vector: the sum of all the elements must be 1.
-		\sa ~Probability_vector()
-		*/
-		Prob(std::string& new_vector_elements);
+		inline Prob() {}
 
-		Prob(vec& vector_elements);
+		inline Prob(const char*        s) : Row<eT>(s) { force_proper(); }
+		inline Prob(const std::string& s) : Row<eT>(s) { force_proper(); }
 
-		//! normal destroyer member.
-		/*!
-		\sa Probability_vector()
-		*/
-		//~Prob ();
+		inline Prob(const Prob<eT>& c) : Row<eT>(c) {}
+		inline Prob(Prob<eT>&&      c) : Row<eT>(c) {}
 
-		//! A function which returns the length of the vector.
-		/*!
-		\return The test results
-		*/
-		uint size();
+		inline Prob(const Row<eT>&     m) : Row<eT>(m) { force_proper(); }
+		inline Prob(Row<eT>&&          m) : Row<eT>(m) { force_proper(); }
 
-		//! A function wich takes an index position and returns the choosen element.
-		/*!
-		\param inputs an integer argument which corresponds to the choosen position.
-		\pre The index argument must be a number between 0 and size()-1.
-		\return The element at position index.
-		\sa size()
-		*/
-		double at(uint index);
+		inline const Prob& operator=(const Prob&  c) { Row<eT>::operator=(c); return *this; }
+		inline const Prob& operator=(const Prob&& c) { Row<eT>::operator=(c); return *this; }
 
-	protected:
-		vec prob_vector;/*!< This is a vector defined in the Armadillo Library */
+		inline const Prob& operator=(const Row<eT>&  c) { Row<eT>::operator=(c); force_proper(); return *this; }
+		inline const Prob& operator=(const Row<eT>&& c) { Row<eT>::operator=(c); force_proper(); return *this; }
 
-		/*! \brief This method checks the invariant representation of the class.
-		 *
-		 *
-		 *  A probability vector must satisfy that the sum of all elements is 1 and each element is greater than or equal to 0.
-		 */
-		bool rep_ok() {
-			arma::vec::iterator c = prob_vector.begin();
-			arma::vec::iterator d = prob_vector.end();
-
-			double sum = 0; //sumation used to check.
-			bool result = true; //flag used to control.
-
-			for(arma::vec::iterator i = c; i != d && result; ++i) {
-				sum += (*i);
-				result = result && (*i) >= 0;   // all the elements are greater than or equal to 0.
-			}
-			result = result && sum == 1; //the sum of each row is 1.
-			return result;
+		inline const Prob<eT>& uniform() {
+			Channel<eT> c(1, this->n_cols);
+			c.randu();
+			this->row(0) = c.row(0);
+			return *this;
 		}
+		inline const Prob<eT>& uniform(uint s)		{ this->set_size(s); return this->uniform(); }
+
+		bool is_proper() const;
+		inline void force_proper() const { if(!is_proper()) throw 1; }
 };
 #endif

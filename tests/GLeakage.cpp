@@ -43,7 +43,7 @@ TEST(GLeakage_QIF_functions, incorrect_X_size) {
 	Gain new_gain = Gain(new_gain_elements);
 	GLeakage gleakage = GLeakage(new_channel, new_gain);
 	string new_prior_elements = "0.33 0.33 0.34";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(gleakage.vulnerability(prior););
 	ASSERT_ANY_THROW(gleakage.cond_vulnerability(prior););
 	ASSERT_ANY_THROW(gleakage.entropy(prior););
@@ -112,12 +112,12 @@ TEST(G_capacity, not_supported) {
 }
 
 /* Untested functions:
-double vulnerability(Prob pi);
-double cond_vulnerability(Prob pi);
-double leakage(Prob pi);
-double entropy(Prob pi);
-double cond_entropy(Prob pi);
+double vulnerability(prob pi);
+double cond_vulnerability(prob pi);
+double leakage(prob pi);
+double entropy(prob pi);
+double cond_entropy(prob pi);
 double capacity();
 void * compare_over_prior(chan other_channel);
-void * compare_over_gain(chan other_channel,Prob prior);
+void * compare_over_gain(chan other_channel,prob prior);
 */

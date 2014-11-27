@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <armadillo>
 
 template<typename eT> class Channel;		// forward
+template<typename eT> class Prob;			// forward
 template<typename IntType> class rational;	// forward
 
 template<typename IntType> using Rational = rational<IntType>;
@@ -34,6 +35,7 @@ template<typename IntType> using Rational = rational<IntType>;
 using arma::Mat;
 using arma::mat;
 using arma::vec;
+using arma::Row;
 
 typedef uint32_t uint;
 
@@ -44,6 +46,10 @@ typedef Mat<rat> rmat;
 typedef Channel<double>  chan;
 typedef Channel<float>  fchan;
 typedef Channel<rat>    rchan;
+
+typedef Prob<double>  prob;
+typedef Prob<float>  fprob;
+typedef Prob<rat>    rprob;
 
 
 #endif

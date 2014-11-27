@@ -33,7 +33,7 @@ TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 	chan new_channel = chan(new_channel_elements);
 	MinEntropy minEntropy = MinEntropy(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(minEntropy.vulnerability(prior););
 	ASSERT_ANY_THROW(minEntropy.cond_vulnerability(prior););
 	ASSERT_ANY_THROW(minEntropy.entropy(prior););
@@ -44,10 +44,10 @@ TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 /* Untested functions:
 MinEntropy(chan c);
 ~MinEntropy();
-double vulnerability(Prob pi);
-double cond_vulnerability(Prob pi);
-double leakage(Prob pi);
-double entropy(Prob pi);
-double cond_entropy(Prob pi);
+double vulnerability(prob pi);
+double cond_vulnerability(prob pi);
+double leakage(prob pi);
+double entropy(prob pi);
+double cond_entropy(prob pi);
 double capacity();
 */

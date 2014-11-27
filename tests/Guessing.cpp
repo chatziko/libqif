@@ -33,7 +33,7 @@ TEST(Gu_vulnerability, not_supported) {
 	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.vulnerability(prior););
 }
 
@@ -42,7 +42,7 @@ TEST(Gu_cond_vulnerability, not_supported) {
 	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.cond_vulnerability(prior););
 }
 
@@ -51,7 +51,7 @@ TEST(Guessing_QIF_functions, incorrect_X_size) {
 	chan new_channel = chan(new_channel_elements);
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.entropy(prior););
 	ASSERT_ANY_THROW(guessing.cond_entropy(prior););
 	ASSERT_ANY_THROW(guessing.leakage(prior););
@@ -60,10 +60,10 @@ TEST(Guessing_QIF_functions, incorrect_X_size) {
 /* Untested functions:
 Guessing(chan c);
 ~Guessing();
-double vulnerability(Prob pi);
-double cond_vulnerability(Prob pi);
-double leakage(Prob pi);
-double entropy(Prob pi);
-double cond_entropy(Prob pi);
+double vulnerability(prob pi);
+double cond_vulnerability(prob pi);
+double leakage(prob pi);
+double entropy(prob pi);
+double cond_entropy(prob pi);
 double capacity();
 */

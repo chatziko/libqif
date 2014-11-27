@@ -30,12 +30,12 @@ using namespace std;
 
 TEST(Prob, NoCorrectElements) {
 	string new_vector_elements = "1 2 0.5";
-	ASSERT_ANY_THROW(Prob new_vector = Prob(new_vector_elements););
+	ASSERT_ANY_THROW(prob new_vector = prob(new_vector_elements););
 }
 
 TEST(Prob, CorrectElements) {
 	string new_vector_elements = "0.2 0.5 0.3";
-	Prob new_vector = Prob(new_vector_elements);
+	prob new_vector = prob(new_vector_elements);
 	EXPECT_EQ(3u, new_vector.size());
 }
 

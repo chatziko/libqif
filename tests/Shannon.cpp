@@ -33,7 +33,7 @@ TEST(S_vulnerability, not_supported) {
 	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(shannon.vulnerability(prior));
 }
 
@@ -42,7 +42,7 @@ TEST(S_cond_vulnerability, not_supported) {
 	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.5 0.5";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(shannon.cond_vulnerability(prior););
 }
 
@@ -51,7 +51,7 @@ TEST(Shannon_QIF_functions, incorrect_X_size) {
 	chan new_channel = chan(new_channel_elements);
 	Shannon shannon = Shannon(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
-	Prob prior = Prob(new_prior_elements);
+	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(shannon.entropy(prior););
 	ASSERT_ANY_THROW(shannon.cond_entropy(prior););
 	ASSERT_ANY_THROW(shannon.leakage(prior););
@@ -60,8 +60,8 @@ TEST(Shannon_QIF_functions, incorrect_X_size) {
 /* Untested functions:
 Shannon(chan c);
 ~Shannon();
-double leakage(Prob pi);
-double entropy(Prob pi);
-double cond_entropy(Prob pi);
+double leakage(prob pi);
+double entropy(prob pi);
+double cond_entropy(prob pi);
 double capacity();
 */

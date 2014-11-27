@@ -1,4 +1,3 @@
-#include "Prob.h"
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,32 +23,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
-Prob::Prob(std::string& new_vector) {
-	prob_vector = arma::vec(new_vector);
-	str = new_vector;
-	if(!this->rep_ok()) {
-		throw 1;
+#include "Prob.h"
+#include "aux.h"
+
+template<typename eT>
+bool Prob<eT>::is_proper() const {
+	eT sum = 0;
+	for(uint j = 0; j < this->n_cols; j++) {
+		// elements should be non-negative
+		const eT& elem = this->at(j);
+		if(less_than(elem, eT(0)))
+			return false;
+
+		sum += elem;
 	}
+
+	// sum should be 1
+	if(!equal(sum, eT(1)))
+		return false;
+
+	return true;
 }
 
-Prob::Prob(vec& new_vector) {
-	prob_vector = arma::vec(new_vector);
-	if(!this->rep_ok()) {
-		throw 1;
-	}
-}
 
-/*
-Prob::~Prob()
-{
-	prob_vector.~vec();
-}
-*/
+// This will actually compile an instantiation of the class.
+// TODO: the other solution is to put everything in the .h file, maybe it's // better
+//
+template class Prob<double>;
+template class Prob<float>;
+template class Prob<rat>;
 
-uint Prob::size() {
-	return prob_vector.size();
-}
-
-double Prob::at(uint index) {
-	return prob_vector.at(index); //OJO : VER SI ES NECESARIO CONTROLAR EL RANGO.
-}

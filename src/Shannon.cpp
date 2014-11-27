@@ -28,15 +28,15 @@ Shannon::Shannon(chan& channel) {
 }
 
 //-------------- declaring the theoric algoritmhs implementation
-double Shannon::vulnerability(Prob& pi) {
+double Shannon::vulnerability(prob& pi) {
 	throw 1; //It is not supported
 }
 
-double Shannon::cond_vulnerability(Prob& pi) {
+double Shannon::cond_vulnerability(prob& pi) {
 	throw 1; //It is not supported
 }
 
-double Shannon::entropy(Prob& pi) {
+double Shannon::entropy(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -49,7 +49,7 @@ double Shannon::entropy(Prob& pi) {
 	//log2 p(x) = log p(x) / log (2)
 }
 
-double Shannon::cond_entropy(Prob& pi) {
+double Shannon::cond_entropy(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
@@ -67,7 +67,7 @@ double Shannon::cond_entropy(Prob& pi) {
 	//log2 C[x,y] = log C[x,y] / log (2)
 }
 
-double Shannon::leakage(Prob& pi) {
+double Shannon::leakage(prob& pi) {
 	if(C->n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}

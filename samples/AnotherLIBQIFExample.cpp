@@ -43,7 +43,7 @@ int main() {
 
 	//Creating the probability distribution
 	std::string vector_elements = "0.3333 0.3333 0.3334";
-	Prob p1 = Prob(vector_elements);
+	prob p1 = prob(vector_elements);
 
 	std::cout << "Calculating the GLeakage" << std::endl;
 	//Calculating the GLeakage
