@@ -134,6 +134,8 @@ class Channel :
 		inline const Channel<eT>& identity()			{ if(!this->is_square()) throw 1; this->eye(); return *this; }
 		inline const Channel<eT>& identity(uint n)		{ this->eye(n, n); return *this; }
 
+		inline const Channel<eT>& no_interference()		{ this->zeros(); this->col(0).fill(eT(1)); return *this; }
+
 		inline const Channel<eT>& randu()				{ randomizer<eT>::randu(*this); return *this; }
 		inline const Channel<eT>& randu(uint s)			{ this->set_size(s, s); return this->randu(); }
 		inline const Channel<eT>& randu(uint r, uint c)	{ this->set_size(r, c); return this->randu(); }

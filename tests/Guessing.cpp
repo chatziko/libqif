@@ -52,7 +52,6 @@ TEST(Guessing_QIF_functions, incorrect_X_size) {
 	Guessing guessing = Guessing(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(guessing.entropy(prior););
 	ASSERT_ANY_THROW(guessing.cond_entropy(prior););
 	ASSERT_ANY_THROW(guessing.leakage(prior););
 }

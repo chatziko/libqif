@@ -24,44 +24,91 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "gtest/gtest.h"
 #include "Shannon.h"
-#include <string>
 
 using namespace std;
 
-TEST(S_vulnerability, not_supported) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	Shannon shannon = Shannon(new_channel);
-	string new_prior_elements = "0.5 0.5";
-	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(shannon.vulnerability(prior));
+TEST(Shannon, vulnerability) {
+	prob pi("0.5 0.5");
+	Shannon shan(chan("1 0; 0 1"));
+
+	ASSERT_ANY_THROW( shan.vulnerability(pi); );
+	ASSERT_ANY_THROW( shan.cond_vulnerability(pi); );
 }
 
-TEST(S_cond_vulnerability, not_supported) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	Shannon shannon = Shannon(new_channel);
-	string new_prior_elements = "0.5 0.5";
-	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(shannon.cond_vulnerability(prior););
+TEST(Shannon, entropy) {
+	prob pi;
+	Shannon shan;
+
+	pi = uniform<prob>(2);
+	EXPECT_EQ(1, shan.entropy(pi));
+
+	pi = uniform<prob>(10);
+	EXPECT_FLOAT_EQ(log2(10), shan.entropy(pi));
+
+	pi = prob("1 0 0 0");
+	EXPECT_EQ(0, shan.entropy(pi));
+
+	pi = prob("0.2 0.8");
+	EXPECT_FLOAT_EQ(0.721928094887362, shan.entropy(pi));
 }
 
-TEST(Shannon_QIF_functions, incorrect_X_size) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	Shannon shannon = Shannon(new_channel);
-	string new_prior_elements = "0.33 0.33 0.34";
-	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(shannon.entropy(prior););
-	ASSERT_ANY_THROW(shannon.cond_entropy(prior););
-	ASSERT_ANY_THROW(shannon.leakage(prior););
+TEST(Shannon, cond_entropy) {
+	Shannon shan;
+
+	shan.C.identity(2);
+	EXPECT_EQ(0, shan.cond_entropy(uniform<prob>(2)));
+	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(2)));
+	EXPECT_EQ(0, shan.cond_entropy(prob("0.2 0.8")));
+
+	shan.C.identity(10);
+	EXPECT_EQ(0, shan.cond_entropy(uniform<prob>(10)));
+	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(10)));
+	EXPECT_EQ(0, shan.cond_entropy(prob("0.2 0.8 0 0 0 0 0 0 0 0")));
+
+	shan.C.no_interference();
+	EXPECT_FLOAT_EQ(log2(10), shan.cond_entropy(uniform<prob>(10)));
+	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(10)));
+
+	prob pi = randu<prob>(10);
+	EXPECT_FLOAT_EQ(shan.entropy(pi), shan.cond_entropy(pi));
+
+	shan.C = chan("0.8 0.2; 0.3 0.7");
+	pi = "0.25 0.75";
+	EXPECT_FLOAT_EQ(0.669020059980807, shan.cond_entropy(pi));
+
+	shan.C.identity(10);
+	ASSERT_ANY_THROW(shan.cond_entropy(uniform<prob>(2)););
 }
 
-/* Untested functions:
-Shannon(chan c);
-~Shannon();
-double leakage(prob pi);
-double entropy(prob pi);
-double cond_entropy(prob pi);
-double capacity();
-*/
+TEST(Shannon, capacity) {
+	Shannon shan;
+
+	shan.C.identity(2);
+	EXPECT_EQ(1, shan.capacity());
+
+	shan.C.identity(10);
+	EXPECT_FLOAT_EQ(log2(10), shan.capacity());
+
+	shan.C.no_interference();
+	EXPECT_EQ(0, shan.capacity());
+
+	shan.C = chan("0.8 0.2; 0.3 0.7");
+	EXPECT_FLOAT_EQ(0.19123721482206, shan.capacity());
+
+	// symmetric
+	shan.C = chan(
+		".3 .2 .5;"
+		".5 .3 .2;"
+		".2 .5 .3;"
+	);
+	double cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
+	EXPECT_FLOAT_EQ(cap, shan.capacity());
+
+	// weakly symmetric
+	shan.C = chan(
+		"0.333333333 0.166666667 0.5;"
+		"0.333333333 0.5         0.166666667;"
+	);
+	cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
+	EXPECT_FLOAT_EQ(cap, shan.capacity());
+}

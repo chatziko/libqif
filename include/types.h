@@ -26,19 +26,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <armadillo>
 
-template<typename eT> class Channel;		// forward
-template<typename eT> class Prob;			// forward
-template<typename IntType> class rational;	// forward
-
-template<typename IntType> using Rational = rational<IntType>;
-
 using arma::Mat;
 using arma::mat;
 using arma::vec;
 using arma::Row;
 
+// helper aliases for SFINAE
+template <typename T> using Invoke = typename T::type;
+template <typename Condition> using EnableIf = Invoke<std::enable_if<Condition::value>>;
+
+template<typename eT> class Channel;		// forward
+template<typename IntType> class rational;	// forward
+
+template<typename eT> using Prob = Row<eT>;
+template<typename T> using is_Prob = arma::is_Row<T>;
+
 typedef uint32_t uint;
 
+template<typename IntType> using Rational = rational<IntType>;
 typedef Rational<uintmax_t> rat;
 
 typedef Mat<rat> rmat;
@@ -47,9 +52,9 @@ typedef Channel<double>  chan;
 typedef Channel<float>  fchan;
 typedef Channel<rat>    rchan;
 
-typedef Prob<double>  prob;
-typedef Prob<float>  fprob;
-typedef Prob<rat>    rprob;
+typedef Row<double>  prob;
+typedef Row<float>  fprob;
+typedef Row<rat>    rprob;
 
 
 #endif

@@ -23,17 +23,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-GLeakage::GLeakage(chan& channel, Gain& gain_function) {
+GLeakage::GLeakage(chan& channel, Gain& gain_function) :
+	EntropyModel(channel)
+	{
 	if(channel.n_rows != gain_function.n_cols) {
 		throw 1;
 	}
-	C = &channel;
 	g = &gain_function;
 }
 
 //GLeakage::~GLeakage()
 //{
-//	C->~Channel();
+//	C.~Channel();
 //	g->~Gain();
 //}
 /*
@@ -48,9 +49,9 @@ void * GLeakage::compare_over_gain(Channel& other_channel,prob& prior)
 }
 */
 //-------------- declaring the theoric algoritmhs implementation
-double GLeakage::vulnerability(prob& pi) {
+double GLeakage::vulnerability(const prob& pi) {
 
-	if(C->n_rows != pi.size()) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//the names w x and y are from the formulas.
@@ -68,8 +69,8 @@ double GLeakage::vulnerability(prob& pi) {
 	return max_w;
 }
 
-double GLeakage::cond_vulnerability(prob& pi) {
-	if(C->n_rows != pi.size()) {
+double GLeakage::cond_vulnerability(const prob& pi) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	//the names w x and y are from the formulas.
@@ -77,12 +78,12 @@ double GLeakage::cond_vulnerability(prob& pi) {
 	double max_w;
 	double sum_y = 0;
 
-	for(uint y = 0; y < C->n_cols; ++y) {
+	for(uint y = 0; y < C.n_cols; ++y) {
 		max_w = 0;
 		for(uint w = 0; w < g->n_rows; ++w) {
 			sum_x = 0;
 			for(uint x = 0; x < g->n_cols; ++x) {
-				sum_x += pi.at(x) * g->at(w, x) * C->at(x, y);
+				sum_x += pi.at(x) * g->at(w, x) * C.at(x, y);
 			}
 			if(sum_x > max_w) {
 				max_w = sum_x;
@@ -93,29 +94,29 @@ double GLeakage::cond_vulnerability(prob& pi) {
 	return sum_y;
 }
 
-double GLeakage::leakage(prob& pi) {
-	if(C->n_rows != pi.size()) {
+double GLeakage::leakage(const prob& pi) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return log(cond_vulnerability(pi) / vulnerability(pi));
 }
 
-double GLeakage::additive_leakage(prob& pi) {
-	if(C->n_rows != pi.size()) {
+double GLeakage::additive_leakage(const prob& pi) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return (entropy(pi) - cond_entropy(pi));
 }
 
-double GLeakage::entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
+double GLeakage::entropy(const prob& pi) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(vulnerability(pi));
 }
 
-double GLeakage::cond_entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
+double GLeakage::cond_entropy(const prob& pi) {
+	if(C.n_rows != pi.size()) {
 		throw 1; // X must be equal for both
 	}
 	return -log(cond_vulnerability(pi));

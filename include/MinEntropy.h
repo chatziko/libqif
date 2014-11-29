@@ -32,20 +32,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class MinEntropy : public EntropyModel {
 	public:
+		using EntropyModel::EntropyModel;
 
-		MinEntropy(chan& c);
+		double vulnerability(const prob& pi);
 
-//		~MinEntropy();
+		double cond_vulnerability(const prob& pi);
 
-		double vulnerability(prob& pi);
+		double entropy(const prob& pi);
 
-		double cond_vulnerability(prob& pi);
-
-		double leakage(prob& pi);
-
-		double entropy(prob& pi);
-
-		double cond_entropy(prob& pi);
+		double cond_entropy(const prob& pi);
 
 		double capacity();
 

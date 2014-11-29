@@ -40,11 +40,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class EntropyModel {
 	public:
+		chan C;
+
 		//! A normal constructor. You will need choose a Engine before plotting. The SciLab plotter engine is choosen by default.
 		/*!
 		\sa ~EntropyModel(),change_to_GNUPlot(),change_to_MatLab(),change_to_Maple().
 		*/
-		EntropyModel();
+		EntropyModel()				: C( ) {}
+		EntropyModel(const chan& C) : C(C) {}
+		EntropyModel(chan&& C)		: C(C) {}
 
 		//! A normal destroyer member. This function closes the current engine.
 		/*!
@@ -55,17 +59,17 @@ class EntropyModel {
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual double vulnerability(prob& pi) = 0;
+		virtual double vulnerability(const prob& pi) { throw "not supported"; }
 
-		virtual double cond_vulnerability(prob& pi) = 0;
+		virtual double cond_vulnerability(const prob& pi) { throw "not supported"; }
 
-		virtual double leakage(prob& pi) = 0;
+		virtual double entropy(const prob& pi) = 0;
 
-		virtual double entropy(prob& pi) = 0;
+		virtual double cond_entropy(const prob& pi) = 0;
 
-		virtual double cond_entropy(prob& pi) = 0;
+		virtual double leakage(const prob& pi) { return entropy(pi) - cond_entropy(pi); }
 
-		virtual double capacity() = 0;
+		virtual double capacity() { throw "not supported"; }
 
 		//----------------------------------------------------------
 		//plotter functions
@@ -130,16 +134,17 @@ class EntropyModel {
 			return "EntropyModel";
 		}
 
+		double precision = 0.001;
+
 	protected:
-		int plotter_flag;  /*!< This integer will be used as a flag to determine with which plotter draw.
+		int plotter_flag = -1;  /*!< This integer will be used as a flag to determine with which plotter draw.
 			by default will be -1. \n
 			0 : SciLab \n
 			1 : GNU-Plot \n
 			2 : MatLab \n
 			3 : Maple  */
-	protected:
-		chan* C;
-	protected:
 		Gain* g;
+
+		void check_prior(const prob& pi) { if(C.n_cols != pi.n_cols) throw 1; }
 };
 #endif

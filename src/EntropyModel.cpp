@@ -23,15 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-EntropyModel::EntropyModel() {
-	plotter_flag = -1;
-	/* This integer will be used as a flag to determine with which plotter draw.
-			by default will be -1. \n
-			0 : SciLab \n
-			1 : GNU-Plot \n
-			2 : MatLab \n
-			3 : Maple  */
-}
 
 EntropyModel::~EntropyModel() {
 	switch(plotter_flag) {
@@ -54,7 +45,7 @@ EntropyModel::~EntropyModel() {
 
 void EntropyModel::plot2d_vulnerability() {
 	//correct size control
-	if(C->n_rows != 2) {
+	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 
@@ -92,7 +83,7 @@ void EntropyModel::plot2d_vulnerability() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -157,7 +148,7 @@ void EntropyModel::plot2d_vulnerability() {
 
 void EntropyModel::plot2d_cond_vulnerability() {
 	//correct size control
-	if(C->n_rows != 2) {
+	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 
@@ -195,7 +186,7 @@ void EntropyModel::plot2d_cond_vulnerability() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -260,7 +251,7 @@ void EntropyModel::plot2d_cond_vulnerability() {
 
 void EntropyModel::plot2d_leakage() {
 	//correct size control
-	if(C->n_rows != 2) {
+	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -289,7 +280,7 @@ void EntropyModel::plot2d_leakage() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -366,7 +357,7 @@ void EntropyModel::plot2d_leakage() {
 
 void EntropyModel::plot2d_entropy() {
 	//correct size control
-	if(C->n_rows != 2) {
+	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -395,7 +386,7 @@ void EntropyModel::plot2d_entropy() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -472,7 +463,7 @@ void EntropyModel::plot2d_entropy() {
 
 void EntropyModel::plot2d_cond_entropy() {
 	//correct size control
-	if(C->n_rows != 2) {
+	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
 	}
 	std::string className;
@@ -501,7 +492,7 @@ void EntropyModel::plot2d_cond_entropy() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -578,7 +569,7 @@ void EntropyModel::plot2d_cond_entropy() {
 
 void EntropyModel::plot3d_vulnerability() {
 	//correct size control
-	if(C->n_rows != 3) {
+	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -614,7 +605,7 @@ void EntropyModel::plot3d_vulnerability() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -664,7 +655,7 @@ void EntropyModel::plot3d_vulnerability() {
 
 void EntropyModel::plot3d_cond_vulnerability() {
 	//correct size control
-	if(C->n_rows != 3) {
+	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -700,7 +691,7 @@ void EntropyModel::plot3d_cond_vulnerability() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -750,7 +741,7 @@ void EntropyModel::plot3d_cond_vulnerability() {
 
 void EntropyModel::plot3d_leakage() {
 	//correct size control
-	if(C->n_rows != 3) {
+	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -780,7 +771,7 @@ void EntropyModel::plot3d_leakage() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -842,7 +833,7 @@ void EntropyModel::plot3d_leakage() {
 
 void EntropyModel::plot3d_entropy() {
 	//correct size control
-	if(C->n_rows != 3) {
+	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -872,7 +863,7 @@ void EntropyModel::plot3d_entropy() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 
@@ -934,7 +925,7 @@ void EntropyModel::plot3d_entropy() {
 
 void EntropyModel::plot3d_cond_entropy() {
 	//correct size control
-	if(C->n_rows != 3) {
+	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
 	}
 
@@ -964,7 +955,7 @@ void EntropyModel::plot3d_cond_entropy() {
 		inputFile.close();
 		//writing channel C
 		std::string channel_c = "C = [";
-		//TODOchannel_c +=C->str;
+		//TODOchannel_c +=C.str;
 		channel_c += "];";
 		outputFile << channel_c << std::endl;
 

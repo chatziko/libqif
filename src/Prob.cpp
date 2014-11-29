@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Prob.h"
 #include "aux.h"
 
+/*
 template<typename eT>
 bool Prob<eT>::is_proper() const {
 	eT sum = 0;
@@ -53,3 +54,4 @@ template class Prob<double>;
 template class Prob<float>;
 template class Prob<rat>;
 
+*/

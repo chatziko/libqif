@@ -47,17 +47,17 @@ class GLeakage : public EntropyModel {
 		*/
 //		~GLeakage();
 
-		double vulnerability(prob& pi);
+		double vulnerability(const prob& pi);
 
-		double cond_vulnerability(prob& pi);
+		double cond_vulnerability(const prob& pi);
 
-		double leakage(prob& pi);
+		double leakage(const prob& pi);
 
-		double additive_leakage(prob& pi);
+		double additive_leakage(const prob& pi);
 
-		double entropy(prob& pi);
+		double entropy(const prob& pi);
 
-		double cond_entropy(prob& pi);
+		double cond_entropy(const prob& pi);
 
 		double capacity();
 		/*

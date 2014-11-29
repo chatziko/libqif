@@ -32,21 +32,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class Guessing : public EntropyModel {
 	public:
-		Guessing(chan& c);
+		using EntropyModel::EntropyModel;
 
-//		~Guessing();
+		double entropy(const prob& pi);
 
-		double vulnerability(prob& pi);
-
-		double cond_vulnerability(prob& pi);
-
-		double leakage(prob& pi);
-
-		double entropy(prob& pi);
-
-		double cond_entropy(prob& pi);
-
-		double capacity();
+		double cond_entropy(const prob& pi);
 
 		virtual const char* class_name() {
 			return "Guessing";

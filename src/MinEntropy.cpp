@@ -23,42 +23,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-MinEntropy::MinEntropy(chan& channel) {
-	C = &channel;
+
+double MinEntropy::vulnerability(const prob& pi) {
+	return max(pi);
 }
 
-//MinEntropy::~MinEntropy()
-//{
-//	C->~Channel();
-//}
+double MinEntropy::cond_vulnerability(const prob& pi) {
+	check_prior(pi);
 
-//-------------- declaring the theoric algoritmhs implementation
-double MinEntropy::vulnerability(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	double max_x = 0;
-	for(uint x = 0; x < C->n_rows; x++) {
-		if(pi.at(x) > max_x) {
-			max_x = pi.at(x);
-		}
-	}
-	return max_x;
-	// max x pi(x)
-}
-
-double MinEntropy::cond_vulnerability(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
 	double sum_x;
 	double max_x;
 	double sum_y = 0;
 
-	for(uint y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C.n_cols; y++) {
 		max_x = 0;
-		for(uint x = 0; x < C->n_rows; x++) {
-			sum_x = pi.at(x) * C->at(x, y);
+		for(uint x = 0; x < C.n_rows; x++) {
+			sum_x = pi.at(x) * C.at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;
 			}
@@ -69,25 +49,12 @@ double MinEntropy::cond_vulnerability(prob& pi) {
 	//sum y max x pi(x) C[x,y]
 }
 
-double MinEntropy::leakage(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return (entropy(pi) - cond_entropy(pi));
+double MinEntropy::entropy(const prob& pi) {
+	return -log2(vulnerability(pi));
 }
 
-double MinEntropy::entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return -log(vulnerability(pi));
-}
-
-double MinEntropy::cond_entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return -log(cond_vulnerability(pi));
+double MinEntropy::cond_entropy(const prob& pi) {
+	return -log2(cond_vulnerability(pi));
 }
 
 double MinEntropy::capacity() {
@@ -95,10 +62,10 @@ double MinEntropy::capacity() {
 	double max_x;
 	double sum_y = 0;
 
-	for(uint y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C.n_cols; y++) {
 		max_x = 0;
-		for(uint x = 0; x < C->n_rows; x++) {
-			sum_x = C->at(x, y);
+		for(uint x = 0; x < C.n_rows; x++) {
+			sum_x = C.at(x, y);
 			if(sum_x > max_x) {
 				max_x = sum_x;
 			}

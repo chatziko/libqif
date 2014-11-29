@@ -34,9 +34,7 @@ TEST(MinEntropy_QIF_functions, incorrect_X_size) {
 	MinEntropy minEntropy = MinEntropy(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(minEntropy.vulnerability(prior););
 	ASSERT_ANY_THROW(minEntropy.cond_vulnerability(prior););
-	ASSERT_ANY_THROW(minEntropy.entropy(prior););
 	ASSERT_ANY_THROW(minEntropy.cond_entropy(prior););
 	ASSERT_ANY_THROW(minEntropy.leakage(prior););
 }

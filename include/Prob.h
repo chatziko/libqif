@@ -28,50 +28,92 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "types.h"
 #include "Channel.h"
 
-/*! \class Prob
- *  \brief A probability distribution vector class.
- *
- * This class satisfies that the sum of all the elements is equal to 1 and each element is greater than or equal to 0.
- */
-template<typename eT>
-class Prob :
-	public Row<eT> {
+// Note: using EnableIf alias for SFINAE to make things more readable.
+// Avoiding SFINAE in function parameters also allows inference of T
+// i.e. we can call f(param) instead of f<T>(param)
+//
 
-	public:
-		// inherit the constructors from parent (C++11 feature)
-		using Row<eT>::Row;
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+T& uniform(T& pi) {
+	typedef typename T::elem_type eT;
 
-		inline Prob() {}
+	pi.fill( eT(1) / eT(pi.n_cols) );
+	return pi;
+}
 
-		inline Prob(const char*        s) : Row<eT>(s) { force_proper(); }
-		inline Prob(const std::string& s) : Row<eT>(s) { force_proper(); }
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline T uniform(uint n) {
+	T pi(n);
+	return uniform(pi);
+}
 
-		inline Prob(const Prob<eT>& c) : Row<eT>(c) {}
-		inline Prob(Prob<eT>&&      c) : Row<eT>(c) {}
 
-		inline Prob(const Row<eT>&     m) : Row<eT>(m) { force_proper(); }
-		inline Prob(Row<eT>&&          m) : Row<eT>(m) { force_proper(); }
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+T& dirac(T& pi, uint i = 0) {
+	typedef typename T::elem_type eT;
 
-		inline const Prob& operator=(const Prob&  c) { Row<eT>::operator=(c); return *this; }
-		inline const Prob& operator=(const Prob&& c) { Row<eT>::operator=(c); return *this; }
+	pi.zeros();
+	pi.at(i) = eT(1);
+	return pi;
+}
 
-		inline const Prob& operator=(const Row<eT>&  c) { Row<eT>::operator=(c); force_proper(); return *this; }
-		inline const Prob& operator=(const Row<eT>&& c) { Row<eT>::operator=(c); force_proper(); return *this; }
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+T dirac(uint n, uint i = 0) {
+	T pi(n);
+	return dirac(pi, i);
+}
 
-		inline const Prob<eT>& uniform()		{ this->fill(eT(1)/eT(this->n_cols)); return *this; }
-		inline const Prob<eT>& uniform(uint s)	{ this->set_size(s); return this->uniform(); }
 
-		inline const Prob<eT>& dirac(uint i)	{ this->zeros(); this->at(i) = eT(1); return *this; }
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+T& randu(T& pi) {
+	typedef typename T::elem_type eT;
 
-		inline const Prob<eT>& randu() {
-			Channel<eT> c(1, this->n_cols);
-			c.randu();
-			this->row(0) = c.row(0);
-			return *this;
-		}
-		inline const Prob<eT>& randu(uint s)	{ this->set_size(s); return this->randu(); }
+	Channel<eT> c(1, pi.n_cols);
+	c.randu();
+	pi = c.row(0);
+	return pi;
+}
 
-		bool is_proper() const;
-		inline void force_proper() const { if(!is_proper()) throw 1; }
-};
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+T randu(uint n) {
+	T pi(n);
+	return randu(pi);
+}
+
+
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+bool is_proper(const T& pi) {
+	typedef typename T::elem_type eT;
+
+	eT sum = 0;
+	for(uint j = 0; j < pi.n_cols; j++) {
+		// elements should be non-negative
+		const eT& elem = pi.at(j);
+		if(less_than(elem, eT(0)))
+			return false;
+
+		sum += elem;
+	}
+
+	// sum should be 1
+	if(!equal(sum, eT(1)))
+		return false;
+
+	return true;
+}
+
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+void check_proper(const T& pi) {
+	if(!is_proper<T>(pi))
+		throw 1;
+}
+
+
 #endif

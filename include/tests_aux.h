@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "types.h"
+#include "Prob.h"
 #include "aux.h"
 
 
@@ -34,25 +35,25 @@ void expect_channel(uint rn, uint cn, const Channel<eT>& c) {
 
 
 template<typename eT>
-void expect_prob(const Row<eT>& m, const Prob<eT>& p) {
+void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
 	EXPECT_EQ(m.n_cols, p.n_cols);
 
 	for(uint j = 0; j < p.n_cols; j++)
 		EXPECT_TRUE(equal(m.at(j), p.at(j)));
 
-	EXPECT_TRUE(p.is_proper());
+	EXPECT_TRUE(is_proper(p));
 }
 
 template<typename eT>
 void expect_prob(const std::string& s, const Prob<eT>& p) {
-	expect_prob(Row<eT>(s), p);
+	expect_prob(Prob<eT>(s), p);
 }
 
 template<typename eT>
 void expect_prob(uint cn, const Prob<eT>& p) {
 	EXPECT_EQ(cn, p.n_cols);
 
-	EXPECT_TRUE(p.is_proper());
+	EXPECT_TRUE(is_proper(p));
 }
 
 

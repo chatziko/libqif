@@ -38,21 +38,17 @@ class ProbTest : public ::testing::Test {};
 TYPED_TEST_CASE_P(ProbTest);
 
 
-TYPED_TEST_P(ProbTest, constructors) {
+TYPED_TEST_P(ProbTest, Construct) {
 	typedef TypeParam eT;
 
 	const char* s = std::is_same<eT, rat>::value
 		? "1/2 1/4 1/4"
 		: "0.5 0.25 0.25";
-	Row<eT> m(s);
-	Prob<eT> p(s);
+	Prob<eT> pi(s);
 
 	expect_prob( s,  Prob<eT>(s)              ); // char*
 	expect_prob( s,  Prob<eT>(std::string(s)) ); // std::string
-	expect_prob( s,  Prob<eT>(m)              ); // Row
-	expect_prob( s,  Prob<eT>(p)              ); // copy
-	expect_prob( s,  Prob<eT>(Prob<eT>(s))    ); // move (Note: most likely the compiler is removing the move call completely, see http://en.cppreference.com/w/cpp/language/copy_elision)
-	expect_prob( s,  Prob<eT>(Row<eT>(s))     ); // Row, move semantics
+	expect_prob( s,  Prob<eT>(pi)             ); // copy
 
 	// malformed prob
 	// Note: "cout <<" is to avoid the compiler removing the code as unused!
@@ -60,61 +56,60 @@ TYPED_TEST_P(ProbTest, constructors) {
 	const char* s2 = std::is_same<eT, rat>::value
 		? "1/2 1/3 1/8"
 		: "0.1 0.1 0.3";
-	Row<eT> m2(s2);
+	Prob<eT> pi2(s2);
 
-	EXPECT_ANY_THROW( cout << Prob<eT>(s2);              ); // char*
-	EXPECT_ANY_THROW( cout << Prob<eT>(std::string(s2)); ); // std::string
-	EXPECT_ANY_THROW( cout << Prob<eT>(m2);              ); // Row
-	EXPECT_ANY_THROW( cout << Prob<eT>(Row<eT>(s2));     ); // Row, move semantics
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2));              ); // char*
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(std::string(s2))); ); // std::string
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(pi2));              ); // Prob
 }
 
-TYPED_TEST_P(ProbTest, uniform) {
+TYPED_TEST_P(ProbTest, Uniform) {
 	typedef TypeParam eT;
 
-	Prob<eT> p;
-	p.uniform(1);
-	expect_prob(1, p);
+	Prob<eT> pi(1);
+	uniform(pi);
+	expect_prob(1, pi);
 
-	p.uniform(4);
+	pi = uniform<Prob<eT>>(4);
 	const char* s = std::is_same<eT, rat>::value
 		? "1/4 1/4 1/4 1/4"
 		: "0.25 0.25 0.25 0.25";
-	expect_prob(s, p);
+	expect_prob(s, pi);
 }
 
-TYPED_TEST_P(ProbTest, randu) {
+TYPED_TEST_P(ProbTest, Randu) {
 	typedef TypeParam eT;
 
-	Prob<eT> p(200);
-	p.randu();
-	expect_prob(200, p);
+	Prob<eT> pi(200);
+	randu(pi);
+	expect_prob(200, pi);
 
-	p.randu(5);
-	expect_prob(5, p);
+	pi = randu<Prob<eT>>(5);
+	expect_prob(5, pi);
 }
 
-TYPED_TEST_P(ProbTest, dirac) {
+TYPED_TEST_P(ProbTest, Dirac) {
 	typedef TypeParam eT;
 
-	Prob<eT> p(4);
-	p.dirac(0);
+	Prob<eT> pi(4);
+	dirac(pi);
 	const char* s = std::is_same<eT, rat>::value
 		? "1/1 0/1 0/1 0/1"
 		: "1 0 0 0";
-	expect_prob(s, p);
+	expect_prob(s, pi);
 
-	p.dirac(2);
+	pi = dirac<Prob<eT>>(4, 2);
 	s = std::is_same<eT, rat>::value
 		? "0/1 0/1 1/1 0/1"
 		: "0 0 1 0";
-	expect_prob(s, p);
+	expect_prob(s, pi);
 }
 
 
 
 // run the ProbTest test-case for double, float, rat
 //
-REGISTER_TYPED_TEST_CASE_P(ProbTest, constructors, uniform, randu, dirac);
+REGISTER_TYPED_TEST_CASE_P(ProbTest, Construct, Uniform, Randu, Dirac);
 
 typedef ::testing::Types<double, float, rat> ProbTypes;
 INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, ProbTypes);

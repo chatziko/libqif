@@ -23,70 +23,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Guessing::Guessing(chan& channel) {
-	C = &channel;
-}
 
-//Guessing::~Guessing()
-//{
-
-//}
-
-//-------------- declaring the theoric algoritmhs implementation
-double Guessing::vulnerability(prob& pi) {
-	throw 1; //It is not supported
-}
-
-double Guessing::cond_vulnerability(prob& pi) {
-	throw 1; //It is not supported
-}
-
-double Guessing::leakage(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return (entropy(pi) - cond_entropy(pi));
-}
-
-//internal function to implement entropy and conditional entropy
-double G(prob& pi) {
-	//TODO: sort doesn't work cause armadillo types are messed
-	//sort(pi);
+double Guessing::entropy(const prob& pi) {
+	prob sorted = sort(pi);
 
 	double sum = 0;
-	for(uint x = 0; x < pi.size(); ++x) {
-		sum += x * pi.at(x);
+	for(uint x = 0; x < sorted.n_cols; ++x) {
+		sum += x * sorted.at(x);
 	}
 	return sum;
 }
 
-double Guessing::entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	//Call G
-	prob clone = pi;
-	return G(clone);
-}
+double Guessing::cond_entropy(const prob& pi) {
+	check_prior(pi);
 
-double Guessing::cond_entropy(prob& pi) {
-	if(C->n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
 	double result = 0;
-	//for all y
-	for(uint y = 0; y < C->n_cols; y++) {
+	for(uint y = 0; y < C.n_cols; y++) {
 		//create the vector vy = pi(1)* C[1,y] ... pi(x)* C[x,y]
-		prob vy(C->n_rows);
-		for(uint x = 0; x < C->n_rows; x++) {
-			vy.at(x) = pi.at(x) * C->at(x, y);
-		}
-		//call G
-		result += G(vy);
+		prob vy = pi % C.col(y);
+		result += entropy(vy);
 	}
 	return result;
 }
 
-double Guessing::capacity() {
-	throw 1; //It is not supported
-}
