@@ -90,5 +90,5 @@ template class Channel<float>;
 
 #include "Rational.h"
 template class rational<uintmax_t>;
-template class Channel<rat>;
+template class Channel<urat>;
 

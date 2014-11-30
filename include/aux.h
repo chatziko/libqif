@@ -35,4 +35,10 @@ inline bool less_than_or_eq(const eT& x, const eT& y) {
 	return x < y || equal(x, y);
 }
 
+// like abs(x-y), but avoids negative values, cause eT might not support them!
+template<typename eT>
+inline eT abs_diff(const eT& x, const eT& y) {
+	return x > y ? x - y : y - x;
+}
+
 #endif

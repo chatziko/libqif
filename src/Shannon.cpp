@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <armadillo>
 #include <cmath>
 
-using namespace arma;
-
 // H(X) = - sum_x pi[x] log2(pi[x])
 //
 double Shannon::entropy(const prob& pi) {

@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <type_traits>
 
-using namespace std;
-
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
@@ -41,9 +39,7 @@ TYPED_TEST_CASE_P(ChannelTest);
 TYPED_TEST_P(ChannelTest, constructors) {
 	typedef TypeParam eT;
 
-	const char* s = std::is_same<eT, rat>::value
-		? "1/1 0/1 0/1; 0/1 1/1 0/1"
-		: "1 0 0; 0 1 0";
+	const char* s = "1 0 0; 0 1 0";
 	Mat<eT> m(s);
 	Channel<eT> c(s);
 
@@ -58,15 +54,13 @@ TYPED_TEST_P(ChannelTest, constructors) {
 	// malformed channel
 	// Note: "cout <<" is to avoid the compiler removing the code as unused!
 	//
-	const char* s2 = std::is_same<eT, rat>::value
-		? "1/1 2/1; 3/1 1/2"
-		: "1 2; 3 0.5";
+	const char* s2 = "1 2; 3 0.5";
 	Mat<eT> m2(s2);
 
-	EXPECT_ANY_THROW( cout << Channel<eT>(s2);              ); // char*
-	EXPECT_ANY_THROW( cout << Channel<eT>(std::string(s2)); ); // std::string
-	EXPECT_ANY_THROW( cout << Channel<eT>(m2);              ); // Mat
-	EXPECT_ANY_THROW( cout << Channel<eT>(Mat<eT>(s2));     ); // Mat, move semantics
+	EXPECT_ANY_THROW( std::cout << Channel<eT>(s2);              ); // char*
+	EXPECT_ANY_THROW( std::cout << Channel<eT>(std::string(s2)); ); // std::string
+	EXPECT_ANY_THROW( std::cout << Channel<eT>(m2);              ); // Mat
+	EXPECT_ANY_THROW( std::cout << Channel<eT>(Mat<eT>(s2));     ); // Mat, move semantics
 }
 
 TYPED_TEST_P(ChannelTest, identity) {
@@ -77,10 +71,7 @@ TYPED_TEST_P(ChannelTest, identity) {
 	expect_channel(0, 0, c);
 
 	c.identity(3);
-	const char* s = std::is_same<eT, rat>::value
-		? "1/1 0/1 0/1; 0/1 1/1 0/1; 0/1 0/1 1/1"
-		: "1 0 0; 0 1 0; 0 0 1";
-	expect_channel(s, c);
+	expect_channel("1 0 0; 0 1 0; 0 0 1", c);
 }
 
 TYPED_TEST_P(ChannelTest, randu) {
@@ -99,10 +90,10 @@ TYPED_TEST_P(ChannelTest, randu) {
 
 
 
-// run the ChannelTest test-case for double, float, rat
+// run the ChannelTest test-case for double, float, urat
 //
 REGISTER_TYPED_TEST_CASE_P(ChannelTest, constructors, identity, randu);
 
-typedef ::testing::Types<double, float, rat> ChannelTypes;
+typedef ::testing::Types<double, float, urat> ChannelTypes;
 INSTANTIATE_TYPED_TEST_CASE_P(Channel, ChannelTest, ChannelTypes);
 

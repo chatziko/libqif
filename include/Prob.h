@@ -116,4 +116,48 @@ void check_proper(const T& pi) {
 }
 
 
+
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+typename T::elem_type total_variation(const T& x, const T& y) {
+	typedef typename T::elem_type eT;
+
+	if(x.n_cols != y.n_cols) throw "size mismatch";
+
+	// the result is simply
+	//   max(abs(x - y)) / 2
+	// but abs/max is not supported for rat types, plus negative values are not supported by urat
+
+	eT max = eT(0);
+	for(uint i = 0; i < x.n_cols; i++) {
+		eT d = abs_diff(x.at(i), y.at(i));
+		if(d > max)
+			max = d;
+	}
+
+	return max/2;
+}
+
+
+template<typename T, typename = EnableIf<is_Prob<T>>>
+inline
+typename T::elem_type bounded_entropy_distance(const T& x, const T& y) {
+	typedef typename T::elem_type eT;
+
+	if(x.n_cols != y.n_cols) throw "size mismatch";
+
+	eT res = eT(0);
+	for(uint i = 0; i < x.n_cols; i++) {
+		eT m = std::max(x.at(i), y.at(i));
+		if(equal(m, eT(0)))
+			continue;
+
+		eT d = abs_diff(x.at(i), y.at(i)) / m;
+		if(d > res)
+			res = d;
+	}
+	return res;
+}
+
+
 #endif
