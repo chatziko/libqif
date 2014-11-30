@@ -69,12 +69,39 @@ T dirac(uint n, uint i = 0) {
 
 template<typename T, typename = EnableIf<is_Prob<T>>>
 inline
-T& randu(T& pi) {
-	typedef typename T::elem_type eT;
+T normalise_prob(const T& pi) {
+	return pi / sum(pi);
+}
 
-	Channel<eT> c(1, pi.n_cols);
-	c.randu();
-	pi = c.row(0);
+
+template<typename T, typename = EnableIf<is_Prob<T>>, DisableIf<is_Rational<typename T::elem_type>>...>
+inline
+T& randu(T& pi) {
+	pi.randu();
+	pi = normalise_prob(pi);
+	return pi;
+}
+
+// randu for rationals
+// Problem: how to select uniformly a rational
+// We could generate a double and convert to rational, however
+// having too many rationals with different denominators is problematic,
+// summing them creates an overflow and is_proper returns false.
+// So we simply take a common denominator (4096) and generate nominator
+// uniformly in [0,den]
+//
+template<typename T, typename = EnableIf<is_Prob<T>>, EnableIf<is_Rational<typename T::elem_type>>...>
+inline
+T& randu(T& pi) {
+	const int den = 4096;
+	Mat<int> m(1, 1);
+
+	for(auto& e : pi) {
+		m = arma::randi<Mat<int>>(1, 1, arma::distr_param(0, den));		// use whatever random number generator armadillo is using
+		e.assign(m.at(0,0), den);
+	}
+	pi = normalise_prob(pi);
+
 	return pi;
 }
 

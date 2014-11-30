@@ -31,9 +31,12 @@ using arma::mat;
 using arma::vec;
 using arma::Row;
 
-// helper aliases for SFINAE
+// helper aliases for SFINAE, see http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
+enum class enabled {}; // just a type that can be used as a template parameter and is as inocuous as possible
 template <typename T> using Invoke = typename T::type;
-template <typename Condition> using EnableIf = Invoke<std::enable_if<Condition::value>>;
+template <typename Condition> using EnableIf  = Invoke<std::enable_if< Condition::value, enabled>>;
+template <typename Condition> using DisableIf = Invoke<std::enable_if<!Condition::value, enabled>>;
+
 
 template<typename eT>      class Channel;  // forward
 template<typename IntType> class rational; // forward
@@ -53,6 +56,14 @@ typedef Channel<urat>   rchan;
 typedef Row<double>  prob;
 typedef Row<float>  fprob;
 typedef Row<urat>   rprob;
+
+
+template<typename T>
+struct is_Rational
+  { static const bool value = false; };
+template<typename IntType>
+struct is_Rational< Rational<IntType> >
+  { static const bool value = true; };
 
 
 #endif
