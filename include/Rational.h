@@ -75,6 +75,7 @@
 
 // libqif additions
 //
+#include <sstream>
 #include <cassert>               // for assert
 #include "types.h"
 
@@ -578,32 +579,42 @@ namespace detail {
 
 }
 
+// libqif additions (support formats: 1/3, 8, 0.5)
+//
 // Input and output
 template <typename IntType>
 std::istream& operator>> (std::istream& is, rational<IntType>& r)
 {
-    IntType n = IntType(0), d = IntType(1);
-    char c = 0;
     detail::resetter sentry(is);
 
-    is >> n;
-    c = is.get();
+	std::string token;
+	is >> token;
+	std::stringstream ss(token);
 
-    if (c != '/')
-        is.clear(std::istream::badbit);  // old GNU c++ lib has no ios_base
+	if(token.find('/') != std::string::npos) {
+		IntType n, d;
+		char c;
 
-#if !defined(__GNUC__) || (defined(__GNUC__) && (__GNUC__ >= 3)) || defined __SGI_STL_PORT
-    is >> std::noskipws;
-#else
-    is.unsetf(ios::skipws); // compiles, but seems to have no effect.
-#endif
-    is >> d;
+		ss >> n;
+		ss >> c;	// '/' character
+		ss >> d;
 
-    if (is)
-        r.assign(n, d);
+		r.assign(n, d);
+
+	} else if(token.find('.') != std::string::npos) {
+		double dbl;
+		ss >> dbl;
+		r = dbl;
+
+	} else {
+		IntType n;
+		ss >> n;
+		r.assign(n, IntType(1));
+	}
 
     return is;
 }
+// end libqif additions
 
 // Add manipulators for output format?
 template <typename IntType>
