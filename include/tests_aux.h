@@ -5,12 +5,12 @@
 
 #include "types.h"
 #include "Prob.h"
-#include "Channel.h"
+#include "Chan.h"
 #include "aux.h"
 
 
 template<typename eT>
-void expect_channel(const Mat<eT>& m, const Channel<eT>& c) {
+void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
 	EXPECT_EQ(m.n_rows, c.n_rows);
 	EXPECT_EQ(m.n_rows, c.n_rows);
 
@@ -22,12 +22,12 @@ void expect_channel(const Mat<eT>& m, const Channel<eT>& c) {
 }
 
 template<typename eT>
-void expect_channel(const std::string& s, const Channel<eT>& c) {
+void expect_channel(const std::string& s, const Chan<eT>& c) {
 	expect_channel(Mat<eT>(s), c);
 }
 
 template<typename eT>
-void expect_channel(uint rn, uint cn, const Channel<eT>& c) {
+void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
 	EXPECT_EQ(rn, c.n_rows);
 	EXPECT_EQ(cn, c.n_cols);
 

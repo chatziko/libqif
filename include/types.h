@@ -40,8 +40,8 @@ template <typename Condition> using DisableIf = Invoke<std::enable_if<!Condition
 
 template<typename IntType> class rational; // forward
 
-template<typename eT> using Channel    = Mat<eT>;
-template<typename T>  using is_Channel = arma::is_Mat_only<T>;
+template<typename eT> using Chan    = Mat<eT>;
+template<typename T>  using is_Chan = arma::is_Mat_only<T>;
 
 template<typename eT> using Prob    = Row<eT>;
 template<typename T>  using is_Prob = arma::is_Row<T>;
@@ -51,9 +51,9 @@ typedef uint32_t uint;
 template<typename IntType> using Rational = rational<IntType>;
 typedef Rational<uintmax_t> urat;
 
-typedef Channel<double>  chan;
-typedef Channel<float>  fchan;
-typedef Channel<urat>   rchan;
+typedef Chan<double>  chan;
+typedef Chan<float>  fchan;
+typedef Chan<urat>   rchan;
 
 typedef Row<double>  prob;
 typedef Row<float>  fprob;

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <fstream>
 #include "Prob.h"
-#include "Channel.h"
+#include "Chan.h"
 #include "Gain.h"
 //#include <typeinfo>
 

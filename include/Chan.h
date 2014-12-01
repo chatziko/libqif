@@ -1,5 +1,5 @@
-#ifndef _QIF_Channel_h_
-#define _QIF_Channel_h_
+#ifndef _QIF_Chan_h_
+#define _QIF_Chan_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // This allows to have functions with exactly the same signature, differing only in the EnableIf/DisableIf conditions
 //
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& identity(T& C) {
 	if(!C.is_square()) throw "not square";
@@ -41,7 +41,7 @@ T& identity(T& C) {
 	return C;
 }
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T identity(uint n) {
 	T C(n, n);
@@ -49,7 +49,7 @@ T identity(uint n) {
 }
 
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& no_interference(T& C) {
 	typedef typename T::elem_type eT;
@@ -59,7 +59,7 @@ T& no_interference(T& C) {
 	return C;
 }
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T no_interference(uint n) {
 	T C(n, 1);
@@ -67,7 +67,7 @@ T no_interference(uint n) {
 }
 
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& randu(T& C) {
 	typedef typename T::elem_type eT;
@@ -78,14 +78,14 @@ T& randu(T& C) {
 	return C;
 }
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T randu(uint n) {
 	T C(n, n);
 	return randu(C);
 }
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T randu(uint n, uint m) {
 	T C(n, m);
@@ -93,7 +93,7 @@ T randu(uint n, uint m) {
 }
 
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 bool is_proper(const T& C) {
 	typedef typename T::elem_type eT;
@@ -106,7 +106,7 @@ bool is_proper(const T& C) {
 }
 
 
-template<typename T, EnableIf<is_Channel<T>>...>
+template<typename T, EnableIf<is_Chan<T>>...>
 inline
 void check_proper(const T& C) {
 	if(!is_proper<T>(C))
