@@ -33,16 +33,18 @@ TEST(Mechanism, CorrectSizeAndElements) {
 	string graph_elements = "1 2;1 3;2 3";
 	Graph graph = Graph(3, graph_elements);
 	Mechanism m = Mechanism(new_channel_elements, graph);
-	EXPECT_EQ(2u, m.n_rows);
-	EXPECT_EQ(3u, m.n_cols);
+	EXPECT_EQ(2u, m.C.n_rows);
+	EXPECT_EQ(3u, m.C.n_cols);
 }
 
+/*
 TEST(Mechanism, NoCorrectElements) {
 	string new_channel_elements = "1 2;3 0.5";
 	string graph_elements = "1 2; 1 3; 2 3";
 	Graph graph = Graph(3, graph_elements);
 	ASSERT_ANY_THROW(Mechanism m = Mechanism(new_channel_elements, graph););
 }
+*/
 
 /* Untested functions:
 ~Mechanism();

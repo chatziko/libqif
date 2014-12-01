@@ -26,14 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "types.h"
-#include "Channel.h"
+#include "aux.h"
+#include "Rational.h"
 
 // Note: using EnableIf alias for SFINAE to make things more readable.
-// Avoiding SFINAE in function parameters also allows inference of T
-// i.e. we can call f(param) instead of f<T>(param)
+// We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
+// that uses parameter packs, i.e. EnableIf<cond>...
+// This allows to have functions with exactly the same signature, differing only in the EnableIf/DisableIf conditions
 //
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& uniform(T& pi) {
 	typedef typename T::elem_type eT;
@@ -42,14 +44,14 @@ T& uniform(T& pi) {
 	return pi;
 }
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline T uniform(uint n) {
 	T pi(n);
 	return uniform(pi);
 }
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& dirac(T& pi, uint i = 0) {
 	typedef typename T::elem_type eT;
@@ -59,7 +61,7 @@ T& dirac(T& pi, uint i = 0) {
 	return pi;
 }
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T dirac(uint n, uint i = 0) {
 	T pi(n);
@@ -67,14 +69,14 @@ T dirac(uint n, uint i = 0) {
 }
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T normalise_prob(const T& pi) {
 	return pi / sum(pi);
 }
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>, DisableIf<is_Rational<typename T::elem_type>>...>
+template<typename T, EnableIf<is_Prob<T>>..., DisableIf<is_Rational<typename T::elem_type>>...>
 inline
 T& randu(T& pi) {
 	pi.randu();
@@ -90,7 +92,7 @@ T& randu(T& pi) {
 // So we simply take a common denominator (4096) and generate nominator
 // uniformly in [0,den]
 //
-template<typename T, typename = EnableIf<is_Prob<T>>, EnableIf<is_Rational<typename T::elem_type>>...>
+template<typename T, EnableIf<is_Prob<T>>..., EnableIf<is_Rational<typename T::elem_type>>...>
 inline
 T& randu(T& pi) {
 	const int den = 4096;
@@ -105,7 +107,7 @@ T& randu(T& pi) {
 	return pi;
 }
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T randu(uint n) {
 	T pi(n);
@@ -113,7 +115,7 @@ T randu(uint n) {
 }
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 bool is_proper(const T& pi) {
 	typedef typename T::elem_type eT;
@@ -135,7 +137,7 @@ bool is_proper(const T& pi) {
 	return true;
 }
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 void check_proper(const T& pi) {
 	if(!is_proper<T>(pi))
@@ -144,7 +146,7 @@ void check_proper(const T& pi) {
 
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 typename T::elem_type total_variation(const T& x, const T& y) {
 	typedef typename T::elem_type eT;
@@ -166,7 +168,7 @@ typename T::elem_type total_variation(const T& x, const T& y) {
 }
 
 
-template<typename T, typename = EnableIf<is_Prob<T>>>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 typename T::elem_type bounded_entropy_distance(const T& x, const T& y) {
 	typedef typename T::elem_type eT;

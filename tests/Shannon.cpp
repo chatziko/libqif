@@ -55,17 +55,17 @@ TEST(Shannon, entropy) {
 TEST(Shannon, cond_entropy) {
 	Shannon shan;
 
-	shan.C.identity(2);
+	shan.C = identity<chan>(2);
 	EXPECT_EQ(0, shan.cond_entropy(uniform<prob>(2)));
 	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(2)));
 	EXPECT_EQ(0, shan.cond_entropy(prob("0.2 0.8")));
 
-	shan.C.identity(10);
+	shan.C = identity<chan>(10);
 	EXPECT_EQ(0, shan.cond_entropy(uniform<prob>(10)));
 	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(10)));
 	EXPECT_EQ(0, shan.cond_entropy(prob("0.2 0.8 0 0 0 0 0 0 0 0")));
 
-	shan.C.no_interference();
+	no_interference(shan.C);
 	EXPECT_FLOAT_EQ(log2(10), shan.cond_entropy(uniform<prob>(10)));
 	EXPECT_EQ(0, shan.cond_entropy(dirac<prob>(10)));
 
@@ -76,20 +76,20 @@ TEST(Shannon, cond_entropy) {
 	pi = "0.25 0.75";
 	EXPECT_FLOAT_EQ(0.669020059980807, shan.cond_entropy(pi));
 
-	shan.C.identity(10);
+	shan.C = identity<chan>(10);
 	ASSERT_ANY_THROW(shan.cond_entropy(uniform<prob>(2)););
 }
 
 TEST(Shannon, capacity) {
 	Shannon shan;
 
-	shan.C.identity(2);
+	shan.C = identity<chan>(2);
 	EXPECT_EQ(1, shan.capacity());
 
-	shan.C.identity(10);
+	shan.C = identity<chan>(10);
 	EXPECT_FLOAT_EQ(log2(10), shan.capacity());
 
-	shan.C.no_interference();
+	shan.C = no_interference<chan>(10);
 	EXPECT_EQ(0, shan.capacity());
 
 	shan.C = chan("0.8 0.2; 0.3 0.7");

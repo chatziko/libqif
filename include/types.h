@@ -38,8 +38,10 @@ template <typename Condition> using EnableIf  = Invoke<std::enable_if< Condition
 template <typename Condition> using DisableIf = Invoke<std::enable_if<!Condition::value, enabled>>;
 
 
-template<typename eT>      class Channel;  // forward
 template<typename IntType> class rational; // forward
+
+template<typename eT> using Channel    = Mat<eT>;
+template<typename T>  using is_Channel = arma::is_Mat_only<T>;
 
 template<typename eT> using Prob    = Row<eT>;
 template<typename T>  using is_Prob = arma::is_Row<T>;

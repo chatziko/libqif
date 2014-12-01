@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
+#include <string>
+#include "gtest/gtest.h"
+
 #include "Channel.h"
 #include "tests_aux.h"
-#include "gtest/gtest.h"
-#include <string>
-#include <type_traits>
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
@@ -36,63 +36,56 @@ class ChannelTest : public ::testing::Test {};
 TYPED_TEST_CASE_P(ChannelTest);
 
 
-TYPED_TEST_P(ChannelTest, constructors) {
+TYPED_TEST_P(ChannelTest, Construct) {
 	typedef TypeParam eT;
 
 	const char* s = "1 0 0; 0 1 0";
-	Mat<eT> m(s);
-	Channel<eT> c(s);
+	Channel<eT> C(s);
 
-	expect_channel( "", Channel<eT>()               ); // empty
 	expect_channel( s,  Channel<eT>(s)              ); // char*
 	expect_channel( s,  Channel<eT>(std::string(s)) ); // std::string
-	expect_channel( s,  Channel<eT>(m)              ); // Mat
-	expect_channel( s,  Channel<eT>(c)              ); // copy
-	expect_channel( s,  Channel<eT>(Channel<eT>(s)) ); // move (Note: most likely the compiler is removing the move call completely, see http://en.cppreference.com/w/cpp/language/copy_elision)
-	expect_channel( s,  Channel<eT>(Mat<eT>(s))     ); // Mat, move semantics
+	expect_channel( s,  Channel<eT>(C)              ); // copy
 
 	// malformed channel
-	// Note: "cout <<" is to avoid the compiler removing the code as unused!
 	//
 	const char* s2 = "1 2; 3 0.5";
-	Mat<eT> m2(s2);
+	Channel<eT> C2(s2);
 
-	EXPECT_ANY_THROW( std::cout << Channel<eT>(s2);              ); // char*
-	EXPECT_ANY_THROW( std::cout << Channel<eT>(std::string(s2)); ); // std::string
-	EXPECT_ANY_THROW( std::cout << Channel<eT>(m2);              ); // Mat
-	EXPECT_ANY_THROW( std::cout << Channel<eT>(Mat<eT>(s2));     ); // Mat, move semantics
+	EXPECT_ANY_THROW( check_proper(Channel<eT>(s2));              ); // char*
+	EXPECT_ANY_THROW( check_proper(Channel<eT>(std::string(s2))); ); // std::string
+	EXPECT_ANY_THROW( check_proper(Channel<eT>(C2));              ); // Mat
 }
 
-TYPED_TEST_P(ChannelTest, identity) {
+TYPED_TEST_P(ChannelTest, Identity) {
 	typedef TypeParam eT;
 
-	Channel<eT> c;
-	c.identity(0);
-	expect_channel(0, 0, c);
+	Channel<eT> C;
+	C = identity<Channel<eT>>(0);
+	expect_channel(0, 0, C);
 
-	c.identity(3);
-	expect_channel("1 0 0; 0 1 0; 0 0 1", c);
+	C = identity<Channel<eT>>(3);
+	expect_channel("1 0 0; 0 1 0; 0 0 1", C);
 }
 
-TYPED_TEST_P(ChannelTest, randu) {
+TYPED_TEST_P(ChannelTest, Randu) {
 	typedef TypeParam eT;
 
-	Channel<eT> c(200, 200);
-	c.randu();
-	expect_channel(200, 200, c);
+	Channel<eT> C(200, 200);
+	randu(C);
+	expect_channel(200, 200, C);
 
-	c.randu(5);
-	expect_channel(5, 5, c);
+	C = randu<Channel<eT>>(5);
+	expect_channel(5, 5, C);
 
-	c.randu(4, 6);
-	expect_channel(4, 6, c);
+	C = randu<Channel<eT>>(4, 6);
+	expect_channel(4, 6, C);
 }
 
 
 
 // run the ChannelTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(ChannelTest, constructors, identity, randu);
+REGISTER_TYPED_TEST_CASE_P(ChannelTest, Construct, Identity, Randu);
 
 typedef ::testing::Types<double, float, urat> ChannelTypes;
 INSTANTIATE_TYPED_TEST_CASE_P(Channel, ChannelTest, ChannelTypes);

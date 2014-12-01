@@ -27,9 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Channel.h"
 #include "Graph.h"
 #include <math.h>
-class Mechanism : public chan {
+
+class Mechanism {
 	public:
-		using chan::chan;
+		chan C;
 
 		Mechanism() {};
 		Mechanism(std::string& new_channel_elements, Graph& new_graph);
@@ -42,35 +43,5 @@ class Mechanism : public chan {
 	protected:
 		Graph* graph;
 };
-
-namespace arma {
-	template<>
-	struct is_Mat_only< Mechanism > :
-		is_Mat_only< chan > {};
-
-	template<>
-	struct is_Mat_only< const Mechanism > :
-		is_Mat_only< const chan > {};
-
-	template<>
-	struct is_Mat< Mechanism > :
-		is_Mat_only< chan > {};
-
-	template<>
-	struct is_Mat< const Mechanism > :
-		is_Mat_only< const chan > {};
-
-	template<>
-	struct Proxy< Mechanism > :
-		Proxy< chan > {
-		using Proxy< chan >::Proxy;
-	};
-
-	template<>
-	struct Proxy< const Mechanism > :
-		Proxy< const chan > {
-		using Proxy< const chan >::Proxy;
-	};
-}
 
 #endif

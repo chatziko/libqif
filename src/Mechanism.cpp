@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 Mechanism::Mechanism(std::string& new_channel_elements, Graph& new_graph) :
-	Channel(new_channel_elements) {
+	C(new_channel_elements) {
 
 	graph = &new_graph;
 }
@@ -47,9 +47,9 @@ bool Mechanism::is_differential_private(double epsilon) {
 		for(uint x2 = 0; x2 < graph->vertex_number(); ++x2) {
 			if(graph->is_an_edge(x, x2)) {
 				//for each y in Y:
-				for(uint y = 0; y < this->n_cols; ++y) {
+				for(uint y = 0; y < C.n_cols; ++y) {
 					//if C[x,y] > e^epsilon * C[x',y]:
-					if(this->at(x, y) > exp(epsilon) * this->at(x2, y)) {
+					if(C.at(x, y) > exp(epsilon) * C.at(x2, y)) {
 						return false;
 					}
 				}

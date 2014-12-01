@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "Prob.h"
+#include "Channel.h"
 #include "aux.h"
 
 
@@ -17,7 +18,7 @@ void expect_channel(const Mat<eT>& m, const Channel<eT>& c) {
 		for(uint j = 0; j < c.n_cols; j++)
 			EXPECT_TRUE(equal(m.at(i, j), c.at(i, j)));
 
-	EXPECT_TRUE(c.is_proper());
+	EXPECT_TRUE(is_proper(c));
 }
 
 template<typename eT>
@@ -30,7 +31,7 @@ void expect_channel(uint rn, uint cn, const Channel<eT>& c) {
 	EXPECT_EQ(rn, c.n_rows);
 	EXPECT_EQ(cn, c.n_cols);
 
-	EXPECT_TRUE(c.is_proper());
+	EXPECT_TRUE(is_proper(c));
 }
 
 

@@ -22,13 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "Prob.h"
-#include "tests_aux.h"
-#include "gtest/gtest.h"
 #include <string>
-#include <type_traits>
+#include "gtest/gtest.h"
 
-using namespace std;
+#include "Prob.h"
+#include "Rational.h"
+#include "aux.h"
+#include "tests_aux.h"
+
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
@@ -42,14 +43,13 @@ TYPED_TEST_P(ProbTest, Construct) {
 	typedef TypeParam eT;
 
 	const char* s = "0.5 0.25 0.25";
-	Prob<eT> pi("0.5 0.25 0.25");
+	Prob<eT> pi(s);
 
 	expect_prob( s,  Prob<eT>(s)              ); // char*
 	expect_prob( s,  Prob<eT>(std::string(s)) ); // std::string
 	expect_prob( s,  Prob<eT>(pi)             ); // copy
 
 	// malformed prob
-	// Note: "cout <<" is to avoid the compiler removing the code as unused!
 	//
 	const char* s2 = "0.1 0.2 0.3";
 	Prob<eT> pi2(s2);
