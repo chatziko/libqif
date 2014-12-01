@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtest/gtest.h"
 #include <string>
 
-using namespace std;
+using std::string;
 
 TEST(Gain, CorrectSizeAndElements) {
 	string new_gain_elements = "1 0 0; 0 1 0";

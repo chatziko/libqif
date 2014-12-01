@@ -24,17 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Shannon.h"
-#include <armadillo>
-#include <cmath>
+#include "aux.h"
 
 // H(X) = - sum_x pi[x] log2(pi[x])
 //
 template<typename eT>
-double Shannon<eT>::entropy(const Prob<eT>& pi) {
-	double sum_x = 0;
+eT Shannon<eT>::entropy(const Prob<eT>& pi) {
+	eT sum_x = 0;
 	for(uint x = 0; x < pi.n_cols; x++) {
-		double el = pi.at(x);
-		sum_x -= el > 0 ? el * log2(el) : 0;
+		eT el = pi.at(x);
+		sum_x -= el > 0 ? el * qif::log2(el) : 0;
 	}
 
 	return sum_x;
@@ -48,10 +47,10 @@ double Shannon<eT>::entropy(const Prob<eT>& pi) {
 //    H(Y|X) = sum_x pi[x] H(C[x,-])   (entropy of row x)
 //
 template<typename eT>
-double Shannon<eT>::cond_entropy(const Prob<eT>& pi) {
+eT Shannon<eT>::cond_entropy(const Prob<eT>& pi) {
 	this->check_prior(pi);
 
-	double Hyx = 0;
+	eT Hyx = 0;
 	for(uint x = 0; x < this->C.n_rows; x++)
 		Hyx += pi.at(x) * entropy(this->C.row(x));
 
@@ -61,7 +60,7 @@ double Shannon<eT>::cond_entropy(const Prob<eT>& pi) {
 //Blahut-Arimoto Algorithm
 //
 template<typename eT>
-double Shannon<eT>::capacity() {
+eT Shannon<eT>::capacity() {
 	uint m = this->C.n_rows;
 	uint n = this->C.n_cols;
 
@@ -74,18 +73,18 @@ double Shannon<eT>::capacity() {
 
 		// update F
 		for(uint i = 0; i < m; i++) {
-			double s = 0;
+			eT s = 0;
 			for(uint j = 0; j < n; j++) {
-				double el = this->C.at(i, j);
+				eT el = this->C.at(i, j);
 				s += el > 0 ? el * log(el / Py.at(j)) : 0;		// NOTE: this is e-base log, not 2-base!
 			}
 			F.at(i) = exp(s);
 		}
 
 		// check stop condition
-		double d = dot(F, Px);
-		double IL = log2(d);
-		double IU = log2(max(F));
+		eT d = dot(F, Px);
+		eT IL = log2(d);
+		eT IU = log2(max(F));
 
 		if(IU - IL < this->precision)
 			return IL;

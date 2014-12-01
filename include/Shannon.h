@@ -38,11 +38,11 @@ class Shannon : public LeakageMeasure<eT> {
 		// inherit the constructors from parent (C++11 feature)
 		using LeakageMeasure<eT>::LeakageMeasure;
 
-		double entropy(const Prob<eT>& pi);
+		eT entropy(const Prob<eT>& pi);
 
-		double cond_entropy(const Prob<eT>& pi);
+		eT cond_entropy(const Prob<eT>& pi);
 
-		double capacity();
+		eT capacity();
 
 		virtual const char* class_name() {
 			return "Shannon";

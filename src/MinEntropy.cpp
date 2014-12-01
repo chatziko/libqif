@@ -1,4 +1,3 @@
-#include "MinEntropy.h"
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -23,54 +22,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
+#include "MinEntropy.h"
+#include "aux.h"
 
-double MinEntropy::vulnerability(const prob& pi) {
+template<typename eT>
+eT MinEntropy<eT>::vulnerability(const Prob<eT>& pi) {
 	return max(pi);
 }
 
-double MinEntropy::cond_vulnerability(const prob& pi) {
-	check_prior(pi);
+//sum y max x pi(x) C[x,y]
+template<typename eT>
+eT MinEntropy<eT>::cond_vulnerability(const Prob<eT>& pi) {
+	this->check_prior(pi);
 
-	double sum_x;
-	double max_x;
-	double sum_y = 0;
+	eT sum_y = eT(0);
 
-	for(uint y = 0; y < C.n_cols; y++) {
-		max_x = 0;
-		for(uint x = 0; x < C.n_rows; x++) {
-			sum_x = pi.at(x) * C.at(x, y);
-			if(sum_x > max_x) {
-				max_x = sum_x;
+	for(uint y = 0; y < this->C.n_cols; y++) {
+		eT max_x = eT(0);
+		for(uint x = 0; x < this->C.n_rows; x++) {
+			eT el = pi.at(x) * this->C.at(x, y);
+			if(el > max_x) {
+				max_x = el;
 			}
 		}
 		sum_y += max_x;
 	}
 	return sum_y;
-	//sum y max x pi(x) C[x,y]
 }
 
-double MinEntropy::entropy(const prob& pi) {
-	return -log2(vulnerability(pi));
+template<typename eT>
+eT MinEntropy<eT>::entropy(const Prob<eT>& pi) {
+	return -qif::log2(vulnerability(pi));
 }
 
-double MinEntropy::cond_entropy(const prob& pi) {
-	return -log2(cond_vulnerability(pi));
+template<typename eT>
+eT MinEntropy<eT>::cond_entropy(const Prob<eT>& pi) {
+	return -qif::log2(cond_vulnerability(pi));
 }
 
-double MinEntropy::capacity() {
-	double sum_x;
-	double max_x;
-	double sum_y = 0;
+template<typename eT>
+eT MinEntropy<eT>::capacity() {
+	eT sum_y = eT(0);
 
-	for(uint y = 0; y < C.n_cols; y++) {
-		max_x = 0;
-		for(uint x = 0; x < C.n_rows; x++) {
-			sum_x = C.at(x, y);
-			if(sum_x > max_x) {
-				max_x = sum_x;
-			}
+	for(uint y = 0; y < this->C.n_cols; y++) {
+		eT max_x = 0;
+		for(uint x = 0; x < this->C.n_rows; x++) {
+			eT el = this->C.at(x, y);
+			if(el > max_x)
+				max_x = el;
 		}
 		sum_y += max_x;
 	}
-	return log(sum_y);
+	return qif::log2(sum_y);
 }
+
+template<typename IntType>
+Rational<IntType> MinEntropy<Rational<IntType>>::capacity() {
+	throw 1;
+}
+
+template class MinEntropy<double>;
+template class MinEntropy<float>;
+template class MinEntropy<urat>;
+

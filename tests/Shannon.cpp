@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtest/gtest.h"
 #include "Shannon.h"
 #include "aux.h"
-
-using namespace std;
+#include "tests_aux.h"
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
@@ -135,6 +134,5 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 //
 REGISTER_TYPED_TEST_CASE_P(ShannonTest, Vulnerability, Entropy, Cond_entropy, Capacity);
 
-typedef ::testing::Types<double, float> ShannonTypes;
-INSTANTIATE_TYPED_TEST_CASE_P(Shannon, ShannonTest, ShannonTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Shannon, ShannonTest, NativeTypes);
 

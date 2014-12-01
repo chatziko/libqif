@@ -55,17 +55,17 @@ class LeakageMeasure {
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual double vulnerability(const Prob<eT>& pi) { throw "not supported"; }
+		virtual eT vulnerability(const Prob<eT>& pi) { throw "not supported"; }
 
-		virtual double cond_vulnerability(const Prob<eT>& pi) { throw "not supported"; }
+		virtual eT cond_vulnerability(const Prob<eT>& pi) { throw "not supported"; }
 
-		virtual double entropy(const Prob<eT>& pi) = 0;
+		virtual eT entropy(const Prob<eT>& pi) = 0;
 
-		virtual double cond_entropy(const Prob<eT>& pi) = 0;
+		virtual eT cond_entropy(const Prob<eT>& pi) = 0;
 
-		virtual double leakage(const Prob<eT>& pi) { return entropy(pi) - cond_entropy(pi); }
+		virtual eT leakage(const Prob<eT>& pi) { return entropy(pi) - cond_entropy(pi); }
 
-		virtual double capacity() { throw "not supported"; }
+		virtual eT capacity() { throw "not supported"; }
 
 		//----------------------------------------------------------
 		//plotter functions
@@ -130,7 +130,7 @@ class LeakageMeasure {
 			return "LeakageMeasure";
 		}
 
-		double precision = 0.001;
+		eT precision = 0.001;
 
 	protected:
 		int plotter_flag = -1;  /*!< This integer will be used as a flag to determine with which plotter draw.

@@ -9,6 +9,11 @@
 #include "aux.h"
 
 
+typedef ::testing::Types<double, float, urat> AllTypes;
+typedef ::testing::Types<double, float> NativeTypes;
+typedef ::testing::Types<urat> RatTypes;
+
+
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
 	EXPECT_EQ(m.n_rows, c.n_rows);

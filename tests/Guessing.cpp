@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Guessing.h"
 #include <string>
 
-using namespace std;
+using std::string;
 
 TEST(Gu_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";

@@ -41,4 +41,23 @@ inline eT abs_diff(const eT& x, const eT& y) {
 	return x > y ? x - y : y - x;
 }
 
+
+// errors close to 1 are translated by log2 to errors close to 0, which are harder to test
+namespace qif {
+	inline float log2(float a) {
+		return equal(a, 1.0f) ? 0 : std::log2(a);
+	}
+	inline double log2(double a) {
+		return equal(a, 1.0) ? 0 : std::log2(a);
+	}
+	inline double log2(int a) {
+		return equal(a, 1) ? 0 : std::log2(a);
+	}
+	inline double log2(uint a) {
+		return std::log2(a);
+	}
+}
+
+
+
 #endif

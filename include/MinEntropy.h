@@ -30,22 +30,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
  */
-class MinEntropy : public LeakageMeasure<double> {
+
+template<typename eT>
+class MinEntropy : public LeakageMeasure<eT> {
 	public:
-		using LeakageMeasure<double>::LeakageMeasure;
+		using LeakageMeasure<eT>::LeakageMeasure;
 
-		double vulnerability(const prob& pi);
-
-		double cond_vulnerability(const prob& pi);
-
-		double entropy(const prob& pi);
-
-		double cond_entropy(const prob& pi);
-
-		double capacity();
+		eT vulnerability(const Prob<eT>& pi);
+		eT cond_vulnerability(const Prob<eT>& pi);
+		eT entropy(const Prob<eT>& pi);
+		eT cond_entropy(const Prob<eT>& pi);
+		eT capacity();
 
 		virtual const char* class_name() {
 			return "MinEntropy";
 		}
 };
+
+template<typename IntType>
+class MinEntropy<Rational<IntType>> : public LeakageMeasure<Rational<IntType>> {
+	public:
+		typedef Rational<IntType> eT;
+
+		using LeakageMeasure<eT>::LeakageMeasure;
+
+		eT vulnerability(const Prob<eT>& pi);
+		eT cond_vulnerability(const Prob<eT>& pi);
+		eT entropy(const Prob<eT>& pi);
+		eT cond_entropy(const Prob<eT>& pi);
+		eT capacity();
+
+		virtual const char* class_name() {
+			return "MinEntropy";
+		}
+};
+
 #endif

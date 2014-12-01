@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtest/gtest.h"
 #include <string>
 
-using namespace std;
-
 /* Untested functions:
 vec solve(char* equality,char * inequality,char * objective);
 vec solve(mat equality,mat inequality,vec objective);
