@@ -53,7 +53,7 @@ int main() {
 	std::cout << "Calculating ends" << std::endl;
 
 	Shannon<double> sl(C);
-	MinEntropy ml = MinEntropy(C);
+	MinEntropy<double> ml(C);
 	Guessing gul = Guessing(C);
 	//Using the Plotter
 	gl.change_to_scilab();

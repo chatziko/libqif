@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "LeakageMeasure.h"
+#include "aux.h"
+
 /*! \class MinEntropy
  *  \brief The Min-Entropy model of entropy.
  *
@@ -38,31 +40,14 @@ class MinEntropy : public LeakageMeasure<eT> {
 
 		eT vulnerability(const Prob<eT>& pi);
 		eT cond_vulnerability(const Prob<eT>& pi);
-		eT entropy(const Prob<eT>& pi);
-		eT cond_entropy(const Prob<eT>& pi);
-		eT capacity();
+		eT max_mult_leakage();
+
+		eT entropy(const Prob<eT>& pi)		{ return -qif::real_ops<eT>::log2(vulnerability(pi));		}
+		eT cond_entropy(const Prob<eT>& pi)	{ return -qif::real_ops<eT>::log2(cond_vulnerability(pi));	}
+		eT capacity()						{ return  qif::real_ops<eT>::log2(max_mult_leakage());		}
 
 		virtual const char* class_name() {
 			return "MinEntropy";
 		}
 };
-
-template<typename IntType>
-class MinEntropy<Rational<IntType>> : public LeakageMeasure<Rational<IntType>> {
-	public:
-		typedef Rational<IntType> eT;
-
-		using LeakageMeasure<eT>::LeakageMeasure;
-
-		eT vulnerability(const Prob<eT>& pi);
-		eT cond_vulnerability(const Prob<eT>& pi);
-		eT entropy(const Prob<eT>& pi);
-		eT cond_entropy(const Prob<eT>& pi);
-		eT capacity();
-
-		virtual const char* class_name() {
-			return "MinEntropy";
-		}
-};
-
 #endif

@@ -30,9 +30,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
 class MinEntropyTest : public ::testing::Test {};
+template <typename T>
+class MinEntropyTestReals : public ::testing::Test {};
 
 TYPED_TEST_CASE_P(MinEntropyTest);
-
+TYPED_TEST_CASE_P(MinEntropyTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(MinEntropyTest, Vulnerability) {
@@ -52,25 +54,6 @@ TYPED_TEST_P(MinEntropyTest, Vulnerability) {
 
 	pi = Prob<eT>("0.2 0.8");
 	EXPECT_PRED2(equal<eT>, 0.8, minent.vulnerability(pi));
-}
-
-TYPED_TEST_P(MinEntropyTest, Entropy) {
-	typedef TypeParam eT;
-
-	Prob<eT> pi;
-	MinEntropy<eT> minent;
-
-	pi = uniform<Prob<eT>>(2);
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.5), minent.entropy(pi));
-
-	pi = uniform<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), minent.entropy(pi));
-
-	pi = Prob<eT>("1 0 0 0");
-	EXPECT_PRED2(equal<eT>, 0, minent.entropy(pi));
-
-	pi = Prob<eT>("0.2 0.8");
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.8), minent.entropy(pi));
 }
 
 TYPED_TEST_P(MinEntropyTest, Cond_vulnerability) {
@@ -105,7 +88,27 @@ TYPED_TEST_P(MinEntropyTest, Cond_vulnerability) {
 	ASSERT_ANY_THROW(minent.cond_vulnerability(uniform<Prob<eT>>(2)););
 }
 
-TYPED_TEST_P(MinEntropyTest, Cond_entropy) {
+
+TYPED_TEST_P(MinEntropyTestReals, Entropy) {
+	typedef TypeParam eT;
+
+	Prob<eT> pi;
+	MinEntropy<eT> minent;
+
+	pi = uniform<Prob<eT>>(2);
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.5), minent.entropy(pi));
+
+	pi = uniform<Prob<eT>>(10);
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), minent.entropy(pi));
+
+	pi = Prob<eT>("1 0 0 0");
+	EXPECT_PRED2(equal<eT>, 0, minent.entropy(pi));
+
+	pi = Prob<eT>("0.2 0.8");
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.8), minent.entropy(pi));
+}
+
+TYPED_TEST_P(MinEntropyTestReals, Cond_entropy) {
 	typedef TypeParam eT;
 
 	MinEntropy<eT> minent;
@@ -137,7 +140,7 @@ TYPED_TEST_P(MinEntropyTest, Cond_entropy) {
 	ASSERT_ANY_THROW(minent.cond_entropy(uniform<Prob<eT>>(2)););
 }
 
-TYPED_TEST_P(MinEntropyTest, Capacity) {
+TYPED_TEST_P(MinEntropyTestReals, Capacity) {
 	typedef TypeParam eT;
 
 	MinEntropy<eT> minent;
@@ -158,10 +161,11 @@ TYPED_TEST_P(MinEntropyTest, Capacity) {
 	EXPECT_PRED2(equal<eT>, minent.leakage(uniform<Prob<eT>>(100)), minent.capacity());		// capacity is given for uniform prior
 }
 
-
-// run the ChanTest test-case for double, float
+// run the MinEntropyTest test-case for all types, and the MinEntropyTestReals only for double/float
 //
-REGISTER_TYPED_TEST_CASE_P(MinEntropyTest, Vulnerability, Entropy, Cond_vulnerability, Cond_entropy, Capacity);
+REGISTER_TYPED_TEST_CASE_P(MinEntropyTest, Vulnerability, Cond_vulnerability);
+REGISTER_TYPED_TEST_CASE_P(MinEntropyTestReals, Entropy, Cond_entropy, Capacity);
 
-INSTANTIATE_TYPED_TEST_CASE_P(MinEntropy, MinEntropyTest, NativeTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(MinEntropy, MinEntropyTest, AllTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(MinEntropyReals, MinEntropyTestReals, NativeTypes);
 

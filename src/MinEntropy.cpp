@@ -27,7 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 template<typename eT>
 eT MinEntropy<eT>::vulnerability(const Prob<eT>& pi) {
-	return max(pi);
+	eT max_x = eT(0);
+	for(uint x = 0; x < pi.n_cols; x++) {
+		eT el = pi.at(x);
+		if(el > max_x)
+			max_x = el;
+	}
+	return max_x;
 }
 
 //sum y max x pi(x) C[x,y]
@@ -51,17 +57,7 @@ eT MinEntropy<eT>::cond_vulnerability(const Prob<eT>& pi) {
 }
 
 template<typename eT>
-eT MinEntropy<eT>::entropy(const Prob<eT>& pi) {
-	return -qif::log2(vulnerability(pi));
-}
-
-template<typename eT>
-eT MinEntropy<eT>::cond_entropy(const Prob<eT>& pi) {
-	return -qif::log2(cond_vulnerability(pi));
-}
-
-template<typename eT>
-eT MinEntropy<eT>::capacity() {
+eT MinEntropy<eT>::max_mult_leakage() {
 	eT sum_y = eT(0);
 
 	for(uint y = 0; y < this->C.n_cols; y++) {
@@ -73,12 +69,7 @@ eT MinEntropy<eT>::capacity() {
 		}
 		sum_y += max_x;
 	}
-	return qif::log2(sum_y);
-}
-
-template<typename IntType>
-Rational<IntType> MinEntropy<Rational<IntType>>::capacity() {
-	throw 1;
+	return sum_y;
 }
 
 template class MinEntropy<double>;

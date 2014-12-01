@@ -56,6 +56,22 @@ namespace qif {
 	inline double log2(uint a) {
 		return std::log2(a);
 	}
+
+	// helper template class, for operations that are defined on double/float
+	// but compile and return runtime error on other types
+	//
+	template<typename eT>
+	struct real_ops {
+		inline static eT log2(eT x) { throw "not supported on this datatype"; }
+	};
+	template<>
+	struct real_ops<double> {
+		inline static double log2(double x) { return qif::log2(x); }
+	};
+	template<>
+	struct real_ops<float> {
+		inline static float log2(float x) { return qif::log2(x); }
+	};
 }
 
 
