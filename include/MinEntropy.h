@@ -30,9 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
  */
-class MinEntropy : public LeakageMeasure {
+class MinEntropy : public LeakageMeasure<double> {
 	public:
-		using LeakageMeasure::LeakageMeasure;
+		using LeakageMeasure<double>::LeakageMeasure;
 
 		double vulnerability(const prob& pi);
 

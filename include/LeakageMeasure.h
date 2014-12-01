@@ -38,36 +38,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *  For most information about the MatLab plotter engine see <a href="../papers/p1.pdf">here</a> \n
  *  For most information about the Maple plotter engine see <a href="../papers/p1.pdf">here</a> \n
  */
+
+template<typename eT>
 class LeakageMeasure {
 	public:
-		chan C;
+		Chan<eT> C;
 
 		//! A normal constructor. You will need choose a Engine before plotting. The SciLab plotter engine is choosen by default.
 		/*!
 		\sa ~LeakageMeasure(),change_to_GNUPlot(),change_to_MatLab(),change_to_Maple().
 		*/
-		LeakageMeasure()				: C( ) {}
-		LeakageMeasure(const chan& C)	: C(C) {}
-		LeakageMeasure(chan&& C)		: C(C) {}
-
-		//! A normal destroyer member. This function closes the current engine.
-		/*!
-		\sa LeakageMeasure()
-		*/
-		~LeakageMeasure();
+		LeakageMeasure()					: C( ) {}
+		LeakageMeasure(const Chan<eT>& C)	: C(C) {}
+		LeakageMeasure(Chan<eT>&& C)		: C(C) {}
 
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual double vulnerability(const prob& pi) { throw "not supported"; }
+		virtual double vulnerability(const Prob<eT>& pi) { throw "not supported"; }
 
-		virtual double cond_vulnerability(const prob& pi) { throw "not supported"; }
+		virtual double cond_vulnerability(const Prob<eT>& pi) { throw "not supported"; }
 
-		virtual double entropy(const prob& pi) = 0;
+		virtual double entropy(const Prob<eT>& pi) = 0;
 
-		virtual double cond_entropy(const prob& pi) = 0;
+		virtual double cond_entropy(const Prob<eT>& pi) = 0;
 
-		virtual double leakage(const prob& pi) { return entropy(pi) - cond_entropy(pi); }
+		virtual double leakage(const Prob<eT>& pi) { return entropy(pi) - cond_entropy(pi); }
 
 		virtual double capacity() { throw "not supported"; }
 
@@ -145,6 +141,6 @@ class LeakageMeasure {
 			3 : Maple  */
 		Gain* g;
 
-		void check_prior(const prob& pi) { if(C.n_cols != pi.n_cols) throw 1; }
+		void check_prior(const Prob<eT>& pi) { if(C.n_cols != pi.n_cols) throw 1; }
 };
 #endif

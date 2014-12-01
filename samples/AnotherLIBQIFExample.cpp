@@ -52,7 +52,7 @@ int main() {
 	std::cout << "Lg " << Lg << std::endl;
 	std::cout << "Calculating ends" << std::endl;
 
-	Shannon sl = Shannon(C);
+	Shannon<double> sl(C);
 	MinEntropy ml = MinEntropy(C);
 	Guessing gul = Guessing(C);
 	//Using the Plotter

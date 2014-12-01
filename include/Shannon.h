@@ -31,14 +31,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
  */
-class Shannon : public LeakageMeasure {
+
+template<typename eT>
+class Shannon : public LeakageMeasure<eT> {
 	public:
 		// inherit the constructors from parent (C++11 feature)
-		using LeakageMeasure::LeakageMeasure;
+		using LeakageMeasure<eT>::LeakageMeasure;
 
-		double entropy(const prob& pi);
+		double entropy(const Prob<eT>& pi);
 
-		double cond_entropy(const prob& pi);
+		double cond_entropy(const Prob<eT>& pi);
 
 		double capacity();
 

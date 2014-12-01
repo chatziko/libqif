@@ -29,7 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // H(X) = - sum_x pi[x] log2(pi[x])
 //
-double Shannon::entropy(const prob& pi) {
+template<typename eT>
+double Shannon<eT>::entropy(const Prob<eT>& pi) {
 	double sum_x = 0;
 	for(uint x = 0; x < pi.n_cols; x++) {
 		double el = pi.at(x);
@@ -46,34 +47,36 @@ double Shannon::entropy(const prob& pi) {
 // since H(Y|X) is easier to compute:
 //    H(Y|X) = sum_x pi[x] H(C[x,-])   (entropy of row x)
 //
-double Shannon::cond_entropy(const prob& pi) {
-	check_prior(pi);
+template<typename eT>
+double Shannon<eT>::cond_entropy(const Prob<eT>& pi) {
+	this->check_prior(pi);
 
 	double Hyx = 0;
-	for(uint x = 0; x < C.n_rows; x++)
-		Hyx += pi.at(x) * entropy(C.row(x));
+	for(uint x = 0; x < this->C.n_rows; x++)
+		Hyx += pi.at(x) * entropy(this->C.row(x));
 
-	return Hyx + entropy(pi) - entropy(pi * C);
+	return Hyx + entropy(pi) - entropy(pi * this->C);
 }
 
 //Blahut-Arimoto Algorithm
 //
-double Shannon::capacity() {
-	uint m = C.n_rows;
-	uint n = C.n_cols;
+template<typename eT>
+double Shannon<eT>::capacity() {
+	uint m = this->C.n_rows;
+	uint n = this->C.n_cols;
 
-	prob F(m), Px(m), Py(m);
+	Prob<eT> F(m), Px(m), Py(m);
 	uniform(Px);
 
 	while(1) {
 		// Py = output dist
-		Py = Px * C;
+		Py = Px * this->C;
 
 		// update F
 		for(uint i = 0; i < m; i++) {
 			double s = 0;
 			for(uint j = 0; j < n; j++) {
-				double el = C.at(i, j);
+				double el = this->C.at(i, j);
 				s += el > 0 ? el * log(el / Py.at(j)) : 0;		// NOTE: this is e-base log, not 2-base!
 			}
 			F.at(i) = exp(s);
@@ -84,10 +87,13 @@ double Shannon::capacity() {
 		double IL = log2(d);
 		double IU = log2(max(F));
 
-		if(IU - IL < precision)
+		if(IU - IL < this->precision)
 			return IL;
 
 		// update Px
 		Px %= F / d;		// % is element-wise mult
 	}
 }
+
+template class Shannon<double>;
+template class Shannon<float>;

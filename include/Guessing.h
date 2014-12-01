@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  For most information about this theory see
  */
-class Guessing : public LeakageMeasure {
+class Guessing : public LeakageMeasure<double> {
 	public:
 		using LeakageMeasure::LeakageMeasure;
 
