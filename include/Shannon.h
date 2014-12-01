@@ -24,17 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 
 /*! \class Shannon
  *  \brief The shannon model of entropy.
  *
  *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
  */
-class Shannon : public EntropyModel {
+class Shannon : public LeakageMeasure {
 	public:
 		// inherit the constructors from parent (C++11 feature)
-		using EntropyModel::EntropyModel;
+		using LeakageMeasure::LeakageMeasure;
 
 		double entropy(const prob& pi);
 

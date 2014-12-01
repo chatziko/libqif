@@ -24,15 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 /*! \class MinEntropy
  *  \brief The Min-Entropy model of entropy.
  *
  *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
  */
-class MinEntropy : public EntropyModel {
+class MinEntropy : public LeakageMeasure {
 	public:
-		using EntropyModel::EntropyModel;
+		using LeakageMeasure::LeakageMeasure;
 
 		double vulnerability(const prob& pi);
 

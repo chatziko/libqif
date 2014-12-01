@@ -1,4 +1,4 @@
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
-EntropyModel::~EntropyModel() {
+LeakageMeasure::~LeakageMeasure() {
 	switch(plotter_flag) {
 	case -1: //do nothing
 		break;
@@ -43,7 +43,7 @@ EntropyModel::~EntropyModel() {
 	}
 }
 
-void EntropyModel::plot2d_vulnerability() {
+void LeakageMeasure::plot2d_vulnerability() {
 	//correct size control
 	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
@@ -146,7 +146,7 @@ void EntropyModel::plot2d_vulnerability() {
 	}
 }
 
-void EntropyModel::plot2d_cond_vulnerability() {
+void LeakageMeasure::plot2d_cond_vulnerability() {
 	//correct size control
 	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
@@ -249,7 +249,7 @@ void EntropyModel::plot2d_cond_vulnerability() {
 	}
 }
 
-void EntropyModel::plot2d_leakage() {
+void LeakageMeasure::plot2d_leakage() {
 	//correct size control
 	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
@@ -355,7 +355,7 @@ void EntropyModel::plot2d_leakage() {
 	}
 }
 
-void EntropyModel::plot2d_entropy() {
+void LeakageMeasure::plot2d_entropy() {
 	//correct size control
 	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
@@ -461,7 +461,7 @@ void EntropyModel::plot2d_entropy() {
 	}
 }
 
-void EntropyModel::plot2d_cond_entropy() {
+void LeakageMeasure::plot2d_cond_entropy() {
 	//correct size control
 	if(C.n_rows != 2) {
 		throw 1; // X must be equal for both
@@ -567,7 +567,7 @@ void EntropyModel::plot2d_cond_entropy() {
 	}
 }
 
-void EntropyModel::plot3d_vulnerability() {
+void LeakageMeasure::plot3d_vulnerability() {
 	//correct size control
 	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
@@ -653,7 +653,7 @@ void EntropyModel::plot3d_vulnerability() {
 	}
 }
 
-void EntropyModel::plot3d_cond_vulnerability() {
+void LeakageMeasure::plot3d_cond_vulnerability() {
 	//correct size control
 	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
@@ -739,7 +739,7 @@ void EntropyModel::plot3d_cond_vulnerability() {
 	}
 }
 
-void EntropyModel::plot3d_leakage() {
+void LeakageMeasure::plot3d_leakage() {
 	//correct size control
 	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
@@ -831,7 +831,7 @@ void EntropyModel::plot3d_leakage() {
 	}
 }
 
-void EntropyModel::plot3d_entropy() {
+void LeakageMeasure::plot3d_entropy() {
 	//correct size control
 	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
@@ -923,7 +923,7 @@ void EntropyModel::plot3d_entropy() {
 	}
 }
 
-void EntropyModel::plot3d_cond_entropy() {
+void LeakageMeasure::plot3d_cond_entropy() {
 	//correct size control
 	if(C.n_rows != 3) {
 		throw 1; // X must be equal for both
@@ -1015,7 +1015,7 @@ void EntropyModel::plot3d_cond_entropy() {
 	}
 }
 
-void EntropyModel::change_to_scilab() {
+void LeakageMeasure::change_to_scilab() {
 	switch(plotter_flag) {
 	case -1:
 		plotter_flag = 0;
@@ -1042,17 +1042,17 @@ void EntropyModel::change_to_scilab() {
 	}
 }
 
-void EntropyModel::change_to_gnuplot() {
+void LeakageMeasure::change_to_gnuplot() {
 	//Its not implemented yet
 	throw 1;
 }
 
-void EntropyModel::change_to_matlab() {
+void LeakageMeasure::change_to_matlab() {
 	//Its not implemented yet
 	throw 1;
 }
 
-void EntropyModel::change_to_maple() {
+void LeakageMeasure::change_to_maple() {
 	//Its not implemented yet
 	throw 1;
 }

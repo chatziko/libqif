@@ -23,14 +23,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "gtest/gtest.h"
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 #include <string>
 
 using namespace std;
 
 /* Untested functions:
-EntropyModel();
-~EntropyModel();
+LeakageMeasure();
+~LeakageMeasure();
 void plot2d_cond_vulnerability();
 void plot2d_leakage();
 void plot2d_entropy();

@@ -24,15 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 /*! \class Guessing
  *  \brief The guessing model of entropy.
  *
  *  For most information about this theory see
  */
-class Guessing : public EntropyModel {
+class Guessing : public LeakageMeasure {
 	public:
-		using EntropyModel::EntropyModel;
+		using LeakageMeasure::LeakageMeasure;
 
 		double entropy(const prob& pi);
 

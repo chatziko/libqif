@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "EntropyModel.h"
+#include "LeakageMeasure.h"
 #include "LinearProgram.h"
 
 /*! \class GLeakage
@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  For most information about the foundations of this theory see <a href="../papers/gleakage.pdf">here</a>
  */
-class GLeakage : public EntropyModel {
+class GLeakage : public LeakageMeasure {
 	public:
 
 		//! A normal constructor taking 2 arguments.

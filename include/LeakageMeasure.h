@@ -1,5 +1,5 @@
-#ifndef _QIF_EntropyModel_h_
-#define _QIF_EntropyModel_h_
+#ifndef _QIF_LeakageMeasure_h_
+#define _QIF_LeakageMeasure_h_
 /*
 This file belongs to the LIBQIF library.
 A Quantitative Information Flow C++ Toolkit Library.
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Gain.h"
 //#include <typeinfo>
 
-/*! \class EntropyModel
+/*! \class LeakageMeasure
  *  \brief A generic model of entropy that defines the basic function to compute and plot.
  *
  *  For most information about the SciLab plotter engine see <a href="../papers/p1.pdf">here</a> \n
@@ -38,23 +38,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *  For most information about the MatLab plotter engine see <a href="../papers/p1.pdf">here</a> \n
  *  For most information about the Maple plotter engine see <a href="../papers/p1.pdf">here</a> \n
  */
-class EntropyModel {
+class LeakageMeasure {
 	public:
 		chan C;
 
 		//! A normal constructor. You will need choose a Engine before plotting. The SciLab plotter engine is choosen by default.
 		/*!
-		\sa ~EntropyModel(),change_to_GNUPlot(),change_to_MatLab(),change_to_Maple().
+		\sa ~LeakageMeasure(),change_to_GNUPlot(),change_to_MatLab(),change_to_Maple().
 		*/
-		EntropyModel()				: C( ) {}
-		EntropyModel(const chan& C) : C(C) {}
-		EntropyModel(chan&& C)		: C(C) {}
+		LeakageMeasure()				: C( ) {}
+		LeakageMeasure(const chan& C)	: C(C) {}
+		LeakageMeasure(chan&& C)		: C(C) {}
 
 		//! A normal destroyer member. This function closes the current engine.
 		/*!
-		\sa EntropyModel()
+		\sa LeakageMeasure()
 		*/
-		~EntropyModel();
+		~LeakageMeasure();
 
 		//---------------------------------------------------------
 		//theorethic algorithms
@@ -131,7 +131,7 @@ class EntropyModel {
 		void change_to_maple();
 
 		virtual const char* class_name() {
-			return "EntropyModel";
+			return "LeakageMeasure";
 		}
 
 		double precision = 0.001;

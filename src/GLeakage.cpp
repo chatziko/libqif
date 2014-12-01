@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 GLeakage::GLeakage(chan& channel, Gain& gain_function) :
-	EntropyModel(channel)
+	LeakageMeasure(channel)
 	{
 	if(channel.n_rows != gain_function.n_cols) {
 		throw 1;
