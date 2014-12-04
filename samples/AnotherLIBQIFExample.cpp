@@ -39,7 +39,7 @@ int main() {
 	std::cout << C << std::endl;
 
 	//Creating the gain function matrix reusing the channel elements
-	Gain g = Gain(channel_elements);
+	mat g = mat(channel_elements);
 
 	//Creating the probability distribution
 	std::string vector_elements = "0.3333 0.3333 0.3334";
@@ -47,7 +47,7 @@ int main() {
 
 	std::cout << "Calculating the GLeakage" << std::endl;
 	//Calculating the GLeakage
-	GLeakage gl = GLeakage(C, g);
+	GLeakage<double> gl(C, g);
 	double Lg = gl.leakage(p1);
 	std::cout << "Lg " << Lg << std::endl;
 	std::cout << "Calculating ends" << std::endl;

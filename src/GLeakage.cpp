@@ -23,105 +23,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-GLeakage::GLeakage(chan& channel, Gain& gain_function) :
-	LeakageMeasure(channel)
-	{
-	if(channel.n_rows != gain_function.n_cols) {
-		throw 1;
-	}
-	g = &gain_function;
-}
 
-//GLeakage::~GLeakage()
-//{
-//	C.~Channel();
-//	g->~Gain();
-//}
-/*
-void * GLeakage::compare_over_prior(Channel& other_channel)
-{
+template<typename eT>
+eT GLeakage<eT>::vulnerability(const Prob<eT>& pi) {
+	this->check_prior(pi, true);
 
-}
+	Chan<eT>& C = this->C;
+	Mat<eT>& G = this->G;
 
-void * GLeakage::compare_over_gain(Channel& other_channel,prob& prior)
-{
-
-}
-*/
-//-------------- declaring the theoric algoritmhs implementation
-double GLeakage::vulnerability(const prob& pi) {
-
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
 	//the names w x and y are from the formulas.
-	double sum_x;
-	double max_w = 0;
-	for(uint w = 0; w < g->n_rows; ++w) {
-		sum_x = 0;
-		for(uint x = 0; x < g->n_cols; ++x) {
-			sum_x += pi.at(x) * g->at(w, x);
-		}
-		if(sum_x > max_w) {
+	eT max_w = eT(0);
+	for(uint w = 0; w < G.n_rows; ++w) {
+		eT sum_x = eT(0);
+		for(uint x = 0; x < G.n_cols; ++x)
+			sum_x += pi.at(x) * G.at(w, x);
+		if(sum_x > max_w)
 			max_w = sum_x;
-		}
 	}
 	return max_w;
 }
 
-double GLeakage::cond_vulnerability(const prob& pi) {
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	//the names w x and y are from the formulas.
-	double sum_x;
-	double max_w;
-	double sum_y = 0;
+template<typename eT>
+eT GLeakage<eT>::cond_vulnerability(const Prob<eT>& pi) {
+	this->check_prior(pi);
 
+	Chan<eT>& C = this->C;
+	Mat<eT>& G = this->G;
+
+	//the names w x and y are from the formulas.
+	eT sum_y = 0;
 	for(uint y = 0; y < C.n_cols; ++y) {
-		max_w = 0;
-		for(uint w = 0; w < g->n_rows; ++w) {
-			sum_x = 0;
-			for(uint x = 0; x < g->n_cols; ++x) {
-				sum_x += pi.at(x) * g->at(w, x) * C.at(x, y);
-			}
-			if(sum_x > max_w) {
+		eT max_w = eT(0);
+		for(uint w = 0; w < G.n_rows; ++w) {
+			eT sum_x = eT(0);
+			for(uint x = 0; x < G.n_cols; ++x)
+				sum_x += pi.at(x) * G.at(w, x) * C.at(x, y);
+			if(sum_x > max_w)
 				max_w = sum_x;
-			}
 		}
 		sum_y += max_w;
 	}
 	return sum_y;
 }
 
-double GLeakage::leakage(const prob& pi) {
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return log(cond_vulnerability(pi) / vulnerability(pi));
-}
+template class GLeakage<double>;
+template class GLeakage<float>;
+template class GLeakage<urat>;
 
-double GLeakage::additive_leakage(const prob& pi) {
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return (entropy(pi) - cond_entropy(pi));
-}
-
-double GLeakage::entropy(const prob& pi) {
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return -log(vulnerability(pi));
-}
-
-double GLeakage::cond_entropy(const prob& pi) {
-	if(C.n_rows != pi.size()) {
-		throw 1; // X must be equal for both
-	}
-	return -log(cond_vulnerability(pi));
-}
-
-double GLeakage::capacity() {
-	throw 1; //It is not supported
-}

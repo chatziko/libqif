@@ -39,22 +39,22 @@ int main() {
 	chan C_balanced = chan(balanced);
 	chan C_id = chan(id);
 
-	Gain g_id = Gain(id);
-	Gain g_metrics = Gain(metrics);
-	Gain g_k_tries = Gain(k_tries);
+	mat g_id = mat(id);
+	mat g_metrics = mat(metrics);
+	mat g_k_tries = mat(k_tries);
 
-	//GLeakage
-	GLeakage gl1 = GLeakage(C_rand, g_id);
-	GLeakage gl2 = GLeakage(C_balanced, g_id);
-	GLeakage gl3 = GLeakage(C_id, g_id);
+	//GLeakage<double>
+	GLeakage<double> gl1 = GLeakage<double>(C_rand, g_id);
+	GLeakage<double> gl2 = GLeakage<double>(C_balanced, g_id);
+	GLeakage<double> gl3 = GLeakage<double>(C_id, g_id);
 
-	GLeakage gl4 = GLeakage(C_rand, g_metrics);
-	GLeakage gl5 = GLeakage(C_balanced, g_metrics);
-	GLeakage gl6 = GLeakage(C_id, g_metrics);
+	GLeakage<double> gl4 = GLeakage<double>(C_rand, g_metrics);
+	GLeakage<double> gl5 = GLeakage<double>(C_balanced, g_metrics);
+	GLeakage<double> gl6 = GLeakage<double>(C_id, g_metrics);
 
-	GLeakage gl7 = GLeakage(C_rand, g_k_tries);
-	GLeakage gl8 = GLeakage(C_balanced, g_k_tries);
-	GLeakage gl9 = GLeakage(C_id, g_k_tries);
+	GLeakage<double> gl7 = GLeakage<double>(C_rand, g_k_tries);
+	GLeakage<double> gl8 = GLeakage<double>(C_balanced, g_k_tries);
+	GLeakage<double> gl9 = GLeakage<double>(C_id, g_k_tries);
 
 	gl1.change_to_scilab();
 	gl2.change_to_scilab();

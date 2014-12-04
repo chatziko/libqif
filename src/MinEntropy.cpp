@@ -34,6 +34,8 @@ eT MinEntropy<eT>::vulnerability(const Prob<eT>& pi) {
 			max_x = el;
 	}
 	return max_x;
+
+//	return accu(max(this->C, 1));
 }
 
 //sum y max x pi(x) C[x,y]
@@ -54,6 +56,10 @@ eT MinEntropy<eT>::cond_vulnerability(const Prob<eT>& pi) {
 		sum_y += max_x;
 	}
 	return sum_y;
+
+//	eT s = eT(0);
+//	for(uint y = 0; y < this->C.n_cols; y++)
+//		s += max(pi % trans(this->C.col(y)));
 }
 
 template<typename eT>

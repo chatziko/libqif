@@ -33,7 +33,7 @@ int main() {
 	chan C = chan(channel_elements);
 
 	std::string function_elements = "1 0 0; 0 1 0; 0 0 1";
-	Gain g = Gain(function_elements);
+	mat g = mat(function_elements);
 
 	//Creating the probability distribution vectors
 	std::string vector1_elements = "0.33333 0.33333 0.33334";
@@ -46,8 +46,8 @@ int main() {
 	prob p3 = prob(vector3_elements);
 	prob p4 = prob(vector4_elements);
 
-	//GLeakage
-	GLeakage gl = GLeakage(C, g);
+	//GLeakage<double>
+	GLeakage<double> gl = GLeakage<double>(C, g);
 
 	//calculating measures
 	double Lg1 = gl.leakage(p1);

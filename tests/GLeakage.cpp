@@ -24,100 +24,91 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "gtest/gtest.h"
 #include "GLeakage.h"
-#include <string>
+#include "aux.h"
+#include "tests_aux.h"
 
-using namespace std;
+// define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
+template <typename eT>
+class GLeakageTest : public BaseTest<eT> {};
+template <typename eT>
+class GLeakageTestReals : public BaseTest<eT> {};
 
-TEST(GLeakage, incorrect_X_size) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	string new_gain_elements = "1 0 0;0 1 0";
-	Gain new_gain = Gain(new_gain_elements);
-	ASSERT_ANY_THROW(GLeakage gleakage = GLeakage(new_channel, new_gain););
+TYPED_TEST_CASE_P(GLeakageTest);
+TYPED_TEST_CASE_P(GLeakageTestReals);		// tests that run only on double/float
+
+
+TYPED_TEST_P(GLeakageTest, Vulnerability) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED2(equal<eT>, 0.5, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 0.1, GLeakage<eT>(t.id_10, t.id_10).vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_4,  t.id_4).vulnerability(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, 0.8, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.pi1));
 }
 
-TEST(GLeakage_QIF_functions, incorrect_X_size) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	string new_gain_elements = "1 0;0 1";
-	Gain new_gain = Gain(new_gain_elements);
-	GLeakage gleakage = GLeakage(new_channel, new_gain);
-	string new_prior_elements = "0.33 0.33 0.34";
-	prob prior = prob(new_prior_elements);
-	ASSERT_ANY_THROW(gleakage.vulnerability(prior););
-	ASSERT_ANY_THROW(gleakage.cond_vulnerability(prior););
-	ASSERT_ANY_THROW(gleakage.entropy(prior););
-	ASSERT_ANY_THROW(gleakage.cond_entropy(prior););
-	ASSERT_ANY_THROW(gleakage.leakage(prior););
+TYPED_TEST_P(GLeakageTest, Cond_vulnerability) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.pi1));
+	
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.pi2));
+	
+	EXPECT_PRED2(equal<eT>, 0.1, GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.dirac_10));
+
+	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.noint_10, t.id_10).vulnerability(t.pi2), GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.pi2));
+
+	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.c1, t.id_2).vulnerability(t.pi3), GLeakage<eT>(t.c1, t.id_2).cond_vulnerability(t.pi3));	// no change in vulnerability
+	EXPECT_PRED2(equal<eT>, 0.775, GLeakage<eT>(t.c1, t.id_2).cond_vulnerability(t.pi4));
+
+	ASSERT_ANY_THROW(GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.unif_2));
 }
 
-TEST(GLeakage_plotter_functions, plot_without_selected_engine) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	string new_gain_elements = "1 0;0 1";
-	Gain new_gain = Gain(new_gain_elements);
-	GLeakage gleakage = GLeakage(new_channel, new_gain);
-	ASSERT_ANY_THROW(gleakage.plot2d_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot2d_cond_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot2d_leakage(););
-	ASSERT_ANY_THROW(gleakage.plot2d_entropy(););
-	ASSERT_ANY_THROW(gleakage.plot2d_cond_entropy(););
 
-	//------------------------------------------------------
-	new_channel_elements = "1 0 0;0 1 0;0 0 1";
-	new_channel = chan(new_channel_elements);
-	new_gain_elements = "1 0 0;0 1 0;0 0 1";
-	new_gain = Gain(new_gain_elements);
-	gleakage = GLeakage(new_channel, new_gain);
-	ASSERT_ANY_THROW(gleakage.plot3d_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot3d_cond_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot3d_leakage(););
-	ASSERT_ANY_THROW(gleakage.plot3d_entropy(););
-	ASSERT_ANY_THROW(gleakage.plot3d_cond_entropy(););
+TYPED_TEST_P(GLeakageTestReals, Entropy) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.5), GLeakage<eT>(t.id_2,  t.id_2).entropy(t.unif_2));
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), GLeakage<eT>(t.id_10, t.id_10).entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,               GLeakage<eT>(t.id_4,  t.id_4).entropy(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.8), GLeakage<eT>(t.id_2,  t.id_2).entropy(t.pi1));
 }
 
-TEST(GLeakage_plotter_functions, incorrect_X_size) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	string new_gain_elements = "1 0;0 1";
-	Gain new_gain = Gain(new_gain_elements);
-	GLeakage gleakage = GLeakage(new_channel, new_gain);
-	gleakage.change_to_scilab();
-	ASSERT_ANY_THROW(gleakage.plot3d_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot3d_cond_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot3d_leakage(););
-	ASSERT_ANY_THROW(gleakage.plot3d_entropy(););
-	ASSERT_ANY_THROW(gleakage.plot3d_cond_entropy(););
-	//--------------------------------------------------
-	new_channel_elements = "1 0 0;0 1 0;0 0 1";
-	new_channel = chan(new_channel_elements);
-	new_gain_elements = "1 0 0;0 1 0;0 0 1";
-	new_gain = Gain(new_gain_elements);
-	gleakage = GLeakage(new_channel, new_gain);
-	gleakage.change_to_scilab();
-	ASSERT_ANY_THROW(gleakage.plot2d_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot2d_cond_vulnerability(););
-	ASSERT_ANY_THROW(gleakage.plot2d_leakage(););
-	ASSERT_ANY_THROW(gleakage.plot2d_entropy(););
-	ASSERT_ANY_THROW(gleakage.plot2d_cond_entropy(););
+TYPED_TEST_P(GLeakageTestReals, Cond_entropy) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_2, t.id_2).cond_entropy(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_2, t.id_2).cond_entropy(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_2, t.id_2).cond_entropy(t.pi1));
+	
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_10, t.id_10).cond_entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_10, t.id_10).cond_entropy(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 0,   GLeakage<eT>(t.id_10, t.id_10).cond_entropy(t.pi2));
+	
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), GLeakage<eT>(t.noint_10, t.id_10).cond_entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,               GLeakage<eT>(t.noint_10, t.id_10).cond_entropy(t.dirac_10));
+
+	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.noint_10, t.id_10).entropy(t.pi2), GLeakage<eT>(t.noint_10, t.id_10).cond_entropy(t.pi2));
+
+	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.c1, t.id_2).entropy(t.pi3), GLeakage<eT>(t.c1, t.id_2).cond_entropy(t.pi3)); // no change in entropy
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.775), GLeakage<eT>(t.c1, t.id_2).cond_entropy(t.pi4));
+
+	ASSERT_ANY_THROW(GLeakage<eT>(t.id_10, t.id_2).cond_entropy(t.unif_2));
 }
 
-TEST(G_capacity, not_supported) {
-	string new_channel_elements = "1 0;0 1";
-	chan new_channel = chan(new_channel_elements);
-	string new_gain_elements = "1 0;0 1";
-	Gain new_gain = Gain(new_gain_elements);
-	GLeakage gleakage = GLeakage(new_channel, new_gain);
-	ASSERT_ANY_THROW(gleakage.capacity(););
-}
+// run the GLeakageTest test-case for all types, and the GLeakageTestReals only for double/float
+//
+REGISTER_TYPED_TEST_CASE_P(GLeakageTest, Vulnerability, Cond_vulnerability);
+REGISTER_TYPED_TEST_CASE_P(GLeakageTestReals, Entropy, Cond_entropy);
 
-/* Untested functions:
-double vulnerability(prob pi);
-double cond_vulnerability(prob pi);
-double leakage(prob pi);
-double entropy(prob pi);
-double cond_entropy(prob pi);
-double capacity();
-void * compare_over_prior(chan other_channel);
-void * compare_over_gain(chan other_channel,prob prior);
-*/
+INSTANTIATE_TYPED_TEST_CASE_P(GLeakage, GLeakageTest, AllTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(GLeakageReals, GLeakageTestReals, NativeTypes);
+

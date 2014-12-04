@@ -25,48 +25,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "LeakageMeasure.h"
-#include "LinearProgram.h"
+#include "aux.h"
 
 /*! \class GLeakage
  *  \brief The Generalized Gain Function model of entropy.
  *
  *  For most information about the foundations of this theory see <a href="../papers/gleakage.pdf">here</a>
  */
-class GLeakage : public LeakageMeasure<double> {
+template<typename eT>
+class GLeakage : public LeakageMeasure<eT> {
 	public:
+		Mat<eT> G;
 
 		//! A normal constructor taking 2 arguments.
 		/*!
-		\sa ~GLeakage().
 		*/
-		GLeakage(chan& c, Gain& g);
+		using LeakageMeasure<eT>::LeakageMeasure;
 
-		//! A normal destroyer member.
-		/*!
-		\sa GLeakage()
-		*/
-//		~GLeakage();
+		GLeakage<eT>() {}
+		GLeakage<eT>(const Chan<eT>& C, const Mat<eT>& G) : LeakageMeasure<eT>(C), G(G) {};
 
-		double vulnerability(const prob& pi);
+		eT vulnerability(const Prob<eT>& pi);
+		eT cond_vulnerability(const Prob<eT>& pi);
 
-		double cond_vulnerability(const prob& pi);
+		eT additive_leakage(const Prob<eT>& pi);
 
-		double leakage(const prob& pi);
+		eT entropy(const Prob<eT>& pi)		{ return -qif::real_ops<eT>::log2(vulnerability(pi));		}
+		eT cond_entropy(const Prob<eT>& pi)	{ return -qif::real_ops<eT>::log2(cond_vulnerability(pi));	}
 
-		double additive_leakage(const prob& pi);
+//		void * compare_over_prior(chan& other_channel);
+//		void * compare_over_gain(chan& other_channel,Prob<eT>& prior);
 
-		double entropy(const prob& pi);
-
-		double cond_entropy(const prob& pi);
-
-		double capacity();
-		/*
-		void * compare_over_prior(chan& other_channel);
-
-		void * compare_over_gain(chan& other_channel,prob& prior);
-		*/
 		virtual const char* class_name() {
 			return "GLeakage";
+		}
+
+	protected:
+		virtual void check_prior(const Prob<eT>& pi, bool ignore_c = false) {
+			if((this->C.n_rows != pi.n_cols && !ignore_c) || G.n_cols != pi.n_cols)
+				throw 1;
 		}
 
 };

@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <fstream>
 #include "Prob.h"
 #include "Chan.h"
-#include "Gain.h"
-//#include <typeinfo>
 
 /*! \class LeakageMeasure
  *  \brief A generic model of entropy that defines the basic function to compute and plot.
@@ -63,9 +61,11 @@ class LeakageMeasure {
 
 		virtual eT cond_entropy(const Prob<eT>& pi) = 0;
 
-		virtual eT leakage(const Prob<eT>& pi) { return entropy(pi) - cond_entropy(pi); }
+		virtual eT mult_leakage (const Prob<eT>& pi) { return cond_vulnerability(pi) / vulnerability(pi); }
+		virtual eT leakage      (const Prob<eT>& pi) { return entropy(pi)            - cond_entropy(pi);  }
 
-		virtual eT capacity() { throw "not supported"; }
+		virtual eT max_mult_leakage() { throw "not supported"; }
+		virtual eT capacity()         { throw "not supported"; }
 
 		//----------------------------------------------------------
 		//plotter functions
@@ -139,8 +139,7 @@ class LeakageMeasure {
 			1 : GNU-Plot \n
 			2 : MatLab \n
 			3 : Maple  */
-		Gain* g;
 
-		void check_prior(const Prob<eT>& pi) { if(C.n_cols != pi.n_cols) throw 1; }
+		virtual void check_prior(const Prob<eT>& pi) { if(C.n_rows != pi.n_cols) throw 1; }
 };
 #endif

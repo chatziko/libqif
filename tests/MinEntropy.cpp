@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tests_aux.h"
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
-template <typename T>
-class MinEntropyTest : public ::testing::Test {};
-template <typename T>
-class MinEntropyTestReals : public ::testing::Test {};
+template <typename eT>
+class MinEntropyTest : public BaseTest<eT> {};
+template <typename eT>
+class MinEntropyTestReals : public BaseTest<eT> {};
 
 TYPED_TEST_CASE_P(MinEntropyTest);
 TYPED_TEST_CASE_P(MinEntropyTestReals);		// tests that run only on double/float
@@ -39,131 +39,99 @@ TYPED_TEST_CASE_P(MinEntropyTestReals);		// tests that run only on double/float
 
 TYPED_TEST_P(MinEntropyTest, Vulnerability) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	Prob<eT> pi;
-	MinEntropy<eT> minent;
-
-	pi = uniform<Prob<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 0.5, minent.vulnerability(pi));
-
-	pi = uniform<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 0.1, minent.vulnerability(pi));
-
-	pi = Prob<eT>("1 0 0 0");
-	EXPECT_PRED2(equal<eT>, 1, minent.vulnerability(pi));
-
-	pi = Prob<eT>("0.2 0.8");
-	EXPECT_PRED2(equal<eT>, 0.8, minent.vulnerability(pi));
+	EXPECT_PRED2(equal<eT>, 0.5, MinEntropy<eT>().vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 0.1, MinEntropy<eT>().vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>().vulnerability(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, 0.8, MinEntropy<eT>().vulnerability(t.pi1));
 }
 
 TYPED_TEST_P(MinEntropyTest, Cond_vulnerability) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	MinEntropy<eT> minent;
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.pi1));
+	
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.pi2));
+	
+	EXPECT_PRED2(equal<eT>, 0.1, MinEntropy<eT>(t.noint_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.noint_10).cond_vulnerability(t.dirac_10));
 
-	minent.C = identity<Chan<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(uniform<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(dirac<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(Prob<eT>("0.2 0.8")));
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().vulnerability(t.pi2), MinEntropy<eT>(t.noint_10).cond_vulnerability(t.pi2));
 
-	minent.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(dirac<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0")));
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().vulnerability(t.pi3), MinEntropy<eT>(t.c1).cond_vulnerability(t.pi3));	// no change in vulnerability
+	EXPECT_PRED2(equal<eT>, 0.775, MinEntropy<eT>(t.c1).cond_vulnerability(t.pi4));
 
-	no_interference(minent.C);
-	EXPECT_PRED2(equal<eT>, 0.1, minent.cond_vulnerability(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 1, minent.cond_vulnerability(dirac<Prob<eT>>(10)));
+	ASSERT_ANY_THROW(MinEntropy<eT>(t.id_10).cond_vulnerability(t.unif_2));
+}
 
-	Prob<eT> pi = randu<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, minent.vulnerability(pi), minent.cond_vulnerability(pi));
+TYPED_TEST_P(MinEntropyTest, Max_mult_leakage) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	minent.C = Chan<eT>("0.8 0.2; 0.3 0.7");
-	pi = "0.25 0.75";
-	EXPECT_PRED2(equal<eT>, minent.vulnerability(pi), minent.cond_vulnerability(pi));	// no change in vulnerability
-	pi = "0.75 0.25";
-	EXPECT_PRED2(equal<eT>, 0.775, minent.cond_vulnerability(pi));
+	EXPECT_PRED2(equal<eT>, 2,   MinEntropy<eT>(t.id_2).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 10,  MinEntropy<eT>(t.id_10).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.noint_10).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 1.5, MinEntropy<eT>(t.c1).max_mult_leakage());
 
-	minent.C = identity<Chan<eT>>(10);
-	ASSERT_ANY_THROW(minent.cond_vulnerability(uniform<Prob<eT>>(2)););
+	//TODO: denom becomes too big, maybe we should go to GMP
+	//EXPECT_PRED2(equal<eT>, MinEntropy<eT>(t.crand_10).mult_leakage(t.unif_10), MinEntropy<eT>(t.crand_10).max_mult_leakage()); // max_mult_leakage is given for uniform prior
 }
 
 
 TYPED_TEST_P(MinEntropyTestReals, Entropy) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	Prob<eT> pi;
-	MinEntropy<eT> minent;
-
-	pi = uniform<Prob<eT>>(2);
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.5), minent.entropy(pi));
-
-	pi = uniform<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), minent.entropy(pi));
-
-	pi = Prob<eT>("1 0 0 0");
-	EXPECT_PRED2(equal<eT>, 0, minent.entropy(pi));
-
-	pi = Prob<eT>("0.2 0.8");
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.8), minent.entropy(pi));
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.5), MinEntropy<eT>().entropy(t.unif_2));
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), MinEntropy<eT>().entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,               MinEntropy<eT>().entropy(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.8), MinEntropy<eT>().entropy(t.pi1));
 }
 
 TYPED_TEST_P(MinEntropyTestReals, Cond_entropy) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	MinEntropy<eT> minent;
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_2).cond_entropy(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_2).cond_entropy(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_2).cond_entropy(t.pi1));
+	
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_10).cond_entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_10).cond_entropy(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 0,   MinEntropy<eT>(t.id_10).cond_entropy(t.pi2));
+	
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.1), MinEntropy<eT>(t.noint_10).cond_entropy(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 0,               MinEntropy<eT>(t.noint_10).cond_entropy(t.dirac_10));
 
-	minent.C = identity<Chan<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(uniform<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(dirac<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(Prob<eT>("0.2 0.8")));
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().entropy(t.pi2), MinEntropy<eT>(t.noint_10).cond_entropy(t.pi2));
 
-	minent.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(dirac<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0")));
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().entropy(t.pi3), MinEntropy<eT>(t.c1).cond_entropy(t.pi3)); // no change in entropy
+	EXPECT_PRED2(equal<eT>, -qif::log2(0.775),               MinEntropy<eT>(t.c1).cond_entropy(t.pi4));
 
-	no_interference(minent.C);
-	EXPECT_PRED2(equal<eT>, qif::log2(10), minent.cond_entropy(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, minent.cond_entropy(dirac<Prob<eT>>(10)));
-
-	Prob<eT> pi = randu<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, minent.entropy(pi), minent.cond_entropy(pi));
-
-	minent.C = Chan<eT>("0.8 0.2; 0.3 0.7");
-	pi = "0.25 0.75";
-	EXPECT_PRED2(equal<eT>, minent.entropy(pi), minent.cond_entropy(pi));	// no change in entropy
-	pi = "0.75 0.25";
-	EXPECT_PRED2(equal<eT>, -qif::log2(0.775), minent.cond_entropy(pi));
-
-	minent.C = identity<Chan<eT>>(10);
-	ASSERT_ANY_THROW(minent.cond_entropy(uniform<Prob<eT>>(2)););
+	ASSERT_ANY_THROW(MinEntropy<eT>(t.id_10).cond_entropy(t.unif_2));
 }
 
 TYPED_TEST_P(MinEntropyTestReals, Capacity) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	MinEntropy<eT> minent;
+	EXPECT_PRED2(equal<eT>, 1,              MinEntropy<eT>(t.id_2).capacity());
+	EXPECT_PRED2(equal<eT>, qif::log2(10),  MinEntropy<eT>(t.id_10).capacity());
+	EXPECT_PRED2(equal<eT>, 0,              MinEntropy<eT>(t.noint_10).capacity());
+	EXPECT_PRED2(equal<eT>, qif::log2(1.5), MinEntropy<eT>(t.c1).capacity());
 
-	minent.C = identity<Chan<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 1, minent.capacity());
-
-	minent.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, qif::log2(10), minent.capacity());
-
-	minent.C = no_interference<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 0, minent.capacity());
-
-	minent.C = Chan<eT>("0.8 0.2; 0.3 0.7");
-	EXPECT_PRED2(equal<eT>, qif::log2(1.5), minent.capacity());
-
-	minent.C = randu<Chan<eT>>(100);
-	EXPECT_PRED2(equal<eT>, minent.leakage(uniform<Prob<eT>>(100)), minent.capacity());		// capacity is given for uniform prior
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>(t.crand_100).leakage(t.unif_100), MinEntropy<eT>(t.crand_100).capacity()); // capacity is given for uniform prior
 }
 
 // run the MinEntropyTest test-case for all types, and the MinEntropyTestReals only for double/float
 //
-REGISTER_TYPED_TEST_CASE_P(MinEntropyTest, Vulnerability, Cond_vulnerability);
+REGISTER_TYPED_TEST_CASE_P(MinEntropyTest, Vulnerability, Cond_vulnerability, Max_mult_leakage);
 REGISTER_TYPED_TEST_CASE_P(MinEntropyTestReals, Entropy, Cond_entropy, Capacity);
 
 INSTANTIATE_TYPED_TEST_CASE_P(MinEntropy, MinEntropyTest, AllTypes);
