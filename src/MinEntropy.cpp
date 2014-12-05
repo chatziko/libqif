@@ -80,5 +80,5 @@ eT MinEntropy<eT>::max_mult_leakage() {
 
 template class MinEntropy<double>;
 template class MinEntropy<float>;
-template class MinEntropy<urat>;
+template class MinEntropy<rat>;
 

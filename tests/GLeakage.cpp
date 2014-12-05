@@ -41,31 +41,31 @@ TYPED_TEST_P(GLeakageTest, Vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, 0.5, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.unif_2));
-	EXPECT_PRED2(equal<eT>, 0.1, GLeakage<eT>(t.id_10, t.id_10).vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_4,  t.id_4).vulnerability(t.dirac_4));
-	EXPECT_PRED2(equal<eT>, 0.8, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.pi1));
+	EXPECT_PRED2(equal<eT>, eT(5)/10, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, eT(1)/10, GLeakage<eT>(t.id_10, t.id_10).vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_4,  t.id_4).vulnerability(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, eT(8)/10, GLeakage<eT>(t.id_2,  t.id_2).vulnerability(t.pi1));
 }
 
 TYPED_TEST_P(GLeakageTest, Cond_vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.unif_2));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.dirac_2));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_2, t.id_2).cond_vulnerability(t.pi1));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_2,     t.id_2).cond_vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_2,     t.id_2).cond_vulnerability(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_2,     t.id_2).cond_vulnerability(t.pi1));
 	
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.dirac_10));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.pi2));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_10,    t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_10,    t.id_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.id_10,    t.id_10).cond_vulnerability(t.pi2));
 	
-	EXPECT_PRED2(equal<eT>, 0.1, GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, eT(1)/10, GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,        GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.dirac_10));
 
 	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.noint_10, t.id_10).vulnerability(t.pi2), GLeakage<eT>(t.noint_10, t.id_10).cond_vulnerability(t.pi2));
 
 	EXPECT_PRED2(equal<eT>, GLeakage<eT>(t.c1, t.id_2).vulnerability(t.pi3), GLeakage<eT>(t.c1, t.id_2).cond_vulnerability(t.pi3));	// no change in vulnerability
-	EXPECT_PRED2(equal<eT>, 0.775, GLeakage<eT>(t.c1, t.id_2).cond_vulnerability(t.pi4));
+	EXPECT_PRED2(equal<eT>, eT(31)/40, GLeakage<eT>(t.c1, t.id_2).cond_vulnerability(t.pi4));
 
 	ASSERT_ANY_THROW(GLeakage<eT>(t.id_10, t.id_10).cond_vulnerability(t.unif_2));
 }

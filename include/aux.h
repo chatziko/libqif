@@ -12,6 +12,12 @@ inline bool equal(const eT& x, const eT& y) {
 }
 
 template<>
+inline bool equal(const rat& x, const rat& y) {
+	// for some weird reason, == doesn't work on rat
+	return cmp(x, y) == 0;
+}
+
+template<>
 inline bool equal(const double& x, const double& y) {
 	// comparison for double, see Knuth section 4.2.2 pages 217-218
 	return std::abs(x - y) <= epsilon * std::abs(x);

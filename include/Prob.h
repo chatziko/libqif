@@ -27,12 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "types.h"
 #include "aux.h"
-#include "Rational.h"
 
 // Note: using EnableIf alias for SFINAE to make things more readable.
 // We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
 // that uses parameter packs, i.e. EnableIf<cond>...
-// This allows to have functions with exactly the same signature, differing only in the EnableIf/DisableIf conditions
+// This allows to have functions with exactly the same signature, differing only in the EnableIf conditions
 //
 
 template<typename T, EnableIf<is_Prob<T>>...>
@@ -76,7 +75,7 @@ T normalise_prob(const T& pi) {
 }
 
 
-template<typename T, EnableIf<is_Prob<T>>..., DisableIf<is_Rational<typename T::elem_type>>...>
+template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& randu(T& pi) {
 	pi.randu();
@@ -92,15 +91,16 @@ T& randu(T& pi) {
 // So we simply take a common denominator (4096) and generate nominator
 // uniformly in [0,den]
 //
-template<typename T, EnableIf<is_Prob<T>>..., EnableIf<is_Rational<typename T::elem_type>>...>
+template<>
 inline
-T& randu(T& pi) {
+rprob& randu<rprob>(rprob& pi) {
 	const int den = 4096;
 	Mat<int> m(1, 1);
 
 	for(auto& e : pi) {
 		m = arma::randi<Mat<int>>(1, 1, arma::distr_param(0, den));		// use whatever random number generator armadillo is using
-		e.assign(m.at(0,0), den);
+		e = rat(m.at(0,0));
+		e /= den;
 	}
 	pi = normalise_prob(pi);
 
@@ -155,7 +155,7 @@ typename T::elem_type total_variation(const T& x, const T& y) {
 
 	// the result is simply
 	//   max(abs(x - y)) / 2
-	// but abs/max is not supported for rat types, plus negative values are not supported by urat
+	// but abs/max is not supported for rat types, plus negative values are not supported by rat
 
 	eT max = eT(0);
 	for(uint i = 0; i < x.n_cols; i++) {

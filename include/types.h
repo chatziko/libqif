@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <armadillo>
 
+#include "rat.h"
+
+
 using arma::Mat;
 using arma::mat;
 using arma::vec;
@@ -35,10 +38,7 @@ using arma::Row;
 enum class enabled {}; // just a type that can be used as a template parameter and is as inocuous as possible
 template <typename T> using Invoke = typename T::type;
 template <typename Condition> using EnableIf  = Invoke<std::enable_if< Condition::value, enabled>>;
-template <typename Condition> using DisableIf = Invoke<std::enable_if<!Condition::value, enabled>>;
 
-
-template<typename IntType> class rational; // forward
 
 template<typename eT> using Chan    = Mat<eT>;
 template<typename T>  using is_Chan = arma::is_Mat_only<T>;
@@ -48,24 +48,15 @@ template<typename T>  using is_Prob = arma::is_Row<T>;
 
 typedef uint32_t uint;
 
-template<typename IntType> using Rational = rational<IntType>;
-typedef Rational<uintmax_t> urat;
-
-typedef Chan<double>  chan;
-typedef Chan<float>  fchan;
-typedef Chan<urat>   rchan;
+typedef Chan<double> chan;
+typedef Chan<float> fchan;
+typedef Chan<rat>   rchan;
 
 typedef Row<double>  prob;
 typedef Row<float>  fprob;
-typedef Row<urat>   rprob;
+typedef Row<rat>    rprob;
 
-
-template<typename T>
-struct is_Rational
-  { static const bool value = false; };
-template<typename IntType>
-struct is_Rational< Rational<IntType> >
-  { static const bool value = true; };
+typedef Mat<rat>     rmat;
 
 
 #endif

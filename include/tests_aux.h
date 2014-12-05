@@ -1,6 +1,8 @@
 #ifndef _QIF_tests_aux_h_
 #define _QIF_tests_aux_h_
 
+#include <string>
+#include <regex>
 #include "gtest/gtest.h"
 
 #include "types.h"
@@ -8,10 +10,35 @@
 #include "Chan.h"
 #include "aux.h"
 
+using std::string;
 
-typedef ::testing::Types<double, float, urat> AllTypes;
+
+// for rat tests, change num strings like "0.5 0.1" to "5/10 1/10"
+//
+template<typename eT>
+inline
+string format_num(string s) {
+	return s;
+}
+template<>
+inline
+string format_num<rat>(string s) {
+	std::smatch m;
+	std::regex e("(\\d+)\\.(\\d+)");
+
+	while(std::regex_search(s, m, e)) {
+		string num = m[1];
+		string den = m[2];
+		string r = num + den + "/1" + string(den.length(), '0');		// turn 1.5 to 15/10
+		s = s.replace(m.position(), m.length(), r);
+	}
+	return s;
+}
+
+
+typedef ::testing::Types<double, float, rat> AllTypes;
 typedef ::testing::Types<double, float> NativeTypes;
-typedef ::testing::Types<urat> RatTypes;
+typedef ::testing::Types<rat> RatTypes;
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
@@ -24,17 +51,17 @@ class BaseTest : public ::testing::Test {
 			dirac_2  = dirac<Prob<eT>>(2),
 			dirac_4  = dirac<Prob<eT>>(4),
 			dirac_10 = dirac<Prob<eT>>(10),
-			pi1      = "0.2 0.8",
-			pi2      = "0.2 0.8 0 0 0 0 0 0 0 0",
-			pi3      = "0.25 0.75",
-			pi4      = "0.75 0.25";
+			pi1      = format_num<eT>("0.2 0.8"),
+			pi2      = format_num<eT>("0.2 0.8 0 0 0 0 0 0 0 0"),
+			pi3      = format_num<eT>("0.25 0.75"),
+			pi4      = format_num<eT>("0.75 0.25");
 
 		Chan<eT>
 			id_2      = identity<Chan<eT>>(2),
 			id_4      = identity<Chan<eT>>(4),
 			id_10     = identity<Chan<eT>>(10),
 			noint_10  = no_interference<Chan<eT>>(10),
-			c1        = "0.8 0.2; 0.3 0.7",
+			c1        = format_num<eT>("0.8 0.2; 0.3 0.7"),
 			crand_10  = randu<Chan<eT>>(10),
 			crand_100 = randu<Chan<eT>>(100);
 };
@@ -53,7 +80,7 @@ void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
 }
 
 template<typename eT>
-void expect_channel(const std::string& s, const Chan<eT>& c) {
+void expect_channel(const string& s, const Chan<eT>& c) {
 	expect_channel(Mat<eT>(s), c);
 }
 
@@ -77,7 +104,7 @@ void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
 }
 
 template<typename eT>
-void expect_prob(const std::string& s, const Prob<eT>& p) {
+void expect_prob(const string& s, const Prob<eT>& p) {
 	expect_prob(Prob<eT>(s), p);
 }
 

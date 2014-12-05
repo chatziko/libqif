@@ -28,5 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // this header gets precompiled, include here all heavy stuff
 
 #include <armadillo>
+#include <gmpxx.h>
+#include <glpk.h>
+
+#include <string>
+#include <iostream>
+#include <regex>
+#include <vector>
+#include <cmath>
 
 #endif

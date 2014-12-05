@@ -1055,5 +1055,5 @@ void LeakageMeasure<eT>::change_to_maple() {
 
 template class LeakageMeasure<double>;
 template class LeakageMeasure<float>;
-template class LeakageMeasure<urat>;
+template class LeakageMeasure<rat>;
 

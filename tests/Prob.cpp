@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtest/gtest.h"
 
 #include "Prob.h"
-#include "Rational.h"
 #include "aux.h"
 #include "tests_aux.h"
 
@@ -42,21 +41,21 @@ TYPED_TEST_CASE_P(ProbTest);
 TYPED_TEST_P(ProbTest, Construct) {
 	typedef TypeParam eT;
 
-	const char* s = "0.5 0.25 0.25";
+	std::string s = format_num<eT>("0.5 0.25 0.25");
 	Prob<eT> pi(s);
 
-	expect_prob( s,  Prob<eT>(s)              ); // char*
-	expect_prob( s,  Prob<eT>(std::string(s)) ); // std::string
-	expect_prob( s,  Prob<eT>(pi)             ); // copy
+	expect_prob( s, Prob<eT>(s.c_str()) ); // char*
+	expect_prob( s, Prob<eT>(s)         ); // std::string
+	expect_prob( s, Prob<eT>(pi)        ); // copy
 
 	// malformed prob
 	//
-	const char* s2 = "0.1 0.2 0.3";
+	std::string s2 = format_num<eT>("0.1 0.2 0.3");
 	Prob<eT> pi2(s2);
 
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2));              ); // char*
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(std::string(s2))); ); // std::string
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(pi2));              ); // Prob
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2.c_str())); ); // char*
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2));         ); // std::string
+	EXPECT_ANY_THROW( check_proper(Prob<eT>(pi2));        ); // Prob
 }
 
 TYPED_TEST_P(ProbTest, Uniform) {
@@ -67,7 +66,7 @@ TYPED_TEST_P(ProbTest, Uniform) {
 	expect_prob(1, pi);
 
 	pi = uniform<Prob<eT>>(4);
-	expect_prob("0.25 0.25 0.25 0.25", pi);
+	expect_prob(format_num<eT>("0.25 0.25 0.25 0.25"), pi);
 }
 
 TYPED_TEST_P(ProbTest, Randu) {
@@ -111,7 +110,7 @@ TYPED_TEST_P(ProbTest, Bounded_entropy_distance) {
 	Prob<eT> pi1(4), pi2(4);
 	dirac(pi1);
 	uniform(pi2);
-	Prob<eT> pi3("0.1 0.1 0.1 0.7");
+	Prob<eT> pi3(format_num<eT>("0.1 0.1 0.1 0.7"));
 
 	EXPECT_PRED2(equal<eT>, eT(0),	bounded_entropy_distance(pi1, pi1));
 	EXPECT_PRED2(equal<eT>, eT(0),	bounded_entropy_distance(pi2, pi2));
@@ -119,8 +118,8 @@ TYPED_TEST_P(ProbTest, Bounded_entropy_distance) {
 	EXPECT_PRED2(equal<eT>, eT(1),	bounded_entropy_distance(pi1, pi2));
 	EXPECT_PRED2(equal<eT>, eT(1),	bounded_entropy_distance(pi2, pi1));
 
-	EXPECT_PRED2(equal<eT>, 0.642857143,	bounded_entropy_distance(pi2, pi3));
-	EXPECT_PRED2(equal<eT>, 0.642857143,	bounded_entropy_distance(pi3, pi2));
+	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(pi2, pi3));
+	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(pi3, pi2));
 }
 
 
@@ -129,6 +128,5 @@ TYPED_TEST_P(ProbTest, Bounded_entropy_distance) {
 //
 REGISTER_TYPED_TEST_CASE_P(ProbTest, Construct, Uniform, Randu, Dirac, Total_variation, Bounded_entropy_distance);
 
-typedef ::testing::Types<double, float, urat> ProbTypes;
-INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, ProbTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, AllTypes);
 

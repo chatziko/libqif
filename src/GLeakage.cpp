@@ -68,5 +68,5 @@ eT GLeakage<eT>::cond_vulnerability(const Prob<eT>& pi) {
 
 template class GLeakage<double>;
 template class GLeakage<float>;
-template class GLeakage<urat>;
+template class GLeakage<rat>;
 

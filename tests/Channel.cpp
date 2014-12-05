@@ -87,6 +87,5 @@ TYPED_TEST_P(ChanTest, Randu) {
 //
 REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu);
 
-typedef ::testing::Types<double, float, urat> ChanTypes;
-INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, ChanTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);
 

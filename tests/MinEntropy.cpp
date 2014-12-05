@@ -41,31 +41,31 @@ TYPED_TEST_P(MinEntropyTest, Vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, 0.5, MinEntropy<eT>().vulnerability(t.unif_2));
-	EXPECT_PRED2(equal<eT>, 0.1, MinEntropy<eT>().vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>().vulnerability(t.dirac_4));
-	EXPECT_PRED2(equal<eT>, 0.8, MinEntropy<eT>().vulnerability(t.pi1));
+	EXPECT_PRED2(equal<eT>, eT(5)/10, MinEntropy<eT>().vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, eT(1)/10, MinEntropy<eT>().vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,            MinEntropy<eT>().vulnerability(t.dirac_4));
+	EXPECT_PRED2(equal<eT>, eT(8)/10, MinEntropy<eT>().vulnerability(t.pi1));
 }
 
 TYPED_TEST_P(MinEntropyTest, Cond_vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.unif_2));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.dirac_2));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_2).cond_vulnerability(t.pi1));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_2).cond_vulnerability(t.unif_2));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_2).cond_vulnerability(t.dirac_2));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_2).cond_vulnerability(t.pi1));
 	
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.dirac_10));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.id_10).cond_vulnerability(t.pi2));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.id_10).cond_vulnerability(t.pi2));
 	
-	EXPECT_PRED2(equal<eT>, 0.1, MinEntropy<eT>(t.noint_10).cond_vulnerability(t.unif_10));
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.noint_10).cond_vulnerability(t.dirac_10));
+	EXPECT_PRED2(equal<eT>, eT(1)/10, MinEntropy<eT>(t.noint_10).cond_vulnerability(t.unif_10));
+	EXPECT_PRED2(equal<eT>, 1,        MinEntropy<eT>(t.noint_10).cond_vulnerability(t.dirac_10));
 
 	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().vulnerability(t.pi2), MinEntropy<eT>(t.noint_10).cond_vulnerability(t.pi2));
 
 	EXPECT_PRED2(equal<eT>, MinEntropy<eT>().vulnerability(t.pi3), MinEntropy<eT>(t.c1).cond_vulnerability(t.pi3));	// no change in vulnerability
-	EXPECT_PRED2(equal<eT>, 0.775, MinEntropy<eT>(t.c1).cond_vulnerability(t.pi4));
+	EXPECT_PRED2(equal<eT>, eT(31)/40, MinEntropy<eT>(t.c1).cond_vulnerability(t.pi4));
 
 	ASSERT_ANY_THROW(MinEntropy<eT>(t.id_10).cond_vulnerability(t.unif_2));
 }
@@ -74,13 +74,12 @@ TYPED_TEST_P(MinEntropyTest, Max_mult_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, 2,   MinEntropy<eT>(t.id_2).max_mult_leakage());
-	EXPECT_PRED2(equal<eT>, 10,  MinEntropy<eT>(t.id_10).max_mult_leakage());
-	EXPECT_PRED2(equal<eT>, 1,   MinEntropy<eT>(t.noint_10).max_mult_leakage());
-	EXPECT_PRED2(equal<eT>, 1.5, MinEntropy<eT>(t.c1).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 2,         MinEntropy<eT>(t.id_2).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 10,        MinEntropy<eT>(t.id_10).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, 1,         MinEntropy<eT>(t.noint_10).max_mult_leakage());
+	EXPECT_PRED2(equal<eT>, eT(15)/10, MinEntropy<eT>(t.c1).max_mult_leakage());
 
-	//TODO: denom becomes too big, maybe we should go to GMP
-	//EXPECT_PRED2(equal<eT>, MinEntropy<eT>(t.crand_10).mult_leakage(t.unif_10), MinEntropy<eT>(t.crand_10).max_mult_leakage()); // max_mult_leakage is given for uniform prior
+	EXPECT_PRED2(equal<eT>, MinEntropy<eT>(t.crand_10).mult_leakage(t.unif_10), MinEntropy<eT>(t.crand_10).max_mult_leakage()); // max_mult_leakage is given for uniform prior
 }
 
 
