@@ -1,6 +1,7 @@
 #ifndef _QIF_rat_h_
 #define _QIF_rat_h_
 
+#include <armadillo>
 #include <gmpxx.h>
 
 
@@ -14,6 +15,12 @@ namespace arma {
 	template<>
 	struct is_supported_elem_type<mpq_class> {
 		static const bool value = true;
+	};
+
+	// pretend that rat is a real type. Thus might cause issues...
+	// needed for specializing op_dot::direct_dot below
+	template<> struct arma_real_only<rat> {
+		typedef rat result;
 	};
 
 	// armadillo's memory::acquire/release uses malloc/free for speed, which overrides the constructor
@@ -57,6 +64,17 @@ namespace arma {
 	arrayops::copy<rat>(rat* dest, const rat* src, const uword n_elem) {
 		for(uint i = 0; i < n_elem; i++)
 			dest[i] = src[i];
+	}
+
+	// use direct_dot_arma (generic dot product implementation) for direct_dot<rat>
+	//
+	template<>
+	arma_hot
+	arma_pure
+	inline
+	typename arma_real_only<rat>::result
+	op_dot::direct_dot<rat>(const uword n_elem, const rat* const A, const rat* const B) {
+		return op_dot::direct_dot_arma<rat>(n_elem, A, B);
 	}
 }
 
