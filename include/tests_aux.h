@@ -116,4 +116,27 @@ void expect_prob(uint cn, const Prob<eT>& p) {
 }
 
 
+template<typename eT>
+void expect_mat(const Mat<eT>& m, const Mat<eT>& c) {
+	EXPECT_EQ(m.n_rows, c.n_rows);
+	EXPECT_EQ(m.n_rows, c.n_rows);
+
+	for(uint i = 0; i < c.n_rows; i++)
+		for(uint j = 0; j < c.n_cols; j++)
+			EXPECT_TRUE(equal(m.at(i, j), c.at(i, j)));
+}
+
+template<typename eT>
+void expect_mat(const string& s, const Mat<eT>& c) {
+	expect_mat(Mat<eT>(s), c);
+}
+
+template<typename eT>
+void expect_mat(uint rn, uint cn, const Mat<eT>& c) {
+	EXPECT_EQ(rn, c.n_rows);
+	EXPECT_EQ(cn, c.n_cols);
+
+	EXPECT_TRUE(is_proper(c));
+}
+
 #endif

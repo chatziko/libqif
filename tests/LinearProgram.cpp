@@ -22,13 +22,124 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "LinearProgram.h"
 #include "gtest/gtest.h"
-#include <string>
+#include "LinearProgram.h"
+#include "aux.h"
+#include "tests_aux.h"
 
-/* Untested functions:
-vec solve(char* equality,char * inequality,char * objective);
-vec solve(mat equality,mat inequality,vec objective);
-vec solve(char* equality,char * inequality,char * objective,char * rows_constraints);
-vec solve(mat equality,mat inequality,vec objective,mat rows_constraints);
-*/
+// define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
+template <typename eT>
+class LinearProgramTest : public BaseTest<eT> {};
+
+TYPED_TEST_CASE_P(LinearProgramTest);
+
+
+TYPED_TEST_P(LinearProgramTest, Optimal) {
+	typedef TypeParam eT;
+	typedef typename LinearProgram<eT>::method_t m_t;
+	typedef typename LinearProgram<eT>::status_t s_t;
+
+	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+		if(std::is_same<eT, rat>::value && method != m_t::simplex_primal) continue;		// rat supports on simplex_primal
+
+		LinearProgram<eT> lp;
+		lp.method = method;
+
+		lp.A = format_num<eT>("1 2; 3 1");
+		lp.b = format_num<eT>("1 2");
+		lp.c = format_num<eT>("0.6 0.5");
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_PRED2(equal<eT>, eT(46)/100, lp.optimum());
+		expect_mat(format_num<eT>("0.6; 0.2"), lp.x);
+
+		lp.A = format_num<eT>("1 1 0; 0 1 1");
+		lp.b = format_num<eT>("1 1");
+		lp.c = format_num<eT>("1 2 -1");
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_PRED2(equal<eT>, eT(2), lp.optimum());
+		expect_mat(format_num<eT>("0; 1; 0"), lp.x);
+
+		lp.maximize = false;
+		lp.A = format_num<eT>("3 -4; 1 2; 1 0");
+		lp.b = format_num<eT>("12 4 1");
+		lp.c = format_num<eT>("3 4");
+		lp.sense = "< > >";
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_PRED2(equal<eT>, eT(9), lp.optimum());
+		expect_mat(format_num<eT>("1; 1.5"), lp.x);
+
+		lp.maximize = false;
+		lp.A = format_num<eT>("1 2 2; 2 1 2; 2 2 1");
+		lp.b = format_num<eT>("20 20 20");
+		lp.c = format_num<eT>("-10 -12 -12");
+		lp.sense.set_size(0);
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_PRED2(equal<eT>, eT(-136), lp.optimum());
+		expect_mat(format_num<eT>("4; 4; 4"), lp.x);
+	}
+}
+
+TYPED_TEST_P(LinearProgramTest, Infeasible) {
+	typedef TypeParam eT;
+	typedef typename LinearProgram<eT>::method_t m_t;
+	typedef typename LinearProgram<eT>::status_t s_t;
+
+	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+		if(std::is_same<eT, rat>::value && method != m_t::simplex_primal) continue;		// rat supports on simplex_primal
+
+		LinearProgram<eT> lp;
+		lp.method = method;
+
+		lp.A = format_num<eT>("1; 1");
+		lp.b = format_num<eT>("3 2");
+		lp.c = format_num<eT>("1");
+		lp.sense = "> <";
+
+		EXPECT_FALSE(lp.solve());
+		EXPECT_EQ(s_t::infeasible, lp.status);
+
+		lp.A = format_num<eT>("1; -1");
+		lp.b = format_num<eT>("3 -2");
+		lp.c = format_num<eT>("4");
+		lp.sense = "> >";
+
+		EXPECT_FALSE(lp.solve());
+		EXPECT_EQ(s_t::infeasible, lp.status);
+	}
+}
+
+TYPED_TEST_P(LinearProgramTest, Unbounded) {
+	typedef TypeParam eT;
+	typedef typename LinearProgram<eT>::method_t m_t;
+	typedef typename LinearProgram<eT>::status_t s_t;
+
+	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+		if(std::is_same<eT, rat>::value && method != m_t::simplex_primal) continue;		// rat supports on simplex_primal
+
+		LinearProgram<eT> lp;
+		lp.method = method;
+
+		lp.maximize = false;
+		lp.A = format_num<eT>("1");
+		lp.b = format_num<eT>("2");
+		lp.c = format_num<eT>("-1");
+		lp.sense = ">";
+
+		EXPECT_FALSE(lp.solve());
+		EXPECT_EQ(method == m_t::interior ? s_t::infeasible : s_t::unbounded, lp.status);	// interior method reports infeasible for unbounded programs
+	}
+}
+
+
+REGISTER_TYPED_TEST_CASE_P(LinearProgramTest, Optimal, Infeasible, Unbounded);
+
+INSTANTIATE_TYPED_TEST_CASE_P(LinearProgram, LinearProgramTest, AllTypes);
+

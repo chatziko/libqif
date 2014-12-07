@@ -24,20 +24,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <stdlib.h>
-#include <glpk.h>
-#include <string>
 #include "types.h"
 
+
+// Solve the linear program
+// {min/max} dot(c,x)
+// subject to A x {>=|==|<=} b
+// x >= 0
+
+template<typename eT>
 class LinearProgram {
 	public:
+		enum class status_t { optimal, infeasible, unbounded, error };
+		enum class method_t { simplex_primal, simplex_dual, interior };
 
-		vec solve(std::string& equality, std::string& inequality, std::string& objective);
+		Mat<eT>
+			A;				// constraints
+		Col<eT>
+			x,				// solution
+			b,				// constants
+			c;				// cost function
+		Col<char>
+			sense;			// sense of each constraint, can be '<', '=', '>' (<,> really mean <=,>=), default is '<'
 
-		vec solve(mat equality, mat inequality, vec objective);
+		bool maximize = true;
+		bool non_negative = 1;
+		method_t method = method_t::simplex_primal;
+		status_t status;
 
-		vec solve(std::string& equality, std::string& inequality, std::string& objective, std::string& rows_constraints);
+		LinearProgram() {}
+		LinearProgram(const Mat<eT>& A, const Col<eT>& b, const Col<eT>& c) : A(A), b(b), c(c) { check_sizes(); }
 
-		vec solve(mat equality, mat inequality, vec objective, mat rows_constraints);
+		bool solve();
+		std::string to_mps();
+
+		inline eT optimum() { return arma::dot(x, c); }
+		LinearProgram canonical_form();
+
+		inline char get_sense(uint i) { return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
+
+	protected:
+		void check_sizes() { if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw "invalid size"; }
+
+		bool glpk();
+		bool simplex();
 };
+
 #endif

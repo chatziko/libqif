@@ -3,7 +3,7 @@
 
 #include <cmath>  /* for std::abs(double) */
 
-const double epsilon = 1e-6;
+const double epsilon = 1e-5;
 
 template<typename eT>
 inline bool equal(const eT& x, const eT& y) {
@@ -17,16 +17,16 @@ inline bool equal(const rat& x, const rat& y) {
 	return cmp(x, y) == 0;
 }
 
+// comparison for double, see Knuth section 4.2.2 pages 217-218
+// modified in case x or y are exactly 0.0, in this case relative error makes no sense,
+// so we just use epsilon * 0.01
 template<>
 inline bool equal(const double& x, const double& y) {
-	// comparison for double, see Knuth section 4.2.2 pages 217-218
-	return std::abs(x - y) <= epsilon * std::abs(x);
+	return std::abs(x - y) <= epsilon * (x == 0.0 || y == 0.0 ? 0.01 : std::abs(x));
 }
-
 template<>
 inline bool equal(const float& x, const float& y) {
-	// comparison for float, see Knuth section 4.2.2 pages 217-218
-	return std::abs(x - y) <= epsilon * std::abs(x);
+	return std::abs(x - y) <= epsilon * (x == 0.0 || y == 0.0 ? 0.01 : std::abs(x));
 }
 
 template<typename eT>

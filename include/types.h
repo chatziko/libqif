@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using arma::Mat;
 using arma::mat;
-using arma::vec;
 using arma::Row;
+using arma::Col;
 
 // helper aliases for SFINAE, see http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
 enum class enabled {}; // just a type that can be used as a template parameter and is as inocuous as possible
@@ -57,6 +57,8 @@ typedef Row<float>  fprob;
 typedef Row<rat>    rprob;
 
 typedef Mat<rat>     rmat;
+typedef Col<rat>  rcolvec;
+typedef Row<rat>  rrowvec;
 
 
 #endif
