@@ -9,10 +9,11 @@
 * [GMP](https://gmplib.org/) (tested with version 6.0.0)
 * [GLPK](https://www.gnu.org/software/glpk/) (tested with version 4.54)
 * A C++11 compliant compiler (tested with g++ 4.9.1)
+* [Doxygen](http://www.stack.nl/~dimitri/doxygen/) (optional, to generate documentation)
 
 On Ubuntu, these can be installed with:
 
-    sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev
+    sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev doxygen
 
 ### Get the code
 
