@@ -39,7 +39,7 @@ class LinearProgram {
 		enum class method_t { simplex_primal, simplex_dual, interior };
 
 		Mat<eT>
-			A;				// constraints
+			A;				// constraints. TODO make sparse
 		Col<eT>
 			x,				// solution
 			b,				// constants
@@ -58,13 +58,13 @@ class LinearProgram {
 		bool solve();
 		std::string to_mps();
 
-		inline eT optimum() { return arma::dot(x, c); }
+		inline eT optimum()				{ return arma::dot(x, c); }
+		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
+
 		LinearProgram canonical_form();
 
-		inline char get_sense(uint i) { return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
-
 	protected:
-		void check_sizes() { if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw "invalid size"; }
+		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw "invalid size"; }
 
 		bool glpk();
 		bool simplex();

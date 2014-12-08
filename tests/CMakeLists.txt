@@ -10,7 +10,7 @@ include_directories(../external/googletest/include)
 file(GLOB TEST_SOURCES *.cpp)										# get all *.cpp files in TEST_SOURCES
 
 add_executable(run ${TEST_SOURCES})
-target_link_libraries(run qif gtest_main)							# crete 'run' executable, link against libqif and googletest (with main function)
+target_link_libraries(run qif gtest)								# crete 'run' executable, link against libqif and googletest
 
 add_precompiled_header(run ../include/precompiled_tests.h)
 

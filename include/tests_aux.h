@@ -60,6 +60,7 @@ class BaseTest : public ::testing::Test {
 			id_2      = identity<Chan<eT>>(2),
 			id_4      = identity<Chan<eT>>(4),
 			id_10     = identity<Chan<eT>>(10),
+			noint_4   = no_interference<Chan<eT>>(4),
 			noint_10  = no_interference<Chan<eT>>(10),
 			c1        = format_num<eT>("0.8 0.2; 0.3 0.7"),
 			crand_10  = randu<Chan<eT>>(10),
@@ -69,13 +70,7 @@ class BaseTest : public ::testing::Test {
 
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
-	EXPECT_EQ(m.n_rows, c.n_rows);
-	EXPECT_EQ(m.n_rows, c.n_rows);
-
-	for(uint i = 0; i < c.n_rows; i++)
-		for(uint j = 0; j < c.n_cols; j++)
-			EXPECT_TRUE(equal(m.at(i, j), c.at(i, j)));
-
+	EXPECT_TRUE(chan_equal(m, c));
 	EXPECT_TRUE(is_proper(c));
 }
 

@@ -58,6 +58,8 @@ using std::to_string;
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
+	check_sizes();
+
 	return glpk();
 }
 
@@ -65,6 +67,8 @@ bool LinearProgram<eT>::solve() {
 //
 template<>
 bool LinearProgram<rat>::solve() {
+	check_sizes();
+
 	if(method != method_t::simplex_primal)
 		throw "not supported";
 

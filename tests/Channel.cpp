@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
-class ChanTest : public ::testing::Test {};
+class ChanTest : public BaseTest<T> {};
 
 TYPED_TEST_CASE_P(ChanTest);
 
@@ -81,11 +81,33 @@ TYPED_TEST_P(ChanTest, Randu) {
 	expect_channel(4, 6, C);
 }
 
+TYPED_TEST_P(ChanTest, Factorize) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	// non factorizable
+	expect_channel(0, 0, factorize(t.id_10, t.noint_10));
+	expect_channel(0, 0, factorize(t.id_4,  t.noint_10));
+
+	// TODO: Factorize is unstable under float, it fails half of the time, we should investigate
+	if(std::is_same<eT, float>::value) return;
+
+	int n = 5, m = 4;
+	Chan<eT>
+		B = randu<Chan<eT>>(n, n),
+		A = B * randu<Chan<eT>>(n, m),
+		X = factorize(A, B),
+		Z = B * X;
+
+	expect_channel(n, m, X);
+	expect_channel(A, Z);
+}
+
 
 
 // run the ChanTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu);
+REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);
 

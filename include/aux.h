@@ -2,6 +2,7 @@
 #define _QIF_aux_h_
 
 #include <cmath>  /* for std::abs(double) */
+#include "types.h"
 
 const double epsilon = 1e-5;
 
@@ -28,6 +29,7 @@ template<>
 inline bool equal(const float& x, const float& y) {
 	return std::abs(x - y) <= epsilon * (x == 0.0 || y == 0.0 ? 0.01 : std::abs(x));
 }
+
 
 template<typename eT>
 inline bool less_than(const eT& x, const eT& y) {
