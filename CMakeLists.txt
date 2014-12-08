@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
-include(PrecompiledHeader.cmake)										# for add_precompiled_header
+include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
 
 add_definitions(-std=c++11 -Wall) #-fno-elide-constructor -O3 -march=natives
 
@@ -24,7 +24,7 @@ add_subdirectory(tests EXCLUDE_FROM_ALL)								# build tests
 
 add_subdirectory(samples EXCLUDE_FROM_ALL)								# build samples
 
-add_subdirectory(doxygen EXCLUDE_FROM_ALL)								# build doc
+add_subdirectory(misc/doxygen EXCLUDE_FROM_ALL)							# build doc
 
 add_custom_target(allcode)												# 'all' builds just the library, 'allcode' builds also tests and samples
 add_dependencies(allcode all tests samples)

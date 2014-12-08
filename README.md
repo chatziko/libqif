@@ -1,23 +1,49 @@
-LIBQIF
-======
+# libqif
 
-For LIBQIF _users_ you can download the library from the bin/ directory
+## Installation
 
-For LIBQIF _contributers_ :
-- There is an script for the instalation of the needeed libraries called installing_needeed_libs.sh
-- There is an script for compile the LIBQIF library called compile.sh
-- There is an script for generating the LIBQIF documentation with doxygen called create_documentation.sh
- There is an script for running the test cases called run_tests.sh
-- There is an script for generation a new version of LIBQIF creating a .tar.gz on the bin/ directory.
+### Prerequisites
 
-The repository structure: 
-- bin: It contains the .tar.gz files with the versions of LIBQIF
-- inc: It contains the headers (.h files or includes)
-- src: It contains the LIBQIF implementation files (.cpp files)
-- html: It contains the documentation of the library generated automatically with Doxygen. The documentation file is index.html
-- doxygen: It contains the configuration files for generating the library documentation
-- tests: It contains the unit test cases that g-test uses for the library testing.
-- samples: It contains some LIBQIF use examples.
-- papers: It contains the papers that are referenced from the library documentation
-- lib: It contains all the libraries needeed for developing LIBQIF 
-- sci_files: It contains the files for generating the plots with .sci extension.
+* [CMake](http://www.cmake.org/) (tested with version 2.8.12)
+* [Armadillo](http://arma.sourceforge.net/) (tested with version 4.4)
+* [GMP](https://gmplib.org/) (tested with version 6.0.0)
+* [GLPK](https://www.gnu.org/software/glpk/) (tested with version 4.54)
+* A C++11 compliant compiler (tested with g++ 4.9.1)
+
+On Ubuntu, these can be installed with:
+
+    sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev
+
+### Get the code
+
+    git clone --recursive https://github.com/chatziko/libqif.git
+
+Don't forget the `--recursive` to fetch the submodules.
+
+### Compiling
+
+    mkdir <path>/build && cd <path>/build
+    cmake ..
+    make
+
+To run the tests
+
+    make tests
+    ./tests/run
+
+You can also build the samples and doc
+
+    make samples
+    ./samples/<sample>
+
+    make doc
+    firefox ./misc/doxygen/html/index.html
+
+### Repository structure: 
+
+* `inc`: headers
+* `src`: sources
+* `tests`: test cases
+* `samples`: sample programs
+* `external`: external libs (googletest)
+
