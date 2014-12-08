@@ -24,46 +24,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
+// max_w sum_x pi[x] G[w, x]
+//
 template<typename eT>
 eT GLeakage<eT>::vulnerability(const Prob<eT>& pi) {
 	this->check_prior(pi, true);
 
-	Chan<eT>& C = this->C;
-	Mat<eT>& G = this->G;
-
-	//the names w x and y are from the formulas.
-	eT max_w = eT(0);
-	for(uint w = 0; w < G.n_rows; ++w) {
-		eT sum_x = eT(0);
-		for(uint x = 0; x < G.n_cols; ++x)
-			sum_x += pi.at(x) * G.at(w, x);
-		if(sum_x > max_w)
-			max_w = sum_x;
-	}
-	return max_w;
+	return arma::max(this->G * trans(pi));
 }
 
+// sum_y max_w sum_x pi[x] C[x, y] G[w, x]
+//
 template<typename eT>
 eT GLeakage<eT>::cond_vulnerability(const Prob<eT>& pi) {
 	this->check_prior(pi);
 
-	Chan<eT>& C = this->C;
-	Mat<eT>& G = this->G;
-
-	//the names w x and y are from the formulas.
-	eT sum_y = 0;
-	for(uint y = 0; y < C.n_cols; ++y) {
-		eT max_w = eT(0);
-		for(uint w = 0; w < G.n_rows; ++w) {
-			eT sum_x = eT(0);
-			for(uint x = 0; x < G.n_cols; ++x)
-				sum_x += pi.at(x) * G.at(w, x) * C.at(x, y);
-			if(sum_x > max_w)
-				max_w = sum_x;
-		}
-		sum_y += max_w;
-	}
-	return sum_y;
+	eT s = eT(0);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		s += arma::max(this->G * (trans(pi) % this->C.col(y)));
+	return s;
 }
 
 template class GLeakage<double>;

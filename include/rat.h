@@ -76,6 +76,15 @@ namespace arma {
 	op_dot::direct_dot<rat>(const uword n_elem, const rat* const A, const rat* const B) {
 		return op_dot::direct_dot_arma<rat>(n_elem, A, B);
 	}
+
+	// for abs
+	//
+	template<>
+	arma_inline
+	typename arma_real_only<rat>::result
+	eop_aux::arma_abs<rat>(const rat x) {
+		return x < rat(0) ? -x : x;
+	}
 }
 
 #endif

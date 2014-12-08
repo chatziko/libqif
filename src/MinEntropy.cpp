@@ -27,55 +27,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 template<typename eT>
 eT MinEntropy<eT>::vulnerability(const Prob<eT>& pi) {
-	eT max_x = eT(0);
-	for(uint x = 0; x < pi.n_cols; x++) {
-		eT el = pi.at(x);
-		if(el > max_x)
-			max_x = el;
-	}
-	return max_x;
-
-//	return accu(max(this->C, 1));
+	return arma::max(pi);
 }
 
 //sum y max x pi(x) C[x,y]
+//
 template<typename eT>
 eT MinEntropy<eT>::cond_vulnerability(const Prob<eT>& pi) {
 	this->check_prior(pi);
 
-	eT sum_y = eT(0);
-
-	for(uint y = 0; y < this->C.n_cols; y++) {
-		eT max_x = eT(0);
-		for(uint x = 0; x < this->C.n_rows; x++) {
-			eT el = pi.at(x) * this->C.at(x, y);
-			if(el > max_x) {
-				max_x = el;
-			}
-		}
-		sum_y += max_x;
-	}
-	return sum_y;
-
-//	eT s = eT(0);
-//	for(uint y = 0; y < this->C.n_cols; y++)
-//		s += max(pi % trans(this->C.col(y)));
+	eT s = eT(0);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		s += arma::max(trans(pi) % this->C.col(y));
+	return s;
 }
 
+// sum of column maxima
+//
 template<typename eT>
 eT MinEntropy<eT>::max_mult_leakage() {
-	eT sum_y = eT(0);
-
-	for(uint y = 0; y < this->C.n_cols; y++) {
-		eT max_x = 0;
-		for(uint x = 0; x < this->C.n_rows; x++) {
-			eT el = this->C.at(x, y);
-			if(el > max_x)
-				max_x = el;
-		}
-		sum_y += max_x;
-	}
-	return sum_y;
+	return arma::accu(arma::max(this->C, 0));
 }
 
 template class MinEntropy<double>;

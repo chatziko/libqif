@@ -37,6 +37,9 @@ TYPED_TEST_CASE_P(GLeakageTest);
 TYPED_TEST_CASE_P(GLeakageTestReals);		// tests that run only on double/float
 
 
+// TODO: test more gain functions. Currently these tests are copies from MinEntropy and test only the id gain function
+
+
 TYPED_TEST_P(GLeakageTest, Vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;

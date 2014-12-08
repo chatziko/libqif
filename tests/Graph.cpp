@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtest/gtest.h"
 #include <string>
 
-using namespace std;
+using std::string;
 
 TEST(Graph, NegativeNodes) {
 	string new_graph_elements = "-1 2;3 2";

@@ -26,8 +26,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // for tests, include all precompiled headers, plus gtest/gtest.h
+// Kostas: not sure, but maybe listing all includes again (instead of #include "precompiled.h") is faster
 
-#include "precompiled.h"
 #include "gtest/gtest.h"
+
+#include <armadillo>
+#include <gmpxx.h>
+#include <glpk.h>
+
+#include <string>
+#include <iostream>
+#include <regex>
+#include <vector>
+#include <cmath>
 
 #endif
