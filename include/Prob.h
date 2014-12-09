@@ -155,6 +155,36 @@ typename T::elem_type total_variation(const T& x, const T& y) {
 }
 
 
+// max_i | ln x[i] - ln y[i] |
+//
+template<typename T, EnableIf<is_Prob<T>>...>
+inline
+typename T::elem_type multiplicative_distance(const T& x, const T& y) {
+	typedef typename T::elem_type eT;
+
+	if(x.n_cols != y.n_cols) throw "size mismatch";
+
+	eT res = eT(0);
+	for(uint i = 0; i < x.n_cols; i++) {
+		eT a = x(i),
+		   b = y(i);
+		bool a_is_zero = equal(a, eT(0)),
+			 b_is_zero = equal(b, eT(0));
+
+		if(a_is_zero && b_is_zero)			// both are the same, no diff
+			continue;
+		else if(a_is_zero || b_is_zero)		// only one is zero, diff is infty
+			return infinity<eT>();
+		else {
+			eT diff = std::abs(std::log(a) - std::log(b));
+			if(less_than(res, diff))
+				res = diff;
+		}
+	}
+	return res;
+}
+
+
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 typename T::elem_type bounded_entropy_distance(const T& x, const T& y) {

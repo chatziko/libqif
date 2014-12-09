@@ -2,6 +2,7 @@
 #define _QIF_aux_h_
 
 #include <cmath>  /* for std::abs(double) */
+#include <limits>
 #include "types.h"
 
 const double epsilon = 1e-5;
@@ -47,6 +48,13 @@ inline bool less_than_or_eq(const eT& x, const eT& y) {
 template<typename eT>
 inline eT abs(const eT& x) {
 	return x < eT(0) ? -x : x;
+}
+
+template<typename eT>
+inline eT infinity() {
+	return std::numeric_limits<eT>::has_infinity
+		? std::numeric_limits<eT>::infinity()
+		: std::numeric_limits<eT>::max();
 }
 
 

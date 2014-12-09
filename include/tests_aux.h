@@ -46,6 +46,7 @@ class BaseTest : public ::testing::Test {
 	public:
 		Prob<eT>
 			unif_2   = uniform<Prob<eT>>(2),
+			unif_4   = uniform<Prob<eT>>(4),
 			unif_10  = uniform<Prob<eT>>(10),
 			unif_100 = uniform<Prob<eT>>(100),
 			dirac_2  = dirac<Prob<eT>>(2),
@@ -54,7 +55,8 @@ class BaseTest : public ::testing::Test {
 			pi1      = format_num<eT>("0.2 0.8"),
 			pi2      = format_num<eT>("0.2 0.8 0 0 0 0 0 0 0 0"),
 			pi3      = format_num<eT>("0.25 0.75"),
-			pi4      = format_num<eT>("0.75 0.25");
+			pi4      = format_num<eT>("0.75 0.25"),
+			pi5		 = format_num<eT>("0.1 0.1 0.1 0.7");
 
 		Chan<eT>
 			id_2      = identity<Chan<eT>>(2),

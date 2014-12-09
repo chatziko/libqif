@@ -33,9 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
-class ProbTest : public ::testing::Test {};
+class ProbTest : public BaseTest<T> {};
+template <typename T>
+class ProbTestReals : public BaseTest<T> {};
 
 TYPED_TEST_CASE_P(ProbTest);
+TYPED_TEST_CASE_P(ProbTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(ProbTest, Construct) {
@@ -93,40 +96,48 @@ TYPED_TEST_P(ProbTest, Dirac) {
 
 TYPED_TEST_P(ProbTest, Total_variation) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	Prob<eT> pi1(4), pi2(4);
-	dirac(pi1);
-	uniform(pi2);
-
-	EXPECT_PRED2(equal<eT>, eT(0),				total_variation(pi1, pi1));
-	EXPECT_PRED2(equal<eT>, eT(0),				total_variation(pi2, pi2));
-	EXPECT_PRED2(equal<eT>, (pi1(0)-pi2(0))/2,	total_variation(pi1, pi2));
-	EXPECT_PRED2(equal<eT>, (pi1(0)-pi2(0))/2,	total_variation(pi2, pi1));
+	EXPECT_PRED2(equal<eT>, eT(0), total_variation(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal<eT>, eT(0), total_variation(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal<eT>, (t.dirac_4(0)-t.unif_4(0))/2, total_variation(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal<eT>, (t.dirac_4(0)-t.unif_4(0))/2, total_variation(t.dirac_4, t.unif_4));
 }
 
 TYPED_TEST_P(ProbTest, Bounded_entropy_distance) {
 	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-	Prob<eT> pi1(4), pi2(4);
-	dirac(pi1);
-	uniform(pi2);
-	Prob<eT> pi3(format_num<eT>("0.1 0.1 0.1 0.7"));
+	EXPECT_PRED2(equal<eT>, eT(0), bounded_entropy_distance(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal<eT>, eT(0), bounded_entropy_distance(t.dirac_4, t.dirac_4));
 
-	EXPECT_PRED2(equal<eT>, eT(0),	bounded_entropy_distance(pi1, pi1));
-	EXPECT_PRED2(equal<eT>, eT(0),	bounded_entropy_distance(pi2, pi2));
+	EXPECT_PRED2(equal<eT>, eT(1), bounded_entropy_distance(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal<eT>, eT(1), bounded_entropy_distance(t.dirac_4, t.unif_4));
 
-	EXPECT_PRED2(equal<eT>, eT(1),	bounded_entropy_distance(pi1, pi2));
-	EXPECT_PRED2(equal<eT>, eT(1),	bounded_entropy_distance(pi2, pi1));
-
-	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(pi2, pi3));
-	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(pi3, pi2));
+	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(t.unif_4, t.pi5));
+	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bounded_entropy_distance(t.pi5, t.unif_4));
 }
 
+TYPED_TEST_P(ProbTestReals, Multiplicative_distance) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED2(equal<eT>, eT(0), multiplicative_distance(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal<eT>, eT(0), multiplicative_distance(t.dirac_4, t.dirac_4));
+
+	EXPECT_EQ(infinity<eT>(), multiplicative_distance(t.unif_4, t.dirac_4));
+	EXPECT_EQ(infinity<eT>(), multiplicative_distance(t.dirac_4, t.unif_4));
+
+	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), multiplicative_distance(t.unif_4, t.pi5));
+	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), multiplicative_distance(t.pi5, t.unif_4));
+}
 
 
 // run the ProbTest test-case for double, float, urat
 //
 REGISTER_TYPED_TEST_CASE_P(ProbTest, Construct, Uniform, Randu, Dirac, Total_variation, Bounded_entropy_distance);
+REGISTER_TYPED_TEST_CASE_P(ProbTestReals, Multiplicative_distance);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, AllTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTestReals, NativeTypes);
 
