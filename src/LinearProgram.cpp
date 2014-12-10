@@ -50,6 +50,7 @@ SOFTWARE.
 #include <glpk.h>
 #include <string>
 #include <cassert>
+#include <vector>
 
 using std::string;
 using std::to_string;
@@ -111,9 +112,9 @@ bool LinearProgram<eT>::glpk() {
 	glp_add_rows(lp, A.n_rows);
 
 	int size = A.n_rows * A.n_cols;
-	int    ia[size+1],
-		   ja[size+1];
-	double ar[size+1];
+	std::vector<int>	ia(size+1),
+						ja(size+1);
+	std::vector<double> ar(size+1);
 
 	for(uint i = 0; i < A.n_rows; i++) {
 		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
@@ -132,7 +133,7 @@ bool LinearProgram<eT>::glpk() {
 		}
 	}
 
-	glp_load_matrix(lp, size, ia, ja, ar);
+	glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
 
 	// solve
 	if(method == method_t::simplex_primal || method == method_t::simplex_dual) {
