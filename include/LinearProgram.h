@@ -48,7 +48,7 @@ class LinearProgram {
 			sense;			// sense of each constraint, can be '<', '=', '>' (<,> really mean <=,>=), default is '<'
 
 		bool maximize = true;
-		bool non_negative = 1;
+		bool non_negative = true;
 		method_t method = method_t::simplex_primal;
 		status_t status;
 

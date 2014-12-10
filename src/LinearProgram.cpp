@@ -108,14 +108,21 @@ bool LinearProgram<eT>::glpk() {
 	// add constraints. glpk uses a "sparse" way of entering the rows, using
 	// flat arrays ia, ja, ar. ia[z],ja[z] are the indexes of A for the value to
 	// set, and ar[z] = A[ ia[z], ja[z] ]
+	// we add entries only for non-zero elements, it's much faster!
 	//
 	glp_add_rows(lp, A.n_rows);
 
-	int size = A.n_rows * A.n_cols;
+	int size = 0;
+	for(uint i = 0; i < A.n_rows; i++)
+		for(uint j = 0; j < A.n_cols; j++)
+			if(!equal(A(i, j), eT(0)))
+				size++;
+
 	std::vector<int>	ia(size+1),
 						ja(size+1);
 	std::vector<double> ar(size+1);
 
+	int index = 1;
 	for(uint i = 0; i < A.n_rows; i++) {
 		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
 		if(sense_i == '<')
@@ -126,10 +133,11 @@ bool LinearProgram<eT>::glpk() {
 			glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
 
 		for(uint j = 0; j < A.n_cols; j++) {
-			uint index = i * A.n_cols + j + 1;
+			if(equal(A(i, j), eT(0))) continue;
 			ia[index] = i+1;
 			ja[index] = j+1;
-			ar[index] = A.at(i, j);
+			ar[index] = A(i, j);
+			index++;
 		}
 	}
 
