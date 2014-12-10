@@ -151,7 +151,7 @@ inline
 typename T::elem_type total_variation(const T& x, const T& y) {
 	if(x.n_cols != y.n_cols) throw "size mismatch";
 
-	return arma::max(arma::abs(x - y)) / 2;
+	return arma::accu(arma::abs(x - y)) / 2;
 }
 
 

@@ -100,8 +100,8 @@ TYPED_TEST_P(ProbTest, Total_variation) {
 
 	EXPECT_PRED2(equal<eT>, eT(0), total_variation(t.unif_4, t.unif_4));
 	EXPECT_PRED2(equal<eT>, eT(0), total_variation(t.dirac_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, (t.dirac_4(0)-t.unif_4(0))/2, total_variation(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, (t.dirac_4(0)-t.unif_4(0))/2, total_variation(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal<eT>, eT(3)/4, total_variation(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal<eT>, eT(3)/4, total_variation(t.dirac_4, t.unif_4));
 }
 
 TYPED_TEST_P(ProbTest, Bounded_entropy_distance) {
