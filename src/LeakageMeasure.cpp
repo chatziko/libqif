@@ -28,7 +28,7 @@ template<typename eT>
 void LeakageMeasure<eT>::plot2d_vulnerability() {
 	//correct size control
 	if(C.n_rows != 2) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	//Should check for the specific classes if can implement it or not.
@@ -36,16 +36,14 @@ void LeakageMeasure<eT>::plot2d_vulnerability() {
 	std::string className;
 	className = this->class_name();
 	if(className.compare("Shannon") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	if(className.compare("Guessing") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -112,19 +110,13 @@ void LeakageMeasure<eT>::plot2d_vulnerability() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -132,7 +124,7 @@ template<typename eT>
 void LeakageMeasure<eT>::plot2d_cond_vulnerability() {
 	//correct size control
 	if(C.n_rows != 2) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	//Should check for the specific classes if can implement it or not.
@@ -140,16 +132,14 @@ void LeakageMeasure<eT>::plot2d_cond_vulnerability() {
 	std::string className;
 	className = this->class_name();
 	if(className.compare("Shannon") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	if(className.compare("Guessing") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -216,19 +206,9 @@ void LeakageMeasure<eT>::plot2d_cond_vulnerability() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -236,15 +216,13 @@ template<typename eT>
 void LeakageMeasure<eT>::plot2d_leakage() {
 	//correct size control
 	if(C.n_rows != 2) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -323,19 +301,9 @@ void LeakageMeasure<eT>::plot2d_leakage() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -343,15 +311,13 @@ template<typename eT>
 void LeakageMeasure<eT>::plot2d_entropy() {
 	//correct size control
 	if(C.n_rows != 2) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -431,17 +397,17 @@ void LeakageMeasure<eT>::plot2d_entropy() {
 
 	case 1:
 		//Its not implemented yet
-		throw 1;
+		throw std::runtime_error("not implemented");
 		break;
 
 	case 2:
 		//Its not implemented yet
-		throw 1;
+		throw std::runtime_error("not implemented");
 		break;
 
 	case 3:
 		//Its not implemented yet
-		throw 1;
+		throw std::runtime_error("not implemented");
 		break;
 	}
 }
@@ -450,15 +416,13 @@ template<typename eT>
 void LeakageMeasure<eT>::plot2d_cond_entropy() {
 	//correct size control
 	if(C.n_rows != 2) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -537,19 +501,9 @@ void LeakageMeasure<eT>::plot2d_cond_entropy() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -557,22 +511,20 @@ template<typename eT>
 void LeakageMeasure<eT>::plot3d_vulnerability() {
 	//correct size control
 	if(C.n_rows != 3) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	std::string className;
 	className = this->class_name();
 	if(className.compare("Shannon") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	if(className.compare("Guessing") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -624,19 +576,9 @@ void LeakageMeasure<eT>::plot3d_vulnerability() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -644,22 +586,20 @@ template<typename eT>
 void LeakageMeasure<eT>::plot3d_cond_vulnerability() {
 	//correct size control
 	if(C.n_rows != 3) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	std::string className;
 	className = this->class_name();
 	if(className.compare("Shannon") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	if(className.compare("Guessing") == 0) {
-		throw 1;
+		throw std::runtime_error("not implemented");
 	}
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -711,19 +651,9 @@ void LeakageMeasure<eT>::plot3d_cond_vulnerability() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -731,16 +661,14 @@ template<typename eT>
 void LeakageMeasure<eT>::plot3d_leakage() {
 	//correct size control
 	if(C.n_rows != 3) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -804,19 +732,9 @@ void LeakageMeasure<eT>::plot3d_leakage() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -824,16 +742,14 @@ template<typename eT>
 void LeakageMeasure<eT>::plot3d_entropy() {
 	//correct size control
 	if(C.n_rows != 3) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -897,19 +813,9 @@ void LeakageMeasure<eT>::plot3d_entropy() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -917,16 +823,14 @@ template<typename eT>
 void LeakageMeasure<eT>::plot3d_cond_entropy() {
 	//correct size control
 	if(C.n_rows != 3) {
-		throw 1; // X must be equal for both
+		throw std::runtime_error("invalid size"); // X must be equal for both
 	}
 
 	std::string className;
 	className = this->class_name();
 	switch(plotter_flag) {
 	case -1:
-		//Must choose an engine before use it
-		throw 1;
-		break;
+		throw std::runtime_error("must choose engine");
 
 	case 0: {
 		std::ofstream outputFile;
@@ -990,19 +894,9 @@ void LeakageMeasure<eT>::plot3d_cond_entropy() {
 	break;
 
 	case 1:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 2:
-		//Its not implemented yet
-		throw 1;
-		break;
-
 	case 3:
-		//Its not implemented yet
-		throw 1;
-		break;
+		throw std::runtime_error("not implemented");
 	}
 }
 
@@ -1036,20 +930,17 @@ void LeakageMeasure<eT>::change_to_scilab() {
 
 template<typename eT>
 void LeakageMeasure<eT>::change_to_gnuplot() {
-	//Its not implemented yet
-	throw 1;
+	throw std::runtime_error("not implemented");
 }
 
 template<typename eT>
 void LeakageMeasure<eT>::change_to_matlab() {
-	//Its not implemented yet
-	throw 1;
+	throw std::runtime_error("not implemented");
 }
 
 template<typename eT>
 void LeakageMeasure<eT>::change_to_maple() {
-	//Its not implemented yet
-	throw 1;
+	throw std::runtime_error("not implemented");
 }
 
 

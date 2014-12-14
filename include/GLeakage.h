@@ -63,7 +63,7 @@ class GLeakage : public LeakageMeasure<eT> {
 	protected:
 		virtual void check_prior(const Prob<eT>& pi, bool ignore_c = false) {
 			if((this->C.n_rows != pi.n_cols && !ignore_c) || G.n_cols != pi.n_cols)
-				throw 1;
+				throw std::runtime_error("invalid prior size");
 		}
 
 };

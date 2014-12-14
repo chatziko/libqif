@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& identity(T& C) {
-	if(!C.is_square()) throw "not square";
+	if(!C.is_square()) throw std::runtime_error("not square");
 	C.eye();
 	return C;
 }
@@ -111,7 +111,7 @@ template<typename T, EnableIf<is_Chan<T>>...>
 inline
 void check_proper(const T& C) {
 	if(!is_proper<T>(C))
-		throw 1;
+		throw std::runtime_error("not a proper matrix");
 }
 
 

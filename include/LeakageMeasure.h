@@ -53,9 +53,9 @@ class LeakageMeasure {
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual eT vulnerability(const Prob<eT>& pi) { throw "not supported"; }
+		virtual eT vulnerability(const Prob<eT>& pi) { throw std::runtime_error("not supported"); }
 
-		virtual eT cond_vulnerability(const Prob<eT>& pi) { throw "not supported"; }
+		virtual eT cond_vulnerability(const Prob<eT>& pi) { throw std::runtime_error("not supported"); }
 
 		virtual eT entropy(const Prob<eT>& pi) = 0;
 
@@ -64,8 +64,8 @@ class LeakageMeasure {
 		virtual eT mult_leakage (const Prob<eT>& pi) { return cond_vulnerability(pi) / vulnerability(pi); }
 		virtual eT leakage      (const Prob<eT>& pi) { return entropy(pi)            - cond_entropy(pi);  }
 
-		virtual eT max_mult_leakage() { throw "not supported"; }
-		virtual eT capacity()         { throw "not supported"; }
+		virtual eT max_mult_leakage() { throw std::runtime_error("not supported"); }
+		virtual eT capacity()         { throw std::runtime_error("not supported"); }
 
 		//----------------------------------------------------------
 		//plotter functions
@@ -140,6 +140,9 @@ class LeakageMeasure {
 			2 : MatLab \n
 			3 : Maple  */
 
-		virtual void check_prior(const Prob<eT>& pi) { if(C.n_rows != pi.n_cols) throw 1; }
+		virtual void check_prior(const Prob<eT>& pi) {
+			if(C.n_rows != pi.n_cols)
+				throw std::runtime_error("invalid prior size");
+		}
 };
 #endif

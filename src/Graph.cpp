@@ -59,7 +59,7 @@ Graph::Graph(uint vertex_num, std::string& edges) {
 Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	//std::cerr << "HOME is not defined." << std::endl;
 	if(vertex_num < 0) {
-		throw 1;
+		throw std::runtime_error("error");
 	}
 	V = vertex_num;
 	adjacency = arma::mat(V, V);
@@ -75,7 +75,7 @@ Graph::Graph(uint vertex_num, std::vector< std::pair<int, int> >& edges) {
 	for(uint i = 0; i < edges.size(); i++) {
 		uint v1 = edges[i].first;
 		uint v2 = edges[i].second;
-		if(v1 < 1 || v1 > V || v2 < 1 || v2 > V) throw 1;
+		if(v1 < 1 || v1 > V || v2 < 1 || v2 > V) throw std::runtime_error("error");
 
 		adjacency(v1 - 1, v2 - 1) = 1;
 		adjacency(v2 - 1, v1 - 1) = 1;

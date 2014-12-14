@@ -64,7 +64,7 @@ class LinearProgram {
 		LinearProgram canonical_form();
 
 	protected:
-		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw "invalid size"; }
+		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
 
 		bool glpk();
 		bool simplex();

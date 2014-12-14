@@ -451,7 +451,7 @@ string LinearProgram<eT>::to_mps() {
 template<>
 string LinearProgram<rat>::to_mps() {
 	// TODO: make to_mps work for rat
-	throw 1;
+	throw std::runtime_error("not supported");
 }
 
 template class LinearProgram<double>;
