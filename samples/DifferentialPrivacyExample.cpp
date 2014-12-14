@@ -30,14 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 int main() {
 	std::cout << "Using QIF Library Example" << std::endl;
 
-	//the following line is an example of how to write the graph edges
-	std::string graph_elements = "1 2; 1 3; 2 3";
-	//this graph have 3 vertex.
-	Graph graph = Graph(3, graph_elements);
 
 	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Mechanism mechanism = Mechanism(channel_elements, graph);
+	Mechanism<double> mechanism(channel_elements);
 
 	//this example asks with epsilon=0.05
-	mechanism.is_differential_private(0.05);
+	mechanism.is_private(0.05);
 }
