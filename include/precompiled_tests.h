@@ -40,5 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <type_traits>
+#include <exception>
 
 #endif

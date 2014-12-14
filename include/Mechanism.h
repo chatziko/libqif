@@ -26,22 +26,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "Chan.h"
 #include "Graph.h"
+#include "Metric.h"
 #include <math.h>
 
+template<typename eT>
 class Mechanism {
 	public:
-		chan C;
+		Chan<eT> C;
+		const Metric<eT, uint> d = {metrics::euclidean<eT, uint>()};
 
-		Mechanism() {};
-		Mechanism(std::string& new_channel_elements, Graph& new_graph);
+		Mechanism<eT>()																{};
+		Mechanism<eT>(const Chan<eT>& C)							: C(C)			{};
+		Mechanism<eT>(const Chan<eT>& C, const Metric<eT, uint> d)	: C(C), d(d)	{};
 
-//		~Mechanism();
-
-		bool is_differential_private(double epsilon);
-
-		//double smallest_epsilon_dp();
-	protected:
-		Graph* graph;
+		bool is_private(eT epsilon = eT(1));
+		eT smallest_epsilon();
 };
 
 #endif

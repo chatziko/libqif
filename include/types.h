@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <armadillo>
 
 #include "rat.h"
+#include "aux.h"
 
 
 using arma::Mat;
@@ -59,6 +60,25 @@ typedef Row<rat>    rprob;
 typedef Mat<rat>     rmat;
 typedef Col<rat>  rcolvec;
 typedef Row<rat>  rrowvec;
+
+
+template<typename eT>
+struct Point {
+	eT x, y;
+	Point() {}
+	Point(eT x, eT y) : x(x), y(y) {}
+
+	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
+};
+
+template<typename T>
+struct is_Point { static const bool value = false; };
+template<typename eT>
+struct is_Point<Point<eT>> { typedef eT elem_type; static const bool value = true;  };
+
+typedef Point<double> point;
+typedef Point<float> fpoint;
+typedef Point<rat>   rpoint;
 
 
 #endif

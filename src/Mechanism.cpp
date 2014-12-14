@@ -23,38 +23,48 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-Mechanism::Mechanism(std::string& new_channel_elements, Graph& new_graph) :
-	C(new_channel_elements) {
 
-	graph = &new_graph;
-}
+#include "aux.h"
+#include "Metric.h"
 
-//Mechanism::~Mechanism()
-//{
-//Its not implemented yet
-//}
 
-bool Mechanism::is_differential_private(double epsilon) {
-	/* Algorithm
-	for each (x, x') in edges(G):
-	    for each y in Y:
-	        if C[x,y] > e^epsilon * C[x',y]:
-	            return false
-	return true
-	*/
-//for each (x, x') in edges(G):
-	for(uint x = 0; x < graph->vertex_number(); ++x) {
-		for(uint x2 = 0; x2 < graph->vertex_number(); ++x2) {
-			if(graph->is_an_edge(x, x2)) {
-				//for each y in Y:
-				for(uint y = 0; y < C.n_cols; ++y) {
-					//if C[x,y] > e^epsilon * C[x',y]:
-					if(C.at(x, y) > exp(epsilon) * C.at(x2, y)) {
-						return false;
-					}
-				}
-			}
+template<typename eT>
+bool Mechanism<eT>::is_private(eT epsilon) {
+	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
+
+	for(uint i = 0; i < C.n_rows; i++) {
+		for(uint j = i+1; j < C.n_rows; j++) {
+			eT mp = mtv(C.row(i), C.row(j));
+
+			if(less_than(epsilon * d(i, j), mp))
+				return false;
 		}
 	}
 	return true;
 }
+
+
+template<typename eT>
+eT Mechanism<eT>::smallest_epsilon() {
+	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
+
+	eT res(0);
+	for(uint i = 0; i < C.n_rows; i++) {
+		for(uint j = i+1; j < C.n_rows; j++) {
+			eT ratio = mtv(C.row(i), C.row(j)) / d(i, j);
+			if(less_than(res, ratio))
+				res = ratio;
+		}
+	}
+	return res;
+}
+
+
+template class Mechanism<double>;
+template class Mechanism<float>;
+
+//template class Metric<double, uint>;
+//template class Metric<float, uint>;
+//template class Euclidean<double, uint>;
+//template class Euclidean<float, uint>;
+

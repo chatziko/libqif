@@ -51,6 +51,7 @@ SOFTWARE.
 #include <string>
 #include <cassert>
 #include <vector>
+#include <exception>
 
 using std::string;
 using std::to_string;
@@ -71,7 +72,7 @@ bool LinearProgram<rat>::solve() {
 	check_sizes();
 
 	if(method != method_t::simplex_primal)
-		throw "not supported";
+		throw std::runtime_error("not supported");
 
 	LinearProgram<rat> lp = canonical_form();
 
@@ -197,7 +198,7 @@ bool LinearProgram<eT>::glpk() {
 
 template<>
 bool LinearProgram<rat>::glpk() {
-	throw "not available for rat";
+	throw std::runtime_error("not available for rat");
 }
 
 

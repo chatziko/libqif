@@ -22,31 +22,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "Mechanism.h"
 #include "gtest/gtest.h"
-#include <string>
+#include "Mechanism.h"
+#include "aux.h"
+#include "tests_aux.h"
 
-using std::string;
+// define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
+template <typename eT>
+class MechanismTest : public BaseTest<eT> {};
 
-TEST(Mechanism, CorrectSizeAndElements) {
-	string new_channel_elements = "1 0 0;0 1 0";
-	string graph_elements = "1 2;1 3;2 3";
-	Graph graph = Graph(3, graph_elements);
-	Mechanism m = Mechanism(new_channel_elements, graph);
-	EXPECT_EQ(2u, m.C.n_rows);
-	EXPECT_EQ(3u, m.C.n_cols);
+TYPED_TEST_CASE_P(MechanismTest);
+
+
+TYPED_TEST_P(MechanismTest, Is_private) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_TRUE(Mechanism<eT>(t.noint_10).is_private(0));
+
+//	EXPECT_PRED2(equal<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
+//	EXPECT_PRED2(equal<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
+//	EXPECT_PRED2(equal<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
 }
 
-/*
-TEST(Mechanism, NoCorrectElements) {
-	string new_channel_elements = "1 2;3 0.5";
-	string graph_elements = "1 2; 1 3; 2 3";
-	Graph graph = Graph(3, graph_elements);
-	ASSERT_ANY_THROW(Mechanism m = Mechanism(new_channel_elements, graph););
-}
-*/
+TYPED_TEST_P(MechanismTest, Smallest_epsilon) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
 
-/* Untested functions:
-~Mechanism();
-bool is_diffenrential_private(double epsilon);
-*/
+	EXPECT_PRED2(equal<eT>, eT(0), Mechanism<eT>(t.noint_10).smallest_epsilon());
+
+//	EXPECT_PRED2(equal<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
+//	EXPECT_PRED2(equal<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
+//	EXPECT_PRED2(equal<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
+}
+
+
+REGISTER_TYPED_TEST_CASE_P(MechanismTest, Is_private, Smallest_epsilon);
+
+INSTANTIATE_TYPED_TEST_CASE_P(Mechanism, MechanismTest, NativeTypes);
+

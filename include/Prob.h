@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 
+#include <exception>
 #include "types.h"
 #include "aux.h"
 
@@ -68,41 +69,38 @@ T dirac(uint n, uint i = 0) {
 }
 
 
-template<typename T, EnableIf<is_Prob<T>>...>
-inline
-T normalise_prob(const T& pi) {
-	return pi / sum(pi);
-}
-
-
+// Generate a distribution of n elements uniformly (among all the elements of the n-1 simplex)
+//
+// Algorithm: Generate n-1 numbers uniformly in [0,1], add 0 and 1 to the list,
+// sort, and take the difference between consecutive elements.
+// This algorithm has advantages over the simple "normalize n uniform elements" tehcnique:
+//
+// 1. The normalizing technique is not uniform! See the url below.
+//
+// 2. The algorithm involves no divisions, and the resulting sum is much closer to exactly 1.0
+//    Using this algorithm with float the Kantorovich tests over random dists always pass, while with
+//    the normalizing algorithm there are instabilities.
+//
+// 3. We avoid to sum all elements, which creates a big denominator under rats
+//
+// Note: if the n logn complexity is a problem, there's a linear algorithm involving logs in the following url:
+// http://stats.stackexchange.com/questions/14059/generate-uniformly-distributed-weights-that-sum-to-unity
+//
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& randu(T& pi) {
+	typedef typename T::elem_type eT;
+
 	pi.randu();
-	pi = normalise_prob(pi);
-	return pi;
-}
+	pi(pi.n_cols-1) = eT(1);		// add 1 to the list. We don't really need to add 0
+	pi = arma::sort(pi);
 
-// randu for rationals
-// Problem: how to select uniformly a rational
-// We could generate a double and convert to rational, however
-// having too many rationals with different denominators is problematic,
-// summing them creates an overflow and is_proper returns false.
-// So we simply take a common denominator (4096) and generate nominator
-// uniformly in [0,den]
-//
-template<>
-inline
-rprob& randu<rprob>(rprob& pi) {
-	const int den = 4096;
-	Mat<int> m(1, 1);
+	for(uint i = pi.n_cols-1; i > 0; i--)
+		pi(i) -= pi(i-1);
 
-	for(auto& e : pi) {
-		m = arma::randi<Mat<int>>(1, 1, arma::distr_param(0, den));		// use whatever random number generator armadillo is using
-		e = rat(m.at(0,0));
-		e /= den;
-	}
-	pi = normalise_prob(pi);
+	// naif normalize algorithm
+	//pi.randu();
+	//pi /= arma::accu(pi);
 
 	return pi;
 }
@@ -141,68 +139,7 @@ template<typename T, EnableIf<is_Prob<T>>...>
 inline
 void check_proper(const T& pi) {
 	if(!is_proper<T>(pi))
-		throw 1;
-}
-
-
-
-template<typename T, EnableIf<is_Prob<T>>...>
-inline
-typename T::elem_type total_variation(const T& x, const T& y) {
-	if(x.n_cols != y.n_cols) throw "size mismatch";
-
-	return arma::accu(arma::abs(x - y)) / 2;
-}
-
-
-// max_i | ln x[i] - ln y[i] |
-//
-template<typename T, EnableIf<is_Prob<T>>...>
-inline
-typename T::elem_type multiplicative_distance(const T& x, const T& y) {
-	typedef typename T::elem_type eT;
-
-	if(x.n_cols != y.n_cols) throw "size mismatch";
-
-	eT res = eT(0);
-	for(uint i = 0; i < x.n_cols; i++) {
-		eT a = x(i),
-		   b = y(i);
-		bool a_is_zero = equal(a, eT(0)),
-			 b_is_zero = equal(b, eT(0));
-
-		if(a_is_zero && b_is_zero)			// both are the same, no diff
-			continue;
-		else if(a_is_zero || b_is_zero)		// only one is zero, diff is infty
-			return infinity<eT>();
-		else {
-			eT diff = std::abs(std::log(a) - std::log(b));
-			if(less_than(res, diff))
-				res = diff;
-		}
-	}
-	return res;
-}
-
-
-template<typename T, EnableIf<is_Prob<T>>...>
-inline
-typename T::elem_type bounded_entropy_distance(const T& x, const T& y) {
-	typedef typename T::elem_type eT;
-
-	if(x.n_cols != y.n_cols) throw "size mismatch";
-
-	eT res = eT(0);
-	for(uint i = 0; i < x.n_cols; i++) {
-		eT m = std::max(x.at(i), y.at(i));
-		if(equal(m, eT(0)))
-			continue;
-
-		eT d = abs(x.at(i) - y.at(i)) / m;
-		if(d > res)
-			res = d;
-	}
-	return res;
+		throw std::runtime_error("not a proper dist");
 }
 
 
