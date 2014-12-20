@@ -13,11 +13,10 @@
 
 template<typename R, typename T> using Metric = std::function<R(const T&, const T&)>;
 
-class metrics {
-	public:
+namespace metrics {
 
 	template<typename R, typename T, EnableIf<std::is_arithmetic<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	euclidean() {
 		return [](const T& a, const T& b) -> R {
 			return abs_diff(a, b);
@@ -25,7 +24,7 @@ class metrics {
 	}
 
 	template<typename R, typename T>
-	static Metric<R, T>
+	Metric<R, T>
 	discrete(R val = R(1)) {
 		return [val](const T& a, const T& b) -> R {
 			return equal(a, b) ? R(0) : val;
@@ -33,7 +32,7 @@ class metrics {
 	}
 
 	template<typename R, typename T>
-	static Metric<R, T>
+	Metric<R, T>
 	scale(Metric<R, T> d, R coeff) {
 		return [d, coeff](const T& a, const T& b) -> R {
 			return coeff * d(a, b);
@@ -41,7 +40,7 @@ class metrics {
 	}
 
 	template<typename R, typename T, EnableIf<is_Point<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	euclidean() {
 		return [](const T& a, const T& b) -> R {
 			auto v1 = a.x - b.x,
@@ -51,7 +50,7 @@ class metrics {
 	}
 
 	template<typename R, typename T, EnableIf<is_Point<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	manhattan() {
 		return [](const T& a, const T& b) -> R {
 			return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
@@ -66,7 +65,7 @@ class metrics {
 	// Note: PT is the point type. The metric space type (denoted by T above) is fixed to uint
 	//
 	template<typename R, typename PT, EnableIf<is_Point<PT>>...>
-	static Metric<R, uint>
+	Metric<R, uint>
 	grid(uint width, Metric<R, PT> d = metrics::euclidean<R, PT>()) {
 		return [width, d](const uint& a, const uint& b) -> R {
 			return d( PT(a%width, a/width), PT(b%width, b/width) );
@@ -77,7 +76,7 @@ class metrics {
 	//////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
 
 	template<typename R, typename T, EnableIf<is_Prob<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	total_variation() {
 		static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
@@ -89,7 +88,7 @@ class metrics {
 	}
 
 	template<typename R, typename T, EnableIf<is_Prob<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	mult_total_variation() {
 		static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
@@ -118,7 +117,7 @@ class metrics {
 	}
 
 	template<typename R, typename T, EnableIf<is_Prob<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	bounded_entropy_distance() {
 		static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
@@ -143,7 +142,7 @@ class metrics {
 	// WISHLIST: faster method: jorlin.scripts.mit.edu/docs/publications/26-faster strongly polynomial.pdf
 	//
 	template<typename R, typename T, EnableIf<is_Prob<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	kantorovich(Metric<R, uint> d) {
 		static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
@@ -189,7 +188,7 @@ class metrics {
 	// multiplicative kantorovich through linear programming
 	//
 	template<typename R, typename T, EnableIf<is_Prob<T>>...>
-	static Metric<R, T>
+	Metric<R, T>
 	mult_kantorovich(Metric<R, uint> d) {
 		// we need to solve 2 linear programs, with the role of a, b exchanged. one_side solves one of them.
 		//
@@ -249,7 +248,7 @@ class metrics {
 			return std::max(one_side(a, b), one_side(b, a));
 		};
 	}
-};
+}
 
 
 #endif
