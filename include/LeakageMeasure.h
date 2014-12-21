@@ -53,9 +53,9 @@ class LeakageMeasure {
 		//---------------------------------------------------------
 		//theorethic algorithms
 
-		virtual eT vulnerability(const Prob<eT>& pi) { throw std::runtime_error("not supported"); }
+		virtual eT vulnerability(const Prob<eT>&) { throw std::runtime_error("not supported"); }
 
-		virtual eT cond_vulnerability(const Prob<eT>& pi) { throw std::runtime_error("not supported"); }
+		virtual eT cond_vulnerability(const Prob<eT>&) { throw std::runtime_error("not supported"); }
 
 		virtual eT entropy(const Prob<eT>& pi) = 0;
 

@@ -114,7 +114,7 @@ namespace qif {
 	//
 	template<typename eT>
 	struct real_ops {
-		inline static eT log2(eT x) { throw std::runtime_error("not supported on this datatype"); }
+		inline static eT log2(eT) { throw std::runtime_error("not supported on this datatype"); }
 	};
 	template<>
 	struct real_ops<double> {
