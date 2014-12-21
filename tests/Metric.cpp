@@ -46,9 +46,9 @@ TYPED_TEST_P(MetricTest, Euclidean_uint) {
 
 	auto euclid = metrics::euclidean<eT, uint>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), euclid(3, 3));
-	EXPECT_PRED2(equal<eT>, eT(5), euclid(0, 5));
-	EXPECT_PRED2(equal<eT>, eT(5), euclid(5, 0));
+	EXPECT_PRED2(equal2<eT>, eT(0), euclid(3, 3));
+	EXPECT_PRED2(equal2<eT>, eT(5), euclid(0, 5));
+	EXPECT_PRED2(equal2<eT>, eT(5), euclid(5, 0));
 }
 
 TYPED_TEST_P(MetricTest, Discrete) {
@@ -56,15 +56,15 @@ TYPED_TEST_P(MetricTest, Discrete) {
 
 	auto disc = metrics::discrete<eT, uint>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), disc(3, 3));
-	EXPECT_PRED2(equal<eT>, eT(1), disc(0, 2));
-	EXPECT_PRED2(equal<eT>, eT(1), disc(5, 0));
+	EXPECT_PRED2(equal2<eT>, eT(0), disc(3, 3));
+	EXPECT_PRED2(equal2<eT>, eT(1), disc(0, 2));
+	EXPECT_PRED2(equal2<eT>, eT(1), disc(5, 0));
 
 	disc = metrics::discrete<eT, uint>(eT(100));
 
-	EXPECT_PRED2(equal<eT>, eT(0), disc(3, 3));
-	EXPECT_PRED2(equal<eT>, eT(100), disc(0, 2));
-	EXPECT_PRED2(equal<eT>, eT(100), disc(5, 0));
+	EXPECT_PRED2(equal2<eT>, eT(0), disc(3, 3));
+	EXPECT_PRED2(equal2<eT>, eT(100), disc(0, 2));
+	EXPECT_PRED2(equal2<eT>, eT(100), disc(5, 0));
 }
 
 TYPED_TEST_P(MetricTest, Scale) {
@@ -73,13 +73,13 @@ TYPED_TEST_P(MetricTest, Scale) {
 	auto scaled_euclid = metrics::scale(metrics::euclidean<eT, uint>(), eT(10));
 	auto scaled_disc   = metrics::scale(metrics::discrete <eT, uint>(), eT(10));
 
-	EXPECT_PRED2(equal<eT>, eT(0), scaled_euclid(3, 3));
-	EXPECT_PRED2(equal<eT>, eT(50), scaled_euclid(0, 5));
-	EXPECT_PRED2(equal<eT>, eT(50), scaled_euclid(5, 0));
+	EXPECT_PRED2(equal2<eT>, eT(0), scaled_euclid(3, 3));
+	EXPECT_PRED2(equal2<eT>, eT(50), scaled_euclid(0, 5));
+	EXPECT_PRED2(equal2<eT>, eT(50), scaled_euclid(5, 0));
 
-	EXPECT_PRED2(equal<eT>, eT(0), scaled_disc(3, 3));
-	EXPECT_PRED2(equal<eT>, eT(10), scaled_disc(0, 3));
-	EXPECT_PRED2(equal<eT>, eT(10), scaled_disc(5, 0));
+	EXPECT_PRED2(equal2<eT>, eT(0), scaled_disc(3, 3));
+	EXPECT_PRED2(equal2<eT>, eT(10), scaled_disc(0, 3));
+	EXPECT_PRED2(equal2<eT>, eT(10), scaled_disc(5, 0));
 }
 
 TYPED_TEST_P(MetricTestReals, Euclidean_point) {
@@ -88,9 +88,9 @@ TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 
 	auto euclid = metrics::euclidean<eT, P>();
 
-	EXPECT_PRED2(equal<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
-	EXPECT_PRED2(equal<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
-	EXPECT_PRED2(equal<eT>, std::sqrt(eT(5)), euclid(P(2, 3), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(5)), euclid(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTest, Manhattan_point) {
@@ -99,9 +99,9 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 
 	auto manh = metrics::manhattan<eT, P>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), manh(P(1, 1), P(1, 1)));
-	EXPECT_PRED2(equal<eT>, eT(2), manh(P(0, 0), P(1, 1)));
-	EXPECT_PRED2(equal<eT>, eT(3), manh(P(2, 3), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, eT(0), manh(P(1, 1), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, eT(2), manh(P(0, 0), P(1, 1)));
+	EXPECT_PRED2(equal2<eT>, eT(3), manh(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTestReals, Grid_point) {
@@ -110,13 +110,13 @@ TYPED_TEST_P(MetricTestReals, Grid_point) {
 	auto grid_euclid = metrics::grid<eT, Point<eT>>(4);
 	auto grid_manh   = metrics::grid<eT, Point<eT>>(4, metrics::manhattan<eT, Point<eT>>());
 
-	EXPECT_PRED2(equal<eT>, eT(0),            grid_euclid(5, 5));
-	EXPECT_PRED2(equal<eT>, std::sqrt(eT(2)), grid_euclid(0, 5));		// cell  5 is (1,1)
-	EXPECT_PRED2(equal<eT>, std::sqrt(eT(5)), grid_euclid(11, 5));		// cell 11 is (2,3)
+	EXPECT_PRED2(equal2<eT>, eT(0),            grid_euclid(5, 5));
+	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(2)), grid_euclid(0, 5));		// cell  5 is (1,1)
+	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(5)), grid_euclid(11, 5));		// cell 11 is (2,3)
 
-	EXPECT_PRED2(equal<eT>, eT(0), grid_manh(5, 5));
-	EXPECT_PRED2(equal<eT>, eT(2), grid_manh(0, 5));
-	EXPECT_PRED2(equal<eT>, eT(3), grid_manh(11, 5));
+	EXPECT_PRED2(equal2<eT>, eT(0), grid_manh(5, 5));
+	EXPECT_PRED2(equal2<eT>, eT(2), grid_manh(0, 5));
+	EXPECT_PRED2(equal2<eT>, eT(3), grid_manh(11, 5));
 }
 
 TYPED_TEST_P(MetricTest, Total_variation) {
@@ -125,10 +125,10 @@ TYPED_TEST_P(MetricTest, Total_variation) {
 
 	auto tv = metrics::total_variation<eT, Prob<eT>>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), tv(t.unif_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0), tv(t.dirac_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/4, tv(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/4, tv(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), tv(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), tv(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/4, tv(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/4, tv(t.dirac_4, t.unif_4));
 }
 
 TYPED_TEST_P(MetricTest, Bounded_entropy_distance) {
@@ -137,14 +137,14 @@ TYPED_TEST_P(MetricTest, Bounded_entropy_distance) {
 
 	auto bed = metrics::bounded_entropy_distance<eT, Prob<eT>>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), bed(t.unif_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0), bed(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), bed(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), bed(t.dirac_4, t.dirac_4));
 
-	EXPECT_PRED2(equal<eT>, eT(1), bed(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(1), bed(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(1), bed(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(1), bed(t.dirac_4, t.unif_4));
 
-	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bed(t.unif_4, t.pi5));
-	EXPECT_PRED2(equal<eT>, eT(9)/eT(14), bed(t.pi5, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(9)/eT(14), bed(t.unif_4, t.pi5));
+	EXPECT_PRED2(equal2<eT>, eT(9)/eT(14), bed(t.pi5, t.unif_4));
 }
 
 TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
@@ -153,14 +153,14 @@ TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
 
 	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
 
-	EXPECT_PRED2(equal<eT>, eT(0), mtv(t.unif_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0), mtv(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), mtv(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0), mtv(t.dirac_4, t.dirac_4));
 
-	EXPECT_PRED2(equal<eT>, infinity<eT>(), mtv(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, infinity<eT>(), mtv(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, infinity<eT>(), mtv(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, infinity<eT>(), mtv(t.dirac_4, t.unif_4));
 
-	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), mtv(t.unif_4, t.pi5));
-	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), mtv(t.pi5, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, std::log(0.7/0.25), mtv(t.unif_4, t.pi5));
+	EXPECT_PRED2(equal2<eT>, std::log(0.7/0.25), mtv(t.pi5, t.unif_4));
 }
 
 TYPED_TEST_P(MetricTest, Kantorovich) {
@@ -173,22 +173,22 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 		 kant_euclid= metrics::kantorovich<eT, Prob<eT>>(euclid),
 		 tv			= metrics::total_variation<eT, Prob<eT>>();
 
-	EXPECT_PRED2(equal<eT>, eT(0),   kant_disc(t.unif_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0),   kant_disc(t.dirac_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/4, kant_disc(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/4, kant_disc(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),   kant_disc(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),   kant_disc(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/4, kant_disc(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/4, kant_disc(t.dirac_4, t.unif_4));
 
-	EXPECT_PRED2(equal<eT>, eT(0),   kant_euclid(t.unif_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0),   kant_euclid(t.dirac_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/2, kant_euclid(t.unif_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(3)/2, kant_euclid(t.dirac_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(9)/2, kant_euclid(t.unif_10, t.dirac_10));
-	EXPECT_PRED2(equal<eT>, eT(9)/2, kant_euclid(t.dirac_10, t.unif_10));
+	EXPECT_PRED2(equal2<eT>, eT(0),   kant_euclid(t.unif_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),   kant_euclid(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/2, kant_euclid(t.unif_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(3)/2, kant_euclid(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(9)/2, kant_euclid(t.unif_10, t.dirac_10));
+	EXPECT_PRED2(equal2<eT>, eT(9)/2, kant_euclid(t.dirac_10, t.unif_10));
 
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED2(equal<eT>, disc  (0, i), kant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
-		EXPECT_PRED2(equal<eT>, euclid(0, i), kant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, disc  (0, i), kant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, euclid(0, i), kant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
 	}
 
 	// kantorovich over the discrete metric = total variation
@@ -200,7 +200,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	for(uint i = 0; i < 10; i++) {
 		auto p1 = randu<Prob<eT>>(10),
 			 p2 = randu<Prob<eT>>(10);
-		EXPECT_PRED2(equal<eT>, tv(p1, p2), kant_disc(p1, p2));
+		EXPECT_PRED2(equal2<eT>, tv(p1, p2), kant_disc(p1, p2));
 	}
 }
 
@@ -214,30 +214,30 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 		 mkant_euclid	= metrics::mult_kantorovich<eT, Prob<eT>>(euclid),
 		 mtv			= metrics::mult_total_variation<eT, Prob<eT>>();
 
-	EXPECT_PRED2(equal<eT>, eT(0),              mkant_disc(t.unif_4,  t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0),              mkant_disc(t.dirac_4, t.dirac_4));
-	EXPECT_PRED2(equal<eT>, infinity<eT>(),     mkant_disc(t.unif_4,  t.dirac_4));
-	EXPECT_PRED2(equal<eT>, infinity<eT>(),     mkant_disc(t.dirac_4, t.unif_4));
-	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), mkant_disc(t.unif_4,  t.pi5));
-	EXPECT_PRED2(equal<eT>, std::log(0.7/0.25), mkant_disc(t.pi5,     t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),              mkant_disc(t.unif_4,  t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),              mkant_disc(t.dirac_4, t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, infinity<eT>(),     mkant_disc(t.unif_4,  t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, infinity<eT>(),     mkant_disc(t.dirac_4, t.unif_4));
+	EXPECT_PRED2(equal2<eT>, std::log(0.7/0.25), mkant_disc(t.unif_4,  t.pi5));
+	EXPECT_PRED2(equal2<eT>, std::log(0.7/0.25), mkant_disc(t.pi5,     t.unif_4));
 
-	EXPECT_PRED2(equal<eT>, eT(0),        mkant_euclid(t.unif_4,   t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(0),        mkant_euclid(t.dirac_4,  t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(2.053895), mkant_euclid(t.unif_4,   t.dirac_4));
-	EXPECT_PRED2(equal<eT>, eT(2.053895), mkant_euclid(t.dirac_4,  t.unif_4));
-	EXPECT_PRED2(equal<eT>, eT(7.156044), mkant_euclid(t.unif_10,  t.dirac_10));
-	EXPECT_PRED2(equal<eT>, eT(7.156044), mkant_euclid(t.dirac_10, t.unif_10));
+	EXPECT_PRED2(equal2<eT>, eT(0),                  mkant_euclid(t.unif_4,   t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(0),                  mkant_euclid(t.dirac_4,  t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.unif_4,   t.dirac_4));
+	EXPECT_PRED2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.dirac_4,  t.unif_4));
+	EXPECT_PRED2(equal2<eT>, eT(7.1560446514326657), mkant_euclid(t.unif_10,  t.dirac_10));
+	EXPECT_PRED2(equal2<eT>, eT(7.1560446514326657), mkant_euclid(t.dirac_10, t.unif_10));
 
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED2(equal<eT>, disc  (0, i), mkant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
-		EXPECT_PRED2(equal<eT>, euclid(0, i), mkant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, disc  (0, i), mkant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, euclid(0, i), mkant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
 	}
 
 	// mult kantorovich over the discrete metric (with inf value) = mult total variation
 	auto p1 = randu<Prob<eT>>(10),
 		 p2 = randu<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, mtv(p1, p2), mkant_disc(p1, p2));
+	EXPECT_PRED2(equal2<eT>, mtv(p1, p2), mkant_disc(p1, p2));
 }
 
 

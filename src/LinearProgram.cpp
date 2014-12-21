@@ -149,6 +149,7 @@ bool LinearProgram<eT>::glpk() {
 		glp_smcp opt;
 		glp_init_smcp(&opt);
 		opt.msg_lev = GLP_OFF;		// no terminal output
+		//opt.presolve = GLP_ON;		// use presolver
 
 		glp_simplex(lp, &opt);
 

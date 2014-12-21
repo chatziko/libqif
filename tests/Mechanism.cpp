@@ -40,20 +40,20 @@ TYPED_TEST_P(MechanismTest, Is_private) {
 
 	EXPECT_TRUE(Mechanism<eT>(t.noint_10).is_private(0));
 
-//	EXPECT_PRED2(equal<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
-//	EXPECT_PRED2(equal<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
-//	EXPECT_PRED2(equal<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
+//	EXPECT_PRED2(equal2<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
+//	EXPECT_PRED2(equal2<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
+//	EXPECT_PRED2(equal2<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
 }
 
 TYPED_TEST_P(MechanismTest, Smallest_epsilon) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal<eT>, eT(0), Mechanism<eT>(t.noint_10).smallest_epsilon());
+	EXPECT_PRED2(equal2<eT>, eT(0), Mechanism<eT>(t.noint_10).smallest_epsilon());
 
-//	EXPECT_PRED2(equal<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
-//	EXPECT_PRED2(equal<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
-//	EXPECT_PRED2(equal<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
+//	EXPECT_PRED2(equal2<eT>, eT(1)/10, Mechanism<eT>().vulnerability(t.unif_10));
+//	EXPECT_PRED2(equal2<eT>, 1,            Mechanism<eT>().vulnerability(t.dirac_4));
+//	EXPECT_PRED2(equal2<eT>, eT(8)/10, Mechanism<eT>().vulnerability(t.pi1));
 }
 
 

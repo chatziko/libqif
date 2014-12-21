@@ -86,7 +86,7 @@ eT Shannon<eT>::capacity() {
 		eT IL = log2(d);
 		eT IU = log2(max(F));
 
-		if(IU - IL < this->precision)
+		if(equal(IU, IL, this->max_diff, this->max_rel_diff))
 			return IL;
 
 		// update Px

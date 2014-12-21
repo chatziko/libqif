@@ -130,7 +130,8 @@ class LeakageMeasure {
 			return "LeakageMeasure";
 		}
 
-		eT precision = 0.001;
+		eT max_diff = def_max_diff<eT>();
+		eT max_rel_diff = def_max_rel_diff<eT>();
 
 	protected:
 		int plotter_flag = -1;  /*!< This integer will be used as a flag to determine with which plotter draw.

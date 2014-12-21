@@ -4,7 +4,7 @@ project(libqif)
 
 include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
 
-add_definitions(-std=c++11 -Wall) #-fno-elide-constructor -O3 -march=natives
+add_definitions(-std=c++11 -Wall -pedantic) #-fno-elide-constructor -O3 -march=natives
 
 include_directories(include)
 

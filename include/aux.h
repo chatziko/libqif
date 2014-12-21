@@ -5,31 +5,65 @@
 #include <limits>
 #include "types.h"
 
-const double epsilon = 1e-5;
+
+const double  inf = std::numeric_limits<double>::infinity();
+const float  finf = std::numeric_limits<float>::infinity();
+
+template<typename eT> inline eT     def_max_diff() { return eT(0); }
+template<>            inline double def_max_diff() { return 1e-7; }
+template<>            inline float  def_max_diff() { return 1e-7; }
+
+template<typename eT> inline eT     def_max_rel_diff() { return eT(0); }
+template<>            inline double def_max_rel_diff() { return 100 * std::numeric_limits<double>::epsilon(); }
+template<>            inline float  def_max_rel_diff() { return  10 * std::numeric_limits<float >::epsilon(); }
+
 
 template<typename eT>
-inline bool equal(const eT& x, const eT& y) {
+inline bool equal(const eT& x, const eT& y, const eT& = def_max_diff<eT>(), const eT& = def_max_rel_diff<eT>()) {
 	// default comparison using ==
 	return x == y;
 }
 
 template<>
-inline bool equal(const rat& x, const rat& y) {
+inline bool equal(const rat& x, const rat& y, const rat&, const rat&) {
 	// for some weird reason, == doesn't work on rat
 	return cmp(x, y) == 0;
 }
 
-// comparison for double, see Knuth section 4.2.2 pages 217-218
-// modified in case x or y are exactly 0.0, in this case relative error makes no sense,
-// so we just use epsilon * 0.01
-// we also separately test x == y to allow for infinities
+// mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
+// positive numbers. We also consider inf == inf.
+// see: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+//
 template<>
-inline bool equal(const double& x, const double& y) {
-	return std::abs(x - y) <= epsilon * (x == 0.0 || y == 0.0 ? 0.01 : std::abs(x)) || x == y;
+inline bool equal(const double& x, const double& y, const double& max_diff, const double& max_rel_diff) {
+	if(x == y) return true;
+	if(x == inf || y == inf) return false;
+
+	double diff = std::abs(x - y);
+
+	if(x == 0.0 || y == 0.0)
+		return (diff <= max_diff);
+
+	double ax = std::abs(x),
+		   ay = std::abs(y),
+		   largest = (ay > ax ? ay : ax);
+	return (diff <= largest * max_rel_diff);
 }
+
 template<>
-inline bool equal(const float& x, const float& y) {
-	return std::abs(x - y) <= epsilon * (x == 0.0 || y == 0.0 ? 0.01 : std::abs(x)) || x == y;
+inline bool equal(const float& x, const float& y, const float& max_diff, const float& max_rel_diff) {
+	if(x == y) return true;
+	if(x == finf || y == finf) return false;
+
+	float diff = std::abs(x - y);
+
+	if(x == 0.0 || y == 0.0)
+		return (diff <= max_diff);
+
+	float ax = std::abs(x),
+		  ay = std::abs(y),
+		  largest = (ay > ax ? ay : ax);
+	return (diff <= largest * max_rel_diff);
 }
 
 

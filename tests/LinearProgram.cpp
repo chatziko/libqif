@@ -39,6 +39,10 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 	typedef typename LinearProgram<eT>::method_t m_t;
 	typedef typename LinearProgram<eT>::status_t s_t;
 
+	// the default acceptance range is too string for linear programs, we need a more permissive mrd
+	eT md =	def_max_diff<eT>();
+	eT mrd = def_max_rel_diff<float>();		// always use the mrd for floats
+
 	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
 		if(std::is_same<eT, rat>::value && method != m_t::simplex_primal) continue;		// rat supports on simplex_primal
 
@@ -51,8 +55,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED2(equal<eT>, eT(46)/100, lp.optimum());
-		expect_mat(format_num<eT>("0.6; 0.2"), lp.x);
+		EXPECT_PRED4(equal<eT>, eT(46)/100, lp.optimum(), md, mrd);
+		expect_mat(format_num<eT>("0.6; 0.2"), lp.x, md, mrd);
 
 		lp.A = format_num<eT>("1 1 0; 0 1 1");
 		lp.b = format_num<eT>("1 1");
@@ -60,8 +64,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED2(equal<eT>, eT(2), lp.optimum());
-		expect_mat(format_num<eT>("0; 1; 0"), lp.x);
+		EXPECT_PRED4(equal<eT>, eT(2), lp.optimum(), md, mrd);
+		expect_mat(format_num<eT>("0; 1; 0"), lp.x, md, mrd);
 
 		lp.maximize = false;
 		lp.A = format_num<eT>("3 -4; 1 2; 1 0");
@@ -71,8 +75,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED2(equal<eT>, eT(9), lp.optimum());
-		expect_mat(format_num<eT>("1; 1.5"), lp.x);
+		EXPECT_PRED4(equal<eT>, eT(9), lp.optimum(), md, mrd);
+		expect_mat(format_num<eT>("1; 1.5"), lp.x, md, mrd);
 
 		lp.maximize = false;
 		lp.A = format_num<eT>("1 2 2; 2 1 2; 2 2 1");
@@ -82,8 +86,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED2(equal<eT>, eT(-136), lp.optimum());
-		expect_mat(format_num<eT>("4; 4; 4"), lp.x);
+		EXPECT_PRED4(equal<eT>, eT(-136), lp.optimum(), md, mrd);
+		expect_mat(format_num<eT>("4; 4; 4"), lp.x, md, mrd);
 	}
 }
 

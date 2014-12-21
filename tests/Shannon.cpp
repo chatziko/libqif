@@ -52,16 +52,16 @@ TYPED_TEST_P(ShannonTest, Entropy) {
 	Shannon<eT> shan;
 
 	pi = uniform<Prob<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 1, shan.entropy(pi));
+	EXPECT_PRED2(equal2<eT>, 1, shan.entropy(pi));
 
 	pi = uniform<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, log2(10), shan.entropy(pi));
+	EXPECT_PRED2(equal2<eT>, log2(10), shan.entropy(pi));
 
 	pi = Prob<eT>("1 0 0 0");
-	EXPECT_PRED2(equal<eT>, 0, shan.entropy(pi));
+	EXPECT_PRED2(equal2<eT>, 0, shan.entropy(pi));
 
 	pi = Prob<eT>("0.2 0.8");
-	EXPECT_PRED2(equal<eT>, 0.721928094887362, shan.entropy(pi));
+	EXPECT_PRED2(equal2<eT>, 0.721928094887362, shan.entropy(pi));
 }
 
 TYPED_TEST_P(ShannonTest, Cond_entropy) {
@@ -70,25 +70,25 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	Shannon<eT> shan;
 
 	shan.C = identity<Chan<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(uniform<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(2)));
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(Prob<eT>("0.2 0.8")));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(uniform<Prob<eT>>(2)));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(2)));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(Prob<eT>("0.2 0.8")));
 
 	shan.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0")));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(uniform<Prob<eT>>(10)));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(10)));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0")));
 
 	no_interference(shan.C);
-	EXPECT_PRED2(equal<eT>, log2(10), shan.cond_entropy(uniform<Prob<eT>>(10)));
-	EXPECT_PRED2(equal<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(10)));
+	EXPECT_PRED2(equal2<eT>, log2(10), shan.cond_entropy(uniform<Prob<eT>>(10)));
+	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(10)));
 
 	Prob<eT> pi = randu<Prob<eT>>(10);
-	EXPECT_PRED2(equal<eT>, shan.entropy(pi), shan.cond_entropy(pi));
+	EXPECT_PRED2(equal2<eT>, shan.entropy(pi), shan.cond_entropy(pi));
 
 	shan.C = Chan<eT>("0.8 0.2; 0.3 0.7");
 	pi = "0.25 0.75";
-	EXPECT_PRED2(equal<eT>, 0.669020059980807, shan.cond_entropy(pi));
+	EXPECT_PRED2(equal2<eT>, 0.669020059980807, shan.cond_entropy(pi));
 
 	shan.C = identity<Chan<eT>>(10);
 	ASSERT_ANY_THROW(shan.cond_entropy(uniform<Prob<eT>>(2)););
@@ -100,16 +100,16 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 	Shannon<eT> shan;
 
 	shan.C = identity<Chan<eT>>(2);
-	EXPECT_PRED2(equal<eT>, 1, shan.capacity());
+	EXPECT_PRED2(equal2<eT>, 1, shan.capacity());
 
 	shan.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, log2(10), shan.capacity());
+	EXPECT_PRED2(equal2<eT>, log2(10), shan.capacity());
 
 	shan.C = no_interference<Chan<eT>>(10);
-	EXPECT_PRED2(equal<eT>, 0, shan.capacity());
+	EXPECT_PRED2(equal2<eT>, 0, shan.capacity());
 
 	shan.C = Chan<eT>("0.8 0.2; 0.3 0.7");
-	EXPECT_PRED2(equal<eT>, 0.19123721482206, shan.capacity());
+	EXPECT_PRED2(equal2<eT>, 0.19123813831431799, shan.capacity());
 
 	// symmetric
 	shan.C = Chan<eT>(
@@ -118,7 +118,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		".2 .5 .3;"
 	);
 	double cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
-	EXPECT_PRED2(equal<eT>, cap, shan.capacity());
+	EXPECT_PRED2(equal2<eT>, cap, shan.capacity());
 
 	// weakly symmetric
 	shan.C = Chan<eT>(
@@ -126,7 +126,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		"0.333333333 0.5         0.166666667;"
 	);
 	cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
-	EXPECT_PRED2(equal<eT>, cap, shan.capacity());
+	EXPECT_PRED2(equal2<eT>, cap, shan.capacity());
 }
 
 
