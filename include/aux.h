@@ -37,33 +37,29 @@ inline bool equal(const rat& x, const rat& y, const rat&, const rat&) {
 template<>
 inline bool equal(const double& x, const double& y, const double& max_diff, const double& max_rel_diff) {
 	if(x == y) return true;
-	if(x == inf || y == inf) return false;
 
-	double diff = std::abs(x - y);
-
-	if(x == 0.0 || y == 0.0)
-		return (diff <= max_diff);
-
-	double ax = std::abs(x),
+	double diff = std::abs(x - y),
+		   ax = std::abs(x),
 		   ay = std::abs(y),
 		   largest = (ay > ax ? ay : ax);
-	return (diff <= largest * max_rel_diff);
+
+	return	largest == inf			? false :
+			x == 0.0 || y == 0.0	? (diff <= max_diff) :
+									  (diff <= largest * max_rel_diff);
 }
 
 template<>
 inline bool equal(const float& x, const float& y, const float& max_diff, const float& max_rel_diff) {
 	if(x == y) return true;
-	if(x == finf || y == finf) return false;
 
-	float diff = std::abs(x - y);
-
-	if(x == 0.0 || y == 0.0)
-		return (diff <= max_diff);
-
-	float ax = std::abs(x),
+	float diff = std::abs(x - y),
+		  ax = std::abs(x),
 		  ay = std::abs(y),
 		  largest = (ay > ax ? ay : ax);
-	return (diff <= largest * max_rel_diff);
+
+	return	largest == finf			? false :
+			x == 0.0 || y == 0.0	? (diff <= max_diff) :
+									  (diff <= largest * max_rel_diff);
 }
 
 
