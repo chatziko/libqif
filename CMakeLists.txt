@@ -4,7 +4,10 @@ project(libqif)
 
 include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
 
-add_definitions(-std=c++11 -Wall -Wextra -pedantic) #-fno-elide-constructor -O3 -march=natives
+set(CMAKE_BUILD_TYPE Release)											# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
+
+add_definitions(-std=c++11 -Wall -Wextra -pedantic)											# common flags
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -DARMA_NO_DEBUG")		# Release flags
 
 include_directories(include)
 
@@ -32,8 +35,10 @@ add_dependencies(allcode all tests samples)
 
 
 # Print all variables
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+if(VERBOSE)
+	get_cmake_property(_variableNames VARIABLES)
+	foreach (_variableName ${_variableNames})
+		message(STATUS "${_variableName}=${${_variableName}}")
+	endforeach()
+endif()
 
