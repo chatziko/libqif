@@ -97,17 +97,17 @@ namespace metrics {
 
 			R res = R(0);
 			for(uint i = 0; i < a.n_cols; i++) {
-				R ai = a(i),
-				  bi = b(i);
-				bool ai_is_zero = equal(ai, R(0)),
-					 bi_is_zero = equal(bi, R(0));
+				R log_a = std::log(a(i)),
+				  log_b = std::log(b(i));
+				bool inf_a = equal(log_a, -infinity<R>()),
+					 inf_b = equal(log_b, -infinity<R>());
 
-				if(ai_is_zero && bi_is_zero)			// both are the same, no diff
+				if(inf_a && inf_b)					// both are zero, no diff
 					continue;
-				else if(ai_is_zero || bi_is_zero)		// only one is zero, diff is infty
+				else if(inf_a || inf_b)				// only one is zero, diff is infty
 					return infinity<R>();
 				else {
-					R diff = std::abs(std::log(ai) - std::log(bi));
+					R diff = std::abs(log_a - log_b);
 					if(less_than(res, diff))
 						res = diff;
 				}
