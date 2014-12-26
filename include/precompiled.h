@@ -43,4 +43,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <type_traits>
 #include <exception>
 
+extern "C" {
+	#include <gsl/gsl_sf.h>				// gsl_sf_lambert_Wm1
+	#include <gsl/gsl_monte_miser.h>
+}
+
 #endif

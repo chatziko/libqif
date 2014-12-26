@@ -8,12 +8,13 @@
 * [Armadillo](http://arma.sourceforge.net/) (tested with version 4.4)
 * [GMP](https://gmplib.org/) (tested with version 6.0.0)
 * [GLPK](https://www.gnu.org/software/glpk/) (tested with version 4.54)
+* [GSL](http://www.gnu.org/software/gsl/) (tested with version 1.16)
 * A C++11 compliant compiler (tested with g++ 4.9.1)
 * [Doxygen](http://www.stack.nl/~dimitri/doxygen/) (optional, to generate documentation)
 
 On Ubuntu, these can be installed with:
 
-    sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev doxygen
+    sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev libgsl0-dev doxygen
 
 ### Get the code
 

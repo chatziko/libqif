@@ -38,9 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& uniform(T& pi) {
-	typedef typename T::elem_type eT;
-
-	pi.fill( eT(1) / eT(pi.n_cols) );
+	pi.fill( eT<T>(1) / pi.n_cols );
 	return pi;
 }
 
@@ -54,10 +52,8 @@ inline T uniform(uint n) {
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& dirac(T& pi, uint i = 0) {
-	typedef typename T::elem_type eT;
-
 	pi.zeros();
-	pi.at(i) = eT(1);
+	pi.at(i) = eT<T>(1);
 	return pi;
 }
 
@@ -89,10 +85,8 @@ T dirac(uint n, uint i = 0) {
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& randu(T& pi) {
-	typedef typename T::elem_type eT;
-
 	pi.randu();
-	pi(pi.n_cols-1) = eT(1);		// add 1 to the list. We don't really need to add 0
+	pi(pi.n_cols-1) = eT<T>(1);		// add 1 to the list. We don't really need to add 0
 	pi = arma::sort(pi);
 
 	for(uint i = pi.n_cols-1; i > 0; i--)
@@ -115,7 +109,7 @@ T randu(uint n) {
 
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
-bool is_proper(const T& pi) {
+bool is_proper(const T& pi, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 	typedef typename T::elem_type eT;
 
 	eT sum = 0;
@@ -129,7 +123,7 @@ bool is_proper(const T& pi) {
 	}
 
 	// sum should be 1
-	if(!equal(sum, eT(1)))
+	if(!equal(sum, eT(1), def_max_diff<eT>(), mrd))
 		return false;
 
 	return true;

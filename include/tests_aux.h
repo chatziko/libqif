@@ -77,11 +77,16 @@ inline bool equal2(const eT& x, const eT& y) {
 	return equal<eT>(x, y);
 }
 
+template<typename T>
+inline bool is_proper1(const T& x) {
+	return is_proper<T>(x);
+}
+
 
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
 	EXPECT_PRED2(chan_equal<Chan<eT>>, m, c);
-	EXPECT_PRED1(is_proper<Chan<eT>>, c);
+	EXPECT_PRED1(is_proper1<Chan<eT>>, c);
 }
 
 template<typename eT>
@@ -94,7 +99,7 @@ void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
 	EXPECT_EQ(rn, c.n_rows);
 	EXPECT_EQ(cn, c.n_cols);
 
-	EXPECT_PRED1(is_proper<Chan<eT>>, c);
+	EXPECT_PRED1(is_proper1<Chan<eT>>, c);
 }
 
 
@@ -105,7 +110,7 @@ void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
 	for(uint j = 0; j < p.n_cols; j++)
 		EXPECT_PRED2(equal2<eT>, m.at(j), p.at(j));
 
-	EXPECT_PRED1(is_proper<Prob<eT>>, p);
+	EXPECT_PRED1(is_proper1<Prob<eT>>, p);
 }
 
 template<typename eT>
@@ -117,7 +122,7 @@ template<typename eT>
 void expect_prob(uint cn, const Prob<eT>& p) {
 	EXPECT_EQ(cn, p.n_cols);
 
-	EXPECT_PRED1(is_proper<Prob<eT>>, p);
+	EXPECT_PRED1(is_proper1<Prob<eT>>, p);
 }
 
 

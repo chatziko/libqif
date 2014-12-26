@@ -53,10 +53,8 @@ T identity(uint n) {
 template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& no_interference(T& C) {
-	typedef typename T::elem_type eT;
-
 	C.zeros();
-	C.col(0).fill(eT(1));
+	C.col(0).fill(eT<T>(1));
 	return C;
 }
 
@@ -71,10 +69,8 @@ T no_interference(uint n) {
 template<typename T, EnableIf<is_Chan<T>>...>
 inline
 T& randu(T& C) {
-	typedef typename T::elem_type eT;
-
 	for(uint i = 0; i < C.n_rows; i++)
-		C.row(i) = randu<Prob<eT>>(C.n_cols);
+		C.row(i) = randu<Prob<eT<T>>>(C.n_cols);
 
 	return C;
 }
@@ -96,11 +92,9 @@ T randu(uint n, uint m) {
 
 template<typename T, EnableIf<is_Chan<T>>...>
 inline
-bool is_proper(const T& C) {
-	typedef typename T::elem_type eT;
-
+bool is_proper(const T& C, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 	for(uint i = 0; i < C.n_rows; i++)
-		if(!is_proper<Prob<eT>>(C.row(i)))
+		if(!is_proper<Prob<eT<T>>>(C.row(i), mrd))
 			return false;
 
 	return true;

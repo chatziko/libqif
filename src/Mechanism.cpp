@@ -36,7 +36,7 @@ bool Mechanism<eT>::is_private(eT epsilon) {
 		for(uint j = i+1; j < C.n_rows; j++) {
 			eT mp = mtv(C.row(i), C.row(j));
 
-			if(less_than(epsilon * d(i, j), mp))
+			if(!less_than_or_eq(mp, epsilon * d(i, j)))
 				return false;
 		}
 	}
@@ -58,6 +58,7 @@ eT Mechanism<eT>::smallest_epsilon() {
 	}
 	return res;
 }
+
 
 
 template class Mechanism<double>;

@@ -40,6 +40,7 @@ enum class enabled {}; // just a type that can be used as a template parameter a
 template <typename T> using Invoke = typename T::type;
 template <typename Condition> using EnableIf  = Invoke<std::enable_if< Condition::value, enabled>>;
 
+template <typename T> using eT = typename T::elem_type;
 
 template<typename eT> using Chan    = Mat<eT>;
 template<typename T>  using is_Chan = arma::is_Mat_only<T>;

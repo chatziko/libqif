@@ -16,7 +16,7 @@ include_directories(include)
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED ${LIB_SOURCES})									# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx armadillo)						# libraries to link
+target_link_libraries(qif glpk gmp gmpxx gsl armadillo)						# libraries to link
 
 add_precompiled_header(qif include/precompiled.h)
 
