@@ -38,8 +38,8 @@ class LinearProgram {
 		enum class status_t { optimal, infeasible, unbounded, error };
 		enum class method_t { simplex_primal, simplex_dual, interior };
 
-		Mat<eT>
-			A;				// constraints. TODO make sparse
+		arma::SpMat<eT>
+			A;				// constraints.
 		Col<eT>
 			x,				// solution
 			b,				// constants

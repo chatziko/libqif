@@ -113,17 +113,12 @@ bool LinearProgram<eT>::glpk() {
 	//
 	glp_add_rows(lp, A.n_rows);
 
-	int size = 0;
-	for(uint i = 0; i < A.n_rows; i++)
-		for(uint j = 0; j < A.n_cols; j++)
-			if(!equal(A(i, j), eT(0)))
-				size++;
+	int size = A.n_nonzero;
 
 	std::vector<int>	ia(size+1),
 						ja(size+1);
 	std::vector<double> ar(size+1);
 
-	int index = 1;
 	for(uint i = 0; i < A.n_rows; i++) {
 		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
 		if(sense_i == '<')
@@ -132,14 +127,15 @@ bool LinearProgram<eT>::glpk() {
 			glp_set_row_bnds(lp, i+1, GLP_LO, b.at(i), 0.0);	// row_i dot x >= b(i)
 		else
 			glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
+	}
 
-		for(uint j = 0; j < A.n_cols; j++) {
-			if(equal(A(i, j), eT(0))) continue;
-			ia[index] = i+1;
-			ja[index] = j+1;
-			ar[index] = A(i, j);
-			index++;
-		}
+	int index = 1;
+	auto end = A.end();
+	for(auto c = A.begin(); c != end; c++) {		// loop over non-zero elements of sparse array
+		ia[index] = c.row() + 1;
+		ja[index] = c.col() + 1;
+		ar[index] = *c;
+		index++;
 	}
 
 	glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
@@ -226,7 +222,7 @@ LinearProgram<eT> LinearProgram<eT>::canonical_form() {
 		if(get_sense(i) != '=')
 			extra += 1;
 
-	lp.A = arma::zeros<Mat<eT>>(m, n + extra);
+	lp.A.set_size(m, n + extra);
 	lp.A.cols(0, n-1) = A;
 
 	lp.c = arma::zeros<Col<eT>>(n + extra);
@@ -288,6 +284,9 @@ bool LinearProgram<eT>::simplex() {
 	for(uint i = 0; i < m; i++)
 		assert(!less_than(b.at(i), eT(0)));
 
+	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
+	Mat<eT> Adense(A);
+
 	Mat<char> is_basic	= zeros<Mat<char>>(n + m);
 	umat basic			= zeros<umat>(m);				// indices of current basis
 	Mat<eT> Binv		= eye<Mat<eT>>(m, m);			// inverse of basis matrix
@@ -311,7 +310,7 @@ bool LinearProgram<eT>::simplex() {
 		int entering = -1;
 		for(uint j = 0; j < n; j++) {
 			if(is_basic(j)) continue;
-			eT rc = (phase_one ? eT(0) : c(j)) - dot(pi_T, A.col(j));
+			eT rc = (phase_one ? eT(0) : c(j)) - dot(pi_T, Adense.col(j));
 			if(less_than(rc, eT(0))) {
 				entering = j;
 				break;
@@ -349,7 +348,7 @@ bool LinearProgram<eT>::simplex() {
 
 		// Calculate how the solution will change when our new
 		// variable enters the basis and increases from 0
-		Col<eT> BinvAs = Binv * A.col(entering);
+		Col<eT> BinvAs = Binv * Adense.col(entering);
 
 		// Perform a "ratio test" on each variable to determine
 		// which will reach 0 first
