@@ -4,7 +4,9 @@ project(libqif)
 
 include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
 
-set(CMAKE_BUILD_TYPE Release)											# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)										# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
+endif()
 
 add_definitions(-std=c++11 -Wall -Wextra -pedantic)											# common flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -DARMA_NO_DEBUG")		# Release flags
