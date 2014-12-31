@@ -31,11 +31,11 @@ inline bool equal(const rat& x, const rat& y, const rat&, const rat&) {
 }
 
 // mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
-// positive numbers. We also consider inf == inf.
+// positive numbers. Absolute error can be forced by passing max_rel_diff == 0.0. We also consider inf == inf.
 // see: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 //
 template<>
-inline bool equal(const double& x, const double& y, const double& max_diff, const double& max_rel_diff) {
+inline bool equal(const double& x, const double& y, const double& md, const double& mrd) {
 	if(x == y) return true;
 
 	double diff = std::abs(x - y),
@@ -43,13 +43,13 @@ inline bool equal(const double& x, const double& y, const double& max_diff, cons
 		   ay = std::abs(y),
 		   largest = (ay > ax ? ay : ax);
 
-	return	largest == inf			? false :
-			x == 0.0 || y == 0.0	? (diff <= max_diff) :
-									  (diff <= largest * max_rel_diff);
+	return largest == inf
+		? false
+		: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
 }
 
 template<>
-inline bool equal(const float& x, const float& y, const float& max_diff, const float& max_rel_diff) {
+inline bool equal(const float& x, const float& y, const float& md, const float& mrd) {
 	if(x == y) return true;
 
 	float diff = std::abs(x - y),
@@ -57,9 +57,9 @@ inline bool equal(const float& x, const float& y, const float& max_diff, const f
 		  ay = std::abs(y),
 		  largest = (ay > ax ? ay : ax);
 
-	return	largest == finf			? false :
-			x == 0.0 || y == 0.0	? (diff <= max_diff) :
-									  (diff <= largest * max_rel_diff);
+	return largest == finf
+		? false
+		: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
 }
 
 
@@ -71,8 +71,8 @@ inline bool less_than(const eT& x, const eT& y) {
 }
 
 template<typename eT>
-inline bool less_than_or_eq(const eT& x, const eT& y) {
-	return x < y || equal(x, y);
+inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+	return x < y || equal(x, y, md, mrd);
 }
 
 template<typename eT>

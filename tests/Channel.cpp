@@ -32,8 +32,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
 class ChanTest : public BaseTest<T> {};
+template <typename T>
+class ChanTestReals : public BaseTest<T> {};
 
 TYPED_TEST_CASE_P(ChanTest);
+TYPED_TEST_CASE_P(ChanTestReals);
 
 
 TYPED_TEST_P(ChanTest, Construct) {
@@ -89,25 +92,75 @@ TYPED_TEST_P(ChanTest, Factorize) {
 	expect_channel(0, 0, factorize(t.id_10, t.noint_10));
 	expect_channel(0, 0, factorize(t.id_4,  t.noint_10));
 
-	// TODO: Factorize is unstable under float, it fails half of the time, we should investigate
+	int n = 4, m = 6;
+	Chan<eT>
+		B = randu<Chan<eT>>(n, m),
+		A = B * randu<Chan<eT>>(m, n),
+		X1 = factorize(A, B),
+		Z1 = B * X1;
+
+	expect_channel(m, n, X1);
+	EXPECT_PRED4(chan_equal<Chan<eT>>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
+
+	// factorize_lp
+	//
+	// TODO: factorize_lp is unstable under float, it fails half of the time, we should investigate
 	if(std::is_same<eT, float>::value) return;
 
-	int n = 5, m = 4;
+	expect_channel(0, 0, factorize_lp(t.id_10, t.noint_10));
+	expect_channel(0, 0, factorize_lp(t.id_4,  t.noint_10));
+
 	Chan<eT>
-		B = randu<Chan<eT>>(n, n),
-		A = B * randu<Chan<eT>>(n, m),
-		X = factorize(A, B),
+		X2 = factorize_lp(A, B),
+		Z2 = B * X2;
+
+	expect_channel(m, n, X2);
+	EXPECT_PRED2(chan_equal2<Chan<eT>>, A, Z2);
+}
+
+TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	// non factorizable
+	expect_channel(0, 0, factorize_subgrad(t.id_10, t.noint_10));
+	expect_channel(0, 0, factorize_subgrad(t.id_4,  t.noint_10));
+
+	// a "fat" B matrix with cols = 1.5 * rows seems to be a good case where the initial solution of A = B X is
+	// not a proper matrix, and needs to be improved by the subgradient method (when cols == rows or cols = 2 * rows it
+	// seems that the solution is goot right away, with almost no iterations).
+	//
+	int n = 10, m = 15;
+	Chan<eT>
+		B = randu<Chan<eT>>(n, m),
+		A = B * randu<Chan<eT>>(m, n),
+		X = factorize_subgrad(A, B),
 		Z = B * X;
 
-	expect_channel(n, m, X);
-	expect_channel(A, Z);
+	expect_channel(m, n, X);
+	EXPECT_PRED4(chan_equal<Chan<eT>>, A, Z, 1e-4, 0);
+
+	// the following matrices cause the S matrix of the subgradient method to contain inf, causing X to contain -nan
+	//
+	A = "0.4405 0.5595;"
+		"0.6588 0.3412 ";
+	B = "0.9694 0.0062 0.0244;"
+		"0.5312 0.1401 0.3287 ";
+
+	X = factorize_subgrad(A, B),
+	Z = B * X;
+
+	expect_channel(3, 2, X);
+	EXPECT_PRED4(chan_equal<Chan<eT>>, A, Z, 1e-4, 0);
 }
 
 
 
-// run the ChanTest test-case for double, float, urat
+// run ChanTest for all types, ChanTestReals only for native types
 //
 REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize);
+REGISTER_TYPED_TEST_CASE_P(ChanTestReals, FactorizeSubgrad);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTestReals, NativeTypes);
 

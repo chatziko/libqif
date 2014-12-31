@@ -137,4 +137,41 @@ void check_proper(const T& pi) {
 }
 
 
+// Computes in place the (euclidean) projection of vector x \in R^n onto the
+// n-simplex. That is, finds the point of the simplex that is closer  to x.
+// Uses the algorithm of:
+//    http://www.springerlink.com/content/q1636371674m36p1/
+//
+template<typename T, EnableIf<is_Prob<T>>...>
+inline
+T& project_to_simplex(T& x) {
+	typedef eT<T> eT;
+
+	uint n = x.n_cols;
+	Row<char> done(n);
+	done.fill(0);
+
+	while(true) {
+		eT t = (arma::accu(x)-1)/n;
+		uint n1 = 0;
+
+		for(uint i = 0; i < x.n_cols; i++) {
+			if(done(i)) continue;
+
+			x(i) -= t;
+			if(eT(0) > x(i)) {
+				x(i) = eT(0);
+				done(i) = 1;
+				n1++;
+			}
+		}
+
+		if(n1 == 0) break;		// no negative elements
+		n -= n1;
+	}
+
+	return x;
+}
+
+
 #endif

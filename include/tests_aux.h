@@ -77,6 +77,11 @@ inline bool equal2(const eT& x, const eT& y) {
 	return equal<eT>(x, y);
 }
 
+template<typename eT>
+inline bool chan_equal2(const eT& x, const eT& y) {
+	return chan_equal<eT>(x, y);
+}
+
 template<typename T>
 inline bool is_proper1(const T& x) {
 	return is_proper<T>(x);
@@ -85,7 +90,7 @@ inline bool is_proper1(const T& x) {
 
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
-	EXPECT_PRED2(chan_equal<Chan<eT>>, m, c);
+	EXPECT_PRED2(chan_equal2<Chan<eT>>, m, c);
 	EXPECT_PRED1(is_proper1<Chan<eT>>, c);
 }
 

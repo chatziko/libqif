@@ -111,7 +111,7 @@ TYPED_TEST_P(MechanismTest, Discrete) {
 	EXPECT_PRED2(equal2<eT>, epsilon, tc.smallest_epsilon());
 
 	// the exponential mechanism with 2*epsilon should be the same as the tight constraints
-	EXPECT_PRED2(chan_equal<Chan<eT>>, expon.C, tc.C);
+	EXPECT_PRED2(chan_equal2<Chan<eT>>, expon.C, tc.C);
 }
 
 TYPED_TEST_P(MechanismTest, Grid) {

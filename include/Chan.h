@@ -111,13 +111,13 @@ void check_proper(const T& C) {
 
 
 template<typename T, EnableIf<is_Chan<T>>...>
-inline bool chan_equal(const T& A, const T& B) {
+inline bool chan_equal(const T& A, const T& B, const eT<T>& md = def_max_diff<eT<T>>(), const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
 
 	for(uint i = 0; i < A.n_rows; i++)
 		for(uint j = 0; j < A.n_cols; j++)
-			if(!equal(A.at(i, j), B.at(i, j)))
+			if(!equal(A.at(i, j), B.at(i, j), md, mrd))
 				return false;
 
 	return true;
@@ -128,7 +128,7 @@ inline bool chan_equal(const T& A, const T& B) {
 //
 template<typename T, EnableIf<is_Chan<T>>...>
 inline
-T factorize(const T& A, const T& B) {
+T factorize_lp(const T& A, const T& B) {
 	typedef typename T::elem_type eT;
 
 	// A: M x N
@@ -207,5 +207,162 @@ T factorize(const T& A, const T& B) {
 	return X;
 }
 
+template<typename T, EnableIf<is_Chan<T>>...>
+inline
+T& project_to_simplex(T& C) {
+	Prob<eT<T>> temp(C.n_cols);
+	for(uint i = 0; i < C.n_rows; i++) {
+		temp = C.row(i);
+		C.row(i) = project_to_simplex(temp);
+	}
+	return C;
+}
+
+
+// factorize using a subgradient method.
+// see: http://see.stanford.edu/materials/lsocoee364b/02-subgrad_method_notes.pdf
+//
+template<typename T, EnableIf<is_Chan<T>>...>
+inline
+T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
+	using arma::dot;
+	typedef typename T::elem_type eT;
+
+	const bool debug = false;
+
+	// A: M x N
+	// B: M x L
+	// X: L x N   unknowns
+	//
+	uint M = A.n_rows,
+		 N = A.n_cols,
+		 L = B.n_cols;
+	Chan<eT> X;
+
+	if(B.n_rows != M)
+		return X;
+
+	// Solve B * X = A, if no solution exists then A is not factorizable
+	//
+	std::ostream nullstream(0);				// temporarily disable
+	arma::set_stream_err2(nullstream);		// error messages
+	arma::solve(X, B, A);
+	arma::set_stream_err2(std::cout);
+
+	if(!X.n_cols) return X;
+	project_to_simplex(X);
+
+	// G = max l2-norm of B's rows
+	eT G(0);
+	for(uint i = 0; i < M; i++)
+		G = std::max(G, arma::norm(B.row(i), 2));
+
+	const eT R = sqrt(2 * L),
+		  	 RG = R * G;
+	const eT inf = infinity<eT>();
+
+	Chan<eT> Z(M, N);
+	Chan<eT> S = arma::zeros<Chan<eT>>(L, N);
+
+	uint k;
+	eT min(1), bound;
+	eT sum1(- R * R), sum2(0);
+
+	for(k = 1; true; k++) {
+		// compute
+		//    f = max_{i,j} | (B*X)(i,j) - A(i,j) |
+		//      = max_{i,j,sign} sign*((B*X)(i,j) - A(i,j))     (sign in {1,-1})
+		//
+		// f_i, f_j, sign are the ones that give the max
+		//
+		Z = B * X - A;
+		int sign = 1;
+		eT f(0);
+		uint f_i, f_j;
+
+		for(uint i = 0; i < M; i++) {
+			for(uint j = 0; j < N; j++) {
+				eT diff = std::abs(Z(i, j));
+				if(diff > f) {
+					f = diff;
+					f_i = i;
+					f_j = j;
+					sign = Z(i, j) < eT(0) ? -1 : 1;
+				}
+			}
+		}
+
+		// update min if we found a better one. when we reach zero we're done
+		//
+		if(f < min) {
+			min = f;
+
+			if(equal(min, eT(0), max_diff))
+				break;
+		}
+
+		// update X, using the CFM method in section 8 of the lecture notes
+		//
+		Col<eT> g = eT(sign) * B.row(f_i).t();	// the subgradient (this is actually the j-th col of the subgradient, all other cols are 0)
+		eT g_norm_sq = dot(g, g);
+
+		eT beta = std::max(eT(0), - eT(1.5) * dot(S.col(f_j), g) / g_norm_sq);
+		S *= beta;
+		S.col(f_j) += g;
+
+		// S might have arbitrarily large values, such that its norm might become inf
+		// In this case we reset it to just g (no memory). Note: this sounds safe but we should check
+		eT s_norm_sq = arma::dot(S, S);
+		if(s_norm_sq == inf) {
+			S.fill(0);
+			S.col(f_j) = g;
+			s_norm_sq = g_norm_sq;
+		}
+
+		// alternative method with fixed beta (Note: for larger values of beta we were getting wrong results, maybe the bound does not hold for this method?)
+		// const eT beta = 0.25;		// a high memory value seems to work well
+		// S *= beta;
+		// S.col(f_j) += (1-beta) * g;
+
+		eT alpha = f / s_norm_sq;
+		X -= alpha * S;
+
+		project_to_simplex(X);
+
+		// compute the lower bound given by the stopping criterion in section 3.4 of the lecture notes.
+		// if the bound is positive then the optimal is also positive, so the channel cannot be factorized
+		//
+		sum1 += alpha * (2 * f - alpha * g_norm_sq);
+		sum2 += 2 * alpha;
+		bound = sum1 / sum2;
+
+		if(!less_than_or_eq(bound, eT(0), max_diff)) {
+			X.clear();
+			break;
+		}
+
+		if(debug && k % 100 == 0)
+			std::cout << "k: " << k << ", min: " << min << ", bound: " << bound << "\n";
+	}
+
+	if(debug)
+		std::cout << "k: " << k << ", min: " << min << ", bound: " << bound << "\n";
+
+	return X;
+}
+
+// Returns a channel X such that A = B X
+//
+template<typename T, EnableIf<is_Chan<T>>...>
+inline
+T factorize(const T& A, const T& B) {
+	return factorize_subgrad(A, B);
+}
+
+template<>
+inline
+rchan factorize(const rchan& A, const rchan& B) {
+	return factorize_lp(A, B);
+}
 
 #endif
