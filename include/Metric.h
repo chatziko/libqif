@@ -57,6 +57,14 @@ namespace metrics {
 		};
 	}
 
+	template<typename R>
+	Metric<R, uint>
+	from_distance_matrix(Mat<R>& M) {
+		return [&M](const uint& a, const uint& b) -> R {
+			return M(a, b);
+		};
+	}
+
 	// transform a metric on points to a metric on indexes on a grid of the given width.
 	// The cell of index 0 is (0,0) (bottom left), and the cell of index i
 	// is (i%width, i/width).

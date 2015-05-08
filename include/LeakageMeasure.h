@@ -141,7 +141,7 @@ class LeakageMeasure {
 			2 : MatLab \n
 			3 : Maple  */
 
-		virtual void check_prior(const Prob<eT>& pi) {
+		virtual void check_prior(const Prob<eT>& pi) const {
 			if(C.n_rows != pi.n_cols)
 				throw std::runtime_error("invalid prior size");
 		}

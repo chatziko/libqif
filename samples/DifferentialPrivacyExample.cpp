@@ -31,8 +31,8 @@ int main() {
 	std::cout << "Using QIF Library Example" << std::endl;
 
 
-	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Mechanism<double> mechanism(channel_elements);
+	Mechanism<double> mechanism;
+	mechanism.C = "1 0 0; 0 1 0; 0 0 1";
 
 	//this example asks with epsilon=0.05
 	mechanism.is_private(0.05);

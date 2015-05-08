@@ -45,6 +45,19 @@ eT GLeakage<eT>::cond_vulnerability(const Prob<eT>& pi) {
 	return s;
 }
 
+// same as cond_vulnerability but with min. G is assumed to be a loss function
+//
+template<typename eT>
+eT GLeakage<eT>::bayes_risk(const Prob<eT>& pi) {
+	this->check_prior(pi);
+
+	eT s = eT(0);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		s += arma::min(this->G * (trans(pi) % this->C.col(y)));
+	return s;
+}
+
+
 template class GLeakage<double>;
 template class GLeakage<float>;
 template class GLeakage<rat>;

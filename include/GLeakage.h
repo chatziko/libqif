@@ -47,6 +47,7 @@ class GLeakage : public LeakageMeasure<eT> {
 
 		eT vulnerability(const Prob<eT>& pi);
 		eT cond_vulnerability(const Prob<eT>& pi);
+		eT bayes_risk(const Prob<eT>& pi);
 
 		eT additive_leakage(const Prob<eT>& pi);
 

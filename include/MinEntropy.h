@@ -41,6 +41,7 @@ class MinEntropy : public LeakageMeasure<eT> {
 		eT vulnerability(const Prob<eT>& pi);
 		eT cond_vulnerability(const Prob<eT>& pi);
 		eT max_mult_leakage();
+		arma::ucolvec strategy(const Prob<eT>& pi) const;
 
 		eT entropy(const Prob<eT>& pi)		{ return -qif::real_ops<eT>::log2(vulnerability(pi));		}
 		eT cond_entropy(const Prob<eT>& pi)	{ return -qif::real_ops<eT>::log2(cond_vulnerability(pi));	}

@@ -42,6 +42,17 @@ eT MinEntropy<eT>::cond_vulnerability(const Prob<eT>& pi) {
 	return s;
 }
 
+template<typename eT>
+arma::ucolvec MinEntropy<eT>::strategy(const Prob<eT>& pi) const {
+	this->check_prior(pi);
+
+	arma::ucolvec strategy(pi.n_elem);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		(trans(pi) % this->C.col(y)).max( strategy.at(y) );
+
+	return strategy;
+}
+
 // sum of column maxima
 //
 template<typename eT>
