@@ -8,78 +8,76 @@
 #include "PlanarLaplace.h"
 #include "utility.h"
 
-
-
 using std::cout;
 using std::string;
 
+const uint grid_size = 100;		// 100x100 grid
+const double cell_width = 100;	// each cell is 100x100meters
 
-#include <cstdlib>
-#include <stdexcept>
-#include <execinfo.h>
-#include <iostream>
-#include <fstream>
-void my_terminate() {
-    static bool tried_throw = false;
+double utility_to_epsilon(string dataset, string util_metric) {
 
-    try {
-        // try once to re-throw currently active exception
-        if (!tried_throw++) throw;
-    }
-    catch (const std::exception &e) {
-        std::cerr << "\n" << __FUNCTION__ << " caught unhandled exception. what(): "
-                  << e.what() << std::endl;
-    }
-    catch (...) {
-        std::cerr << __FUNCTION__ << " caught unknown/unhandled exception." 
-                  << std::endl;
-    }
+	prob prior_global;
+	prior_global.load("marco/priors/paris-center-"+dataset+"-global.dat");
 
-    void * array[50];
-    int size = backtrace(array, 50);    
-    std::cerr << __FUNCTION__ << " backtrace returned " 
-              << size << " frames\n\n";
-    char ** messages = backtrace_symbols(array, size);
+	arma::rowvec util;
+	util.load("marco/utility/paris-center-"+util_metric+".dat");
+	double utility = arma::cdot(prior_global, util);
 
-    for (int i = 0; i < size && messages != NULL; ++i) {
-        std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
-    }
-    std::cerr << std::endl;
-    free(messages);
-    abort();
+	double eps = util_metric == "euclidean"
+		? 2.0 / utility
+		: internal::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
+
+	cout << "utility for " << dataset << "/" << util_metric << ": " << utility << ", eps: " << eps << "\n";
+
+	return eps;
 }
 
 
-void compute_avg_error(prob pi, string area, string dataset) {
-
-	arma::rowvec error;
-	error.load("marco/error/"+area+".dat");
-
-	cout << "average error for " << area << "/" << dataset << ": " << arma::cdot(pi, error) << "\n";
-//	cout << "error of 5050: " << error(5050) << "\n";
-//	cout << "error of 5850: " << error(5850) << "\n";
-//	cout << "error of 5800: " << error(5800) << "\n";
+double x_privacy(const chan& C, mat& G, const arma::ucolvec strategy, uint i) {
+	arma::colvec c = G.col(i);
+	return arma::cdot(C.row(i), c(strategy));
 }
 
 
-double x_privacy(const chan& C, const arma::ucolvec strategy, uint i) {
-	return arma::cdot(C.row(i), arma::conv_to<arma::colvec>::from(strategy == i));
-}
+//void output_x_privacy(const MinEntropy<double>& me, const mat& pois, const prob& pi) {
+
+//	auto str = me.strategy(pi % pois);
+
+//	for(uint i = 0; i < pi.n_elem; i++) {
+//		if(pi(i) > 0)
+//			cout << 1 - pois(i) * x_privacy(me.C, str, i) << "\n";
+//	}
+//}
 
 
-void output_x_privacy(const MinEntropy<double>& me, const mat& pois, const prob& pi) {
+void create_g(string area, string dataset, string priv_metric, mat& G) {
+	string areadataset = area + "-" + dataset;
 
-	auto str = me.strategy(pi % pois);
+	if(priv_metric == "binary") {
 
-	for(uint i = 0; i < pi.n_elem; i++) {
-		if(pi(i) > 0)
-			cout << 1 - pois(i) * x_privacy(me.C, str, i) << "\n";
+		mat pois = arma::ones(1, G.n_rows);
+		pois.load("marco/poi/"+areadataset+".dat");
+		for(auto& e : pois)
+			if(!equal(e, 0.0))
+				e = 1-1/e;
+			else
+				e = 1;
+
+		G.ones();
+		G.diag() = pois;
+
+	} else {
+
+		Metric<double, uint> euclid = metrics::scale(metrics::grid<double, point>(grid_size), cell_width);
+		for(uint i = 0; i < G.n_rows; i++)
+			for(uint j = i; j < G.n_cols; j++)
+				G.at(i, j) = G.at(j, i) = euclid(i, j);
+
 	}
 }
 
 
-
-void compute_elastic_privacy(string area, string dataset) {
+void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	string areadataset = area + "-" + dataset;
 
 	Mechanism<double> elastic;
@@ -107,28 +105,23 @@ void compute_elastic_privacy(string area, string dataset) {
 	prob prior_global;
 	prior_global.load("marco/priors/"+areadataset+"-global.dat");
 
+	GLeakage<double> gl;
+	share_memory(gl.C, elastic.C);
 
-	mat pois = arma::ones(1, n);
-	pois.load("marco/poi/"+areadataset+".dat");
-	for(auto& e : pois)
-		if(!equal(e, 0.0))
-			e = 1/e;
+	gl.G.resize(n, n);
+	create_g(area, dataset, priv_metric, gl.G);
 
-
-	MinEntropy<double> me;
-	share_memory(me.C, elastic.C);
-
-	auto strategy = me.strategy(prior_global % pois);
+	auto strategy = gl.bayes_strategy(prior_global);
 
 	std::ofstream myfile;
-	myfile.open("generated_data/elastic-" + areadataset);
+	myfile.open("generated_data/elastic-" + areadataset + "-" + priv_metric);
 
 	for(uint i = 0; i < priors.n_rows; i++) {
 		prob pi = priors.row(i);
 
-		double privacy = 1.0;
+		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy -= pi(i) * pois(i) * x_privacy(me.C, strategy, i);
+			privacy += pi(i) * x_privacy(elastic.C, gl.G, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}
@@ -136,14 +129,10 @@ void compute_elastic_privacy(string area, string dataset) {
 }
 
 
-void compute_laplace_privacy(string area, string dataset) {
+void compute_laplace_privacy(string area, string dataset, string priv_metric, double eps) {
 	string areadataset = area + "-" + dataset;
 
-	uint grid_size = 100;
-	double cell_width = 100;
-
 	Mechanism<double> laplace;
-	double eps = 2.0/1483;		// eps that gives ... avg error		
 	if(!laplace.C.load("temp/laplace-"+std::to_string(eps)+".bin")) {
 
 		laplace = mechanisms::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
@@ -158,28 +147,23 @@ void compute_laplace_privacy(string area, string dataset) {
 	prob prior_global;
 	prior_global.load("marco/priors/"+areadataset+"-global.dat");
 
+	GLeakage<double> gl;
+	share_memory(gl.C, laplace.C);
 
-	mat pois = arma::ones(1, n);
-	pois.load("marco/poi/"+areadataset+".dat");
-	for(auto& e : pois)
-		if(!equal(e, 0.0))
-			e = 1/e;
+	gl.G.resize(n, n);
+	create_g(area, dataset, priv_metric, gl.G);
 
-
-	MinEntropy<double> me;
-	share_memory(me.C, laplace.C);
-
-	auto strategy = me.strategy(prior_global % pois);
+	auto strategy = gl.bayes_strategy(prior_global);
 
 	std::ofstream myfile;
-	myfile.open("generated_data/laplace-" + areadataset);
+	myfile.open("generated_data/laplace-" + areadataset + "-" + priv_metric);
 
 	for(uint i = 0; i < priors.n_rows; i++) {
 		prob pi = priors.row(i);
 
-		double privacy = 1.0;
+		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy -= pi(i) * pois(i) * x_privacy(me.C, strategy, i);
+			privacy += pi(i) * x_privacy(laplace.C, gl.G, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}
@@ -190,24 +174,30 @@ void compute_laplace_privacy(string area, string dataset) {
 int main() {
 	arma::arma_rng::set_seed_random();
 
-	std::set_terminate( my_terminate );
 
-	
-	compute_elastic_privacy("paris-nanterre", "gowalla");
-	compute_elastic_privacy("paris-nanterre", "brightkite");
-	compute_laplace_privacy("paris-nanterre", "gowalla");
-	compute_laplace_privacy("paris-nanterre", "brightkite");
+	double eps_sum = 0.0;
+	int n = 0;
 
-	compute_elastic_privacy("paris-center", "gowalla");
-	compute_elastic_privacy("paris-center", "brightkite");
-	compute_laplace_privacy("paris-center", "gowalla");
-	compute_laplace_privacy("paris-center", "brightkite");
+	for(string dataset     : { "gowalla",   "brightkite"  })
+	for(string util_metric : { "euclidean", "binrad-1200", "binrad-1500", "binrad-1800" }) {
+		eps_sum += utility_to_epsilon(dataset, util_metric);
+		n++;
+	}
 
-	return 0;
+	double eps = eps_sum / n;
+	cout << "using eps: " << eps << "\n";
 
 
-//	compute_avg_error(prior_global, area, dataset);
-//	return 0;
+	for(string area        : { "paris-center", "paris-nanterre" })
+	for(string dataset     : { "gowalla",      "brightkite"     })
+	for(string priv_metric : { "binary",       "euclidean"      }) {
+		compute_elastic_privacy(area, dataset, priv_metric);
+		compute_laplace_privacy(area, dataset, priv_metric, eps);
+	}
+
+
+
+
 
 }
 
