@@ -45,6 +45,17 @@ eT GLeakage<eT>::cond_vulnerability(const Prob<eT>& pi) {
 	return s;
 }
 
+template<typename eT>
+arma::ucolvec GLeakage<eT>::strategy(const Prob<eT>& pi) const {
+	this->check_prior(pi);
+
+	arma::ucolvec strategy(pi.n_elem);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		(this->G * (trans(pi) % this->C.col(y))).max( strategy.at(y) );
+
+	return strategy;
+}
+
 // same as cond_vulnerability but with min. G is assumed to be a loss function
 //
 template<typename eT>
@@ -55,6 +66,17 @@ eT GLeakage<eT>::bayes_risk(const Prob<eT>& pi) {
 	for(uint y = 0; y < this->C.n_cols; y++)
 		s += arma::min(this->G * (trans(pi) % this->C.col(y)));
 	return s;
+}
+
+template<typename eT>
+arma::ucolvec GLeakage<eT>::bayes_strategy(const Prob<eT>& pi) const {
+	this->check_prior(pi);
+
+	arma::ucolvec strategy(pi.n_elem);
+	for(uint y = 0; y < this->C.n_cols; y++)
+		(this->G * (trans(pi) % this->C.col(y))).min( strategy.at(y) );
+
+	return strategy;
 }
 
 
