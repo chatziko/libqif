@@ -105,8 +105,9 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 	shan.C = identity<Chan<eT>>(10);
 	EXPECT_PRED2(equal2<eT>, log2(10), shan.capacity());
 
+	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_max_diff<eT>();		// the accuracy of 0 capacity is not great for floats
 	shan.C = no_interference<Chan<eT>>(10);
-	EXPECT_PRED2(equal2<eT>, 0, shan.capacity());
+	EXPECT_PRED4(equal<eT>, 0, shan.capacity(), md, 0.0);
 
 	shan.C = Chan<eT>("0.8 0.2; 0.3 0.7");
 	EXPECT_PRED2(equal2<eT>, 0.19123813831431799, shan.capacity());
