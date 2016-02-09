@@ -278,7 +278,7 @@ T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
 		Z = B * X - A;
 		int sign = 1;
 		eT f(0);
-		uint f_i, f_j;
+		uint f_i = 0, f_j = 0;
 
 		for(uint i = 0; i < M; i++) {
 			for(uint j = 0; j < N; j++) {

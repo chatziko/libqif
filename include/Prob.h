@@ -38,7 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 T& uniform(T& pi) {
-	pi.fill( eT<T>(1) / pi.n_cols );
+	// cast to uint cause rat is confused when dividing by const uint
+	pi.fill( eT<T>(1) / uint(pi.n_cols) );
 	return pi;
 }
 
