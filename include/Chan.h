@@ -124,6 +124,15 @@ inline bool chan_equal(const T& A, const T& B, const eT<T>& md = def_max_diff<eT
 }
 
 
+// returns the posterior for a specific output y
+//
+template<typename T, EnableIf<is_Chan<T>>...>
+inline
+Prob<eT<T>> posterior(const T& C, const Prob<eT<T>>& pi, uint y) {
+	return (arma::trans(C.col(y)) % pi) / arma::dot(C.col(y), pi);
+}
+
+
 // Returns a channel X such that A = B X
 //
 template<typename T, EnableIf<is_Chan<T>>...>
