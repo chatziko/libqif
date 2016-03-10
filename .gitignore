@@ -11,5 +11,5 @@
 .#*
 .DS_Store
 
-samples/Test.cpp
+samples/scribble
 build/

@@ -32,7 +32,7 @@ add_subdirectory(samples EXCLUDE_FROM_ALL)								# build samples
 add_subdirectory(misc/doxygen EXCLUDE_FROM_ALL)							# build doc
 
 add_custom_target(allcode)												# 'all' builds just the library, 'allcode' builds also tests and samples
-add_dependencies(allcode all tests samples)
+add_dependencies(allcode tests samples)
 
 
 
