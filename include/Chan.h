@@ -374,4 +374,13 @@ rchan factorize(const rchan& A, const rchan& B) {
 	return factorize_lp(A, B);
 }
 
+
+template<typename T, EnableIf<arma::is_Mat<T>>...>
+inline void share_memory(T& A, T& B) {
+	T temp(B.memptr(), B.n_rows, B.n_cols, false, false);
+
+	A.reset();
+	A.swap(temp);
+}
+
 #endif

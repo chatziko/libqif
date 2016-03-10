@@ -47,6 +47,9 @@ class GLeakage : public LeakageMeasure<eT> {
 
 		eT vulnerability(const Prob<eT>& pi);
 		eT cond_vulnerability(const Prob<eT>& pi);
+		eT bayes_risk(const Prob<eT>& pi);
+		arma::ucolvec strategy(const Prob<eT>& pi) const;
+		arma::ucolvec bayes_strategy(const Prob<eT>& pi) const;
 
 		eT additive_leakage(const Prob<eT>& pi);
 
@@ -61,7 +64,7 @@ class GLeakage : public LeakageMeasure<eT> {
 		}
 
 	protected:
-		virtual void check_prior(const Prob<eT>& pi, bool ignore_c = false) {
+		virtual void check_prior(const Prob<eT>& pi, bool ignore_c = false) const {
 			if((this->C.n_rows != pi.n_cols && !ignore_c) || G.n_cols != pi.n_cols)
 				throw std::runtime_error("invalid prior size");
 		}
