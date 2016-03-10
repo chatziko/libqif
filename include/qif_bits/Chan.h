@@ -1,34 +1,3 @@
-#ifndef _QIF_Chan_h_
-#define _QIF_Chan_h_
-/*
-This file belongs to the LIBQIF library.
-A Quantitative Information Flow C++ Toolkit Library.
-Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
-Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
-LIBQIF Version: 1.0
-Date: 12th Nov 2013
-========================================================================
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-=========================================================================
-*/
-#include <cassert>
-#include "types.h"
-#include "Prob.h"
-#include "LinearProgram.h"
-
 // Note: using EnableIf alias for SFINAE to make things more readable.
 // We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
 // that uses parameter packs, i.e. EnableIf<cond>...
@@ -382,5 +351,3 @@ inline void share_memory(T& A, T& B) {
 	A.reset();
 	A.swap(temp);
 }
-
-#endif

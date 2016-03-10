@@ -1,30 +1,26 @@
-/*
-This file belongs to the LIBQIF library.
-A Quantitative Information Flow C++ Toolkit Library.
-Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
-Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
-LIBQIF Version: 1.0
-Date: 12th Nov 2013
-========================================================================
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+/*! \class Shannon
+ *  \brief The shannon model of entropy.
+ *
+ *  For most information about the foundations of this theory see <a href="../papers/p1.pdf">here</a>
+ */
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
+template<typename eT>
+class Shannon : public LeakageMeasure<eT> {
+	public:
+		// inherit the constructors from parent (C++11 feature)
+		using LeakageMeasure<eT>::LeakageMeasure;
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+		eT entropy(const Prob<eT>& pi);
 
-=========================================================================
-*/
+		eT cond_entropy(const Prob<eT>& pi);
 
-#include "Shannon.h"
-#include "aux.h"
+		eT capacity();
+
+		virtual const char* class_name() {
+			return "Shannon";
+		}
+};
+
 
 // H(X) = - sum_x pi[x] log2(pi[x])
 //
@@ -33,7 +29,7 @@ eT Shannon<eT>::entropy(const Prob<eT>& pi) {
 	eT sum_x = 0;
 	for(uint x = 0; x < pi.n_cols; x++) {
 		eT el = pi.at(x);
-		sum_x -= el > 0 ? el * qif::log2(el) : 0;
+		sum_x -= el > 0 ? el * internal::log2(el) : 0;
 	}
 
 	return sum_x;
@@ -94,5 +90,3 @@ eT Shannon<eT>::capacity() {
 	}
 }
 
-template class Shannon<double>;
-template class Shannon<float>;

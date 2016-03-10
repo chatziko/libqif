@@ -22,9 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "gtest/gtest.h"
-#include "LeakageMeasure.h"
-#include <string>
+#include "tests_aux.h"
+using namespace qif;
 
 
 /* Untested functions:

@@ -1,10 +1,3 @@
-#ifndef _QIF_utility_h_
-#define _QIF_utility_h_
-
-#include "Chan.h"
-#include "Metric.h"
-
-
 namespace utility {
 
 	template<typename eT>
@@ -26,5 +19,3 @@ namespace utility {
 		return sum;
 	}
 }
-
-#endif

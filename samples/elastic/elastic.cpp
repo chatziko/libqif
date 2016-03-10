@@ -1,12 +1,6 @@
-#include "types.h"
-#include "aux.h"
-#include "Metric.h"
-#include "GLeakage.h"
-#include "MinEntropy.h"
-#include "Mechanism.h"
-#include "Chan.h"
-#include "PlanarLaplace.h"
-#include "utility.h"
+#include "qif"
+
+using namespace qif;
 
 using std::cout;
 using std::string;

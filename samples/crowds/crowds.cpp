@@ -1,15 +1,10 @@
-#include "types.h"
-#include "aux.h"
-#include "Metric.h"
-#include "GLeakage.h"
-#include "MinEntropy.h"
-#include "Mechanism.h"
-#include "Chan.h"
+#include "qif"
 
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
+using namespace qif;
 using namespace std;
 
 const uint honest = 5;

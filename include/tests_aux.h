@@ -5,11 +5,9 @@
 #include <regex>
 #include "gtest/gtest.h"
 
-#include "types.h"
-#include "Prob.h"
-#include "Chan.h"
-#include "aux.h"
+#include "qif"
 
+using namespace qif;
 using std::string;
 
 

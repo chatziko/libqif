@@ -22,13 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include <string>
-#include "gtest/gtest.h"
-
-#include "Prob.h"
-#include "aux.h"
 #include "tests_aux.h"
-
+using namespace qif;
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)

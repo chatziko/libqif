@@ -1,9 +1,3 @@
-#ifndef _QIF_rat_h_
-#define _QIF_rat_h_
-
-#include <armadillo>
-#include <gmpxx.h>
-
 
 typedef mpq_class rat;
 
@@ -87,4 +81,3 @@ namespace arma {
 	}
 }
 
-#endif

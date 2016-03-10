@@ -22,9 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 =========================================================================
 */
-#include "Graph.h"
-#include "gtest/gtest.h"
-#include <string>
+#include "tests_aux.h"
 
 using std::string;
 

@@ -1,5 +1,4 @@
-#include <armadillo>
-#include "gtest/gtest.h"
+#include "tests_aux.h"
 
 #include <iostream>     // std::cout, std::fixed
 #include <iomanip>      // std::setprecision

@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "Mechanism.h"
+#include "qif"
+
+using namespace qif;
 
 void dp() {
 	std::cout << "Using QIF Library Example" << std::endl;

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
-#include "GLeakage.h"
+#include "qif"
+
+using namespace qif;
 
 void gleakage1() {
 	std::cout << "Using LIBQIF Library looking for properties" << std::endl;

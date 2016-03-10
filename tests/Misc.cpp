@@ -1,6 +1,5 @@
-#include "gtest/gtest.h"
-#include "aux.h"
 #include "tests_aux.h"
+using namespace qif;
 
 
 

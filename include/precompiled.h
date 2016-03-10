@@ -28,20 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // this header gets precompiled, include here all heavy stuff
 
 
-
-
+#include <functional>	// std::function
 #include <armadillo>
-#include <gmpxx.h>
-#include <glpk.h>
 
-#include <string>
-#include <iostream>
-#include <regex>
-#include <vector>
-#include <cmath>
-#include <limits>
-#include <type_traits>
-#include <exception>
+#include <glpk.h>
+#include <gmpxx.h>		// for rats
 
 extern "C" {
 	#include <gsl/gsl_sf.h>				// gsl_sf_lambert_Wm1

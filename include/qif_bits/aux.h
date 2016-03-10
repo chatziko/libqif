@@ -1,11 +1,3 @@
-#ifndef _QIF_aux_h_
-#define _QIF_aux_h_
-
-#include <cmath>  /* for std::abs(double) */
-#include <limits>
-#include "types.h"
-
-
 const double  inf = std::numeric_limits<double>::infinity();
 const float  finf = std::numeric_limits<float>::infinity();
 
@@ -95,7 +87,7 @@ inline eT infinity() {
 
 
 // errors close to 1 are translated by log2 to errors close to 0, which are harder to test
-namespace qif {
+namespace internal {
 	inline float log2(float a) {
 		return equal(a, 1.0f) ? 0 : std::log2(a);
 	}
@@ -118,14 +110,11 @@ namespace qif {
 	};
 	template<>
 	struct real_ops<double> {
-		inline static double log2(double x) { return qif::log2(x); }
+		inline static double log2(double x) { return internal::log2(x); }
 	};
 	template<>
 	struct real_ops<float> {
-		inline static float log2(float x) { return qif::log2(x); }
+		inline static float log2(float x) { return internal::log2(x); }
 	};
 }
 
-
-
-#endif

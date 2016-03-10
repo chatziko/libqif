@@ -1,13 +1,3 @@
-#ifndef _QIF_Metric_h_
-#define _QIF_Metric_h_
-
-#include <type_traits>
-#include <exception>
-#include "types.h"
-#include "aux.h"
-#include "LinearProgram.h"
-
-
 // R: result type, what we measure distances in
 // T: metric space type, what elements we measure the distance of
 
@@ -258,5 +248,3 @@ namespace metrics {
 	}
 }
 
-
-#endif

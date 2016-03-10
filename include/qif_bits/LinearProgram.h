@@ -1,27 +1,4 @@
 /*
-This file belongs to the LIBQIF library.
-A Quantitative InfoMat<eT>ion Flow C++ Toolkit Library.
-Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
-Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
-LIBQIF Version: 1.0
-Date: 12th Nov 2013
-========================================================================
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-=========================================================================
-
 The canonical_form and simplex methods are adapted from
 https://github.com/IainNZ/RationalSimplex.jl
 Original code is under the MIT licence.
@@ -45,17 +22,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "LinearProgram.h"
-#include "aux.h"
-#include <glpk.h>
-#include <string>
+// for some reason this needs to be included here, not enough to do it in "qif"
 #include <cassert>
-#include <vector>
-#include <exception>
 
 using std::string;
 using std::to_string;
 
+
+// Solve the linear program
+// {min/max} dot(c,x)
+// subject to A x {>=|==|<=} b
+// x >= 0
+
+template<typename eT>
+class LinearProgram {
+	public:
+		enum class status_t { optimal, infeasible, unbounded, error };
+		enum class method_t { simplex_primal, simplex_dual, interior };
+
+		arma::SpMat<eT>
+			A;				// constraints.
+		Col<eT>
+			x,				// solution
+			b,				// constants
+			c;				// cost function
+		Col<char>
+			sense;			// sense of each constraint, can be '<', '=', '>' (<,> really mean <=,>=), default is '<'
+
+		bool maximize = true;
+		bool non_negative = true;
+		method_t method = method_t::simplex_primal;
+		status_t status;
+
+		LinearProgram() {}
+		LinearProgram(const Mat<eT>& A, const Col<eT>& b, const Col<eT>& c) : A(A), b(b), c(c) { check_sizes(); }
+
+		bool solve();
+		string to_mps();
+
+		inline eT optimum()				{ return arma::dot(x, c); }
+		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
+
+		LinearProgram canonical_form();
+
+	protected:
+		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
+
+		bool glpk();
+		bool simplex();
+};
 
 
 template<typename eT>
@@ -68,6 +83,7 @@ bool LinearProgram<eT>::solve() {
 // for rats, we use the simplex() method after transforming to canonical form
 //
 template<>
+inline
 bool LinearProgram<rat>::solve() {
 	check_sizes();
 
@@ -194,6 +210,7 @@ bool LinearProgram<eT>::glpk() {
 }
 
 template<>
+inline
 bool LinearProgram<rat>::glpk() {
 	throw std::runtime_error("not available for rat");
 }
@@ -449,13 +466,9 @@ string LinearProgram<eT>::to_mps() {
 }
 
 template<>
+inline
 string LinearProgram<rat>::to_mps() {
 	// TODO: make to_mps work for rat
 	throw std::runtime_error("not supported");
 }
-
-template class LinearProgram<double>;
-template class LinearProgram<float>;
-template class LinearProgram<rat>;
-
 

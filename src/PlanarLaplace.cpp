@@ -1,11 +1,13 @@
-#include "PlanarLaplace.h"
 
 extern "C" {
 	#include <gsl/gsl_sf.h>				// gsl_sf_lambert_Wm1
 	#include <gsl/gsl_monte_miser.h>
 }
 
+#include "qif"
 
+
+namespace qif {
 namespace internal {
 	using std::max;
 	using std::min;
@@ -55,4 +57,5 @@ namespace internal {
 		return res;
 	}
 } // namespace internal
+} // namespace qif
 

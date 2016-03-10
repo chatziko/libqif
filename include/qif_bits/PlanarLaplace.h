@@ -1,10 +1,3 @@
-#ifndef _QIF_PlanarLaplace_h_
-#define _QIF_PlanarLaplace_h_
-
-#include "Metric.h"
-#include "Mechanism.h"
-
-
 
 namespace internal {
 	using std::cerr;
@@ -138,4 +131,3 @@ namespace mechanisms {
 
 } // namespace mechanisms
 
-#endif
