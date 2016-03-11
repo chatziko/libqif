@@ -27,8 +27,8 @@ double utility_to_epsilon(string dataset, string util_metric) {
 }
 
 
-double x_privacy(const chan& C, mat& G, const arma::ucolvec strategy, uint i) {
-	arma::colvec c = G.col(i);
+double x_privacy(const chan& C, mat& L, const arma::ucolvec strategy, uint i) {
+	arma::colvec c = L.col(i);
 	return arma::cdot(C.row(i), c(strategy));
 }
 
@@ -44,12 +44,12 @@ double x_privacy(const chan& C, mat& G, const arma::ucolvec strategy, uint i) {
 //}
 
 
-void create_g(string area, string dataset, string priv_metric, mat& G) {
+void create_l(string area, string dataset, string priv_metric, mat& L) {
 	string areadataset = area + "-" + dataset;
 
 	if(priv_metric == "binary") {
 
-		mat pois = arma::ones(1, G.n_rows);
+		mat pois = arma::ones(1, L.n_rows);
 		pois.load("marco/poi/"+areadataset+".dat");
 		for(auto& e : pois)
 			if(!equal(e, 0.0))
@@ -57,15 +57,15 @@ void create_g(string area, string dataset, string priv_metric, mat& G) {
 			else
 				e = 1;
 
-		G.ones();
-		G.diag() = pois;
+		L.ones();
+		L.diag() = pois;
 
 	} else {
 
 		Metric<double, uint> euclid = metrics::scale(metrics::grid<double, point>(grid_size), cell_width);
-		for(uint i = 0; i < G.n_rows; i++)
-			for(uint j = i; j < G.n_cols; j++)
-				G.at(i, j) = G.at(j, i) = euclid(i, j);
+		for(uint i = 0; i < L.n_rows; i++)
+			for(uint j = i; j < L.n_cols; j++)
+				L.at(i, j) = L.at(j, i) = euclid(i, j);
 
 	}
 }
@@ -99,13 +99,11 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	prob prior_global;
 	prior_global.load("marco/priors/"+areadataset+"-global.dat");
 
-	GLeakage<double> gl;
-	share_memory(gl.C, elastic.C);
+	mat L;
+	L.resize(n, n);
+	create_l(area, dataset, priv_metric, L);
 
-	gl.G.resize(n, n);
-	create_g(area, dataset, priv_metric, gl.G);
-
-	auto strategy = gl.bayes_strategy(prior_global);
+	auto strategy = l::strategy(L, prior_global, elastic.C);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/elastic-" + areadataset + "-" + priv_metric);
@@ -115,7 +113,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 
 		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy += pi(i) * x_privacy(elastic.C, gl.G, strategy, i);
+			privacy += pi(i) * x_privacy(elastic.C, L, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}
@@ -141,13 +139,11 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	prob prior_global;
 	prior_global.load("marco/priors/"+areadataset+"-global.dat");
 
-	GLeakage<double> gl;
-	share_memory(gl.C, laplace.C);
+	mat L;
+	L.resize(n, n);
+	create_l(area, dataset, priv_metric, L);
 
-	gl.G.resize(n, n);
-	create_g(area, dataset, priv_metric, gl.G);
-
-	auto strategy = gl.bayes_strategy(prior_global);
+	auto strategy = l::strategy(L, prior_global, laplace.C);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/laplace-" + areadataset + "-" + priv_metric);
@@ -157,7 +153,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 
 		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy += pi(i) * x_privacy(laplace.C, gl.G, strategy, i);
+			privacy += pi(i) * x_privacy(laplace.C, L, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}

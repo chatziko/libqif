@@ -24,14 +24,11 @@ void gleakage2() {
 	prob p3 = prob(vector3_elements);
 	prob p4 = prob(vector4_elements);
 
-	//GLeakage<double>
-	GLeakage<double> gl = GLeakage<double>(C, g);
-
 	//calculating measures
-	double Lg1 = gl.leakage(p1);
-	double Lg2 = gl.leakage(p2);
-	double Lg3 = gl.leakage(p3);
-	double Lg4 = gl.leakage(p4);
+	double Lg1 = g::mlog_leakage(g, p1, C);
+	double Lg2 = g::mlog_leakage(g, p2, C);
+	double Lg3 = g::mlog_leakage(g, p3, C);
+	double Lg4 = g::mlog_leakage(g, p4, C);
 
 	std::cout << "Lg p1" << Lg1 << std::endl;
 	std::cout << "Lg p2" << Lg2 << std::endl;

@@ -22,11 +22,13 @@ namespace qif {
 	#include "qif_bits/Mechanism.h"
 	#include "qif_bits/Graph.h"
 
-	#include "qif_bits/GLeakage.h"
-	#include "qif_bits/Guessing.h"
-	#include "qif_bits/PlanarLaplace.h"
 	#include "qif_bits/shannon.h"
 	#include "qif_bits/bayes.h"
+	#include "qif_bits/gain.h"
+	#include "qif_bits/loss.h"
+	#include "qif_bits/Guessing.h"
+
+	#include "qif_bits/PlanarLaplace.h"
 	#include "qif_bits/utility.h"
 }
 

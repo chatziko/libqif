@@ -96,13 +96,13 @@ void meleakage_by_pf() {
 }
 
 void gleakage_by_p() {
-	GLeakage<T> gl1, gl2, gl3;
-	gl1.C = crowds_matrix(honest, corrupted, 0);
-	gl2.C = crowds_matrix(honest, corrupted, 0.5);
-	gl3.C = crowds_matrix(honest, corrupted, 1);
+	Chan<T>
+		C1 = crowds_matrix(honest, corrupted, 0),
+		C2 = crowds_matrix(honest, corrupted, 0.5),
+		C3 = crowds_matrix(honest, corrupted, 1);
 
 	// tiger
-	gl1.G = gl2.G = gl3.G = tiger_g(honest);
+	Mat<T> G = tiger_g(honest);
 
 	ofstream file;
 	file.open("crowds_data/data-tiger-p.txt");
@@ -111,9 +111,9 @@ void gleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (gl1.leakage(pi)) << "   "
-			<< (gl2.leakage(pi)) << "   "
-			<< (gl3.leakage(pi)) << "\n";
+			<< (g::mlog_leakage(G, pi, C1)) << "   "
+			<< (g::mlog_leakage(G, pi, C2)) << "   "
+			<< (g::mlog_leakage(G, pi, C3)) << "\n";
 	}
 }
 
@@ -127,14 +127,13 @@ void gleakage_by_pf() {
 	file.open("crowds_data/data-tiger-pf.txt");
 
 	for(T pf(0); less_than_or_eq(pf, T(1)); pf += T(1)/1000) {
-		GLeakage<T> gl;
-		gl.C = crowds_matrix(honest, corrupted, pf);
-		gl.G = tiger_g(honest);
+		Chan<T> C = crowds_matrix(honest, corrupted, pf);
+		Mat<T> G = tiger_g(honest);
 
 		file << pf << "   " 
-			<< (gl.leakage(pi1)) << "   "
-			<< (gl.leakage(pi2)) << "   "
-			<< (gl.leakage(pi3)) << "\n";
+			<< (g::mlog_leakage(G, pi1, C)) << "   "
+			<< (g::mlog_leakage(G, pi2, C)) << "   "
+			<< (g::mlog_leakage(G, pi3, C)) << "\n";
 	}
 }
 
