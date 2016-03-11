@@ -30,7 +30,7 @@ using std::string;
 TEST(Gu_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
 	chan new_channel = chan(new_channel_elements);
-	Guessing guessing = Guessing(new_channel);
+	Guessing<double> guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.vulnerability(prior););
@@ -39,7 +39,7 @@ TEST(Gu_vulnerability, not_supported) {
 TEST(Gu_cond_vulnerability, not_supported) {
 	string new_channel_elements = "1 0;0 1";
 	chan new_channel = chan(new_channel_elements);
-	Guessing guessing = Guessing(new_channel);
+	Guessing<double> guessing(new_channel);
 	string new_prior_elements = "0.5 0.5";
 	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.cond_vulnerability(prior););
@@ -48,7 +48,7 @@ TEST(Gu_cond_vulnerability, not_supported) {
 TEST(Guessing_QIF_functions, incorrect_X_size) {
 	string new_channel_elements = "1 0;0 1";
 	chan new_channel = chan(new_channel_elements);
-	Guessing guessing = Guessing(new_channel);
+	Guessing<double> guessing(new_channel);
 	string new_prior_elements = "0.33 0.33 0.34";
 	prob prior = prob(new_prior_elements);
 	ASSERT_ANY_THROW(guessing.cond_entropy(prior););
