@@ -24,8 +24,8 @@ class GLeakage : public LeakageMeasure<eT> {
 
 		eT additive_leakage(const Prob<eT>& pi);
 
-		eT entropy(const Prob<eT>& pi)		{ return -internal::real_ops<eT>::log2(vulnerability(pi));		}
-		eT cond_entropy(const Prob<eT>& pi)	{ return -internal::real_ops<eT>::log2(cond_vulnerability(pi));	}
+		eT entropy(const Prob<eT>& pi)		{ return -real_ops<eT>::log2(vulnerability(pi));		}
+		eT cond_entropy(const Prob<eT>& pi)	{ return -real_ops<eT>::log2(cond_vulnerability(pi));	}
 
 //		void * compare_over_prior(chan& other_channel);
 //		void * compare_over_gain(chan& other_channel,Prob<eT>& prior);

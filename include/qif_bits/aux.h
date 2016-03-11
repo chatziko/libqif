@@ -87,34 +87,35 @@ inline eT infinity() {
 
 
 // errors close to 1 are translated by log2 to errors close to 0, which are harder to test
-namespace internal {
-	inline float log2(float a) {
-		return equal(a, 1.0f) ? 0 : std::log2(a);
-	}
-	inline double log2(double a) {
-		return equal(a, 1.0) ? 0 : std::log2(a);
-	}
-	inline double log2(int a) {
-		return equal(a, 1) ? 0 : std::log2(a);
-	}
-	inline double log2(uint a) {
-		return std::log2(a);
-	}
-
-	// helper template class, for operations that are defined on double/float
-	// but compile and return runtime error on other types
-	//
-	template<typename eT>
-	struct real_ops {
-		inline static eT log2(eT) { throw std::runtime_error("not supported on this datatype"); }
-	};
-	template<>
-	struct real_ops<double> {
-		inline static double log2(double x) { return internal::log2(x); }
-	};
-	template<>
-	struct real_ops<float> {
-		inline static float log2(float x) { return internal::log2(x); }
-	};
+inline float log2(float a) {
+	return equal(a, 1.0f) ? 0 : std::log2(a);
 }
+inline double log2(double a) {
+	return equal(a, 1.0) ? 0 : std::log2(a);
+}
+inline double log2(int a) {
+	return equal(a, 1) ? 0 : std::log2(a);
+}
+inline double log2(uint a) {
+	return std::log2(a);
+}
+inline double log2(arma::uword a) {
+	return std::log2(a);
+}
+
+// helper template class, for operations that are defined on double/float
+// but compile and return runtime error on other types
+//
+template<typename eT>
+struct real_ops {
+	inline static eT log2(eT) { throw std::runtime_error("not supported on this datatype"); }
+};
+template<>
+struct real_ops<double> {
+	inline static double log2(double x) { return qif::log2(x); }
+};
+template<>
+struct real_ops<float> {
+	inline static float log2(float x) { return qif::log2(x); }
+};
 

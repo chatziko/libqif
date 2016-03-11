@@ -29,7 +29,7 @@ eT Shannon<eT>::entropy(const Prob<eT>& pi) {
 	eT sum_x = 0;
 	for(uint x = 0; x < pi.n_cols; x++) {
 		eT el = pi.at(x);
-		sum_x -= el > 0 ? el * internal::log2(el) : 0;
+		sum_x -= el > 0 ? el * qif::log2(el) : 0;
 	}
 
 	return sum_x;
@@ -79,8 +79,8 @@ eT Shannon<eT>::capacity() {
 
 		// check stop condition
 		eT d = dot(F, Px);
-		eT IL = log2(d);
-		eT IU = log2(max(F));
+		eT IL = qif::log2(d);
+		eT IU = qif::log2(max(F));
 
 		if(equal(IU, IL, this->max_diff, this->max_rel_diff))
 			return IL;

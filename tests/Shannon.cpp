@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "tests_aux.h"
-using namespace qif;
+//using namespace qif;
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
@@ -53,7 +53,7 @@ TYPED_TEST_P(ShannonTest, Entropy) {
 	EXPECT_PRED2(equal2<eT>, 1, shan.entropy(pi));
 
 	pi = uniform<Prob<eT>>(10);
-	EXPECT_PRED2(equal2<eT>, log2(10), shan.entropy(pi));
+	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shan.entropy(pi));
 
 	pi = Prob<eT>("1 0 0 0");
 	EXPECT_PRED2(equal2<eT>, 0, shan.entropy(pi));
@@ -78,7 +78,7 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0")));
 
 	no_interference(shan.C);
-	EXPECT_PRED2(equal2<eT>, log2(10), shan.cond_entropy(uniform<Prob<eT>>(10)));
+	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shan.cond_entropy(uniform<Prob<eT>>(10)));
 	EXPECT_PRED2(equal2<eT>, 0, shan.cond_entropy(dirac<Prob<eT>>(10)));
 
 	Prob<eT> pi = randu<Prob<eT>>(10);
@@ -101,7 +101,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 	EXPECT_PRED2(equal2<eT>, 1, shan.capacity());
 
 	shan.C = identity<Chan<eT>>(10);
-	EXPECT_PRED2(equal2<eT>, log2(10), shan.capacity());
+	EXPECT_PRED2(equal2<eT>, qif::log2(10), shan.capacity());
 
 	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_max_diff<eT>();		// the accuracy of 0 capacity is not great for floats
 	shan.C = no_interference<Chan<eT>>(10);
@@ -116,7 +116,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		".5 .3 .2;"
 		".2 .5 .3;"
 	);
-	double cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
+	double cap = qif::log2((uint)shan.C.n_cols) - shan.entropy(shan.C.row(0));
 	EXPECT_PRED2(equal2<eT>, cap, shan.capacity());
 
 	// weakly symmetric
@@ -124,7 +124,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		"0.333333333 0.166666667 0.5;"
 		"0.333333333 0.5         0.166666667;"
 	);
-	cap = log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
+	cap = qif::log2(shan.C.n_cols) - shan.entropy(shan.C.row(0));
 	EXPECT_PRED2(equal2<eT>, cap, shan.capacity());
 }
 

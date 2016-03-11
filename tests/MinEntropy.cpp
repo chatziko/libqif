@@ -85,10 +85,10 @@ TYPED_TEST_P(MinEntropyTestReals, Entropy) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, -internal::log2(0.5), MinEntropy<eT>().entropy(t.unif_2));
-	EXPECT_PRED2(equal2<eT>, -internal::log2(0.1), MinEntropy<eT>().entropy(t.unif_10));
+	EXPECT_PRED2(equal2<eT>, -qif::log2(0.5), MinEntropy<eT>().entropy(t.unif_2));
+	EXPECT_PRED2(equal2<eT>, -qif::log2(0.1), MinEntropy<eT>().entropy(t.unif_10));
 	EXPECT_PRED2(equal2<eT>, 0,               MinEntropy<eT>().entropy(t.dirac_4));
-	EXPECT_PRED2(equal2<eT>, -internal::log2(0.8), MinEntropy<eT>().entropy(t.pi1));
+	EXPECT_PRED2(equal2<eT>, -qif::log2(0.8), MinEntropy<eT>().entropy(t.pi1));
 }
 
 TYPED_TEST_P(MinEntropyTestReals, Cond_entropy) {
@@ -103,13 +103,13 @@ TYPED_TEST_P(MinEntropyTestReals, Cond_entropy) {
 	EXPECT_PRED2(equal2<eT>, 0,   MinEntropy<eT>(t.id_10).cond_entropy(t.dirac_10));
 	EXPECT_PRED2(equal2<eT>, 0,   MinEntropy<eT>(t.id_10).cond_entropy(t.pi2));
 	
-	EXPECT_PRED2(equal2<eT>, -internal::log2(0.1), MinEntropy<eT>(t.noint_10).cond_entropy(t.unif_10));
+	EXPECT_PRED2(equal2<eT>, -qif::log2(0.1), MinEntropy<eT>(t.noint_10).cond_entropy(t.unif_10));
 	EXPECT_PRED2(equal2<eT>, 0,               MinEntropy<eT>(t.noint_10).cond_entropy(t.dirac_10));
 
 	EXPECT_PRED2(equal2<eT>, MinEntropy<eT>().entropy(t.pi2), MinEntropy<eT>(t.noint_10).cond_entropy(t.pi2));
 
 	EXPECT_PRED2(equal2<eT>, MinEntropy<eT>().entropy(t.pi3), MinEntropy<eT>(t.c1).cond_entropy(t.pi3)); // no change in entropy
-	EXPECT_PRED2(equal2<eT>, -internal::log2(0.775),               MinEntropy<eT>(t.c1).cond_entropy(t.pi4));
+	EXPECT_PRED2(equal2<eT>, -qif::log2(0.775),               MinEntropy<eT>(t.c1).cond_entropy(t.pi4));
 
 	ASSERT_ANY_THROW(MinEntropy<eT>(t.id_10).cond_entropy(t.unif_2));
 }
@@ -119,9 +119,9 @@ TYPED_TEST_P(MinEntropyTestReals, Capacity) {
 	BaseTest<eT>& t = *this;
 
 	EXPECT_PRED2(equal2<eT>, 1,              MinEntropy<eT>(t.id_2).capacity());
-	EXPECT_PRED2(equal2<eT>, internal::log2(10),  MinEntropy<eT>(t.id_10).capacity());
+	EXPECT_PRED2(equal2<eT>, qif::log2(10),  MinEntropy<eT>(t.id_10).capacity());
 	EXPECT_PRED2(equal2<eT>, 0,              MinEntropy<eT>(t.noint_10).capacity());
-	EXPECT_PRED2(equal2<eT>, internal::log2(1.5), MinEntropy<eT>(t.c1).capacity());
+	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), MinEntropy<eT>(t.c1).capacity());
 
 	EXPECT_PRED2(equal2<eT>, MinEntropy<eT>(t.crand_100).leakage(t.unif_100), MinEntropy<eT>(t.crand_100).capacity()); // capacity is given for uniform prior
 }
