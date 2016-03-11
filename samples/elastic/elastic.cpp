@@ -19,7 +19,7 @@ double utility_to_epsilon(string dataset, string util_metric) {
 
 	double eps = util_metric == "euclidean"
 		? 2.0 / utility
-		: internal::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
+		: mechanisms::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
 
 	cout << "utility for " << dataset << "/" << util_metric << ": " << utility << ", eps: " << eps << "\n";
 

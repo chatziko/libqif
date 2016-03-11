@@ -8,54 +8,55 @@ extern "C" {
 
 
 namespace qif {
-namespace internal {
-	using std::max;
-	using std::min;
+namespace mechanisms {
 
-	//double max_error = 0;
-	//double sum_error = 0;
+using std::max;
+using std::min;
 
-	double _coeff, _epsilon;					// params of palnar_laplace_pdf, need to be global to pass function pointer to gsl_monte_miser_integrate
+//double max_error = 0;
+//double sum_error = 0;
+
+double _coeff, _epsilon;					// params of palnar_laplace_pdf, need to be global to pass function pointer to gsl_monte_miser_integrate
 
 
-	double planar_laplace_pdf(double *x, size_t, void *) {
-		return _coeff * exp( - _epsilon * sqrt(x[0] * x[0] + x[1] * x[1]) );
+double planar_laplace_pdf(double *x, size_t, void *) {
+	return _coeff * exp( - _epsilon * sqrt(x[0] * x[0] + x[1] * x[1]) );
+}
+
+double inverse_cumulative_gamma(double epsilon, double p) {
+	double x = (p-1) / M_El;
+	return - (gsl_sf_lambert_Wm1(x) + 1) / epsilon;
+}
+
+// restrict val within the bound
+int bound(int val, int min_val, int max_val) {
+	return min(max(val, min_val), max_val);
+}
+
+gsl_rng *r;
+gsl_monte_function L = { &planar_laplace_pdf, 2, 0 };
+
+double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b, int calls) {
+	if(!r) {
+		gsl_rng_env_setup();
+		r = gsl_rng_alloc(gsl_rng_default);
 	}
 
-	double inverse_cumulative_gamma(double epsilon, double p) {
-		double x = (p-1) / M_El;
-		return - (gsl_sf_lambert_Wm1(x) + 1) / epsilon;
-	}
+	_epsilon = epsilon;
+	_coeff = (_epsilon * _epsilon) / (2 * M_PIl);
 
-	// restrict val within the bound
-	int bound(int val, int min_val, int max_val) {
-		return min(max(val, min_val), max_val);
-	}
+	double res, err;
 
-	gsl_rng *r;
-	gsl_monte_function L = { &planar_laplace_pdf, 2, 0 };
+	gsl_monte_miser_state *s = gsl_monte_miser_alloc (2);
+	gsl_monte_miser_integrate(&L, a.colptr(0), b.colptr(0), 2, calls, r, s, &res, &err);
+	gsl_monte_miser_free(s);
 
-	double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b, int calls) {
-		if(!r) {
-			gsl_rng_env_setup();
-			r = gsl_rng_alloc(gsl_rng_default);
-		}
+	// store errors
+	//if(err > max_error) max_error = err;
+	//sum_error += err;
 
-		_epsilon = epsilon;
-		_coeff = (_epsilon * _epsilon) / (2 * M_PIl);
+	return res;
+}
 
-		double res, err;
-
-		gsl_monte_miser_state *s = gsl_monte_miser_alloc (2);
-		gsl_monte_miser_integrate(&L, a.colptr(0), b.colptr(0), 2, calls, r, s, &res, &err);
-		gsl_monte_miser_free(s);
-
-		// store errors
-		//if(err > max_error) max_error = err;
-		//sum_error += err;
-
-		return res;
-	}
-} // namespace internal
-} // namespace qif
+}} // namespace qif::mechanism
 
