@@ -59,10 +59,10 @@ Prob<T> biased_prior(uint n, T p) {
 
 
 void meleakage_by_p() {
-	MinEntropy<T> me1, me2, me3;
-	me1.C = crowds_matrix(honest, corrupted, 0);
-	me2.C = crowds_matrix(honest, corrupted, 0.5);
-	me3.C = crowds_matrix(honest, corrupted, 1);
+	Chan<T>
+		C1 = crowds_matrix(honest, corrupted, 0),
+		C2 = crowds_matrix(honest, corrupted, 0.5),
+		C3 = crowds_matrix(honest, corrupted, 1);
 
 	ofstream file;
 	file.open("crowds_data/data-min-p.txt");
@@ -71,9 +71,9 @@ void meleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (me1.leakage(pi)) << "   "
-			<< (me2.leakage(pi)) << "   "
-			<< (me3.leakage(pi)) << "\n";
+			<< (bayes::mlog_leakage(pi, C1)) << "   "
+			<< (bayes::mlog_leakage(pi, C2)) << "   "
+			<< (bayes::mlog_leakage(pi, C3)) << "\n";
 	}
 }
 
@@ -86,13 +86,12 @@ void meleakage_by_pf() {
 	file.open("crowds_data/data-min-pf.txt");
 
 	for(T pf(0); less_than_or_eq(pf, T(1)); pf += T(1)/1000) {
-		MinEntropy<T> me;
-		me.C = crowds_matrix(honest, corrupted, pf);
+		Chan<T> C = crowds_matrix(honest, corrupted, pf);
 
 		file << pf << "   " 
-			<< (me.leakage(pi1)) << "   "
-			<< (me.leakage(pi2)) << "   "
-			<< (me.leakage(pi3)) << "\n";
+			<< (bayes::mlog_leakage(pi1, C)) << "   "
+			<< (bayes::mlog_leakage(pi2, C)) << "   "
+			<< (bayes::mlog_leakage(pi3, C)) << "\n";
 	}
 }
 

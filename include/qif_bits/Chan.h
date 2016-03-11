@@ -80,6 +80,14 @@ void check_proper(const T& C) {
 
 
 template<typename T, EnableIf<is_Chan<T>>...>
+inline
+void check_prior_size(const Prob<eT<T>>& pi, const T& C) {
+	if(C.n_rows != pi.n_cols)
+		throw std::runtime_error("invalid prior size");
+}
+
+
+template<typename T, EnableIf<is_Chan<T>>...>
 inline bool chan_equal(const T& A, const T& B, const eT<T>& md = def_max_diff<eT<T>>(), const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
