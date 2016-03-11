@@ -3,34 +3,34 @@
 
 namespace qif{
 
-template class GLeakage<double>;
-template class GLeakage<float>;
-template class GLeakage<rat>;
+//template class GLeakage<double>;
+//template class GLeakage<float>;
+//template class GLeakage<rat>;
 
-template class LeakageMeasure<double>;
-template class LeakageMeasure<float>;
-template class LeakageMeasure<rat>;
+//template class LeakageMeasure<double>;
+//template class LeakageMeasure<float>;
+//template class LeakageMeasure<rat>;
 
-template class Mechanism<double>;
-template class Mechanism<float>;
+//template class Mechanism<double>;
+//template class Mechanism<float>;
 
-template class MinEntropy<double>;
-template class MinEntropy<float>;
-template class MinEntropy<rat>;
+//template class MinEntropy<double>;
+//template class MinEntropy<float>;
+//template class MinEntropy<rat>;
+
+//template class Shannon<double>;
+//template class Shannon<float>;
+
+//template class LinearProgram<double>;
+//template class LinearProgram<float>;
+//template class LinearProgram<rat>;
+
 
 
 //template class Metric<double, uint>;
 //template class Metric<float, uint>;
 //template class Euclidean<double, uint>;
 //template class Euclidean<float, uint>;
-
-template class Shannon<double>;
-template class Shannon<float>;
-
-template class LinearProgram<double>;
-template class LinearProgram<float>;
-template class LinearProgram<rat>;
-
 
 
 double Guessing::entropy(const prob& pi) {

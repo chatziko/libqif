@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 2.6)
 project(libqif)
 
 MACRO(SUBDIRLIST result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-        LIST(APPEND dirlist ${child})
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
+	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+	SET(dirlist "")
+	FOREACH(child ${children})
+		IF(IS_DIRECTORY ${curdir}/${child})
+			LIST(APPEND dirlist ${child})
+		ENDIF()
+	ENDFOREACH()
+	SET(${result} ${dirlist})
 ENDMACRO()
 
 
@@ -24,7 +24,18 @@ foreach(DIR ${SUBDIRS})
 	file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/*.cpp)		# get all *.cpp files in SUBDIR
 	set(DEST ${DIR})
 
-	add_executable(${DEST} ${SOURCES})
+	# make aux/<dest>-merged.cpp containing #include's for all source files
+	# much faster than independent .cpp compilation, it avoids multiple template instantiation
+	#
+	file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/aux/)
+	set(MERGED ${PROJECT_BINARY_DIR}/aux/${DEST}-merged.cpp)
+	add_custom_command(
+		OUTPUT ${MERGED}
+		COMMAND perl -e 'print qq{\#include \"$$_\" \\n} for @ARGV' ${SOURCES} > ${MERGED}
+		DEPENDS ${SOURCES}
+	)
+
+	add_executable(${DEST} ${MERGED})
 	target_link_libraries(${DEST} qif)									# link sample against libqif
 
 	add_precompiled_header(${DEST} ../include/precompiled.h)
