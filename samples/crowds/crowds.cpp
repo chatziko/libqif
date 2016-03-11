@@ -71,9 +71,9 @@ void meleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (bayes::mlog_leakage(pi, C1)) << "   "
-			<< (bayes::mlog_leakage(pi, C2)) << "   "
-			<< (bayes::mlog_leakage(pi, C3)) << "\n";
+			<< (bayes::mulg_leakage(pi, C1)) << "   "
+			<< (bayes::mulg_leakage(pi, C2)) << "   "
+			<< (bayes::mulg_leakage(pi, C3)) << "\n";
 	}
 }
 
@@ -89,9 +89,9 @@ void meleakage_by_pf() {
 		Chan<T> C = crowds_matrix(honest, corrupted, pf);
 
 		file << pf << "   " 
-			<< (bayes::mlog_leakage(pi1, C)) << "   "
-			<< (bayes::mlog_leakage(pi2, C)) << "   "
-			<< (bayes::mlog_leakage(pi3, C)) << "\n";
+			<< (bayes::mulg_leakage(pi1, C)) << "   "
+			<< (bayes::mulg_leakage(pi2, C)) << "   "
+			<< (bayes::mulg_leakage(pi3, C)) << "\n";
 	}
 }
 
@@ -111,9 +111,9 @@ void gleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (g::mlog_leakage(G, pi, C1)) << "   "
-			<< (g::mlog_leakage(G, pi, C2)) << "   "
-			<< (g::mlog_leakage(G, pi, C3)) << "\n";
+			<< (g::mulg_leakage(G, pi, C1)) << "   "
+			<< (g::mulg_leakage(G, pi, C2)) << "   "
+			<< (g::mulg_leakage(G, pi, C3)) << "\n";
 	}
 }
 
@@ -131,9 +131,9 @@ void gleakage_by_pf() {
 		Mat<T> G = tiger_g(honest);
 
 		file << pf << "   " 
-			<< (g::mlog_leakage(G, pi1, C)) << "   "
-			<< (g::mlog_leakage(G, pi2, C)) << "   "
-			<< (g::mlog_leakage(G, pi3, C)) << "\n";
+			<< (g::mulg_leakage(G, pi1, C)) << "   "
+			<< (g::mulg_leakage(G, pi2, C)) << "   "
+			<< (g::mulg_leakage(G, pi3, C)) << "\n";
 	}
 }
 

@@ -56,20 +56,20 @@ TYPED_TEST_P(BayesTest, Mult_capacity) {
 }
 
 
-TYPED_TEST_P(BayesTestReals, Mlog_leakage) {
+TYPED_TEST_P(BayesTestReals, Mulg_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, 1,              bayes::mlog_leakage(t.unif_2, t.id_2));
-	EXPECT_PRED2(equal2<eT>, qif::log2(10),  bayes::mlog_leakage(t.unif_10, t.id_10));
-	EXPECT_PRED2(equal2<eT>, 0,              bayes::mlog_leakage(t.unif_10, t.noint_10));
-	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), bayes::mlog_leakage(t.unif_2, t.c1));
+	EXPECT_PRED2(equal2<eT>, 1,              bayes::mulg_leakage(t.unif_2, t.id_2));
+	EXPECT_PRED2(equal2<eT>, qif::log2(10),  bayes::mulg_leakage(t.unif_10, t.id_10));
+	EXPECT_PRED2(equal2<eT>, 0,              bayes::mulg_leakage(t.unif_10, t.noint_10));
+	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), bayes::mulg_leakage(t.unif_2, t.c1));
 }
 
 // run the BayesTest test-case for all types, and the BayesTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(BayesTest, Vulnerability, Post_vulnerability, Mult_capacity);
-REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Mlog_leakage);
+REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Mulg_leakage);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Bayes, BayesTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(BayesReals, BayesTestReals, NativeTypes);

@@ -43,7 +43,7 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 template<typename eT>
-eT mlog_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
+eT mulg_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 	return real_ops<eT>::log2(mult_leakage(pi, C));
 }
 

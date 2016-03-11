@@ -47,20 +47,20 @@ TYPED_TEST_P(GainTest, Cond_vulnerability) {
 }
 
 
-TYPED_TEST_P(GainTestReals, Mlog_leakage) {
+TYPED_TEST_P(GainTestReals, Mulg_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, 1,              g::mlog_leakage(t.id_2, t.unif_2, t.id_2));
-	EXPECT_PRED2(equal2<eT>, qif::log2(10),  g::mlog_leakage(t.id_10, t.unif_10, t.id_10));
-	EXPECT_PRED2(equal2<eT>, 0,              g::mlog_leakage(t.id_10, t.unif_10, t.noint_10));
-	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), g::mlog_leakage(t.id_2, t.unif_2, t.c1));
+	EXPECT_PRED2(equal2<eT>, 1,              g::mulg_leakage(t.id_2, t.unif_2, t.id_2));
+	EXPECT_PRED2(equal2<eT>, qif::log2(10),  g::mulg_leakage(t.id_10, t.unif_10, t.id_10));
+	EXPECT_PRED2(equal2<eT>, 0,              g::mulg_leakage(t.id_10, t.unif_10, t.noint_10));
+	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), g::mulg_leakage(t.id_2, t.unif_2, t.c1));
 }
 
 // run the GainTest test-case for all types, and the GainTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Cond_vulnerability);
-REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mlog_leakage);
+REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mulg_leakage);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Gain, GainTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(GainReals, GainTestReals, NativeTypes);
