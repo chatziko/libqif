@@ -23,7 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 =========================================================================
 */
 #include "tests_aux.h"
-using namespace qif;
+
+using namespace probab;
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
@@ -60,7 +61,7 @@ TYPED_TEST_P(ProbTest, Uniform) {
 	uniform(pi);
 	expect_prob(1, pi);
 
-	pi = uniform<Prob<eT>>(4);
+	pi = uniform<eT>(4);
 	expect_prob(format_num<eT>("0.25 0.25 0.25 0.25"), pi);
 }
 
@@ -68,10 +69,10 @@ TYPED_TEST_P(ProbTest, Randu) {
 	typedef TypeParam eT;
 
 	Prob<eT> pi(200);
-	qif::randu(pi);
+	randu(pi);
 	expect_prob(200, pi);
 
-	pi = qif::randu<Prob<eT>>(5);
+	pi = probab::randu<eT>(5);
 	expect_prob(5, pi);
 }
 
@@ -82,7 +83,7 @@ TYPED_TEST_P(ProbTest, Dirac) {
 	dirac(pi);
 	expect_prob("1 0 0 0", pi);
 
-	pi = dirac<Prob<eT>>(4, 2);
+	pi = probab::dirac<eT>(4, 2);
 	expect_prob("0 0 1 0", pi);
 }
 

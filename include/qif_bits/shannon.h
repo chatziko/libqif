@@ -55,7 +55,7 @@ eT add_capacity(const Chan<eT>& C, eT max_diff = def_max_diff<eT>(), eT max_rel_
 	uint n = C.n_cols;
 
 	Prob<eT> F(m), Px(m), Py(m);
-	uniform(Px);
+	probab::uniform(Px);
 
 	while(1) {
 		// Py = output dist

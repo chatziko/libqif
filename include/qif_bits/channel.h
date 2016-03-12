@@ -37,7 +37,7 @@ template<typename eT>
 inline
 Chan<eT>& randu(Chan<eT>& C) {
 	for(uint i = 0; i < C.n_rows; i++)
-		C.row(i) = qif::randu<Prob<eT>>(C.n_cols);
+		C.row(i) = probab::randu<eT>(C.n_cols);
 
 	return C;
 }
@@ -61,7 +61,7 @@ template<typename eT>
 inline
 bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
 	for(uint i = 0; i < C.n_rows; i++)
-		if(!qif::is_proper<Prob<eT>>(C.row(i), mrd))
+		if(!probab::is_proper<eT>(C.row(i), mrd))
 			return false;
 
 	return true;
@@ -194,7 +194,7 @@ Chan<eT>& project_to_simplex(Chan<eT>& C) {
 	Prob<eT> temp(C.n_cols);
 	for(uint i = 0; i < C.n_rows; i++) {
 		temp = C.row(i);
-		C.row(i) = qif::project_to_simplex(temp);
+		C.row(i) = probab::project_to_simplex(temp);
 	}
 	return C;
 }

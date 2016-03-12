@@ -1,36 +1,33 @@
-// Note: using EnableIf alias for SFINAE to make things more readable.
-// We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
-// that uses parameter packs, i.e. EnableIf<cond>...
-// This allows to have functions with exactly the same signature, differing only in the EnableIf conditions
-//
 
-template<typename T, EnableIf<is_Prob<T>>...>
+namespace probab {
+
+template<typename eT>
 inline
-T& uniform(T& pi) {
+Prob<eT>& uniform(Prob<eT>& pi) {
 	// cast to uint cause rat is confused when dividing by const uint
-	pi.fill( eT<T>(1) / uint(pi.n_cols) );
+	pi.fill( eT(1) / uint(pi.n_cols) );
 	return pi;
 }
 
-template<typename T, EnableIf<is_Prob<T>>...>
-inline T uniform(uint n) {
-	T pi(n);
+template<typename eT>
+inline Prob<eT> uniform(uint n) {
+	Prob<eT> pi(n);
 	return uniform(pi);
 }
 
 
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-T& dirac(T& pi, uint i = 0) {
+Prob<eT>& dirac(Prob<eT>& pi, uint i = 0) {
 	pi.zeros();
-	pi.at(i) = eT<T>(1);
+	pi.at(i) = eT(1);
 	return pi;
 }
 
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-T dirac(uint n, uint i = 0) {
-	T pi(n);
+Prob<eT> dirac(uint n, uint i = 0) {
+	Prob<eT> pi(n);
 	return dirac(pi, i);
 }
 
@@ -52,11 +49,11 @@ T dirac(uint n, uint i = 0) {
 // Note: if the n logn complexity is a problem, there's a linear algorithm involving logs in the following url:
 // http://stats.stackexchange.com/questions/14059/generate-uniformly-distributed-weights-that-sum-to-unity
 //
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-T& randu(T& pi) {
+Prob<eT>& randu(Prob<eT>& pi) {
 	pi.randu();
-	pi(pi.n_cols-1) = eT<T>(1);		// add 1 to the list. We don't really need to add 0
+	pi(pi.n_cols-1) = eT(1);		// add 1 to the list. We don't really need to add 0
 	pi = arma::sort(pi);
 
 	for(uint i = pi.n_cols-1; i > 0; i--)
@@ -69,19 +66,17 @@ T& randu(T& pi) {
 	return pi;
 }
 
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-T randu(uint n) {
-	T pi(n);
+Prob<eT> randu(uint n) {
+	Prob<eT> pi(n);
 	return randu(pi);
 }
 
 
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-bool is_proper(const T& pi, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
-	typedef typename T::elem_type eT;
-
+bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 	eT sum = 0;
 	for(uint j = 0; j < pi.n_cols; j++) {
 		// elements should be non-negative
@@ -99,10 +94,10 @@ bool is_proper(const T& pi, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 	return true;
 }
 
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-void check_proper(const T& pi) {
-	if(!qif::is_proper<T>(pi))
+void check_proper(const Prob<eT>& pi) {
+	if(!is_proper(pi))
 		throw std::runtime_error("not a proper dist");
 }
 
@@ -112,11 +107,9 @@ void check_proper(const T& pi) {
 // Uses the algorithm of:
 //    http://www.springerlink.com/content/q1636371674m36p1/
 //
-template<typename T, EnableIf<is_Prob<T>>...>
+template<typename eT>
 inline
-T& project_to_simplex(T& x) {
-	typedef eT<T> eT;
-
+Prob<eT>& project_to_simplex(Prob<eT>& x) {
 	uint n = x.n_cols;
 	Row<char> done(n);
 	done.fill(0);
@@ -143,3 +136,4 @@ T& project_to_simplex(T& x) {
 	return x;
 }
 
+} // namespace probab

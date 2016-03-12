@@ -43,13 +43,13 @@ template <typename eT>
 class BaseTest : public ::testing::Test {
 	public:
 		Prob<eT>
-			unif_2   = uniform<Prob<eT>>(2),
-			unif_4   = uniform<Prob<eT>>(4),
-			unif_10  = uniform<Prob<eT>>(10),
-			unif_100 = uniform<Prob<eT>>(100),
-			dirac_2  = dirac<Prob<eT>>(2),
-			dirac_4  = dirac<Prob<eT>>(4),
-			dirac_10 = dirac<Prob<eT>>(10),
+			unif_2   = probab::uniform<eT>(2),
+			unif_4   = probab::uniform<eT>(4),
+			unif_10  = probab::uniform<eT>(10),
+			unif_100 = probab::uniform<eT>(100),
+			dirac_2  = probab::dirac<eT>(2),
+			dirac_4  = probab::dirac<eT>(4),
+			dirac_10 = probab::dirac<eT>(10),
 			pi1      = format_num<eT>("0.2 0.8"),
 			pi2      = format_num<eT>("0.2 0.8 0 0 0 0 0 0 0 0"),
 			pi3      = format_num<eT>("0.25 0.75"),
@@ -82,7 +82,7 @@ inline bool chan_equal2(const Chan<eT>& x, const Chan<eT>& y) {
 
 template<typename eT>
 inline bool prob_is_proper1(const Prob<eT>& x) {
-	return qif::is_proper<Prob<eT>>(x);
+	return probab::is_proper<eT>(x);
 }
 
 template<typename eT>

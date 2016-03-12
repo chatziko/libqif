@@ -13,10 +13,10 @@ TYPED_TEST_P(ShannonTest, Entropy) {
 
 	Prob<eT> pi;
 
-	pi = uniform<Prob<eT>>(2);
+	pi = probab::uniform<eT>(2);
 	EXPECT_PRED2(equal2<eT>, 1, shannon::entropy(pi));
 
-	pi = uniform<Prob<eT>>(10);
+	pi = probab::uniform<eT>(10);
 	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shannon::entropy(pi));
 
 	pi = Prob<eT>("1 0 0 0");
@@ -32,20 +32,20 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	Chan<eT> C;
 
 	C = channel::identity<eT>(2);
-	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(uniform<Prob<eT>>(2), C));
-	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(2), C));
+	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(probab::uniform<eT>(2), C));
+	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(probab::dirac<eT>(2), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(Prob<eT>("0.2 0.8"), C));
 
 	C = channel::identity<eT>(10);
-	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(uniform<Prob<eT>>(10), C));
-	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(10), C));
+	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(probab::uniform<eT>(10), C));
+	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(probab::dirac<eT>(10), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0"), C));
 
 	channel::no_interference(C);
-	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shannon::post_entropy(uniform<Prob<eT>>(10), C));
-	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(10), C));
+	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shannon::post_entropy(probab::uniform<eT>(10), C));
+	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(probab::dirac<eT>(10), C));
 
-	Prob<eT> pi = qif::randu<Prob<eT>>(10);
+	Prob<eT> pi = probab::randu<eT>(10);
 	EXPECT_PRED2(equal2<eT>, shannon::entropy(pi), shannon::post_entropy(pi, C));
 
 	C = Chan<eT>("0.8 0.2; 0.3 0.7");
@@ -53,7 +53,7 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	EXPECT_PRED2(equal2<eT>, 0.669020059980807, shannon::post_entropy(pi, C));
 
 	C = channel::identity<eT>(10);
-	ASSERT_ANY_THROW(shannon::post_entropy<eT>(uniform<Prob<eT>>(2), C););
+	ASSERT_ANY_THROW(shannon::post_entropy<eT>(probab::uniform<eT>(2), C););
 }
 
 TYPED_TEST_P(ShannonTest, Capacity) {

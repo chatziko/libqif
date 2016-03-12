@@ -183,8 +183,8 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED2(equal2<eT>, disc  (0, i), kant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
-		EXPECT_PRED2(equal2<eT>, euclid(0, i), kant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, disc  (0, i), kant_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
+		EXPECT_PRED2(equal2<eT>, euclid(0, i), kant_euclid(t.dirac_4, probab::dirac<eT>(4, i)));
 	}
 
 	// kantorovich over the discrete metric = total variation
@@ -194,8 +194,8 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	//       When randu uses the "differences of sorted list" algorithm the test always passes.
 	//
 	for(uint i = 0; i < 10; i++) {
-		auto p1 = qif::randu<Prob<eT>>(10),
-			 p2 = qif::randu<Prob<eT>>(10);
+		auto p1 = probab::randu<eT>(10),
+			 p2 = probab::randu<eT>(10);
 		EXPECT_PRED2(equal2<eT>, tv(p1, p2), kant_disc(p1, p2));
 	}
 }
@@ -226,13 +226,13 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED2(equal2<eT>, disc  (0, i), mkant_disc  (t.dirac_4, dirac<Prob<eT>>(4, i)));
-		EXPECT_PRED2(equal2<eT>, euclid(0, i), mkant_euclid(t.dirac_4, dirac<Prob<eT>>(4, i)));
+		EXPECT_PRED2(equal2<eT>, disc  (0, i), mkant_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
+		EXPECT_PRED2(equal2<eT>, euclid(0, i), mkant_euclid(t.dirac_4, probab::dirac<eT>(4, i)));
 	}
 
 	// mult kantorovich over the discrete metric (with inf value) = mult total variation
-	auto p1 = qif::randu<Prob<eT>>(10),
-		 p2 = qif::randu<Prob<eT>>(10);
+	auto p1 = probab::randu<eT>(10),
+		 p2 = probab::randu<eT>(10);
 	EXPECT_PRED2(equal2<eT>, mtv(p1, p2), mkant_disc(p1, p2));
 }
 

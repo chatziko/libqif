@@ -53,7 +53,7 @@ Prob<T> biased_prior(uint n, T p) {
 	Prob<T> pi(n);
 	pi.fill(equal(p, T(1)) ? T(0) : (1-p)/(n-1));
 	pi.at(0) = p;
-	check_proper(pi);
+	probab::check_proper(pi);
 	return pi;
 }
 
