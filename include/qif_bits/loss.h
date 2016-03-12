@@ -2,23 +2,23 @@
 namespace l {
 
 template<typename eT>
-eT uncertainty(const Mat<eT>& L, const Prob<eT>& pi) {
+eT entropy(const Mat<eT>& L, const Prob<eT>& pi) {
 	return -g::vulnerability<eT>(-L, pi);
 }
 
 template<typename eT>
-eT post_uncertainty(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
+eT post_entropy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 	return -g::post_vulnerability<eT>(-L, pi, C);
 }
 
 template<typename eT>
 eT add_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_uncertainty(L, pi, C) - uncertainty(L, pi);
+	return post_entropy(L, pi, C) - entropy(L, pi);
 }
 
 template<typename eT>
 eT mult_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return uncertainty(L, pi) / post_uncertainty(L, pi, C);
+	return entropy(L, pi) / post_entropy(L, pi, C);
 }
 
 template<typename eT>

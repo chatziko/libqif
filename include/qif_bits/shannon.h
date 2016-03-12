@@ -22,7 +22,7 @@ eT entropy(const Prob<eT>& pi) {
 //    H(Y|X) = sum_x pi[x] H(C[x,-])   (entropy of row x)
 //
 template<typename eT>
-eT cond_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
+eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
 	check_prior_size(pi, C);
 
 	eT Hyx = 0;
@@ -34,12 +34,12 @@ eT cond_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return cond_entropy(pi, C) - entropy(pi);
+	return post_entropy(pi, C) - entropy(pi);
 }
 
 template<typename eT>
 eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(pi) / cond_entropy(pi, C);
+	return entropy(pi) / post_entropy(pi, C);
 }
 
 template<typename eT>
