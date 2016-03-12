@@ -3,7 +3,11 @@ using arma::mat;
 using arma::Row;
 using arma::Col;
 
-// helper aliases for SFINAE, see http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
+// Note: using EnableIf alias for SFINAE to make things more readable.
+// We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
+// that uses parameter packs, i.e. EnableIf<cond>...
+// This allows to have functions with exactly the same signature, differing only in the EnableIf/DisableIf conditions
+//
 enum class enabled {}; // just a type that can be used as a template parameter and is as inocuous as possible
 template <typename T> using Invoke = typename T::type;
 template <typename Condition> using EnableIf  = Invoke<std::enable_if< Condition::value, enabled>>;

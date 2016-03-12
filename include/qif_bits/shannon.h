@@ -23,7 +23,7 @@ eT entropy(const Prob<eT>& pi) {
 //
 template<typename eT>
 eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
-	check_prior_size(pi, C);
+	channel::check_prior_size(pi, C);
 
 	eT Hyx = 0;
 	for(uint x = 0; x < C.n_rows; x++)

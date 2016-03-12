@@ -1,100 +1,97 @@
-// Note: using EnableIf alias for SFINAE to make things more readable.
-// We use the last method from http://loungecpp.wikidot.com/tips-and-tricks:enable-if-for-c-11
-// that uses parameter packs, i.e. EnableIf<cond>...
-// This allows to have functions with exactly the same signature, differing only in the EnableIf/DisableIf conditions
-//
 
-template<typename T, EnableIf<is_Chan<T>>...>
+namespace channel {
+
+template<typename eT>
 inline
-T& identity(T& C) {
+Chan<eT>& identity(Chan<eT>& C) {
 	if(!C.is_square()) throw std::runtime_error("not square");
 	C.eye();
 	return C;
 }
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T identity(uint n) {
-	T C(n, n);
+Chan<eT> identity(uint n) {
+	Chan<eT> C(n, n);
 	return identity(C);
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T& no_interference(T& C) {
+Chan<eT>& no_interference(Chan<eT>& C) {
 	C.zeros();
-	C.col(0).fill(eT<T>(1));
+	C.col(0).fill(eT(1));
 	return C;
 }
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T no_interference(uint n) {
-	T C(n, 1);
+Chan<eT> no_interference(uint n) {
+	Chan<eT> C(n, 1);
 	return no_interference(C);
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T& randu(T& C) {
+Chan<eT>& randu(Chan<eT>& C) {
 	for(uint i = 0; i < C.n_rows; i++)
-		C.row(i) = randu<Prob<eT<T>>>(C.n_cols);
+		C.row(i) = qif::randu<Prob<eT>>(C.n_cols);
 
 	return C;
 }
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T randu(uint n) {
-	T C(n, n);
+Chan<eT> randu(uint n) {
+	Chan<eT> C(n, n);
 	return randu(C);
 }
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T randu(uint n, uint m) {
-	T C(n, m);
+Chan<eT> randu(uint n, uint m) {
+	Chan<eT> C(n, m);
 	return randu(C);
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-bool is_proper(const T& C, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
+bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
 	for(uint i = 0; i < C.n_rows; i++)
-		if(!is_proper<Prob<eT<T>>>(C.row(i), mrd))
+		if(!qif::is_proper<Prob<eT>>(C.row(i), mrd))
 			return false;
 
 	return true;
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-void check_proper(const T& C) {
-	if(!is_proper<T>(C))
+void check_proper(const Chan<eT>& C) {
+	if(!is_proper(C))
 		throw std::runtime_error("not a proper matrix");
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-void check_prior_size(const Prob<eT<T>>& pi, const T& C) {
+void check_prior_size(const Prob<eT>& pi, const Chan<eT>& C) {
 	if(C.n_rows != pi.n_cols)
 		throw std::runtime_error("invalid prior size");
 }
 
 
-template<typename T, EnableIf<is_Chan<T>>...>
-inline bool chan_equal(const T& A, const T& B, const eT<T>& md = def_max_diff<eT<T>>(), const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
+template<typename eT>
+inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
 
 	for(uint i = 0; i < A.n_rows; i++)
 		for(uint j = 0; j < A.n_cols; j++)
-			if(!equal(A.at(i, j), B.at(i, j), md, mrd))
+			if(!qif::equal(A.at(i, j), B.at(i, j), md, mrd))
 				return false;
 
 	return true;
@@ -103,20 +100,18 @@ inline bool chan_equal(const T& A, const T& B, const eT<T>& md = def_max_diff<eT
 
 // returns the posterior for a specific output y
 //
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-Prob<eT<T>> posterior(const T& C, const Prob<eT<T>>& pi, uint y) {
+Prob<eT> posterior(const Chan<eT>& C, const Prob<eT>& pi, uint y) {
 	return (arma::trans(C.col(y)) % pi) / arma::dot(C.col(y), pi);
 }
 
 
 // Returns a channel X such that A = B X
 //
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T factorize_lp(const T& A, const T& B) {
-	typedef typename T::elem_type eT;
-
+Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 	// A: M x N
 	// B: M x R
 	// X: R x N   unknowns
@@ -129,11 +124,11 @@ T factorize_lp(const T& A, const T& B) {
 		 n_cons_elems = (M+1)*N*R;	// M*N*R elements for the A = B X constrains and N*R elements for the sum=1 constraints
 
 	if(B.n_rows != M)
-		return T();
+		return Chan<eT>();
 
 	LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
-	lp.c = arma::zeros<T>(n_vars);			// we don't really care to optimize, so cost function = 0
+	lp.c = arma::zeros<Chan<eT>>(n_vars);			// we don't really care to optimize, so cost function = 0
 	lp.sense.set_size(n_cons);
 	lp.sense.fill('=');
 
@@ -181,7 +176,7 @@ T factorize_lp(const T& A, const T& B) {
 	// solve program
 	//
 	if(!lp.solve())
-		return T();
+		return Chan<eT>();
 
 	// reconstrict channel from solution
 	//
@@ -193,13 +188,13 @@ T factorize_lp(const T& A, const T& B) {
 	return X;
 }
 
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T& project_to_simplex(T& C) {
-	Prob<eT<T>> temp(C.n_cols);
+Chan<eT>& project_to_simplex(Chan<eT>& C) {
+	Prob<eT> temp(C.n_cols);
 	for(uint i = 0; i < C.n_rows; i++) {
 		temp = C.row(i);
-		C.row(i) = project_to_simplex(temp);
+		C.row(i) = qif::project_to_simplex(temp);
 	}
 	return C;
 }
@@ -208,11 +203,10 @@ T& project_to_simplex(T& C) {
 // factorize using a subgradient method.
 // see: http://see.stanford.edu/materials/lsocoee364b/02-subgrad_method_notes.pdf
 //
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
+Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_diff = 1e-4) {
 	using arma::dot;
-	typedef typename T::elem_type eT;
 
 	const bool debug = false;
 
@@ -243,8 +237,8 @@ T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
 	for(uint i = 0; i < M; i++)
 		G = std::max(G, arma::norm(B.row(i), 2));
 
-	const eT R = sqrt(2 * L),
-		  	 RG = R * G;
+	const eT R = sqrt(2 * L);
+		  	 //RG = R * G;
 	const eT inf = infinity<eT>();
 
 	Chan<eT> Z(M, N);
@@ -283,7 +277,7 @@ T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
 		if(f < min) {
 			min = f;
 
-			if(equal(min, eT(0), max_diff))
+			if(qif::equal(min, eT(0), max_diff))
 				break;
 		}
 
@@ -339,9 +333,9 @@ T factorize_subgrad(const T& A, const T& B, const eT<T> max_diff = 1e-4) {
 
 // Returns a channel X such that A = B X
 //
-template<typename T, EnableIf<is_Chan<T>>...>
+template<typename eT>
 inline
-T factorize(const T& A, const T& B) {
+Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B) {
 	return factorize_subgrad(A, B);
 }
 
@@ -352,10 +346,12 @@ rchan factorize(const rchan& A, const rchan& B) {
 }
 
 
-template<typename T, EnableIf<arma::is_Mat<T>>...>
-inline void share_memory(T& A, T& B) {
-	T temp(B.memptr(), B.n_rows, B.n_cols, false, false);
+template<typename eT>
+inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
+	Mat<eT> temp(B.memptr(), B.n_rows, B.n_cols, false, false);
 
 	A.reset();
 	A.swap(temp);
 }
+
+} // namespace chan

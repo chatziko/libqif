@@ -68,10 +68,10 @@ TYPED_TEST_P(ProbTest, Randu) {
 	typedef TypeParam eT;
 
 	Prob<eT> pi(200);
-	randu(pi);
+	qif::randu(pi);
 	expect_prob(200, pi);
 
-	pi = randu<Prob<eT>>(5);
+	pi = qif::randu<Prob<eT>>(5);
 	expect_prob(5, pi);
 }
 

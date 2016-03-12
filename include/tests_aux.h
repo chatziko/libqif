@@ -57,14 +57,14 @@ class BaseTest : public ::testing::Test {
 			pi5		 = format_num<eT>("0.1 0.1 0.1 0.7");
 
 		Chan<eT>
-			id_2      = identity<Chan<eT>>(2),
-			id_4      = identity<Chan<eT>>(4),
-			id_10     = identity<Chan<eT>>(10),
-			noint_4   = no_interference<Chan<eT>>(4),
-			noint_10  = no_interference<Chan<eT>>(10),
+			id_2      = channel::identity<eT>(2),
+			id_4      = channel::identity<eT>(4),
+			id_10     = channel::identity<eT>(10),
+			noint_4   = channel::no_interference<eT>(4),
+			noint_10  = channel::no_interference<eT>(10),
 			c1        = format_num<eT>("0.8 0.2; 0.3 0.7"),
-			crand_10  = randu<Chan<eT>>(10),
-			crand_100 = randu<Chan<eT>>(100);
+			crand_10  = channel::randu<eT>(10),
+			crand_100 = channel::randu<eT>(100);
 };
 
 
@@ -76,20 +76,25 @@ inline bool equal2(const eT& x, const eT& y) {
 }
 
 template<typename eT>
-inline bool chan_equal2(const eT& x, const eT& y) {
-	return chan_equal<eT>(x, y);
+inline bool chan_equal2(const Chan<eT>& x, const Chan<eT>& y) {
+	return channel::equal<eT>(x, y);
 }
 
-template<typename T>
-inline bool is_proper1(const T& x) {
-	return is_proper<T>(x);
+template<typename eT>
+inline bool prob_is_proper1(const Prob<eT>& x) {
+	return qif::is_proper<Prob<eT>>(x);
+}
+
+template<typename eT>
+inline bool chan_is_proper1(const Chan<eT>& x) {
+	return channel::is_proper<eT>(x);
 }
 
 
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
-	EXPECT_PRED2(chan_equal2<Chan<eT>>, m, c);
-	EXPECT_PRED1(is_proper1<Chan<eT>>, c);
+	EXPECT_PRED2(chan_equal2<eT>, m, c);
+	EXPECT_PRED1(chan_is_proper1<eT>, c);
 }
 
 template<typename eT>
@@ -102,7 +107,7 @@ void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
 	EXPECT_EQ(rn, c.n_rows);
 	EXPECT_EQ(cn, c.n_cols);
 
-	EXPECT_PRED1(is_proper1<Chan<eT>>, c);
+	EXPECT_PRED1(chan_is_proper1<eT>, c);
 }
 
 
@@ -113,7 +118,7 @@ void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
 	for(uint j = 0; j < p.n_cols; j++)
 		EXPECT_PRED2(equal2<eT>, m.at(j), p.at(j));
 
-	EXPECT_PRED1(is_proper1<Prob<eT>>, p);
+	EXPECT_PRED1(prob_is_proper1<eT>, p);
 }
 
 template<typename eT>
@@ -125,7 +130,7 @@ template<typename eT>
 void expect_prob(uint cn, const Prob<eT>& p) {
 	EXPECT_EQ(cn, p.n_cols);
 
-	EXPECT_PRED1(is_proper1<Prob<eT>>, p);
+	EXPECT_PRED1(prob_is_proper1<eT>, p);
 }
 
 

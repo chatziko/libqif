@@ -31,28 +31,28 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 
 	Chan<eT> C;
 
-	C = identity<Chan<eT>>(2);
+	C = channel::identity<eT>(2);
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(uniform<Prob<eT>>(2), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(2), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(Prob<eT>("0.2 0.8"), C));
 
-	C = identity<Chan<eT>>(10);
+	C = channel::identity<eT>(10);
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(uniform<Prob<eT>>(10), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(10), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(Prob<eT>("0.2 0.8 0 0 0 0 0 0 0 0"), C));
 
-	no_interference(C);
+	channel::no_interference(C);
 	EXPECT_PRED2(equal2<eT>, qif::log2(10.0), shannon::post_entropy(uniform<Prob<eT>>(10), C));
 	EXPECT_PRED2(equal2<eT>, 0, shannon::post_entropy(dirac<Prob<eT>>(10), C));
 
-	Prob<eT> pi = randu<Prob<eT>>(10);
+	Prob<eT> pi = qif::randu<Prob<eT>>(10);
 	EXPECT_PRED2(equal2<eT>, shannon::entropy(pi), shannon::post_entropy(pi, C));
 
 	C = Chan<eT>("0.8 0.2; 0.3 0.7");
 	pi = "0.25 0.75";
 	EXPECT_PRED2(equal2<eT>, 0.669020059980807, shannon::post_entropy(pi, C));
 
-	C = identity<Chan<eT>>(10);
+	C = channel::identity<eT>(10);
 	ASSERT_ANY_THROW(shannon::post_entropy<eT>(uniform<Prob<eT>>(2), C););
 }
 
@@ -61,15 +61,15 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 
 	Chan<eT> C;
 
-	C = identity<Chan<eT>>(2);
+	C = channel::identity<eT>(2);
 	EXPECT_PRED2(equal2<eT>, 1, shannon::add_capacity(C));
 
-	C = identity<Chan<eT>>(10);
+	C = channel::identity<eT>(10);
 	EXPECT_PRED2(equal2<eT>, qif::log2(10), shannon::add_capacity(C));
 
 	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_max_diff<eT>();		// the accuracy of 0 capacity is not great for floats
-	C = no_interference<Chan<eT>>(10);
-	EXPECT_PRED4(equal<eT>, 0, shannon::add_capacity(C), md, 0.0);
+	C = channel::no_interference<eT>(10);
+	EXPECT_PRED4(qif::equal<eT>, 0, shannon::add_capacity(C), md, 0.0);
 
 	C = Chan<eT>("0.8 0.2; 0.3 0.7");
 	EXPECT_PRED2(equal2<eT>, 0.19123813831431799, shannon::add_capacity(C));

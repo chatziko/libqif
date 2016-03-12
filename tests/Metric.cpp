@@ -194,8 +194,8 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	//       When randu uses the "differences of sorted list" algorithm the test always passes.
 	//
 	for(uint i = 0; i < 10; i++) {
-		auto p1 = randu<Prob<eT>>(10),
-			 p2 = randu<Prob<eT>>(10);
+		auto p1 = qif::randu<Prob<eT>>(10),
+			 p2 = qif::randu<Prob<eT>>(10);
 		EXPECT_PRED2(equal2<eT>, tv(p1, p2), kant_disc(p1, p2));
 	}
 }
@@ -231,8 +231,8 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 	}
 
 	// mult kantorovich over the discrete metric (with inf value) = mult total variation
-	auto p1 = randu<Prob<eT>>(10),
-		 p2 = randu<Prob<eT>>(10);
+	auto p1 = qif::randu<Prob<eT>>(10),
+		 p2 = qif::randu<Prob<eT>>(10);
 	EXPECT_PRED2(equal2<eT>, mtv(p1, p2), mkant_disc(p1, p2));
 }
 

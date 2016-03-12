@@ -10,7 +10,7 @@ eT vulnerability(const Prob<eT>& pi) {
 //
 template<typename eT>
 eT post_vulnerability(const Prob<eT>& pi, const Chan<eT>& C) {
-	check_prior_size(pi, C);
+	channel::check_prior_size(pi, C);
 
 	eT s = eT(0);
 	for(uint y = 0; y < C.n_cols; y++)
@@ -42,7 +42,7 @@ eT mult_capacity(const Chan<eT>& C) {
 
 template<typename eT>
 arma::ucolvec strategy(const Prob<eT>& pi, const Chan<eT>& C) {
-	check_prior_size(pi, C);
+	channel::check_prior_size(pi, C);
 
 	arma::ucolvec strategy(pi.n_elem);
 	for(uint y = 0; y < C.n_cols; y++)

@@ -106,7 +106,7 @@ TYPED_TEST_P(MechanismTest, Discrete) {
 	EXPECT_PRED2(equal2<eT>, epsilon, tc.smallest_epsilon());
 
 	// the exponential mechanism with 2*epsilon should be the same as the tight constraints
-	EXPECT_PRED2(chan_equal2<Chan<eT>>, expon.C, tc.C);
+	EXPECT_PRED2(chan_equal2<eT>, expon.C, tc.C);
 }
 
 TYPED_TEST_P(MechanismTest, Grid) {
@@ -130,7 +130,7 @@ TYPED_TEST_P(MechanismTest, Grid) {
 	EXPECT_PRED2(equal2<eT>, epsilon, tc.smallest_epsilon());
 
 	// for the planar laplace, the accuracy that we get through numeric integration is not that great
-	EXPECT_PRED2(is_proper<Chan<eT>>, laplace.C, eT(1e-3));
+	EXPECT_PRED2(channel::is_proper<eT>, laplace.C, eT(1e-3));
 	EXPECT_TRUE(laplace.is_private(epsilon));
 	EXPECT_PRED4(equal<eT>, 0.8844, laplace.smallest_epsilon(), 0, eT(1e-3));
 

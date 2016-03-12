@@ -25,7 +25,7 @@ eT vulnerability(const Mat<eT>& G, const Prob<eT>& pi) {
 template<typename eT>
 eT post_vulnerability(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	check_g_size(G, pi);
-	check_prior_size(pi, C);
+	channel::check_prior_size(pi, C);
 
 	eT s = eT(0);
 	for(uint y = 0; y < C.n_cols; y++)
@@ -51,7 +51,7 @@ eT mulg_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 template<typename eT>
 arma::ucolvec strategy(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	check_g_size(G, pi);
-	check_prior_size(pi, C);
+	channel::check_prior_size(pi, C);
 
 	arma::ucolvec strategy(pi.n_elem);
 	for(uint y = 0; y < C.n_cols; y++)

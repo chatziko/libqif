@@ -102,7 +102,7 @@ bool is_proper(const T& pi, const eT<T>& mrd = def_max_rel_diff<eT<T>>()) {
 template<typename T, EnableIf<is_Prob<T>>...>
 inline
 void check_proper(const T& pi) {
-	if(!is_proper<T>(pi))
+	if(!qif::is_proper<T>(pi))
 		throw std::runtime_error("not a proper dist");
 }
 

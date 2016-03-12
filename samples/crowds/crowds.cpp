@@ -35,7 +35,7 @@ Chan<T> crowds_matrix(uint _n, uint _c, T pf) {
 			C.at(i, j) = j == n ? alpha : i == j ? beta : gamma;
 		}
 	}
-	check_proper(C);
+	channel::check_proper(C);
 
 	return C;
 }
