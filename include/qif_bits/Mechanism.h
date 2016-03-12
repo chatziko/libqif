@@ -2,7 +2,7 @@ template<typename eT>
 class Mechanism {
 	public:
 		Chan<eT> C;
-		Metric<eT, uint> d = {metrics::euclidean<eT, uint>()};
+		Metric<eT, uint> d = {metric::euclidean<eT, uint>()};
 
 //		Mechanism<eT>()																{};
 //		Mechanism<eT>(const Chan<eT>& C)							: C(C)			{};
@@ -23,7 +23,7 @@ namespace mechanisms {
 		   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 		   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
-		mech.d = metrics::scale(metrics::euclidean<eT, uint>(), step);
+		mech.d = metric::scale(metric::euclidean<eT, uint>(), step);
 		mech.C.set_size(n, n);
 
 		for(uint j = 0; j < n; j++) {
@@ -92,7 +92,7 @@ namespace mechanisms {
 
 template<typename eT>
 bool Mechanism<eT>::is_private(eT epsilon) {
-	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
+	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
 	for(uint i = 0; i < C.n_rows; i++) {
 		for(uint j = i+1; j < C.n_rows; j++) {
@@ -108,7 +108,7 @@ bool Mechanism<eT>::is_private(eT epsilon) {
 
 template<typename eT>
 eT Mechanism<eT>::smallest_epsilon() {
-	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
+	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
 	eT res(0);
 	for(uint i = 0; i < C.n_rows; i++) {

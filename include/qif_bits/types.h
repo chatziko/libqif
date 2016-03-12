@@ -55,3 +55,8 @@ typedef Point<double> point;
 typedef Point<float> fpoint;
 typedef Point<rat>   rpoint;
 
+// R: result type, what we measure distances in
+// T: metric space type, what elements we measure the distance of
+//
+template<typename R, typename T> using Metric = std::function<R(const T&, const T&)>;
+

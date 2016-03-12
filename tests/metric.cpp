@@ -1,30 +1,4 @@
-/*
-This file belongs to the LIBQIF library.
-A Quantitative Information Flow C++ Toolkit Library.
-Copyright (C) 2013  Universidad Nacional de Río Cuarto(National University of Río Cuarto).
-Author: Martinelli Fernán - fmartinelli89@gmail.com - Universidad Nacional de Río Cuarto (Argentina)
-LIBQIF Version: 1.0
-Date: 12th Nov 2013
-========================================================================
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-=========================================================================
-*/
 #include "tests_aux.h"
-using namespace qif;
-
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
@@ -40,7 +14,7 @@ TYPED_TEST_CASE_P(MetricTestReals);		// tests that run only on double/float
 TYPED_TEST_P(MetricTest, Euclidean_uint) {
 	typedef TypeParam eT;
 
-	auto euclid = metrics::euclidean<eT, uint>();
+	auto euclid = metric::euclidean<eT, uint>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), euclid(3, 3));
 	EXPECT_PRED2(equal2<eT>, eT(5), euclid(0, 5));
@@ -50,13 +24,13 @@ TYPED_TEST_P(MetricTest, Euclidean_uint) {
 TYPED_TEST_P(MetricTest, Discrete) {
 	typedef TypeParam eT;
 
-	auto disc = metrics::discrete<eT, uint>();
+	auto disc = metric::discrete<eT, uint>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), disc(3, 3));
 	EXPECT_PRED2(equal2<eT>, eT(1), disc(0, 2));
 	EXPECT_PRED2(equal2<eT>, eT(1), disc(5, 0));
 
-	disc = metrics::discrete<eT, uint>(eT(100));
+	disc = metric::discrete<eT, uint>(eT(100));
 
 	EXPECT_PRED2(equal2<eT>, eT(0), disc(3, 3));
 	EXPECT_PRED2(equal2<eT>, eT(100), disc(0, 2));
@@ -66,8 +40,8 @@ TYPED_TEST_P(MetricTest, Discrete) {
 TYPED_TEST_P(MetricTest, Scale) {
 	typedef TypeParam eT;
 
-	auto scaled_euclid = metrics::scale(metrics::euclidean<eT, uint>(), eT(10));
-	auto scaled_disc   = metrics::scale(metrics::discrete <eT, uint>(), eT(10));
+	auto scaled_euclid = metric::scale(metric::euclidean<eT, uint>(), eT(10));
+	auto scaled_disc   = metric::scale(metric::discrete <eT, uint>(), eT(10));
 
 	EXPECT_PRED2(equal2<eT>, eT(0), scaled_euclid(3, 3));
 	EXPECT_PRED2(equal2<eT>, eT(50), scaled_euclid(0, 5));
@@ -82,7 +56,7 @@ TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 	typedef TypeParam eT;
 	typedef Point<eT> P;
 
-	auto euclid = metrics::euclidean<eT, P>();
+	auto euclid = metric::euclidean<eT, P>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
 	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
@@ -93,7 +67,7 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 	typedef TypeParam eT;
 	typedef Point<eT> P;
 
-	auto manh = metrics::manhattan<eT, P>();
+	auto manh = metric::manhattan<eT, P>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), manh(P(1, 1), P(1, 1)));
 	EXPECT_PRED2(equal2<eT>, eT(2), manh(P(0, 0), P(1, 1)));
@@ -103,8 +77,8 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 TYPED_TEST_P(MetricTestReals, Grid_point) {
 	typedef TypeParam eT;
 
-	auto grid_euclid = metrics::grid<eT, Point<eT>>(4);
-	auto grid_manh   = metrics::grid<eT, Point<eT>>(4, metrics::manhattan<eT, Point<eT>>());
+	auto grid_euclid = metric::grid<eT, Point<eT>>(4);
+	auto grid_manh   = metric::grid<eT, Point<eT>>(4, metric::manhattan<eT, Point<eT>>());
 
 	EXPECT_PRED2(equal2<eT>, eT(0),            grid_euclid(5, 5));
 	EXPECT_PRED2(equal2<eT>, std::sqrt(eT(2)), grid_euclid(0, 5));		// cell  5 is (1,1)
@@ -119,7 +93,7 @@ TYPED_TEST_P(MetricTest, Total_variation) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto tv = metrics::total_variation<eT, Prob<eT>>();
+	auto tv = metric::total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), tv(t.unif_4, t.unif_4));
 	EXPECT_PRED2(equal2<eT>, eT(0), tv(t.dirac_4, t.dirac_4));
@@ -131,7 +105,7 @@ TYPED_TEST_P(MetricTest, Bounded_entropy_distance) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto bed = metrics::bounded_entropy_distance<eT, Prob<eT>>();
+	auto bed = metric::bounded_entropy_distance<eT, Prob<eT>>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), bed(t.unif_4, t.unif_4));
 	EXPECT_PRED2(equal2<eT>, eT(0), bed(t.dirac_4, t.dirac_4));
@@ -147,7 +121,7 @@ TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto mtv = metrics::mult_total_variation<eT, Prob<eT>>();
+	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), mtv(t.unif_4, t.unif_4));
 	EXPECT_PRED2(equal2<eT>, eT(0), mtv(t.dirac_4, t.dirac_4));
@@ -163,11 +137,11 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto disc		= metrics::discrete<eT, uint>(),
-		 euclid		= metrics::euclidean<eT, uint>();
-	auto kant_disc	= metrics::kantorovich<eT, Prob<eT>>(disc),
-		 kant_euclid= metrics::kantorovich<eT, Prob<eT>>(euclid),
-		 tv			= metrics::total_variation<eT, Prob<eT>>();
+	auto disc		= metric::discrete<eT, uint>(),
+		 euclid		= metric::euclidean<eT, uint>();
+	auto kant_disc	= metric::kantorovich<eT, Prob<eT>>(disc),
+		 kant_euclid= metric::kantorovich<eT, Prob<eT>>(euclid),
+		 tv			= metric::total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0),   kant_disc(t.unif_4, t.unif_4));
 	EXPECT_PRED2(equal2<eT>, eT(0),   kant_disc(t.dirac_4, t.dirac_4));
@@ -204,11 +178,11 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto disc			= metrics::discrete<eT, uint>(infinity<eT>()),
-		 euclid			= metrics::euclidean<eT, uint>();
-	auto mkant_disc		= metrics::mult_kantorovich<eT, Prob<eT>>(disc),
-		 mkant_euclid	= metrics::mult_kantorovich<eT, Prob<eT>>(euclid),
-		 mtv			= metrics::mult_total_variation<eT, Prob<eT>>();
+	auto disc			= metric::discrete<eT, uint>(infinity<eT>()),
+		 euclid			= metric::euclidean<eT, uint>();
+	auto mkant_disc		= metric::mult_kantorovich<eT, Prob<eT>>(disc),
+		 mkant_euclid	= metric::mult_kantorovich<eT, Prob<eT>>(euclid),
+		 mtv			= metric::mult_total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0),              mkant_disc(t.unif_4,  t.unif_4));
 	EXPECT_PRED2(equal2<eT>, eT(0),              mkant_disc(t.dirac_4, t.dirac_4));

@@ -62,7 +62,7 @@ void create_l(string area, string dataset, string priv_metric, mat& L) {
 
 	} else {
 
-		Metric<double, uint> euclid = metrics::scale(metrics::grid<double, point>(grid_size), cell_width);
+		Metric<double, uint> euclid = metric::scale(metric::grid<double, point>(grid_size), cell_width);
 		for(uint i = 0; i < L.n_rows; i++)
 			for(uint j = i; j < L.n_cols; j++)
 				L.at(i, j) = L.at(j, i) = euclid(i, j);
@@ -82,7 +82,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 			dist.load("marco/metric/"+area+".dat");
 			dist.save("temp/metric-"+area+".bin");
 		}
-		Metric<double, uint> d = metrics::from_distance_matrix(dist);
+		Metric<double, uint> d = metric::from_distance_matrix(dist);
 
 
 		elastic = mechanisms::exponential(dist.n_rows, d);

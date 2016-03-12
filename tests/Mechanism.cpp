@@ -71,7 +71,7 @@ TYPED_TEST_P(MechanismTest, Reals) {
 	eT step = 1.1;
 	eT epsilon = 0.9;
 
-	auto d = metrics::scale(metrics::euclidean<eT, uint>(), step);
+	auto d = metric::scale(metric::euclidean<eT, uint>(), step);
 
 	Mechanism<eT> geom = mechanisms::geometric<eT>(size, step, epsilon);
 	Mechanism<eT> expon = mechanisms::exponential<eT>(size, d, epsilon);
@@ -95,7 +95,7 @@ TYPED_TEST_P(MechanismTest, Discrete) {
 	uint size = 5;
 	eT epsilon = 0.9;
 
-	auto d = metrics::discrete<eT, uint>();
+	auto d = metric::discrete<eT, uint>();
 
 	Mechanism<eT> tc = mechanisms::tight_constraints<eT>(size, d, epsilon);
 	Mechanism<eT> expon = mechanisms::exponential<eT>(size, d, 2*epsilon);
@@ -118,7 +118,7 @@ TYPED_TEST_P(MechanismTest, Grid) {
 	eT step = 1.1,
 	   epsilon = 0.9;
 
-	auto d = metrics::scale(metrics::grid<eT, Point<eT>>(width), step);
+	auto d = metric::scale(metric::grid<eT, Point<eT>>(width), step);
 
 	Mechanism<eT> laplace = mechanisms::planar_laplace_grid<eT>(width, height, step, epsilon);
 	Mechanism<eT> tc = mechanisms::tight_constraints<eT>(size, d, epsilon);
