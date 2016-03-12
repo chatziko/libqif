@@ -1,3 +1,13 @@
+
+
+// OBSOLETE
+//
+// Kostas:
+// old base class, before restructuring the code in namespaces.
+// Not used now, there might be useful code for plotting.
+
+
+
 /*! \class LeakageMeasure
  *  \brief A generic model of entropy that defines the basic function to compute and plot.
  *
