@@ -1,4 +1,4 @@
-namespace mechanisms {
+namespace mechanism {
 
 using std::cerr;
 using std::max;
@@ -86,12 +86,12 @@ grid_integration(uint width, uint height, eT step, eT epsilon) {
 
 
 template<typename eT>
-Mechanism<eT>
+Mech<eT>
 planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 
 	int size = width * height;
 
-	Mechanism<eT> mech;
+	Mech<eT> mech;
 	mech.d = metric::scale(metric::grid<eT, Point<eT>>(width), step);
 	mech.C = arma::zeros<Mat<eT>>(size, size);
 
@@ -126,5 +126,5 @@ planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 	return mech;
 }
 
-} // namespace mechanisms
+} // namespace mechanism
 

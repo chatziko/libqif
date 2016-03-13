@@ -19,7 +19,7 @@ double utility_to_epsilon(string dataset, string util_metric) {
 
 	double eps = util_metric == "euclidean"
 		? 2.0 / utility
-		: mechanisms::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
+		: mechanism::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
 
 	cout << "utility for " << dataset << "/" << util_metric << ": " << utility << ", eps: " << eps << "\n";
 
@@ -74,7 +74,7 @@ void create_l(string area, string dataset, string priv_metric, mat& L) {
 void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	string areadataset = area + "-" + dataset;
 
-	Mechanism<double> elastic;
+	Mech<double> elastic;
 	if(!elastic.C.load("temp/elastic-"+area+".bin")) {	
 
 		mat dist;
@@ -85,7 +85,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 		Metric<double, uint> d = metric::from_distance_matrix(dist);
 
 
-		elastic = mechanisms::exponential(dist.n_rows, d);
+		elastic = mechanism::exponential(dist.n_rows, d);
 		elastic.C.save("temp/elastic-"+area+".bin");
 
 		dist.reset();
@@ -124,10 +124,10 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 void compute_laplace_privacy(string area, string dataset, string priv_metric, double eps) {
 	string areadataset = area + "-" + dataset;
 
-	Mechanism<double> laplace;
+	Mech<double> laplace;
 	if(!laplace.C.load("temp/laplace-"+std::to_string(eps)+".bin")) {
 
-		laplace = mechanisms::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
+		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
 		laplace.C.save("temp/laplace-"+std::to_string(eps)+".bin");
 	}
 	uint n = laplace.C.n_rows;

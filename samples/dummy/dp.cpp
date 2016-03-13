@@ -10,9 +10,9 @@ void dp() {
 
 
 	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Mechanism<double> mechanism;
+	Mech<double> mechanism;
 	mechanism.C = channel_elements;
 
 	//this example asks with epsilon=0.05
-	std::cout << "is_private: " << mechanism.is_private(0.05) << "\n";
+	std::cout << "is_private: " << mechanism::is_private(mechanism, 0.05) << "\n";
 }

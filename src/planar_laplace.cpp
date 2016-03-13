@@ -8,7 +8,7 @@ extern "C" {
 
 
 namespace qif {
-namespace mechanisms {
+namespace mechanism {
 
 using std::max;
 using std::min;

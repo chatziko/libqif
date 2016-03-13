@@ -18,7 +18,7 @@ namespace qif {
 	#include "qif_bits/probab.h"
 	#include "qif_bits/channel.h"
 	#include "qif_bits/metric.h"
-	#include "qif_bits/Mechanism.h"
+	#include "qif_bits/mechanism.h"
 	#include "qif_bits/Graph.h"
 
 	#include "qif_bits/shannon.h"
@@ -27,7 +27,7 @@ namespace qif {
 	#include "qif_bits/loss.h"
 	#include "qif_bits/guessing.h"
 
-	#include "qif_bits/PlanarLaplace.h"
+	#include "qif_bits/planar_laplace.h"
 	#include "qif_bits/utility.h"
 }
 

@@ -36,6 +36,16 @@ typedef Mat<rat>     rmat;
 typedef Col<rat>  rcolvec;
 typedef Row<rat>  rrowvec;
 
+// R: result type, what we measure distances in
+// T: metric space type, what elements we measure the distance of
+//
+template<typename R, typename T> using Metric = std::function<R(const T&, const T&)>;
+
+template<typename eT>
+struct Mech {
+	Chan<eT> C;
+	Metric<eT, uint> d;
+};
 
 template<typename eT>
 struct Point {
@@ -54,9 +64,4 @@ struct is_Point<Point<eT>> { typedef eT elem_type; static const bool value = tru
 typedef Point<double> point;
 typedef Point<float> fpoint;
 typedef Point<rat>   rpoint;
-
-// R: result type, what we measure distances in
-// T: metric space type, what elements we measure the distance of
-//
-template<typename R, typename T> using Metric = std::function<R(const T&, const T&)>;
 
