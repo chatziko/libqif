@@ -223,5 +223,5 @@ int main() {
 //		cout << (1 - me.vulnerability(pi % pois)) << ", ";
 
 //		cout << (1 - me.cond_vulnerability(pi % pois)) << ", ";
-//		cout << utility::expected_distance<double>(elastic.C, pi, Euclid) << "\n";
+//		cout << utility::expected_distance<double>(Euclid, pi, elastic.C) << "\n";
 //	}
