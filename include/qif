@@ -3,6 +3,7 @@
 
 #include <functional>	// std::function
 #include <armadillo>
+#include <set>
 
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
@@ -15,11 +16,11 @@ namespace qif {
 	#include "qif_bits/aux.h"
 
 	#include "qif_bits/LinearProgram.h"
+	#include "qif_bits/Graph.h"
+
 	#include "qif_bits/probab.h"
 	#include "qif_bits/channel.h"
 	#include "qif_bits/metric.h"
-	#include "qif_bits/mechanism.h"
-	#include "qif_bits/Graph.h"
 
 	#include "qif_bits/shannon.h"
 	#include "qif_bits/bayes.h"
@@ -27,7 +28,10 @@ namespace qif {
 	#include "qif_bits/loss.h"
 	#include "qif_bits/guessing.h"
 
+	#include "qif_bits/mechanism.h"
+	#include "qif_bits/mech_optimal.h"
 	#include "qif_bits/planar_laplace.h"
+
 	#include "qif_bits/utility.h"
 }
 
