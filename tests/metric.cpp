@@ -40,8 +40,8 @@ TYPED_TEST_P(MetricTest, Discrete) {
 TYPED_TEST_P(MetricTest, Scale) {
 	typedef TypeParam eT;
 
-	auto scaled_euclid = metric::scale(metric::euclidean<eT, uint>(), eT(10));
-	auto scaled_disc   = metric::scale(metric::discrete <eT, uint>(), eT(10));
+	auto scaled_euclid = eT(10) * metric::euclidean<eT, uint>();
+	auto scaled_disc   = eT(10) * metric::discrete <eT, uint>();
 
 	EXPECT_PRED2(equal2<eT>, eT(0), scaled_euclid(3, 3));
 	EXPECT_PRED2(equal2<eT>, eT(50), scaled_euclid(0, 5));

@@ -62,7 +62,7 @@ void create_l(string area, string dataset, string priv_metric, mat& L) {
 
 	} else {
 
-		Metric<double, uint> euclid = metric::scale(metric::grid<double, point>(grid_size), cell_width);
+		Metric<double, uint> euclid = cell_width * metric::grid<double, point>(grid_size);
 		for(uint i = 0; i < L.n_rows; i++)
 			for(uint j = i; j < L.n_cols; j++)
 				L.at(i, j) = L.at(j, i) = euclid(i, j);

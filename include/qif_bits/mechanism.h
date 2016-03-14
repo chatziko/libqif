@@ -10,7 +10,7 @@ geometric(uint n, eT step = eT(1), eT epsilon = eT(1)) {
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
-	mech.d = metric::scale(metric::euclidean<eT, uint>(), step);
+	mech.d = step * metric::euclidean<eT, uint>();
 	mech.C.set_size(n, n);
 
 	for(uint j = 0; j < n; j++) {

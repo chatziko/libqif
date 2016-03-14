@@ -245,3 +245,9 @@ mult_kantorovich(Metric<R, uint> d) {
 
 } // namespace metric
 
+template<typename R, typename T>
+Metric<R, T>
+operator*(R coeff, const Metric<R, T>& d) {
+    return metric::scale(d, coeff);
+}
+
