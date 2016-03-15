@@ -1,3 +1,4 @@
+// vim: syntax=cpp
 #ifndef _QIF_qif_h_
 #define _QIF_qif_h_
 
@@ -7,9 +8,6 @@
 
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
-
-// rat.h patches stuff in the arma namespace, needs to be outside qif
-#include "qif_bits/rat.h"
 
 namespace qif {
 	#include "qif_bits/types.h"
@@ -35,6 +33,8 @@ namespace qif {
 	#include "qif_bits/utility.h"
 }
 
+// patchs the arma namespace to rupport rat, needs to be outside qif
+#include "qif_bits/arma_rat.h"
 
 
 #endif

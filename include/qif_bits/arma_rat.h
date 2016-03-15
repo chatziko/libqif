@@ -1,6 +1,5 @@
-
-typedef mpq_class rat;
-
+using qif::rat;
+using qif::uint;
 
 // armadillo internal voodoo to make it play well with rat
 //
