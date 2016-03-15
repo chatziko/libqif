@@ -24,7 +24,7 @@ double planar_laplace_pdf(double *x, size_t, void *) {
 }
 
 double inverse_cumulative_gamma(double epsilon, double p) {
-	double x = (p-1) / M_El;
+	double x = (p-1) / arma::Datum<double>::e;
 	return - (gsl_sf_lambert_Wm1(x) + 1) / epsilon;
 }
 
@@ -43,7 +43,7 @@ double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b,
 	}
 
 	_epsilon = epsilon;
-	_coeff = (_epsilon * _epsilon) / (2 * M_PIl);
+	_coeff = (_epsilon * _epsilon) / (2 * arma::Datum<double>::pi);
 
 	double res, err;
 
