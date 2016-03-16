@@ -78,5 +78,13 @@ namespace arma {
 	eop_aux::arma_abs<rat>(const rat x) {
 		return x < rat(0) ? -x : x;
 	}
+
+	// in clang the cxx98 rng is used, and randn fails for rats
+	template<>
+	inline
+	void
+	arma_rng_cxx98::randn_dual_val(rat&, rat&) {
+		throw std::runtime_error("randn not implemented for rat");
+	}
 }
 
