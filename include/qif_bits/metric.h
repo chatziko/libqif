@@ -1,7 +1,6 @@
-
 namespace metric {
 
-template<typename R, typename T, EnableIf<std::is_arithmetic<T>>...>
+template<typename R, typename T, EnableIf<std::is_arithmetic<T>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
@@ -25,7 +24,7 @@ scale(Metric<R, T> d, R coeff) {
 	};
 }
 
-template<typename R, typename T, EnableIf<is_Point<T>>...>
+template<typename R, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
@@ -35,7 +34,7 @@ euclidean() {
 	};
 }
 
-template<typename R, typename T, EnableIf<is_Point<T>>...>
+template<typename R, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 manhattan() {
 	return [](const T& a, const T& b) -> R {
@@ -58,7 +57,7 @@ from_distance_matrix(Mat<R>& M) {
 //
 // Note: PT is the point type. The metric space type (denoted by T above) is fixed to uint
 //
-template<typename R, typename PT, EnableIf<is_Point<PT>>...>
+template<typename R, typename PT, EnableIf<is_Point<PT>> = _>
 Metric<R, uint>
 grid(uint width, Metric<R, PT> d = metric::euclidean<R, PT>()) {
 	return [width, d](const uint& a, const uint& b) -> R {
@@ -69,7 +68,7 @@ grid(uint width, Metric<R, PT> d = metric::euclidean<R, PT>()) {
 
 //////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
 
-template<typename R, typename T, EnableIf<is_Prob<T>>...>
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
 total_variation() {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
@@ -81,7 +80,7 @@ total_variation() {
 	};
 }
 
-template<typename R, typename T, EnableIf<is_Prob<T>>...>
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
 mult_total_variation() {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
@@ -110,7 +109,7 @@ mult_total_variation() {
 	};
 }
 
-template<typename R, typename T, EnableIf<is_Prob<T>>...>
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
 bounded_entropy_distance() {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
@@ -135,7 +134,7 @@ bounded_entropy_distance() {
 // kantorovich through linear programming
 // WISHLIST: faster method: jorlin.scripts.mit.edu/docs/publications/26-faster strongly polynomial.pdf
 //
-template<typename R, typename T, EnableIf<is_Prob<T>>...>
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
 kantorovich(Metric<R, uint> d) {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
@@ -181,7 +180,7 @@ kantorovich(Metric<R, uint> d) {
 
 // multiplicative kantorovich through linear programming
 //
-template<typename R, typename T, EnableIf<is_Prob<T>>...>
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
 mult_kantorovich(Metric<R, uint> d) {
 	// we need to solve 2 linear programs, with the role of a, b exchanged. one_side solves one of them.
