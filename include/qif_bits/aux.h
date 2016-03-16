@@ -1,3 +1,11 @@
+
+// for debugging define values
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
+//#pragma message(VAR_NAME_VALUE(ARMA_USE_CXX11))
+
+
 const double  inf = std::numeric_limits<double>::infinity();
 const float  finf = std::numeric_limits<float>::infinity();
 
