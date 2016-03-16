@@ -47,7 +47,33 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/CMakeLists.txt")
 	add_dependencies(allcode tests)
 endif()
 
+# installation
+#
+if(NOT INSTALL_LIB_DIR) # Allow for the "lib" directory to be specified on the command line
+  set(INSTALL_LIB_DIR "lib")
+  if(UNIX AND NOT APPLE)   # I don't know how Mac OS handles 64 bit systems
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      message(STATUS "*** Detected 64 bit system")
+      # use "lib64" only on systems that have it (eg. Fedora, Red Hat).
+      # if installing in /usr/local/, the use of lib64 might be unreliable on systems which have /usr/local/lib64 but don't use it
+      if(IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib64")
+        unset(INSTALL_LIB_DIR)
+        set(INSTALL_LIB_DIR "lib64")
+        message(STATUS "*** ${CMAKE_INSTALL_PREFIX}/lib64/ exists, so destination directory for the run-time library changed to ${CMAKE_INSTALL_PREFIX}/lib64/")
+        message(STATUS "*** Your system and/or compiler must search ${CMAKE_INSTALL_PREFIX}/lib64/ during linking")
+      endif()
+    endif()
+  endif()
+endif()
 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
+	PATTERN "precompiled*.h" EXCLUDE
+	PATTERN "tests_aux.h" EXCLUDE
+	PATTERN "_*" EXCLUDE)
+
+install(TARGETS qif
+	ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+	LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
 # Print all variables
 if(VERBOSE)
