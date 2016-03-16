@@ -4,11 +4,19 @@ project(libqif)
 
 include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
 
+# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release)										# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
+	set(CMAKE_BUILD_TYPE Release)
 endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-add_definitions(-std=c++11 -Wall -Wextra -pedantic)											# common flags
+# compiler flags
+#
+add_definitions(-std=c++11 -Wall -Wextra -pedantic)						# common flags
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	message(STATUS "Clang compiler on MacOS X detected. Added '-stdlib=libc++' to compiler flags")
+endif()
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -DARMA_NO_DEBUG")		# Release flags
 
 include_directories(include)
