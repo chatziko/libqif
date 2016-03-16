@@ -17,31 +17,31 @@ TYPED_TEST_P(GainTest, Vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, eT(5)/10, g::vulnerability(t.id_2, t.unif_2));
-	EXPECT_PRED2(equal2<eT>, eT(1)/10, g::vulnerability(t.id_10, t.unif_10));
-	EXPECT_PRED2(equal2<eT>, 1,        g::vulnerability(t.id_4, t.dirac_4));
-	EXPECT_PRED2(equal2<eT>, eT(8)/10, g::vulnerability(t.id_2, t.pi1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5)/10, g::vulnerability(t.id_2, t.unif_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, g::vulnerability(t.id_10, t.unif_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::vulnerability(t.id_4, t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(8)/10, g::vulnerability(t.id_2, t.pi1));
 }
 
 TYPED_TEST_P(GainTest, Cond_vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.unif_2, t.id_2));
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.dirac_2, t.id_2));
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.pi1, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_2, t.pi1, t.id_2));
 	
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.unif_10, t.id_10));
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.dirac_10, t.id_10));
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.pi2, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.pi2, t.id_10));
 	
-	EXPECT_PRED2(equal2<eT>, eT(1)/10, g::post_vulnerability(t.id_10, t.unif_10, t.noint_10));
-	EXPECT_PRED2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, g::post_vulnerability(t.id_10, t.unif_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        g::post_vulnerability(t.id_10, t.dirac_10, t.noint_10));
 
-	EXPECT_PRED2(equal2<eT>, g::vulnerability(t.id_10, t.pi2), g::post_vulnerability(t.id_10, t.pi2, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, g::vulnerability(t.id_10, t.pi2), g::post_vulnerability(t.id_10, t.pi2, t.noint_10));
 
-	EXPECT_PRED2(equal2<eT>, g::vulnerability(t.id_2, t.pi3), g::post_vulnerability(t.id_2, t.pi3, t.c1)); // no change in entropy
-	EXPECT_PRED2(equal2<eT>, eT(31)/40, g::post_vulnerability(t.id_2, t.pi4, t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, g::vulnerability(t.id_2, t.pi3), g::post_vulnerability(t.id_2, t.pi3, t.c1)); // no change in entropy
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(31)/40, g::post_vulnerability(t.id_2, t.pi4, t.c1));
 
 	ASSERT_ANY_THROW(g::post_vulnerability(t.id_10, t.unif_2, t.id_10));
 }
@@ -51,10 +51,10 @@ TYPED_TEST_P(GainTestReals, Mulg_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED2(equal2<eT>, 1,              g::mulg_leakage(t.id_2, t.unif_2, t.id_2));
-	EXPECT_PRED2(equal2<eT>, qif::log2(10),  g::mulg_leakage(t.id_10, t.unif_10, t.id_10));
-	EXPECT_PRED2(equal2<eT>, 0,              g::mulg_leakage(t.id_10, t.unif_10, t.noint_10));
-	EXPECT_PRED2(equal2<eT>, qif::log2(1.5), g::mulg_leakage(t.id_2, t.unif_2, t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,              g::mulg_leakage(t.id_2, t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10),  g::mulg_leakage(t.id_10, t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,              g::mulg_leakage(t.id_10, t.unif_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), g::mulg_leakage(t.id_2, t.unif_2, t.c1));
 }
 
 // run the GainTest test-case for all types, and the GainTestReals only for double/float

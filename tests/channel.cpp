@@ -99,7 +99,7 @@ TYPED_TEST_P(ChanTest, Factorize) {
 
 	expect_channel(m, n, X1);
 	return;
-	EXPECT_PRED4(channel::equal<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
 
 	// factorize_lp
 	//
@@ -114,7 +114,7 @@ TYPED_TEST_P(ChanTest, Factorize) {
 		Z2 = B * X2;
 
 	expect_channel(m, n, X2);
-	EXPECT_PRED2(chan_equal2<eT>, A, Z2);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, A, Z2);
 }
 
 TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
@@ -137,7 +137,7 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 		Z = B * X;
 
 	expect_channel(m, n, X);
-	EXPECT_PRED4(channel::equal<eT>, A, Z, 1e-4, 0);
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 
 	// the following matrices cause the S matrix of the subgradient method to contain inf, causing X to contain -nan
 	//
@@ -150,7 +150,7 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 	Z = B * X;
 
 	expect_channel(3, 2, X);
-	EXPECT_PRED4(channel::equal<eT>, A, Z, 1e-4, 0);
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 }
 
 

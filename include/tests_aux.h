@@ -68,33 +68,62 @@ class BaseTest : public ::testing::Test {
 };
 
 
-// this is used with EXPECT_PRED2, cause 'equal' takes 4 arguments
+// for use with EXPECT_PRED_FORMATN
 //
 template<typename eT>
-inline bool equal2(const eT& x, const eT& y) {
-	return equal<eT>(x, y);
+inline ::testing::AssertionResult equal2(const char* x_expr, const char* y_expr, const eT& x, const eT& y) {
+	return equal<eT>(x, y)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " and " << y_expr << " are not equal";
 }
 
 template<typename eT>
-inline bool chan_equal2(const Chan<eT>& x, const Chan<eT>& y) {
-	return channel::equal<eT>(x, y);
+inline ::testing::AssertionResult equal4(const char* x_expr, const char* y_expr, const char* md_expr, const char* mrd_expr, const eT& x, const eT& y, const eT& md, const eT& mrd) {
+	return equal<eT>(x, y, md, mrd)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " and " << y_expr << " are not equal (md: " << md_expr << ", mrd: " << mrd_expr << ")";
 }
 
 template<typename eT>
-inline bool prob_is_proper1(const Prob<eT>& x) {
-	return probab::is_proper<eT>(x);
+inline ::testing::AssertionResult chan_equal2(const char* x_expr, const char* y_expr, const Chan<eT>& x, const Chan<eT>& y) {
+	return channel::equal<eT>(x, y)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal";
 }
 
 template<typename eT>
-inline bool chan_is_proper1(const Chan<eT>& x) {
-	return channel::is_proper<eT>(x);
+inline ::testing::AssertionResult chan_equal4(const char* x_expr, const char* y_expr, const char* md_expr, const char* mrd_expr, const Chan<eT>& x, const Chan<eT>& y, const eT& md, const eT& mrd) {
+	return channel::equal<eT>(x, y, md, mrd)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal with md: " << md_expr << ", mrd: " << mrd_expr;
+}
+
+template<typename eT>
+inline ::testing::AssertionResult prob_is_proper1(const char* x_expr, const Prob<eT>& x) {
+	return probab::is_proper<eT>(x)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution";
+}
+
+template<typename eT>
+inline ::testing::AssertionResult chan_is_proper1(const char* x_expr, const Chan<eT>& x) {
+	return channel::is_proper<eT>(x)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " is not a proper channel";
+}
+
+template<typename eT>
+inline ::testing::AssertionResult chan_is_proper2(const char* x_expr, const char* mrd_expr, const Chan<eT>& x, const eT& mrd) {
+	return channel::is_proper<eT>(x, mrd)
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " is not a proper channel (mrd: " << mrd_expr << ")";
 }
 
 
 template<typename eT>
 void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
-	EXPECT_PRED2(chan_equal2<eT>, m, c);
-	EXPECT_PRED1(chan_is_proper1<eT>, c);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, m, c);
+	EXPECT_PRED_FORMAT1(chan_is_proper1<eT>, c);
 }
 
 template<typename eT>
@@ -107,7 +136,7 @@ void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
 	EXPECT_EQ(rn, c.n_rows);
 	EXPECT_EQ(cn, c.n_cols);
 
-	EXPECT_PRED1(chan_is_proper1<eT>, c);
+	EXPECT_PRED_FORMAT1(chan_is_proper1<eT>, c);
 }
 
 
@@ -116,9 +145,9 @@ void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
 	EXPECT_EQ(m.n_cols, p.n_cols);
 
 	for(uint j = 0; j < p.n_cols; j++)
-		EXPECT_PRED2(equal2<eT>, m.at(j), p.at(j));
+		EXPECT_PRED_FORMAT2(equal2<eT>, m.at(j), p.at(j));
 
-	EXPECT_PRED1(prob_is_proper1<eT>, p);
+	EXPECT_PRED_FORMAT1(prob_is_proper1<eT>, p);
 }
 
 template<typename eT>
@@ -130,7 +159,7 @@ template<typename eT>
 void expect_prob(uint cn, const Prob<eT>& p) {
 	EXPECT_EQ(cn, p.n_cols);
 
-	EXPECT_PRED1(prob_is_proper1<eT>, p);
+	EXPECT_PRED_FORMAT1(prob_is_proper1<eT>, p);
 }
 
 
@@ -141,7 +170,7 @@ void expect_mat(const Mat<eT>& m, const Mat<eT>& c, const eT& md = def_max_diff<
 
 	for(uint i = 0; i < c.n_rows; i++)
 		for(uint j = 0; j < c.n_cols; j++)
-			EXPECT_PRED4(equal<eT>, m.at(i, j), c.at(i, j), md, mrd);
+			EXPECT_PRED_FORMAT4(equal4<eT>, m.at(i, j), c.at(i, j), md, mrd);
 }
 
 template<typename eT>

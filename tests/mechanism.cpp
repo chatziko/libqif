@@ -35,13 +35,13 @@ TYPED_TEST_P(MechTest, Smallest_epsilon) {
 	mech.d = metric::euclidean<eT, uint>();
 
 	mech.C = t.noint_10;
-	EXPECT_PRED2(equal2<eT>, eT(0), smallest_epsilon(mech));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), smallest_epsilon(mech));
 
 	mech.C = t.id_10;
-	EXPECT_PRED2(equal2<eT>, infinity<eT>(), smallest_epsilon(mech));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), smallest_epsilon(mech));
 
 	mech.C = t.c1;
-	EXPECT_PRED2(equal2<eT>, std::log(7.0/2), smallest_epsilon(mech));
+	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(7.0/2), smallest_epsilon(mech));
 }
 
 TYPED_TEST_P(MechTest, Reals) {
@@ -60,11 +60,11 @@ TYPED_TEST_P(MechTest, Reals) {
 	expect_channel(size, size, geom.C);
 	EXPECT_TRUE(is_private(geom, epsilon));
 	EXPECT_FALSE(is_private(geom, epsilon - eT(0.01)));
-	EXPECT_PRED2(equal2<eT>, epsilon, smallest_epsilon(geom));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom));
 
 	expect_channel(size, size, expon.C);
 	EXPECT_TRUE(is_private(expon, epsilon));
-	EXPECT_PRED2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon));
 
 	expect_channel(geom.C, tc.C);
 }
@@ -83,10 +83,10 @@ TYPED_TEST_P(MechTest, Discrete) {
 	expect_channel(size, size, tc.C);
 	EXPECT_TRUE(is_private(tc, epsilon));
 	EXPECT_FALSE(is_private(tc, epsilon - eT(0.01)));
-	EXPECT_PRED2(equal2<eT>, epsilon, smallest_epsilon(tc));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc));
 
 	// the exponential mechanism with 2*epsilon should be the same as the tight constraints
-	EXPECT_PRED2(chan_equal2<eT>, expon.C, tc.C);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon.C, tc.C);
 }
 
 TYPED_TEST_P(MechTest, Grid) {
@@ -107,16 +107,16 @@ TYPED_TEST_P(MechTest, Grid) {
 	expect_channel(size, size, tc.C);
 	EXPECT_TRUE(is_private(tc, epsilon));
 	EXPECT_FALSE(is_private(tc, epsilon - eT(0.01)));
-	EXPECT_PRED2(equal2<eT>, epsilon, smallest_epsilon(tc));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc));
 
 	// for the planar laplace, the accuracy that we get through numeric integration is not that great
-	EXPECT_PRED2(channel::is_proper<eT>, laplace.C, eT(1e-3));
+	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace.C, eT(1e-3));
 	EXPECT_TRUE(is_private(laplace, epsilon));
-	EXPECT_PRED4(equal<eT>, 0.8844, smallest_epsilon(laplace), 0, eT(1e-3));
+	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace), 0, eT(1e-3));
 
 	expect_channel(size, size, expon.C);
 	EXPECT_TRUE(is_private(expon, epsilon));
-	EXPECT_PRED2(equal2<eT>, 0.58945591528726249, smallest_epsilon(expon));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.58945591528726249, smallest_epsilon(expon));
 }
 
 
