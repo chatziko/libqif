@@ -47,8 +47,8 @@ int main() {
 	std::cout << "eps: ln(" << alpha << ")\n";
 	std::cout << "size: " << width << "x" << height << "\n";
 
-	auto geo_d = cell_size * metric::euclidean<double, Point<double>>();
-//	auto geo_d = cell_size * metric::manhattan<double, Point<double>>();
+	auto geo_d = cell_size * metric::euclidean<double, Point<uint>>();
+//	auto geo_d = cell_size * metric::manhattan<double, Point<uint>>();
 
 	auto dx = metric::grid(width, geo_d);		// distance on grid from distance on points
 	auto loss = dx;

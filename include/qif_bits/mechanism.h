@@ -81,6 +81,9 @@ bool is_private(const Mech<eT>& m, eT epsilon) {
 
 	for(uint i = 0; i < m.C.n_rows; i++) {
 		for(uint j = i+1; j < m.C.n_rows; j++) {
+			// non-adjacent elements are redundant to check
+			if(!m.d.is_adjacent(i, j)) continue;
+
 			eT mp = mtv(m.C.row(i), m.C.row(j));
 
 			if(!less_than_or_eq(mp, epsilon * m.d(i, j)))
@@ -97,6 +100,9 @@ eT smallest_epsilon(const Mech<eT>& m) {
 	eT res(0);
 	for(uint i = 0; i < m.C.n_rows; i++) {
 		for(uint j = i+1; j < m.C.n_rows; j++) {
+			// non-adjacent elements are redundant to check
+			if(!m.d.is_adjacent(i, j)) continue;
+
 			eT ratio = mtv(m.C.row(i), m.C.row(j)) / m.d(i, j);
 			if(less_than(res, ratio))
 				res = ratio;

@@ -92,7 +92,7 @@ planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 	int size = width * height;
 
 	Mech<eT> mech;
-	mech.d = step * metric::grid<eT, Point<eT>>(width);
+	mech.d = step * metric::grid<eT>(width);
 	mech.C = arma::zeros<Mat<eT>>(size, size);
 
 	int cx = width - 1;

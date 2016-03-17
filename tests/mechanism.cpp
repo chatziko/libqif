@@ -98,7 +98,7 @@ TYPED_TEST_P(MechTest, Grid) {
 	eT step = 1.1,
 	   epsilon = 0.9;
 
-	auto d = step * metric::grid<eT, Point<eT>>(width);
+	auto d = step * metric::grid<eT>(width);
 
 	Mech<eT> laplace = mechanism::planar_laplace_grid<eT>(width, height, step, epsilon);
 	Mech<eT> tc = mechanism::tight_constraints<eT>(size, d, epsilon);

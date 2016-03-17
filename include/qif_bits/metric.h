@@ -1,6 +1,13 @@
 namespace metric {
 
-template<typename R, typename T, EnableIf<std::is_arithmetic<T>> = _>
+// NOTE ON ADJACENCY
+// is_adjacent(a, b) should return false only if there is a path a = e_1, ..., e_n = b
+// such that d(a, b) = sum_i d(e_i, e_i+1).
+// Returning true is safe if we cannot guarantee this path, and is the default if is_adjacent is not defined.
+
+
+// Euclidean on arithmetic T except uint
+template<typename R, typename T, EnableIf<std::is_arithmetic<T>> = _, DisableIf<std::is_same<T, uint>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
@@ -8,23 +15,43 @@ euclidean() {
 	};
 }
 
+// on uint's (discrete space, particularly useful for measuring distances
+// between channel inputs), only consecutive elements are adjacent
+//
+template<typename R, typename T, EnableIf<std::is_same<T, uint>> = _>
+Metric<R, T>
+euclidean() {
+	Metric<R, T> d = [](const T& a, const T& b) -> R {
+		return abs_diff(a, b);
+	};
+	d.is_adjacent = [](const T& a, const T& b) -> bool {
+		return abs_diff(a, b) == 1;
+	};
+	return d;
+}
+
 template<typename R, typename T>
 Metric<R, T>
-discrete(R val = R(1)) {
-	return [val](const T& a, const T& b) -> R {
-		return equal(a, b) ? R(0) : val;
+discrete() {
+	return [](const T& a, const T& b) -> R {
+		return R(equal(a, b) ? 0 : 1);
 	};
 }
 
 template<typename R, typename T>
 Metric<R, T>
 scale(Metric<R, T> d, R coeff) {
-	return [d, coeff](const T& a, const T& b) -> R {
-		return coeff * d(a, b);
+	Metric<R, T> d2 = [d, coeff](const T& a, const T& b) -> R {
+		// separate treatment of 0 allows to scale by infinity and still get d(x,x) == 0
+		R r = d(a, b);
+		if(r != R(0)) r *= coeff;
+		return r;
 	};
+	d2.is_adjacent = d.is_adjacent;
+	return d2;
 }
 
-template<typename R, typename T, EnableIf<is_Point<T>> = _>
+template<typename R, typename T, EnableIf<is_Point<T>> = _, DisableIf<std::is_same<T, Point<uint>>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
@@ -34,12 +61,46 @@ euclidean() {
 	};
 }
 
-template<typename R, typename T, EnableIf<is_Point<T>> = _>
+// Euclidean distance on discrete (uint) points. The only _non_-adjacent points
+// are on the same line or diagonal, and at index difference more than one
+//
+template<typename R, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
+Metric<R, T	>
+euclidean() {
+	Metric<R, T> d = [](const T& a, const T& b) -> R {
+		uint v1 = abs_diff(a.x, b.x),
+			 v2 = abs_diff(a.y, b.y);
+		return std::sqrt(v1*v1 + v2*v2);
+	};
+	d.is_adjacent = [](const T& a, const T& b) -> bool {
+		uint v1 = abs_diff(a.x, b.x),
+			 v2 = abs_diff(a.y, b.y);
+		return !(v1 == 0 || v2 == 0 || v1 == v2) || (v1 <= 1 && v2 <= 1);
+	};
+	return d;
+}
+
+template<typename R, typename T, EnableIf<is_Point<T>> = _, DisableIf<std::is_same<T, Point<uint>>> = _>
 Metric<R, T>
 manhattan() {
 	return [](const T& a, const T& b) -> R {
 		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
 	};
+}
+
+// Mahattan distance on discrete (uint) points. The only _adjacent_ points
+// are those whose index differs by at most 1
+//
+template<typename R, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
+Metric<R, T>
+manhattan() {
+	Metric<R, T> d = [](const T& a, const T& b) -> R {
+		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
+	};
+	d.is_adjacent = [](const T& a, const T& b) -> bool {
+		return abs_diff(a.x, b.x) <= 1 && abs_diff(a.y, b.y) <= 1;
+	};
+	return d;
 }
 
 template<typename R>
@@ -50,19 +111,23 @@ from_distance_matrix(Mat<R>& M) {
 	};
 }
 
-// transform a metric on points to a metric on indexes on a grid of the given width.
+// transform a metric on Point<uint> to a metric on indexes (uint) on a grid of the given width.
 // The cell of index 0 is (0,0) (bottom left), and the cell of index i
 // is (i%width, i/width).
 // The step is fixed to 1, for a different step just scale the resulting metric
 //
-// Note: PT is the point type. The metric space type (denoted by T above) is fixed to uint
+// Note: The metric space type (denoted by T above) is fixed to uint
 //
-template<typename R, typename PT, EnableIf<is_Point<PT>> = _>
+template<typename R>
 Metric<R, uint>
-grid(uint width, Metric<R, PT> d = metric::euclidean<R, PT>()) {
-	return [width, d](const uint& a, const uint& b) -> R {
-		return d( PT(a%width, a/width), PT(b%width, b/width) );
+grid(uint width, Metric<R, Point<uint>> d = metric::euclidean<R, Point<uint>>()) {
+	Metric<R, uint> d2 = [width, d](const uint& a, const uint& b) -> R {
+		return d( Point<uint>(a%width, a/width), Point<uint>(b%width, b/width) );
 	};
+	d2.is_adjacent = [width, d](const uint& a, const uint& b) -> bool {
+		return d.is_adjacent( Point<uint>(a%width, a/width), Point<uint>(b%width, b/width) );
+	};
+	return d2;
 }
 
 

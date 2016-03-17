@@ -6,7 +6,8 @@
 enum class enabled { _ };
 constexpr auto _ = enabled::_;
 template <typename T> using Invoke = typename T::type;
-template <typename Condition> using EnableIf = Invoke<std::enable_if< Condition::value, enabled >>;
+template <typename Condition> using EnableIf  = Invoke<std::enable_if<  Condition::value, enabled >>;
+template <typename Condition> using DisableIf = Invoke<std::enable_if< !Condition::value, enabled >>;
 
 typedef uint32_t uint;
 typedef mpq_class rat;
@@ -35,7 +36,14 @@ typedef Row<rat>  rrowvec;
 // Metric
 // R: result type, what we measure distances in
 // T: metric space type, what elements we measure the distance of
-template<typename R, typename T> using Metric = std::function<R(const T&, const T&)>;
+template<typename R, typename T>
+class Metric : public std::function<R(const T&, const T&)> {
+	public:
+	std::function<bool(const T&, const T&)> is_adjacent =
+		[](const T&, const T&) -> bool { return true; };		// safe default, see metric.h
+
+	using std::function<R(const T&, const T&)>::function;
+};
 
 // Mech
 template<typename eT>
@@ -53,6 +61,10 @@ struct Point {
 
 	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
 };
+template<typename eT>
+std::ostream& operator<<(std::ostream& os, const Point<eT>& p) {
+	return os << '(' << p.x << ',' << p.y << ')';
+}
 
 typedef Point<double> point;
 typedef Point<float> fpoint;

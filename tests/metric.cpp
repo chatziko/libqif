@@ -19,6 +19,10 @@ TYPED_TEST_P(MetricTest, Euclidean_uint) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5), euclid(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5), euclid(5, 0));
+
+	EXPECT_TRUE(euclid.is_adjacent(0, 1));
+	EXPECT_TRUE(euclid.is_adjacent(5, 6));
+	EXPECT_FALSE(euclid.is_adjacent(0, 5));
 }
 
 TYPED_TEST_P(MetricTest, Discrete) {
@@ -29,12 +33,8 @@ TYPED_TEST_P(MetricTest, Discrete) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), disc(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), disc(0, 2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), disc(5, 0));
-
-	disc = metric::discrete<eT, uint>(eT(100));
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), disc(3, 3));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(100), disc(0, 2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(100), disc(5, 0));
+	EXPECT_TRUE(disc.is_adjacent(0, 1));
+	EXPECT_TRUE(disc.is_adjacent(0, 2));
 }
 
 TYPED_TEST_P(MetricTest, Scale) {
@@ -46,10 +46,15 @@ TYPED_TEST_P(MetricTest, Scale) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), scaled_euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(50), scaled_euclid(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(50), scaled_euclid(5, 0));
+	EXPECT_TRUE(scaled_euclid.is_adjacent(0, 1));
+	EXPECT_TRUE(scaled_euclid.is_adjacent(5, 6));
+	EXPECT_FALSE(scaled_euclid.is_adjacent(0, 5));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), scaled_disc(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(10), scaled_disc(0, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(10), scaled_disc(5, 0));
+	EXPECT_TRUE(scaled_disc.is_adjacent(0, 1));
+	EXPECT_TRUE(scaled_disc.is_adjacent(0, 2));
 }
 
 TYPED_TEST_P(MetricTestReals, Euclidean_point) {
@@ -61,6 +66,9 @@ TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), euclid(P(2, 3), P(1, 1)));
+
+	EXPECT_TRUE(euclid.is_adjacent(P(0, 0), P(1, 1)));
+	EXPECT_TRUE(euclid.is_adjacent(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTest, Manhattan_point) {
@@ -72,21 +80,36 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), manh(P(1, 1), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), manh(P(0, 0), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), manh(P(2, 3), P(1, 1)));
+
+	EXPECT_TRUE(manh.is_adjacent(P(0, 0), P(1, 1)));
+	EXPECT_TRUE(manh.is_adjacent(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTestReals, Grid_point) {
 	typedef TypeParam eT;
 
-	auto grid_euclid = metric::grid<eT, Point<eT>>(4);
-	auto grid_manh   = metric::grid<eT, Point<eT>>(4, metric::manhattan<eT, Point<eT>>());
+	auto grid_euclid = metric::grid<eT>(4);
+	auto grid_manh   = metric::grid<eT>(4, metric::manhattan<eT, Point<uint>>());
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            grid_euclid(5, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), grid_euclid(0, 5));		// cell  5 is (1,1)
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), grid_euclid(11, 5));		// cell 11 is (2,3)
 
+	EXPECT_TRUE (grid_euclid.is_adjacent(0, 5));								// cell  5 is (1,1)
+	EXPECT_TRUE (grid_euclid.is_adjacent(11, 5));								// cell 11 is (2,3)
+	EXPECT_FALSE(grid_euclid.is_adjacent(0, 2));								// cell  2 is (0,2)
+	EXPECT_FALSE(grid_euclid.is_adjacent(0, 10));								// cell 10 is (2,2)
+	EXPECT_FALSE(grid_euclid.is_adjacent(0, 8));								// cell  8 is (2,0)
+
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), grid_manh(5, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), grid_manh(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), grid_manh(11, 5));
+
+	EXPECT_TRUE (grid_manh.is_adjacent(0, 5));									// cell  5 is (1,1)
+	EXPECT_FALSE(grid_manh.is_adjacent(11, 5));									// cell 11 is (2,3)
+	EXPECT_FALSE(grid_manh.is_adjacent(0, 2));									// cell  2 is (0,2)
+	EXPECT_FALSE(grid_manh.is_adjacent(0, 10));									// cell 10 is (2,2)
+	EXPECT_FALSE(grid_manh.is_adjacent(0, 8));									// cell  8 is (2,0)
 }
 
 TYPED_TEST_P(MetricTest, Total_variation) {
@@ -178,7 +201,7 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto disc			= metric::discrete<eT, uint>(infinity<eT>()),
+	auto disc			= infinity<eT>() * metric::discrete<eT, uint>(),
 		 euclid			= metric::euclidean<eT, uint>();
 	auto mkant_disc		= metric::mult_kantorovich<eT, Prob<eT>>(disc),
 		 mkant_euclid	= metric::mult_kantorovich<eT, Prob<eT>>(euclid),

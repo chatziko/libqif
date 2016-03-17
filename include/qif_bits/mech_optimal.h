@@ -5,15 +5,23 @@ namespace mechanism {
 //
 template<typename eT>
 Mech<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss, eT epsilon = eT(1)) {
+	uint M = pi.n_cols,
+		 N = n_cols,
+		 n_adj = 0;
+
+	// find how many adjacent elements do we have
+	for(uint x1 = 0; x1 < M; x1++)
+	for(uint x2 = x1+1; x2 < M; x2++)
+		if(d_priv.is_adjacent(x1, x2))
+			n_adj++;
+
 	// C: M x N   unknowns
 	// We have M x N variables, that will be unfolded in a vector.
 	// The varialbe C[x,y] will have variable number xN+y.
 	//
-	uint M = pi.n_cols,
-		 N = n_cols,
-		 n_vars = M * N,					// one var for each element of C
-		 n_cons = M*(M-1)*N+M,				// one constraint for each C_xy, C_x'y, plus M sum=1 constraints
-		 n_cons_elems = 2*M*(M-1)*N+M*N;	// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
+	uint n_vars = M * N,					// one var for each element of C
+		 n_cons = 2*n_adj*N+M,				// one constraint for each C_xy, C_x'y for x adj x', plus M sum=1 constraints
+		 n_cons_elems = 4*n_adj*N+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
 
 	LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
@@ -34,7 +42,7 @@ Mech<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metr
 	//
 	for(uint x1 = 0; x1 < M; x1++) {
 	for(uint x2 = 0; x2 < M; x2++) {
-		if(x1 == x2) continue;
+		if(x1 == x2 || !d_priv.is_adjacent(x1, x2)) continue;		// constraints for non-adjacent inputs are redundant
 		for(uint y = 0; y < N; y++) {
 
 			lp.sense(cons_i) = '<';
