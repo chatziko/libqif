@@ -74,8 +74,8 @@ void create_l(string area, string dataset, string priv_metric, mat& L) {
 void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	string areadataset = area + "-" + dataset;
 
-	Mech<double> elastic;
-	if(!elastic.C.load("temp/elastic-"+area+".bin")) {	
+	chan elastic;
+	if(!elastic.load("temp/elastic-"+area+".bin")) {
 
 		mat dist;
 		if(!dist.load("temp/metric-"+area+".bin")) {
@@ -86,11 +86,11 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 
 
 		elastic = mechanism::exponential(dist.n_rows, d);
-		elastic.C.save("temp/elastic-"+area+".bin");
+		elastic.save("temp/elastic-"+area+".bin");
 
 		dist.reset();
 	}
-	uint n = elastic.C.n_rows;
+	uint n = elastic.n_rows;
 
 
 	mat priors;
@@ -103,7 +103,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l::strategy(L, prior_global, elastic.C);
+	auto strategy = l::strategy(L, prior_global, elastic);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/elastic-" + areadataset + "-" + priv_metric);
@@ -113,7 +113,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 
 		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy += pi(i) * x_privacy(elastic.C, L, strategy, i);
+			privacy += pi(i) * x_privacy(elastic, L, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}
@@ -124,13 +124,13 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 void compute_laplace_privacy(string area, string dataset, string priv_metric, double eps) {
 	string areadataset = area + "-" + dataset;
 
-	Mech<double> laplace;
-	if(!laplace.C.load("temp/laplace-"+std::to_string(eps)+".bin")) {
+	chan laplace;
+	if(!laplace.load("temp/laplace-"+std::to_string(eps)+".bin")) {
 
 		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
-		laplace.C.save("temp/laplace-"+std::to_string(eps)+".bin");
+		laplace.save("temp/laplace-"+std::to_string(eps)+".bin");
 	}
-	uint n = laplace.C.n_rows;
+	uint n = laplace.n_rows;
 
 
 	mat priors;
@@ -143,7 +143,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l::strategy(L, prior_global, laplace.C);
+	auto strategy = l::strategy(L, prior_global, laplace);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/laplace-" + areadataset + "-" + priv_metric);
@@ -153,7 +153,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 
 		double privacy = 0.0;
 		for(uint i = 0; i < n; i++)
-			privacy += pi(i) * x_privacy(laplace.C, L, strategy, i);
+			privacy += pi(i) * x_privacy(laplace, L, strategy, i);
 //		cout << arma::accu(pi > 0) << ": ";
 		myfile << privacy << "\n";
 	}
@@ -223,5 +223,5 @@ int main() {
 //		cout << (1 - me.vulnerability(pi % pois)) << ", ";
 
 //		cout << (1 - me.cond_vulnerability(pi % pois)) << ", ";
-//		cout << utility::expected_distance<double>(Euclid, pi, elastic.C) << "\n";
+//		cout << utility::expected_distance<double>(Euclid, pi, elastic) << "\n";
 //	}

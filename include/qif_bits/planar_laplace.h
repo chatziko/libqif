@@ -86,14 +86,12 @@ grid_integration(uint width, uint height, eT step, eT epsilon) {
 
 
 template<typename eT>
-Mech<eT>
+Chan<eT>
 planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 
 	int size = width * height;
 
-	Mech<eT> mech;
-	mech.d = step * metric::grid<eT>(width);
-	mech.C = arma::zeros<Mat<eT>>(size, size);
+	Chan<eT> C = arma::zeros<Mat<eT>>(size, size);
 
 	int cx = width - 1;
 	int cy = height - 1;
@@ -117,13 +115,13 @@ planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 					uint output_y = bound(input_y + y, 0, height-1);
 					uint output = output_y * width + output_x;
 
-					mech.C(input, output) += big_matrix(cy+y, cx+x);
+					C(input, output) += big_matrix(cy+y, cx+x);
 				}
 			}
 		}
 	}
 
-	return mech;
+	return C;
 }
 
 } // namespace mechanism

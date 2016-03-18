@@ -45,13 +45,6 @@ class Metric : public std::function<R(const T&, const T&)> {
 	using std::function<R(const T&, const T&)>::function;
 };
 
-// Mech
-template<typename eT>
-struct Mech {
-	Chan<eT> C;
-	Metric<eT, uint> d;
-};
-
 // Point
 template<typename eT>
 struct Point {

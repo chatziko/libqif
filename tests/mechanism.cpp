@@ -13,35 +13,35 @@ TYPED_TEST_P(MechTest, Is_private) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	Mech<eT> mech;
-	mech.d = metric::euclidean<eT, uint>();
+	Chan<eT> C;
+	auto d = metric::euclidean<eT, uint>();
 
-	mech.C = t.noint_10;
-	EXPECT_TRUE(is_private(mech, eT(0)));
+	C = t.noint_10;
+	EXPECT_TRUE(is_private(C, eT(0)*d));
 
-	mech.C = t.id_10;
-	EXPECT_FALSE(is_private(mech, eT(10000)));
+	C = t.id_10;
+	EXPECT_FALSE(is_private(C, eT(10000)*d));
 
-	mech.C = t.c1;
-	EXPECT_TRUE (is_private(mech, std::log(eT(7.0)/2)));
-	EXPECT_FALSE(is_private(mech, std::log(eT(6.9)/2)));
+	C = t.c1;
+	EXPECT_TRUE (is_private(C, std::log(eT(7.0)/2)*d));
+	EXPECT_FALSE(is_private(C, std::log(eT(6.9)/2)*d));
 }
 
 TYPED_TEST_P(MechTest, Smallest_epsilon) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	Mech<eT> mech;
-	mech.d = metric::euclidean<eT, uint>();
+	Chan<eT> C;
+	auto d = metric::euclidean<eT, uint>();
 
-	mech.C = t.noint_10;
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), smallest_epsilon(mech));
+	C = t.noint_10;
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), smallest_epsilon(C, d));
 
-	mech.C = t.id_10;
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), smallest_epsilon(mech));
+	C = t.id_10;
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), smallest_epsilon(C, d));
 
-	mech.C = t.c1;
-	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(7.0/2), smallest_epsilon(mech));
+	C = t.c1;
+	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(7.0/2), smallest_epsilon(C, d));
 }
 
 TYPED_TEST_P(MechTest, Reals) {
@@ -53,20 +53,20 @@ TYPED_TEST_P(MechTest, Reals) {
 
 	auto d = step * metric::euclidean<eT, uint>();
 
-	Mech<eT> geom = mechanism::geometric<eT>(size, step, epsilon);
-	Mech<eT> expon = mechanism::exponential<eT>(size, d, epsilon);
-	Mech<eT> tc = mechanism::tight_constraints<eT>(size, d, epsilon);
+	Chan<eT> geom = mechanism::geometric<eT>(size, epsilon * d);
+	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
+	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 
-	expect_channel(size, size, geom.C);
-	EXPECT_TRUE(is_private(geom, epsilon));
-	EXPECT_FALSE(is_private(geom, epsilon - eT(0.01)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom));
+	expect_channel(size, size, geom);
+	EXPECT_TRUE(is_private(geom, epsilon * d));
+	EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom, d));
 
-	expect_channel(size, size, expon.C);
-	EXPECT_TRUE(is_private(expon, epsilon));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon));
+	expect_channel(size, size, expon);
+	EXPECT_TRUE(is_private(expon, epsilon * d));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon, d));
 
-	expect_channel(geom.C, tc.C);
+	expect_channel(geom, tc);
 }
 
 TYPED_TEST_P(MechTest, Discrete) {
@@ -77,16 +77,16 @@ TYPED_TEST_P(MechTest, Discrete) {
 
 	auto d = metric::discrete<eT, uint>();
 
-	Mech<eT> tc = mechanism::tight_constraints<eT>(size, d, epsilon);
-	Mech<eT> expon = mechanism::exponential<eT>(size, d, 2*epsilon);
+	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
+	Chan<eT> expon = mechanism::exponential<eT>(size, 2 * epsilon * d);
 
-	expect_channel(size, size, tc.C);
-	EXPECT_TRUE(is_private(tc, epsilon));
-	EXPECT_FALSE(is_private(tc, epsilon - eT(0.01)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc));
+	expect_channel(size, size, tc);
+	EXPECT_TRUE(is_private(tc, epsilon * d));
+	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
 
 	// the exponential mechanism with 2*epsilon should be the same as the tight constraints
-	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon.C, tc.C);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon, tc);
 }
 
 TYPED_TEST_P(MechTest, Grid) {
@@ -100,23 +100,23 @@ TYPED_TEST_P(MechTest, Grid) {
 
 	auto d = step * metric::grid<eT>(width);
 
-	Mech<eT> laplace = mechanism::planar_laplace_grid<eT>(width, height, step, epsilon);
-	Mech<eT> tc = mechanism::tight_constraints<eT>(size, d, epsilon);
-	Mech<eT> expon = mechanism::exponential<eT>(size, d, epsilon);
+	Chan<eT> laplace = mechanism::planar_laplace_grid<eT>(width, height, step, epsilon);
+	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
+	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
 
-	expect_channel(size, size, tc.C);
-	EXPECT_TRUE(is_private(tc, epsilon));
-	EXPECT_FALSE(is_private(tc, epsilon - eT(0.01)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc));
+	expect_channel(size, size, tc);
+	EXPECT_TRUE(is_private(tc, epsilon * d));
+	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
+	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
 
 	// for the planar laplace, the accuracy that we get through numeric integration is not that great
-	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace.C, eT(1e-3));
-	EXPECT_TRUE(is_private(laplace, epsilon));
-	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace), 0, eT(1e-3));
+	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace, eT(1e-3));
+	EXPECT_TRUE(is_private(laplace, epsilon * d));
+	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace, d), 0, eT(1e-3));
 
-	expect_channel(size, size, expon.C);
-	EXPECT_TRUE(is_private(expon, epsilon));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0.58945591528726249, smallest_epsilon(expon));
+	expect_channel(size, size, expon);
+	EXPECT_TRUE(is_private(expon, epsilon * d));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.58945591528726249, smallest_epsilon(expon, d));
 }
 
 

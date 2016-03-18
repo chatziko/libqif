@@ -8,13 +8,13 @@ using std::cout;
 using namespace qif;
 
 
-void print_mech(std::string name, Mech<double>& mech, double eps, prob& pi, Metric<double, uint> loss) {
+void print_mech(std::string name, chan& C, double eps, prob& pi, Metric<double, uint> d, Metric<double, uint> loss) {
 	cout << "\n---- " << name << " ----\n";
-//	cout << mech.C;
-	cout << "eps deviation: " << (mechanism::smallest_epsilon(mech) - eps) << "\n";
-	cout << "proper: " << channel::is_proper(mech.C) << "\n";
-	cout << "util with remap : " << l::post_entropy(loss, pi, mech.C) << "\n";
-	cout << "util without remap : " << utility::expected_distance(loss, pi, mech.C) << "\n";
+//	cout << C;
+	cout << "eps deviation: " << (mechanism::smallest_epsilon(C, d) - eps) << "\n";
+	cout << "proper: " << channel::is_proper(C) << "\n";
+	cout << "util with remap : " << l::post_entropy(loss, pi, C) << "\n";
+	cout << "util without remap : " << utility::expected_distance(loss, pi, C) << "\n";
 }
 
 // read prior from Ehab's files.
@@ -57,16 +57,15 @@ int main() {
 //	prob pi = load_prior("/home/vagabond/Desktop/ehab_priors/p1.pr");
 
 
-	Mech<double> opt = mechanism::optimal_utility(pi, n_outputs, dx, loss, eps);
-	print_mech("optimal", opt, eps, pi, loss);
+	chan opt = mechanism::optimal_utility(pi, n_outputs, eps * dx, loss);
+	print_mech("optimal", opt, eps, pi, dx, loss);
 
-	Mech<double> dist_opt = mechanism::dist_optimal_utility(pi, n_outputs, dx, loss, eps);
-	print_mech("dist-optimal", dist_opt, eps, pi, loss);
+	chan dist_opt = mechanism::dist_optimal_utility(pi, n_outputs, eps * dx, loss);
+	print_mech("dist-optimal", dist_opt, eps, pi, dx, loss);
 
-	Mech<double> dist_opt_strict = mechanism::dist_optimal_utility_strict(pi, n_outputs, dx, loss, eps);
-	print_mech("dist-optimal-strict", dist_opt_strict, eps, pi, loss);
+	chan dist_opt_strict = mechanism::dist_optimal_utility_strict(pi, n_outputs, eps * dx, loss);
+	print_mech("dist-optimal-strict", dist_opt_strict, eps, pi, dx, loss);
 
-	Mech<double> laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);
-	laplace.d = dx;		// just to be sure that we get the same metric
-	print_mech("laplace", laplace, eps, pi, loss);
+	chan laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);
+	print_mech("laplace", laplace, eps, pi, dx, loss);
 }

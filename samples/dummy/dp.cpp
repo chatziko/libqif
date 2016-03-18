@@ -10,9 +10,9 @@ void dp() {
 
 
 	std::string channel_elements = "1 0 0; 0 1 0; 0 0 1";
-	Mech<double> mechanism;
-	mechanism.C = channel_elements;
+	chan C = channel_elements;
+	auto d = metric::euclidean<double, uint>();
 
 	//this example asks with epsilon=0.05
-	std::cout << "is_private: " << mechanism::is_private(mechanism, 0.05) << "\n";
+	std::cout << "is_private: " << mechanism::is_private(C, 0.05 * d) << "\n";
 }

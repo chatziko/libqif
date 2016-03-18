@@ -4,7 +4,7 @@ namespace mechanism {
 // Returns the mechanism satisfying eps*d privacy and having the best utility wrt pi and loss
 //
 template<typename eT>
-Mech<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss, eT epsilon = eT(1)) {
+Chan<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 	uint M = pi.n_cols,
 		 N = n_cols,
 		 n_adj = 0;
@@ -55,7 +55,7 @@ Mech<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metr
 
 			locations(0, elem_i) = cons_i;
 			locations(1, elem_i) = x2*N+y;
-			values(elem_i) = - std::exp(epsilon * d_priv(x1, x2));
+			values(elem_i) = - std::exp(d_priv(x1, x2));
 			elem_i++;
 
 			cons_i++;
@@ -82,26 +82,23 @@ Mech<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metr
 
 	lp.A = arma::SpMat<eT>(locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
 
-	Mech<eT> mech;
-	mech.d = d_priv;
-
 	// solve program
 	//
 	if(!lp.solve())
-		return mech;
+		return Chan<eT>();
 
 	// reconstrict channel from solution
 	//
-	mech.C.set_size(M, N);
+	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			mech.C(x, y) = lp.x(x*N+y);
+			C(x, y) = lp.x(x*N+y);
 
-	return mech;
+	return C;
 }
 
 template<typename eT>
-Mech<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss, eT epsilon = eT(1)) {
+Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 
 	uint M = pi.n_cols,
 		 N = n_cols;
@@ -164,7 +161,7 @@ Mech<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 
 			locations(0, elem_i) = cons_i;
 			locations(1, elem_i) = (dist_i+1)*N+y;
-			values(elem_i) = - std::exp(epsilon * diff);
+			values(elem_i) = - std::exp(diff);
 			elem_i++;
 
 			cons_i++;
@@ -179,7 +176,7 @@ Mech<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 
 			locations(0, elem_i) = cons_i;
 			locations(1, elem_i) = dist_i*N+y;
-			values(elem_i) = - std::exp(epsilon * diff);
+			values(elem_i) = - std::exp(diff);
 			elem_i++;
 
 			cons_i++;
@@ -208,28 +205,25 @@ Mech<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 
 	lp.A = arma::SpMat<eT>(true, locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
 
-	Mech<eT> mech;
-	mech.d = d_priv;
-
 	// solve program
 	//
 	if(!lp.solve())
-		return mech;
+		return Chan<eT>();
 
 	// reconstrict channel from solution
 	//
-	mech.C.set_size(M, N);
+	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			mech.C(x, y) = lp.x(DI(x,y)*N+y);
+			C(x, y) = lp.x(DI(x,y)*N+y);
 
-	return mech;
+	return C;
 }
 
 // This is the first version, that had variables X_d instead of X_d,y
 //
 template<typename eT>
-Mech<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss, eT epsilon = eT(1)) {
+Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 
 	uint M = pi.n_cols,
 		 N = n_cols;
@@ -291,7 +285,7 @@ Mech<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 
 		locations(0, elem_i) = cons_i;
 		locations(1, elem_i) = dist_i+1;
-		values(elem_i) = - std::exp(epsilon * diff);
+		values(elem_i) = - std::exp(diff);
 		elem_i++;
 
 		cons_i++;
@@ -306,7 +300,7 @@ Mech<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 
 		locations(0, elem_i) = cons_i;
 		locations(1, elem_i) = dist_i;
-		values(elem_i) = - std::exp(epsilon * diff);
+		values(elem_i) = - std::exp(diff);
 		elem_i++;
 
 		cons_i++;
@@ -334,22 +328,19 @@ Mech<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 
 	lp.A = arma::SpMat<eT>(true, locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
 
-	Mech<eT> mech;
-	mech.d = d_priv;
-
 	// solve program
 	//
 	if(!lp.solve())
-		return mech;
+		return Chan<eT>();
 
 	// reconstrict channel from solution
 	//
-	mech.C.set_size(M, N);
+	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			mech.C(x, y) = lp.x(DI(x,y));
+			C(x, y) = lp.x(DI(x,y));
 
-	return mech;
+	return C;
 }
 
 } // namespace mechanism
