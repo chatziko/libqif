@@ -1,62 +1,72 @@
 
 namespace mechanism {
 
+// build a matrix D where Dij = exp(-d(i,j))
+// used in the construction of most mechanisms below
+//
+template<typename eT>
+Mat<eT>
+distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
+	Mat<eT> D(n_rows, n_cols);
+	D.diag().fill(eT(1));
+
+	// exploit symmetry, but careful about non-square matrices
+	//
+	for(uint i = 0; i < n_rows; i++)
+		for(uint j = (i < n_cols ? i + 1 : 0); j < n_cols; j++) {
+			D(i, j) = std::exp(-d(i, j));
+			if(j < n_rows && i < n_cols)
+				D(j, i) = D(i, j);
+		}
+	return D;
+}
+
 template<typename eT>
 Chan<eT>
-geometric(uint n, Metric<eT, uint> d = metric::euclidean<eT,uint>()) {
-	Chan<eT> C(n, n);
+geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0) {
+	if(n_cols == 0) n_cols = n_rows;
+	if(n_rows > n_cols) throw std::runtime_error("n_cols should be at least as big as n_rows");
 
 	eT c = std::exp(d(0,1)),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
-	for(uint j = 0; j < n; j++) {
-		eT lambda = (j == 0 || j == n-1 ? lambda_f : lambda_m);
-		for(uint i = 0; i < n; i++)
-			C(i, j) = lambda * std::exp(-d(i, j));
-	}
+	Chan<eT> C = distance_matrix(n_rows, n_cols, d);
+	C.col(0)            *= lambda_f;
+	C.col(n_cols-1)     *= lambda_f;
+	C.cols(1, n_cols-2) *= lambda_m;
 
 	return C;
 }
 
 template<typename eT>
 Chan<eT>
-exponential(uint n, Metric<eT, uint> d) {
-	Chan<eT> C(n, n);
-	C.diag().fill(eT(1));
+exponential(uint n_rows, Metric<eT, uint> d, uint n_cols = 0) {
+	if(n_cols == 0) n_cols = n_rows;
 
-	for(uint i = 0; i < n; i++) {
-		for(uint j = i + 1; j < n; j++)
-			C(i, j) = C(j, i) = std::exp(-d(i, j)/2);
+	Chan<eT> C = distance_matrix(n_rows, n_cols, eT(1)/2 * d);
+
+	for(uint i = 0; i < n_rows; i++)
 		C.row(i) /= accu(C.row(i));
-	}
-
 	return C;
 }
 
 template<typename eT>
 Chan<eT>
 tight_constraints(uint n, Metric<eT, uint> d) {
-	// build phi, it will be later transformed to a channel matrix
-	Chan<eT> phi(n, n);
-	phi.diag().fill(eT(1));
-
-	for(uint i = 0; i < n; i++)
-		for(uint j = i + 1; j < n; j++)
-			phi(i, j) = phi(j, i) = std::exp(-d(i, j));
-
-	// invert and create diagonal
+	// invert distance matrix phi and create diagonal
 	//
 	// Note: in the perl code, scaling the ones(n) vector somehow improves numerical stability
 	//       (the non-negativity of diag). We should investigate if this still happens
 	// eT scaler = n;
 	// Row<eT> diag = scaler * (1/scaler * arma::ones<Row<eT>>(n) * phi.i());
 	//
+	Chan<eT> phi = distance_matrix(n, n, d);
 	Row<eT> diag = arma::ones<Row<eT>>(n) * phi.i();
 
 	for(uint i = 0; i < n; i++)
 		if(!less_than_or_eq(eT(0), diag(i)))
-			throw std::runtime_error("negative");
+			return Chan<eT>();
 
 	// the channel matrix = phi after multiplying all rows with diag
 	phi.each_row() %= diag;
