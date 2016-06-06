@@ -107,9 +107,12 @@ inline double log2(int a) {
 inline double log2(uint a) {
 	return std::log2(a);
 }
+#if defined(ARMA_64BIT_WORD)
+// arma::uword is different than uint
 inline double log2(arma::uword a) {
 	return std::log2(a);
 }
+#endif
 
 // helper template class, for operations that are defined on double/float
 // but compile and return runtime error on other types
