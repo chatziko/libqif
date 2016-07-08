@@ -21,6 +21,7 @@ distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 	return D;
 }
 
+// d should be a scaled version of metric::euclidean<eT,uint>()
 template<typename eT>
 Chan<eT>
 geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0) {
@@ -45,31 +46,83 @@ exponential(uint n_rows, Metric<eT, uint> d, uint n_cols = 0) {
 	if(n_cols == 0) n_cols = n_rows;
 
 	Chan<eT> C = distance_matrix(n_rows, n_cols, eT(1)/2 * d);
+	C.each_col() /= sum(C, 1);	// normalize
 
-	for(uint i = 0; i < n_rows; i++)
-		C.row(i) /= accu(C.row(i));
 	return C;
 }
 
 template<typename eT>
 Chan<eT>
 tight_constraints(uint n, Metric<eT, uint> d) {
-	// invert distance matrix phi and create diagonal
-	//
 	// Note: in the perl code, scaling the ones(n) vector somehow improves numerical stability
 	//       (the non-negativity of diag). We should investigate if this still happens
 	// eT scaler = n;
 	// Row<eT> diag = scaler * (1/scaler * arma::ones<Row<eT>>(n) * phi.i());
 	//
+	// alternative way by inverting phi
+	// Col<eT> diag = phi.i() * arma::ones<Col<eT>>(n);
+	//
+	// create diagonal by solving phi X = 1
 	Chan<eT> phi = distance_matrix(n, n, d);
-	Row<eT> diag = arma::ones<Row<eT>>(n) * phi.i();
+	Col<eT> diag;
+	arma::solve(diag, phi, arma::ones<Col<eT>>(n));
 
-	for(uint i = 0; i < n; i++)
-		if(!less_than_or_eq(eT(0), diag(i)))
+	// the mechanism exists if the system has a non-negative solution
+	if(diag.is_empty())
+		return Chan<eT>();
+	for(auto e : diag)
+		if(!less_than_or_eq(eT(0), e))
 			return Chan<eT>();
 
 	// the channel matrix = phi after multiplying all rows with diag
-	phi.each_row() %= diag;
+	phi.each_row() %= diag.t();
+
+	return phi;
+}
+
+// tight constraints, with the extra constraint that the coefficients of some colums are required
+// to be the same. These constraints are given in form of a vector cols. If cols[i] == j it means
+// that the coefficient of column i should be equal to column j. Set cols[i] = i to have an
+// unconstraint column.
+// Eg: (0, 0, 2, 2) means that there are 2 free coefficients (cols 0, 2) and two constrained (1, 3)
+//
+template<typename eT>
+Chan<eT>
+tight_constraints(arma::uvec cols, Metric<eT, uint> d) {
+	uint n = cols.n_elem;
+	Chan<eT> phi = distance_matrix(n, n, d);
+
+	arma::uvec unique = arma::unique(cols);
+	uint nu = unique.n_elem;
+
+	// create a remapping channel based on the remap of cols
+	Chan<eT> remap(n, nu, arma::fill::zeros);
+	for(uint i = 0; i < n; i++) {
+		uint target = arma::find(unique == cols(i)).eval()(0);
+		remap(i, target) = eT(1);
+	}
+
+	// find the diag for the remapped phi
+	Mat<eT> r_phi = phi * remap;
+	Col<eT> r_diag;
+	arma::solve(r_diag, r_phi, arma::ones<Col<eT>>(r_phi.n_rows));
+
+	// the mechanism exists if the system has a non-negative solution
+	if(r_diag.is_empty())
+		return Chan<eT>();
+	for(auto e : r_diag)
+		if(!less_than_or_eq(eT(0), e))
+			return Chan<eT>();
+
+	// put the elements that were actually computed in the diag
+	Col<eT> diag(n);
+	for(uint i = 0; i < n; i++) {
+		uint target = arma::find(unique == cols(i)).eval()(0);
+		diag(i) = r_diag(target);
+	}
+
+	// the channel matrix = phi after multiplying all rows with diag
+	phi.each_row() %= diag.t();
 
 	return phi;
 }

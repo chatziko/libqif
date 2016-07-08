@@ -122,7 +122,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 	Mat<uint> DI(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			DI(x, y) = arma::ucolvec(arma::find(dists == d_priv(x, y), 1)).at(0);
+			DI(x, y) = arma::find(dists == d_priv(x, y), 1).eval()(0);
 
 	// variable X[d,y] will have index d*N+y
 	//
@@ -247,7 +247,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 	Mat<uint> DI(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			DI(x, y) = arma::ucolvec(arma::find(dists == d_priv(x, y), 1)).at(0);
+			DI(x, y) = arma::find(dists == d_priv(x, y), 1).eval()(0);
 
 	// C: D variables
 	//

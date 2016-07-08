@@ -57,6 +57,11 @@ TYPED_TEST_P(MechTest, Reals) {
 	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
 	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 
+	// tight constraints with first/last and middle coeffs forced to be equal
+	arma::uvec cols(size, arma::fill::ones);
+	cols(0) = cols(size-1) = 0;
+	Chan<eT> tc2 = mechanism::tight_constraints<eT>(cols, epsilon * d);
+
 	expect_channel(size, size, geom);
 	EXPECT_TRUE(is_private(geom, epsilon * d));
 	EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
@@ -66,7 +71,8 @@ TYPED_TEST_P(MechTest, Reals) {
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon, d));
 
-	expect_channel(geom, tc);
+	expect_channel(geom, tc );
+	expect_channel(geom, tc2);
 
 	// non-square
 	geom = mechanism::geometric<eT>(size, epsilon * d, 2*size);
