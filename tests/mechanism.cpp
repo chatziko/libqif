@@ -126,6 +126,7 @@ TYPED_TEST_P(MechTest, Grid) {
 	auto d = step * metric::grid<eT>(width);
 
 	Chan<eT> laplace = mechanism::planar_laplace_grid<eT>(width, height, step, epsilon);
+	Chan<eT> geom = mechanism::planar_geometric_grid<eT>(width, height, step, epsilon);
 	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
 
@@ -138,6 +139,11 @@ TYPED_TEST_P(MechTest, Grid) {
 	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace, eT(1e-3));
 	EXPECT_TRUE(is_private(laplace, epsilon * d));
 	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace, d), 0, eT(1e-3));
+
+	// same (just a bit better) for planar_geometric
+	expect_channel(size, size, geom);
+	EXPECT_TRUE(is_private(geom, (epsilon+eT(1e-5)) * d));
+	EXPECT_PRED_FORMAT4(equal4<eT>, epsilon, smallest_epsilon(geom, d), 0, eT(1e-6));
 
 	expect_channel(size, size, expon);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
