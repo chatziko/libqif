@@ -9,11 +9,11 @@ def init(argv):
 
 	except getopt.GetoptError:
 		print "Please use the below format"
-		print 'test.py -i <inputFileName> -o <outputFileName>'
+		print 'init.py -i <inputFileName> -o <outputFileName>'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'test.py -i <inputFileName> -o <outputFileName>'
+			print 'init.py -i <inputFileName> -o <outputFileName>'
 			print "<inputFileName> in .txt format"
 			print "<outputFilename>"
 			sys.exit()
