@@ -6,7 +6,7 @@ using std::cout;
 using std::string;
 
 const uint grid_size = 100;		// 100x100 grid
-const double cell_width = 0.4;	// each cell is 0.4x0.4 KM
+const double cell_width = 0.5;	// each cell is 0.5x0.5 KM
 
 
 double x_privacy(const chan& C, mat& L, const arma::ucolvec strategy, uint i) {
@@ -188,12 +188,12 @@ void compute_laplace_privacy_seml(string area, string dataset, string priv_metri
 int main() {
 	arma::arma_rng::set_seed_random();
 
-	double eps = log(2)/0.4;
+	double eps = log(2)/0.5;
 	cout << "using eps: " << eps << "\n";
-	string seml = "Dessert Shop";
+	string seml = "Medical Center";
 
 
-	for(string area        : { "tky.csv"})
+	for(string area        : { "nyc.csv"})
 		for(string dataset     : { "foursquare"})
 			for(string priv_metric : {"euclidean"}) {
 				

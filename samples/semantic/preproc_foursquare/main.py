@@ -3,7 +3,7 @@ from foursquare_preproc import *
 import pickle
 import os
 
-def run(dataset,gridNW,gridSE,cellLength,gridsize,threshold,simulation,threshold_sim):
+def run(dataset,gridNW,gridSE,cellLength,gridsize,threshold,run_simulation,simulation,threshold_sim):
 
 	##### Points in Grid #####
 	pointsInGrid = None
@@ -41,18 +41,23 @@ def run(dataset,gridNW,gridSE,cellLength,gridsize,threshold,simulation,threshold
 		writerFile = dataset+"-foursquare-user.csv"
 		getUserPrior(gridsize,pointsInGrid,pointsInCells,writerFile,threshold)
 
-	##### Global Prior for a Semantic Label #####
+	
 
-	globalPriorSemL = getGlobalPriorSemL(gridsize,pointsInGrid,pointsInCells,simulation)
-	out = csv.writer(open(dataset+"-foursquare-global-"+simulation+".csv","w"), delimiter=',')
-	out.writerow(globalPriorSemL)
-	print "Global prior for simulation done"
+	if run_simulation:
 
-	##### User Prior for a Semantic Label #####
+		##### Global Prior for a Semantic Label #####
+		globalPriorSemL = getGlobalPriorSemL(gridsize,pointsInGrid,pointsInCells,simulation)
+		out = csv.writer(open(dataset+"-foursquare-global-"+simulation+".csv","w"), delimiter=',')
+		out.writerow(globalPriorSemL)
+		print "Global prior for simulation done"
 
-	writerFile = dataset+"-foursquare-user-"+simulation+".csv"
-	getUserPriorSemL(gridsize,pointsInGrid,pointsInCells,writerFile,threshold_sim,simulation)
-	print "User prior for simulation done"
+		##### User Prior for a Semantic Label #####
+
+		writerFile = dataset+"-foursquare-user-"+simulation+".csv"
+		getUserPriorSemL(gridsize,pointsInGrid,pointsInCells,writerFile,threshold_sim,simulation)
+		print "User prior for simulation done"
+	else:
+		"Priors for simulation not generated."
 
 
 
@@ -62,19 +67,28 @@ if __name__ == "__main__":
 	Configure all parameters below before running the script
 
 	"""
-
-	dataset = "temp/tky.csv"
-	gridNW = (35.8670,139.4788) # north-west (lat,long)
-	gridSE = (35.5100,139.9100) # south-east (lat,long)
-	cellLength = 400.0 # in meters
+	############################ For Tokyo dataset ###############################
+	# dataset = "temp/tky.csv"
+	# gridNW = (35.8670,139.4788) # north-west (lat,long)
+	# gridSE = (35.5100,139.9100) # south-east (lat,long)
+	# cellLength = 400.0 # in meters
+	# gridsize = 100
+	# threshold = 20 # for users in a cell
+	############################ For New York dataset ###########################
+	dataset = "temp/nyc.csv"
+	gridNW = (40.9840,-74.2730) # north-west (lat,long)
+	gridSE = (40.5550,-73.6800) # south-east (lat,long)
+	cellLength = 500.0 # in meters
 	gridsize = 100
-	threshold = 20 # for users in a cell
+	threshold = 15 # for users in a cell
 	
-	simulation = "Dessert Shop"
-	threshold_sim = 1
+	run_simulation = True # boolean value based on which priors are generated for labels.
+
+	simulation = "Stadium"
+	threshold_sim = 2
 
 
-	run(dataset,gridNW,gridSE,cellLength,gridsize,threshold,simulation,threshold_sim)
+	run(dataset,gridNW,gridSE,cellLength,gridsize,threshold,run_simulation,simulation,threshold_sim)
 
 	
 
