@@ -42,9 +42,10 @@ int main(int argc, char** argv) {
 
 	// compute remap and print
 	//
-	chan R = channel::deterministic<double>(l::strategy(L, pi, C), C.n_rows);
+	chan R = channel::deterministic<double>(l::strategy(L, pi, C), L.n_rows);
+	chan CR = C * R;
 
 	cout.setf(std::ios::fixed);
 	cout.precision(6);
-	R.raw_print(cout);
+	CR.raw_print(cout);
 }
