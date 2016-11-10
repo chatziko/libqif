@@ -53,7 +53,7 @@ arma::ucolvec strategy(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 	check_g_size(G, pi);
 	channel::check_prior_size(pi, C);
 
-	arma::ucolvec strategy(pi.n_elem);
+	arma::ucolvec strategy(C.n_cols);
 	for(uint y = 0; y < C.n_cols; y++)
 		(G * (trans(pi) % C.col(y))).max( strategy.at(y) );
 
