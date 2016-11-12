@@ -63,7 +63,6 @@ namespace arma {
 	//
 	template<>
 	arma_hot
-	arma_pure
 	inline
 	typename arma_real_only<rat>::result
 	op_dot::direct_dot<rat>(const uword n_elem, const rat* const A, const rat* const B) {
