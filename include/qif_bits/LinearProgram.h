@@ -29,6 +29,14 @@ using std::string;
 using std::to_string;
 
 
+template<typename eT>
+class MatrixEntry {
+	public:
+		uint row, col;
+		eT val;
+		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
+};
+
 // Solve the linear program
 // {min/max} dot(c,x)
 // subject to A x {>=|==|<=} b
@@ -63,6 +71,7 @@ class LinearProgram {
 		inline eT optimum()				{ return arma::dot(x, c); }
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
+		void fill_A(std::list<MatrixEntry<eT>>& l);
 		LinearProgram canonical_form();
 
 	protected:
@@ -78,6 +87,26 @@ bool LinearProgram<eT>::solve() {
 	check_sizes();
 
 	return glpk();
+}
+
+template<typename eT>
+void LinearProgram<eT>::fill_A(std::list<MatrixEntry<eT>>& entries) {
+	if(b.is_empty() || c.is_empty())
+		throw std::runtime_error("b and c vectors should be set before calling fill_A");
+
+	// for batch-insertion into sparse matrix A
+	arma::umat locations(2, entries.size());
+	Col<eT> values(entries.size());
+
+	uint i = 0;
+	for(auto entry : entries) {
+		locations(0, i) = entry.row;
+		locations(1, i) = entry.col;
+		values(i) = entry.val;
+		i++;
+	}
+
+	A = arma::SpMat<eT>(locations, values, b.n_elem, c.n_elem);	// arma has no batch-insert method into existing A
 }
 
 // for rats, we use the simplex() method after transforming to canonical form

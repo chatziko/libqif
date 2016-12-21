@@ -141,9 +141,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 	lp.sense.set_size(n_cons);
 	lp.sense.fill('=');
 
-	arma::umat locations(2, n_cons_elems);	// for batch-insertion into sparse matrix lp.A
-	Col<eT> values(n_cons_elems);
-	uint elem_i = 0;
+	std::list<MatrixEntry<eT>> entries;				// for batch entry into A
 
 	// Build equations for A = B X
 	// We have R x N variables, that will be unfolded in a vector.
@@ -155,12 +153,9 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 			uint row = m*N+n;
 			lp.b(row) = A(m, n);				// sum of row is A[m,n]
 
-			for(uint r = 0; r < R; r++) {
-				locations(0, elem_i) = row;
-				locations(1, elem_i) = r*N+n;
-				values(elem_i) = B(m, r);		// coeff B[m,r] for variable X[r,n]
-				elem_i++;
-			}
+			for(uint r = 0; r < R; r++)
+				// coeff B[m,r] for variable X[r,n]
+				entries.push_back(MatrixEntry<eT>(row, r*N+n, B(m, r)));
 		}
 	}
 
@@ -170,17 +165,14 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 		uint row = M*N+r;
 		lp.b(row) = eT(1);						// sum of row = 1
 
-		for(uint n = 0; n < N; n++) {
-			locations(0, elem_i) = row;
-			locations(1, elem_i) = r*N+n;
-			values(elem_i) = eT(1);				// coeff 1 for variable X[r,n]
-			elem_i++;
-		}
+		for(uint n = 0; n < N; n++)
+			// coeff 1 for variable X[r,n]
+			entries.push_back(MatrixEntry<eT>(row, r*N+n, eT(1)));
 	}
 
-	assert(elem_i == n_cons_elems);								// added all constraint elements
-
-	lp.A = arma::SpMat<eT>(locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
+	n_cons_elems -= entries.size();
+	assert(0 == n_cons_elems);				// added all constraint elements
+	lp.fill_A(entries);
 
 	// solve program
 	//
