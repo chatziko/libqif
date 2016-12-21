@@ -74,6 +74,15 @@ class LinearProgram {
 		void fill_A(std::list<MatrixEntry<eT>>& l);
 		LinearProgram canonical_form();
 
+		friend std::ostream& operator<<(std::ostream& os, const status_t& status) {
+			std::string s[] = { "optimal", "infeasible", "unbounded", "error" };
+			return os << s[static_cast<uint>(status)];
+		}
+		friend std::ostream& operator<<(std::ostream& os, const method_t& method) {
+			std::string s[] = { "simplex_primal", "simplex_dual", "interior" };
+			return os << s[static_cast<uint>(method)];
+		}
+
 	protected:
 		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
 
