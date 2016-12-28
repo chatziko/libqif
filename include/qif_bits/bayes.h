@@ -1,3 +1,6 @@
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 
 namespace bayes {
 
@@ -50,6 +53,31 @@ arma::ucolvec strategy(const Prob<eT>& pi, const Chan<eT>& C) {
 
 	return strategy;
 }
+
+// upper bound to cap_b(n), from the recurrence formula and the bound for cap_2(n)
+// see Geoffrey's POST paper
+//
+template<typename eT>
+eT cap(uint b, uint n) {
+	if(b == 1)
+		return 1;
+
+	eT cap1 = 1;														// cap_1(n) = 1
+	eT cap2 = sqrt(M_PI * n / 2) + 2.0/3 + sqrt(M_PI / (2*n)) / 12;		// bound for cap_2(n)
+
+	for(uint i = 3; i <= b; i++) {
+		eT temp = cap2;
+		cap2 += cap1 * n/(i-2);
+		cap1 = temp;
+	}
+	return cap2;
+}
+
+template<typename eT>
+eT mult_capacity_bound_cap(const Chan<eT>& C, uint n) {
+	return cap<eT>(C.n_cols, n);
+}
+
 
 
 } // namespace bayes

@@ -66,10 +66,21 @@ TYPED_TEST_P(BayesTestReals, Mulg_leakage) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), bayes::mulg_leakage(t.unif_2, t.c1));
 }
 
+TYPED_TEST_P(BayesTestReals, Mult_capacity_bound_cap) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	eT v = std::is_same<eT, float>::value
+		? 627991744
+		: 627991708.193414211273193359375;
+
+	EXPECT_PRED_FORMAT2(equal2<eT>, v, bayes::mult_capacity_bound_cap(t.id_4, 1e6));
+}
+
 // run the BayesTest test-case for all types, and the BayesTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(BayesTest, Vulnerability, Post_vulnerability, Mult_capacity);
-REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Mulg_leakage);
+REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Mulg_leakage, Mult_capacity_bound_cap);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Bayes, BayesTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(BayesReals, BayesTestReals, NativeTypes);
