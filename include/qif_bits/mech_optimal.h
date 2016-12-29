@@ -4,15 +4,16 @@ namespace mechanism {
 // Returns the mechanism satisfying eps*d privacy and having the best utility wrt pi and loss
 //
 template<typename eT>
-Chan<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
+Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 	uint M = pi.n_cols,
 		 N = n_cols,
 		 n_adj = 0;
+	eT inf = infinity<eT>();
 
 	// find how many adjacent elements do we have
 	for(uint x1 = 0; x1 < M; x1++)
 	for(uint x2 = x1+1; x2 < M; x2++)
-		if(d_priv.is_adjacent(x1, x2))
+		if(d_priv.is_adjacent(x1, x2) && less_than(d_priv(x1, x2), inf))
 			n_adj++;
 
 	// C: M x N   unknowns
@@ -34,29 +35,22 @@ Chan<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metr
 		for(uint y = 0; y < N; y++)
 			lp.c(x*N+y) = pi(x) * loss(x, y);
 
-	arma::umat locations(2, n_cons_elems);	// for batch-insertion into sparse matrix lp.A
-	Col<eT> values(n_cons_elems);
-	uint elem_i = 0, cons_i = 0;
+	std::list<MatrixEntry<eT>> entries;
+	uint cons_i = 0;
 
 	// Build equations for C_xy <= exp(eps d_priv(x,x')) C_x'y
 	//
 	for(uint x1 = 0; x1 < M; x1++) {
 	for(uint x2 = 0; x2 < M; x2++) {
 		if(x1 == x2 || !d_priv.is_adjacent(x1, x2)) continue;		// constraints for non-adjacent inputs are redundant
+		if(!less_than(d_priv(x1, x2), inf)) continue;				// inf distance, i.e. no constraint
 		for(uint y = 0; y < N; y++) {
 
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = x1*N+y;
-			values(elem_i) = eT(1);
-			elem_i++;
-
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = x2*N+y;
-			values(elem_i) = - std::exp(d_priv(x1, x2));
-			elem_i++;
+			entries.push_back(MatrixEntry<eT>(cons_i, x1*N+y, eT(1)));
+			entries.push_back(MatrixEntry<eT>(cons_i, x2*N+y, - std::exp(d_priv(x1, x2))));
 
 			cons_i++;
 		}
@@ -68,19 +62,18 @@ Chan<eT> optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metr
 		lp.b(cons_i) = eT(1);					// sum of row = 1
 		lp.sense(cons_i) = '=';
 
-		for(uint y = 0; y < N; y++) {
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = x*N+y;
-			values(elem_i) = eT(1);				// coeff 1 for variable C[x,y]
-			elem_i++;
-		}
+		for(uint y = 0; y < N; y++)
+			// coeff 1 for variable C[x,y]
+			entries.push_back(MatrixEntry<eT>(cons_i, x*N+y, eT(1)));
+
 		cons_i++;
 	}
 
-	assert(cons_i == n_cons);									// added all constraints
-	assert(elem_i == n_cons_elems);								// added all constraint elements
+	assert(cons_i == n_cons);					// added all constraints
+	n_cons_elems *= 1;							// avoid unused warning
+	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.A = arma::SpMat<eT>(locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
+	lp.fill_A(entries);
 
 	// solve program
 	//
@@ -141,9 +134,8 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 		for(uint y = 0; y < N; y++)
 			lp.c(DI(x,y)*N+y) += pi(x) * loss(x, y);
 
-	arma::umat locations(2, n_cons_elems);	// for batch-insertion into sparse matrix lp.A
-	Col<eT> values(n_cons_elems);
-	uint elem_i = 0, cons_i = 0;
+	std::list<MatrixEntry<eT>> entries;
+	uint cons_i = 0;
 
 	// Build equations for X_d_i <= exp(eps |d_i - d_i+1|) X_d_j
 	//
@@ -154,30 +146,16 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = dist_i*N+y;
-			values(elem_i) = eT(1);
-			elem_i++;
-
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = (dist_i+1)*N+y;
-			values(elem_i) = - std::exp(diff);
-			elem_i++;
+			entries.push_back(MatrixEntry<eT>(cons_i, dist_i*N+y, eT(1)));
+			entries.push_back(MatrixEntry<eT>(cons_i, (dist_i+1)*N+y, - std::exp(diff)));
 
 			cons_i++;
 
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = (dist_i+1)*N+y;
-			values(elem_i) = eT(1);
-			elem_i++;
-
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = dist_i*N+y;
-			values(elem_i) = - std::exp(diff);
-			elem_i++;
+			entries.push_back(MatrixEntry<eT>(cons_i, (dist_i+1)*N+y, eT(1)));
+			entries.push_back(MatrixEntry<eT>(cons_i, dist_i*N+y, - std::exp(diff)));
 
 			cons_i++;
 		}
@@ -191,19 +169,17 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 		lp.b(cons_i) = eT(1);					// sum of row = 1
 		lp.sense(cons_i) = '=';
 
-		for(uint y = 0; y < N; y++) {
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = DI(x,y)*N+y;
-			values(elem_i) = eT(1);
-			elem_i++;
-		}
+		for(uint y = 0; y < N; y++)
+			entries.push_back(MatrixEntry<eT>(cons_i, DI(x,y)*N+y, eT(1)));
+
 		cons_i++;
 	}
 
-	assert(cons_i == n_cons);									// added all constraints
-	assert(elem_i == n_cons_elems);								// added all constraint elements
+	assert(cons_i == n_cons);					// added all constraints
+	n_cons_elems *= 1;							// avoid unused warning
+	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.A = arma::SpMat<eT>(true, locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
+	lp.fill_A(entries);
 
 	// solve program
 	//
@@ -266,9 +242,8 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		for(uint y = 0; y < N; y++)
 			lp.c(DI(x,y)) += pi(x) * loss(x, y);
 
-	arma::umat locations(2, n_cons_elems);	// for batch-insertion into sparse matrix lp.A
-	Col<eT> values(n_cons_elems);
-	uint elem_i = 0, cons_i = 0;
+	std::list<MatrixEntry<eT>> entries;
+	uint cons_i = 0;
 
 	// Build equations for X_d_i <= exp(eps |d_i - d_i+1|) X_d_j
 	//
@@ -278,30 +253,16 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		lp.sense(cons_i) = '<';
 		lp.b(cons_i) = eT(0);
 
-		locations(0, elem_i) = cons_i;
-		locations(1, elem_i) = dist_i;
-		values(elem_i) = eT(1);
-		elem_i++;
-
-		locations(0, elem_i) = cons_i;
-		locations(1, elem_i) = dist_i+1;
-		values(elem_i) = - std::exp(diff);
-		elem_i++;
+		entries.push_back(MatrixEntry<eT>(cons_i, dist_i, eT(1)));
+		entries.push_back(MatrixEntry<eT>(cons_i, dist_i+1, - std::exp(diff)));
 
 		cons_i++;
 
 		lp.sense(cons_i) = '<';
 		lp.b(cons_i) = eT(0);
 
-		locations(0, elem_i) = cons_i;
-		locations(1, elem_i) = dist_i+1;
-		values(elem_i) = eT(1);
-		elem_i++;
-
-		locations(0, elem_i) = cons_i;
-		locations(1, elem_i) = dist_i;
-		values(elem_i) = - std::exp(diff);
-		elem_i++;
+		entries.push_back(MatrixEntry<eT>(cons_i, dist_i+1, eT(1)));
+		entries.push_back(MatrixEntry<eT>(cons_i, dist_i, - std::exp(diff)));
 
 		cons_i++;
 	}
@@ -314,19 +275,17 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		lp.b(cons_i) = eT(1);					// sum of row = 1
 		lp.sense(cons_i) = '=';
 
-		for(uint y = 0; y < N; y++) {
-			locations(0, elem_i) = cons_i;
-			locations(1, elem_i) = DI(x,y);
-			values(elem_i) = eT(1);
-			elem_i++;
-		}
+		for(uint y = 0; y < N; y++)
+			entries.push_back(MatrixEntry<eT>(cons_i, DI(x,y), eT(1)));
+
 		cons_i++;
 	}
 
-	assert(cons_i == n_cons);									// added all constraints
-	assert(elem_i == n_cons_elems);								// added all constraint elements
+	assert(cons_i == n_cons);					// added all constraints
+	n_cons_elems *= 1;							// avoid unused warning
+	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.A = arma::SpMat<eT>(true, locations, values, n_cons, n_vars);	// arma has no batch-insert method into existing lp.A
+	lp.fill_A(entries, true);					// add duplicate entries
 
 	// solve program
 	//
