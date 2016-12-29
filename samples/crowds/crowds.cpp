@@ -7,8 +7,8 @@
 using namespace qif;
 using namespace std;
 
-const uint honest = 5;
-const uint corrupted = 1;
+uint honest;
+uint corrupted;
 
 typedef double T;
 
@@ -71,9 +71,9 @@ void meleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (bayes::mulg_leakage(pi, C1)) << "   "
-			<< (bayes::mulg_leakage(pi, C2)) << "   "
-			<< (bayes::mulg_leakage(pi, C3)) << "\n";
+			<< (bayes::mult_leakage(pi, C1)) << "   "
+			<< (bayes::mult_leakage(pi, C2)) << "   "
+			<< (bayes::mult_leakage(pi, C3)) << "\n";
 	}
 }
 
@@ -89,9 +89,9 @@ void meleakage_by_pf() {
 		Chan<T> C = crowds_matrix(honest, corrupted, pf);
 
 		file << pf << "   " 
-			<< (bayes::mulg_leakage(pi1, C)) << "   "
-			<< (bayes::mulg_leakage(pi2, C)) << "   "
-			<< (bayes::mulg_leakage(pi3, C)) << "\n";
+			<< (bayes::mult_leakage(pi1, C)) << "   "
+			<< (bayes::mult_leakage(pi2, C)) << "   "
+			<< (bayes::mult_leakage(pi3, C)) << "\n";
 	}
 }
 
@@ -111,9 +111,9 @@ void gleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (g::mulg_leakage(G, pi, C1)) << "   "
-			<< (g::mulg_leakage(G, pi, C2)) << "   "
-			<< (g::mulg_leakage(G, pi, C3)) << "\n";
+			<< (g::mult_leakage(G, pi, C1)) << "   "
+			<< (g::mult_leakage(G, pi, C2)) << "   "
+			<< (g::mult_leakage(G, pi, C3)) << "\n";
 	}
 }
 
@@ -131,9 +131,44 @@ void gleakage_by_pf() {
 		Mat<T> G = tiger_g(honest);
 
 		file << pf << "   " 
-			<< (g::mulg_leakage(G, pi1, C)) << "   "
-			<< (g::mulg_leakage(G, pi2, C)) << "   "
-			<< (g::mulg_leakage(G, pi3, C)) << "\n";
+			<< (g::mult_leakage(G, pi1, C)) << "   "
+			<< (g::mult_leakage(G, pi2, C)) << "   "
+			<< (g::mult_leakage(G, pi3, C)) << "\n";
+	}
+}
+
+void repeated_runs() {
+	double pf = 0.7;
+
+	Chan<T> C = crowds_matrix(honest, corrupted, pf);
+	double pstop = 0.4;
+
+	uint n = 1;
+	cout << "channel " << C.n_rows << " x " << C.n_cols << "\n";
+	cout << "capacity of single run " <<  bayes::mult_capacity(C) << "\n";
+//	cout << "real capacity for " << n << " runs: " << bayes::mult_capacity(channel::comp::repeated_independent(C, n)) << "\n";
+	cout << "comp bound for " << n << " runs: " << n * bayes::mult_capacity(C) << "\n";
+	cout << "cap_b bound for " << n << " runs: " << bayes::mult_capacity_bound_cap(C, n) << "\n";
+	cout << "limit bound for pstop " << pstop << ": " << bayes::mult_capacity(C) / pstop << "\n";
+
+	Chan<T>
+		C1 = crowds_matrix(honest, corrupted, 0),
+		C2 = crowds_matrix(honest, corrupted, 0.5),
+		C3 = crowds_matrix(honest, corrupted, 1);
+
+	ofstream file;
+	file.open("crowds_data/repeated.txt");
+
+	T cap1 = bayes::mult_capacity(C1),
+	  cap2 = bayes::mult_capacity(C2),
+	  cap3 = bayes::mult_capacity(C3);
+
+	for(T pstop(0); less_than_or_eq(pstop, T(1)); pstop += T(1)/1000) {
+
+		file << pstop << "   "
+			<< (cap1 / pstop) << "   "
+			<< (cap2 / pstop) << "   "
+			<< (cap3 / pstop) << "\n";
 	}
 }
 
@@ -142,10 +177,20 @@ int main() {
 
 	if(system("mkdir -p crowds_data")) {}
 
+	honest = 100;
+	corrupted = 5;
+
+	repeated_runs();
+
+	if(system("cd crowds_data && gnuplot ../../../samples/crowds/repeated.plt")) {}	// ignore return value without warning
+
 	// Create 4 plots:
 	// - Min-entropy leakage as a function of p for various values of pf
 	// - Min-entropy leakage as a function of pf for various values of p
 	// - same for g-leakage
+
+	honest = 5;
+	corrupted = 1;
 
 	meleakage_by_p();
 	meleakage_by_pf();

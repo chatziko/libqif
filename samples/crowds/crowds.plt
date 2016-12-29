@@ -24,41 +24,42 @@ set terminal pdf font 'Arial,22'
 
 #set ylabel "min-entropy leakage"
 set ytics .2
-set yrange [-0.1:1]
+set yrange [0.9:1.8]
 set output "crowds-min-p.pdf"
 plot \
-	"data-min-p.txt"		using 1:2	smooth frequency title "phi = 0.0", \
-	"data-min-p.txt"		using 1:3	smooth frequency title "phi = 0.5", \
-	"data-min-p.txt"		using 1:4	smooth frequency title "phi = 1.0"
+	"data-min-p.txt"		using 1:2	smooth frequency title "phi = 0.0" with lines, \
+	"data-min-p.txt"		using 1:3	smooth frequency title "phi = 0.5" with lines, \
+	"data-min-p.txt"		using 1:4	smooth frequency title "phi = 1.0" with lines
 
 #set ylabel "tiger-leakage"
-set yrange [-0.02:0.25]
+set yrange [0.9:1.2]
 set ytics .05
 set output "crowds-tiger-p.pdf"
 plot \
-	"data-tiger-p.txt"		using 1:2	smooth frequency title "phi = 0.0", \
-	"data-tiger-p.txt"		using 1:3	smooth frequency title "phi = 0.5", \
-	"data-tiger-p.txt"		using 1:4	smooth frequency title "phi = 1.0"
+	"data-tiger-p.txt"		using 1:2	smooth frequency title "phi = 0.0" with lines, \
+	"data-tiger-p.txt"		using 1:3	smooth frequency title "phi = 0.5" with lines, \
+	"data-tiger-p.txt"		using 1:4	smooth frequency title "phi = 1.0" with lines
 
 
 #set xlabel "Probability phi of forwarding"
 
 #set ylabel "min-entropy leakage"
 set ytics .2
-set yrange [-0.1:1]
+set yrange [0.9:1.8]
+#set autoscale y
 set output "crowds-min-pf.pdf"
 plot \
-	"data-min-pf.txt"		using 1:2	smooth frequency title "p = 0.4", \
-	"data-min-pf.txt"		using 1:3	smooth frequency title "p = 0.3", \
-	"data-min-pf.txt"		using 1:4	smooth frequency title "p = 0.2"
+	"data-min-pf.txt"		using 1:2	smooth frequency title "p = 0.4" with lines, \
+	"data-min-pf.txt"		using 1:3	smooth frequency title "p = 0.3" with lines, \
+	"data-min-pf.txt"		using 1:4	smooth frequency title "p = 0.2" with lines
 
 #set ylabel "tiger-leakage"
-set yrange [-0.02:0.25]
+set yrange [0.9:1.2]
 set ytics .05
 set xtics (.1, .2, .3, .4, .5, .6, .75, .9, 1)
 set output "crowds-tiger-pf.pdf"
 plot \
-	"data-tiger-pf.txt"		using 1:2	smooth frequency title "p = 0.4", \
-	"data-tiger-pf.txt"		using 1:3	smooth frequency title "p = 0.3", \
-	"data-tiger-pf.txt"		using 1:4	smooth frequency title "p = 0.2"
+	"data-tiger-pf.txt"		using 1:2	smooth frequency title "p = 0.4" with lines, \
+	"data-tiger-pf.txt"		using 1:3	smooth frequency title "p = 0.3" with lines, \
+	"data-tiger-pf.txt"		using 1:4	smooth frequency title "p = 0.2" with lines
 
