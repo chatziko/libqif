@@ -51,6 +51,23 @@ scale(Metric<R, T> d, R coeff) {
 	return d2;
 }
 
+// 0 if below threshold t, 1 otherwise
+//
+template<typename R, typename T>
+Metric<R, T>
+threshold(Metric<R, T> d, R thres) {
+	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+		return less_than(d(a, b), thres) ? 0 : 1;
+	};
+	d2.is_adjacent = [d, thres](const T& a, const T& b) -> bool {
+		// a,b are non-adjacent in d2 if they are non-adjacent in d and below the threshold
+		return d.is_adjacent(a, b) || !less_than(d(a, b), thres);
+	};
+	return d2;
+}
+
+// Euclidean distance on non-uint Points
+//
 template<typename R, typename T, EnableIf<is_Point<T>> = _, DisableIf<std::is_same<T, Point<uint>>> = _>
 Metric<R, T>
 euclidean() {

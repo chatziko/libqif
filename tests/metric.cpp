@@ -57,6 +57,19 @@ TYPED_TEST_P(MetricTest, Scale) {
 	EXPECT_TRUE(scaled_disc.is_adjacent(0, 2));
 }
 
+TYPED_TEST_P(MetricTest, Threshold) {
+	typedef TypeParam eT;
+
+	auto thres_euclid = metric::threshold(metric::euclidean<eT, uint>(), eT(10)) ;
+
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(3, 3));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(0, 5));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), thres_euclid(0, 10));
+	EXPECT_TRUE(thres_euclid.is_adjacent(0, 1));
+	EXPECT_FALSE(thres_euclid.is_adjacent(0, 2));
+	EXPECT_TRUE(thres_euclid.is_adjacent(0, 10));
+}
+
 TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 	typedef TypeParam eT;
 	typedef Point<eT> P;
@@ -236,7 +249,7 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 
 // run the MetricTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(MetricTest, Euclidean_uint, Scale, Discrete, Manhattan_point, Total_variation, Bounded_entropy_distance, Kantorovich);
+REGISTER_TYPED_TEST_CASE_P(MetricTest, Euclidean_uint, Scale, Threshold, Discrete, Manhattan_point, Total_variation, Bounded_entropy_distance, Kantorovich);
 REGISTER_TYPED_TEST_CASE_P(MetricTestReals, Euclidean_point, Grid_point, Multiplicative_distance, Mult_kantorovich);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Metric, MetricTest, AllTypes);
