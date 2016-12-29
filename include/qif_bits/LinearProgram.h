@@ -71,7 +71,7 @@ class LinearProgram {
 		inline eT optimum()				{ return arma::dot(x, c); }
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
-		void fill_A(std::list<MatrixEntry<eT>>& l);
+		void fill_A(const std::list<MatrixEntry<eT>>& l, bool add_duplicates = false);
 		LinearProgram canonical_form();
 
 		friend std::ostream& operator<<(std::ostream& os, const status_t& status) {
@@ -99,7 +99,7 @@ bool LinearProgram<eT>::solve() {
 }
 
 template<typename eT>
-void LinearProgram<eT>::fill_A(std::list<MatrixEntry<eT>>& entries) {
+void LinearProgram<eT>::fill_A(const std::list<MatrixEntry<eT>>& entries, bool add_duplicates) {
 	if(b.is_empty() || c.is_empty())
 		throw std::runtime_error("b and c vectors should be set before calling fill_A");
 
@@ -115,7 +115,7 @@ void LinearProgram<eT>::fill_A(std::list<MatrixEntry<eT>>& entries) {
 		i++;
 	}
 
-	A = arma::SpMat<eT>(locations, values, b.n_elem, c.n_elem);	// arma has no batch-insert method into existing A
+	A = arma::SpMat<eT>(add_duplicates, locations, values, b.n_elem, c.n_elem);	// arma has no batch-insert method into existing A
 }
 
 // for rats, we use the simplex() method after transforming to canonical form
