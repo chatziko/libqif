@@ -64,15 +64,14 @@ inline bool equal(const float& x, const float& y, const float& md, const float& 
 
 
 template<typename eT>
-inline bool less_than(const eT& x, const eT& y) {
-	// in the perl library a tolerance of epsilon is allowed, but I don't
-	// know why. We leave it simple for now
-	return x < y;
+inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+	return x < y || equal(x, y, md, mrd);
 }
 
 template<typename eT>
-inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
-	return x < y || equal(x, y, md, mrd);
+inline bool less_than(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+	// strictly less_than
+	return !less_than_or_eq(y, x, md, mrd);
 }
 
 template<typename eT>
