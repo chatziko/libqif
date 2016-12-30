@@ -23,7 +23,7 @@ eT post_vulnerability(const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return vulnerability(pi) - post_vulnerability(pi, C);
+	return post_vulnerability(pi, C) - vulnerability(pi);
 }
 
 template<typename eT>
