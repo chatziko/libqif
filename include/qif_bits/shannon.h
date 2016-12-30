@@ -34,7 +34,7 @@ eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_entropy(pi, C) - entropy(pi);
+	return entropy(pi) - post_entropy(pi, C);
 }
 
 template<typename eT>
@@ -50,12 +50,12 @@ eT mulg_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 //Blahut-Arimoto Algorithm
 //
 template<typename eT>
-eT add_capacity(const Chan<eT>& C, eT max_diff = def_max_diff<eT>(), eT max_rel_diff = def_max_rel_diff<eT>()) {
+eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
 	uint m = C.n_rows;
 	uint n = C.n_cols;
 
-	Prob<eT> F(m), Px(m), Py(m);
-	probab::uniform(Px);
+	Prob<eT> F(m), Py(m);
+	Px = probab::uniform<eT>(m);
 
 	while(1) {
 		// Py = output dist
@@ -76,12 +76,19 @@ eT add_capacity(const Chan<eT>& C, eT max_diff = def_max_diff<eT>(), eT max_rel_
 		eT IL = qif::log2(d);
 		eT IU = qif::log2(max(F));
 
-		if(equal(IU, IL, max_diff, max_rel_diff))
+		if(equal(IU, IL, md, mrd))
 			return IL;
 
 		// update Px
 		Px %= F / d;		// % is element-wise mult
 	}
+}
+
+// same without getting back the prior
+template<typename eT>
+eT add_capacity(const Chan<eT>& C, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
+	Prob<eT> Px;
+	return add_capacity<eT>(C, Px, md, mrd);
 }
 
 } // mechanism
