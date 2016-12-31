@@ -46,7 +46,6 @@ TYPED_TEST_P(GainTest, Cond_vulnerability) {
 	ASSERT_ANY_THROW(g::post_vulnerability(t.id_10, t.unif_2, t.id_10));
 }
 
-
 TYPED_TEST_P(GainTestReals, Mulg_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
@@ -57,9 +56,25 @@ TYPED_TEST_P(GainTestReals, Mulg_leakage) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), g::mulg_leakage(t.id_2, t.unif_2, t.c1));
 }
 
+TYPED_TEST_P(GainTest, Add_capacity) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/2, g::add_capacity(t.unif_2,  t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,       g::add_capacity(t.unif_2,  t.id_2,      false));
+
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,       g::add_capacity(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,       g::add_capacity(t.dirac_2, t.id_2,      false));
+
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,       g::add_capacity(t.unif_4,  t.noint_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,       g::add_capacity(t.unif_4,  t.noint_4,   false));
+
+	ASSERT_ANY_THROW(g::add_capacity(t.unif_2, t.id_10));
+}
+
 // run the GainTest test-case for all types, and the GainTestReals only for double/float
 //
-REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Cond_vulnerability);
+REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Cond_vulnerability, Add_capacity);
 REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mulg_leakage);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Gain, GainTest, AllTypes);

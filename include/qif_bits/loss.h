@@ -75,6 +75,10 @@ arma::ucolvec strategy(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan
 	return strategy(metric_to_mat(l, pi.n_cols), pi, C);
 }
 
+template<typename eT>
+eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning = true) {
+	return g::add_capacity(pi, C, one_spanning);
+}
 
 
 
