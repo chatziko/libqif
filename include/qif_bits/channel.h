@@ -107,12 +107,66 @@ inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_d
 }
 
 
+// lexicographic order
+template<typename eT>
+int compare_columns(const Mat<eT>& A, uint j1, uint j2) {
+	for(uint i = 0; i < A.n_rows; i++) {
+		if(less_than(A(i, j1), A(i, j2)))
+			return -1;
+		else if(less_than(A(i, j2), A(i, j1)))
+			return 1;
+	}
+	return 0;
+}
+
+
 // returns the posterior for a specific output y
 //
 template<typename eT>
 inline
 Prob<eT> posterior(const Chan<eT>& C, const Prob<eT>& pi, uint y) {
 	return (arma::trans(C.col(y)) % pi) / arma::dot(C.col(y), pi);
+}
+
+
+// returns the hyper produced by C and pi
+//
+template<typename eT>
+inline
+Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
+	Prob<eT> outer = pi * C;
+	inners = C;
+
+	inners.each_col() %= pi.t();	// creates the joint
+	inners.each_row() /= outer;		// normalizes each column into the posterior
+
+	// remove linearly dependent cols and zero-probability cols
+	// we first sort cols in lexicographic order. Then move the outer probability
+	// of equal columns, and finally delete cols of zero probability
+	//
+	auto sorted = arma::linspace<arma::urowvec>(0, inners.n_cols-1, inners.n_cols);
+    std::sort(sorted.begin(), sorted.end(), [&inners](uint a, uint b) {
+		return compare_columns(inners, a, b) == -1;		// a < b
+    });
+
+	uint first = sorted(0);		// first col of a sequence of equal ones
+	for(uint i = 1; i < sorted.n_elem; i++) {
+		uint col = sorted(i);
+		if(compare_columns(inners, first, col) == 0) {
+			outer(first) += outer(col);
+			outer(col) = 0;
+		} else
+			first = col;
+	}
+
+	// remove zero probability columns
+	for(int i = outer.n_elem - 1; i >= 0; i--)	// inverse order to avoid changing the index
+		if(qif::equal(outer(i), eT(0))) {
+			inners.shed_col(i);
+			outer.shed_col(i);
+		}
+
+	return outer;
 }
 
 
