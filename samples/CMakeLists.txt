@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
+add_subdirectory(../external/backward-cpp backward-cpp)
+
 MACRO(SUBDIRLIST result curdir)
 	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
 	SET(dirlist "")
@@ -35,11 +37,11 @@ foreach(DIR ${SUBDIRS})
 		DEPENDS ${SOURCES}
 	)
 
-	add_executable(${DEST} ${MERGED})
+	add_executable(${DEST} ${MERGED} ${BACKWARD_ENABLE})
 	target_link_libraries(${DEST} qif)									# link sample against libqif
+	add_backward(${DEST})												# add stuff required by backward-cpp
 
 	add_precompiled_header(${DEST} ../include/precompiled.h)
 
 	add_dependencies(samples ${DEST})
 endforeach()
-
