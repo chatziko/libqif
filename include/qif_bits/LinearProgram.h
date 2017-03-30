@@ -109,6 +109,12 @@ void LinearProgram<eT>::fill_A(const std::list<MatrixEntry<eT>>& entries, bool a
 
 	uint i = 0;
 	for(auto entry : entries) {
+		if(entry.row >= b.n_elem || entry.col >= c.n_elem) {
+			std::ostringstream oss;
+			oss << "fill_A: entry #" << i << " sets A(" << entry.row << "," << entry.col << ")=" << entry.val << " but A's size is " << b.n_elem << "x" << c.n_elem;
+			throw std::runtime_error(oss.str());
+		}
+
 		locations(0, i) = entry.row;
 		locations(1, i) = entry.col;
 		values(i) = entry.val;
