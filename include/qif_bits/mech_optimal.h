@@ -1,10 +1,13 @@
 
 namespace mechanism {
 
+template <typename eT> using ME = lp::MatrixEntry<eT>;
+
 // Returns the mechanism satisfying eps*d privacy and having the best utility wrt pi and loss
 //
 template<typename eT>
 Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
+
 	uint M = pi.n_cols,
 		 N = n_cols,
 		 n_adj = 0;
@@ -24,7 +27,7 @@ Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_pri
 		 n_cons = 2*n_adj*N+M,				// one constraint for each C_xy, C_x'y for x adj x', plus M sum=1 constraints
 		 n_cons_elems = 4*n_adj*N+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
 
-	LinearProgram<eT> lp;
+	lp::LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
 	lp.sense.set_size(n_cons);
 
@@ -35,7 +38,7 @@ Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_pri
 		for(uint y = 0; y < N; y++)
 			lp.c(x*N+y) = pi(x) * loss(x, y);
 
-	std::list<MatrixEntry<eT>> entries;
+	std::list<ME<eT>> entries;
 	uint cons_i = 0;
 
 	// Build equations for C_xy <= exp(eps d_priv(x,x')) C_x'y
@@ -49,8 +52,8 @@ Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_pri
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			entries.push_back(MatrixEntry<eT>(cons_i, x1*N+y, eT(1)));
-			entries.push_back(MatrixEntry<eT>(cons_i, x2*N+y, - std::exp(d_priv(x1, x2))));
+			entries.push_back(ME<eT>(cons_i, x1*N+y, eT(1)));
+			entries.push_back(ME<eT>(cons_i, x2*N+y, - std::exp(d_priv(x1, x2))));
 
 			cons_i++;
 		}
@@ -64,7 +67,7 @@ Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_pri
 
 		for(uint y = 0; y < N; y++)
 			// coeff 1 for variable C[x,y]
-			entries.push_back(MatrixEntry<eT>(cons_i, x*N+y, eT(1)));
+			entries.push_back(ME<eT>(cons_i, x*N+y, eT(1)));
 
 		cons_i++;
 	}
@@ -123,7 +126,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 		 n_cons = 2*(D-1)*N+M,				// 2 constraints for each consecutive distances and output, plus M sum=1 constraints
 		 n_cons_elems = 4*(D-1)*N+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
 
-	LinearProgram<eT> lp;
+	lp::LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
 	lp.sense.set_size(n_cons);
 
@@ -134,7 +137,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 		for(uint y = 0; y < N; y++)
 			lp.c(DI(x,y)*N+y) += pi(x) * loss(x, y);
 
-	std::list<MatrixEntry<eT>> entries;
+	std::list<ME<eT>> entries;
 	uint cons_i = 0;
 
 	// Build equations for X_d_i <= exp(eps |d_i - d_i+1|) X_d_j
@@ -146,16 +149,16 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			entries.push_back(MatrixEntry<eT>(cons_i, dist_i*N+y, eT(1)));
-			entries.push_back(MatrixEntry<eT>(cons_i, (dist_i+1)*N+y, - std::exp(diff)));
+			entries.push_back(ME<eT>(cons_i, dist_i*N+y, eT(1)));
+			entries.push_back(ME<eT>(cons_i, (dist_i+1)*N+y, - std::exp(diff)));
 
 			cons_i++;
 
 			lp.sense(cons_i) = '<';
 			lp.b(cons_i) = eT(0);
 
-			entries.push_back(MatrixEntry<eT>(cons_i, (dist_i+1)*N+y, eT(1)));
-			entries.push_back(MatrixEntry<eT>(cons_i, dist_i*N+y, - std::exp(diff)));
+			entries.push_back(ME<eT>(cons_i, (dist_i+1)*N+y, eT(1)));
+			entries.push_back(ME<eT>(cons_i, dist_i*N+y, - std::exp(diff)));
 
 			cons_i++;
 		}
@@ -170,7 +173,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 		lp.sense(cons_i) = '=';
 
 		for(uint y = 0; y < N; y++)
-			entries.push_back(MatrixEntry<eT>(cons_i, DI(x,y)*N+y, eT(1)));
+			entries.push_back(ME<eT>(cons_i, DI(x,y)*N+y, eT(1)));
 
 		cons_i++;
 	}
@@ -231,7 +234,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		 n_cons = 2*(D-1)+M,				// 2 constraints for each consecutive distances, plus M sum=1 constraints
 		 n_cons_elems = 4*(D-1)+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
 
-	LinearProgram<eT> lp;
+	lp::LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
 	lp.sense.set_size(n_cons);
 
@@ -242,7 +245,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		for(uint y = 0; y < N; y++)
 			lp.c(DI(x,y)) += pi(x) * loss(x, y);
 
-	std::list<MatrixEntry<eT>> entries;
+	std::list<ME<eT>> entries;
 	uint cons_i = 0;
 
 	// Build equations for X_d_i <= exp(eps |d_i - d_i+1|) X_d_j
@@ -253,16 +256,16 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		lp.sense(cons_i) = '<';
 		lp.b(cons_i) = eT(0);
 
-		entries.push_back(MatrixEntry<eT>(cons_i, dist_i, eT(1)));
-		entries.push_back(MatrixEntry<eT>(cons_i, dist_i+1, - std::exp(diff)));
+		entries.push_back(ME<eT>(cons_i, dist_i, eT(1)));
+		entries.push_back(ME<eT>(cons_i, dist_i+1, - std::exp(diff)));
 
 		cons_i++;
 
 		lp.sense(cons_i) = '<';
 		lp.b(cons_i) = eT(0);
 
-		entries.push_back(MatrixEntry<eT>(cons_i, dist_i+1, eT(1)));
-		entries.push_back(MatrixEntry<eT>(cons_i, dist_i, - std::exp(diff)));
+		entries.push_back(ME<eT>(cons_i, dist_i+1, eT(1)));
+		entries.push_back(ME<eT>(cons_i, dist_i, - std::exp(diff)));
 
 		cons_i++;
 	}
@@ -276,7 +279,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 		lp.sense(cons_i) = '=';
 
 		for(uint y = 0; y < N; y++)
-			entries.push_back(MatrixEntry<eT>(cons_i, DI(x,y), eT(1)));
+			entries.push_back(ME<eT>(cons_i, DI(x,y), eT(1)));
 
 		cons_i++;
 	}

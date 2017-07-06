@@ -230,7 +230,7 @@ kantorovich(Metric<R, uint> d) {
 		// s.t.      sum_j x_ij = a[i]     forall i
 		//           sum_i x_ij = b[j]     forall j
 		//
-		LinearProgram<R> lp;
+		lp::LinearProgram<R> lp;
 		uint n      = a.n_cols,
 			 n_vars = n * n,
 			 n_cons = 2 * n;
@@ -255,7 +255,7 @@ kantorovich(Metric<R, uint> d) {
 
 		if(!lp.solve())
 			throw std::runtime_error(std::string("Kantorovich program failed: ") +
-									 (lp.status == LinearProgram<R>::status_t::infeasible ? "infeasible" : "unbounded"));
+									 (lp.status == lp::status_t::infeasible ? "infeasible" : "unbounded"));
 		return lp.optimum();
 	};
 }
@@ -279,7 +279,7 @@ mult_kantorovich(Metric<R, uint> d) {
 		// s.t.      sum_j x_ij             - r_i           = a[i]  forall i
 		//           sum_i x_ij exp(d(i,j)) - r_j - b[j] z <= 0     forall j
 		//
-		LinearProgram<R> lp;
+		lp::LinearProgram<R> lp;
 		uint n_vars = n * n + n + 1,
 			 n_cons = 2 * n;
 

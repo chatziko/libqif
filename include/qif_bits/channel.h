@@ -1,6 +1,8 @@
 
 namespace channel {
 
+template <typename eT> using ME = lp::MatrixEntry<eT>;
+
 template<typename eT>
 inline
 Chan<eT>& identity(Chan<eT>& C) {
@@ -189,13 +191,13 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 	if(B.n_rows != M)
 		return Chan<eT>();
 
-	LinearProgram<eT> lp;
+	lp::LinearProgram<eT> lp;
 	lp.b.set_size(n_cons);
 	lp.c = arma::zeros<Chan<eT>>(n_vars);			// we don't really care to optimize, so cost function = 0
 	lp.sense.set_size(n_cons);
 	lp.sense.fill('=');
 
-	std::list<MatrixEntry<eT>> entries;				// for batch entry into A
+	std::list<ME<eT>> entries;						// for batch entry into A
 
 	// Build equations for A = B X
 	// We have R x N variables, that will be unfolded in a vector.
@@ -209,7 +211,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 
 			for(uint r = 0; r < R; r++)
 				// coeff B[m,r] for variable X[r,n]
-				entries.push_back(MatrixEntry<eT>(row, r*N+n, B(m, r)));
+				entries.push_back(ME<eT>(row, r*N+n, B(m, r)));
 		}
 	}
 
@@ -221,7 +223,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 
 		for(uint n = 0; n < N; n++)
 			// coeff 1 for variable X[r,n]
-			entries.push_back(MatrixEntry<eT>(row, r*N+n, eT(1)));
+			entries.push_back(ME<eT>(row, r*N+n, eT(1)));
 	}
 
 	n_cons_elems -= entries.size();

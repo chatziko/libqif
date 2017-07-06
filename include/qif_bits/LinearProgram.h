@@ -25,8 +25,17 @@ SOFTWARE.
 // for some reason this needs to be included here, not enough to do it in "qif"
 #include <cassert>
 
+namespace lp {
+
 using std::string;
-using std::to_string;
+
+enum class status_t { optimal, infeasible, unbounded, infeasible_or_unbounded, error };
+enum class method_t { simplex_primal, simplex_dual, simplex_dualp, interior };
+enum class msg_level_t { off, err, on, all };
+
+std::ostream& operator<<(std::ostream& os, const status_t& status);
+std::ostream& operator<<(std::ostream& os, const method_t& method);
+std::ostream& operator<<(std::ostream& os, const msg_level_t& level);
 
 
 template<typename eT>
@@ -37,6 +46,13 @@ class MatrixEntry {
 		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
 };
 
+class Defaults {
+	public:
+		static bool        glp_presolve ;
+		static msg_level_t glp_msg_level;
+		static method_t    method;
+};
+
 // Solve the linear program
 // {min/max} dot(c,x)
 // subject to A x {>=|==|<=} b
@@ -44,10 +60,9 @@ class MatrixEntry {
 
 template<typename eT>
 class LinearProgram {
-	public:
-		enum class status_t { optimal, infeasible, unbounded, error };
-		enum class method_t { simplex_primal, simplex_dual, interior };
+	const bool is_rat = std::is_same<eT, rat>::value;
 
+	public:
 		arma::SpMat<eT>
 			A;				// constraints.
 		Col<eT>
@@ -59,8 +74,10 @@ class LinearProgram {
 
 		bool maximize = true;
 		bool non_negative = true;
-		method_t method = method_t::simplex_primal;
+		method_t method = is_rat ? method_t::simplex_primal : Defaults::method;	// rat only supports simplex_primal
+		bool glp_presolve = is_rat ? false : Defaults::glp_presolve;
 		status_t status;
+		msg_level_t glp_msg_level = Defaults::glp_msg_level;
 
 		LinearProgram() {}
 		LinearProgram(const Mat<eT>& A, const Col<eT>& b, const Col<eT>& c) : A(A), b(b), c(c) { check_sizes(); }
@@ -73,15 +90,6 @@ class LinearProgram {
 
 		void fill_A(const std::list<MatrixEntry<eT>>& l, bool add_duplicates = false);
 		LinearProgram canonical_form();
-
-		friend std::ostream& operator<<(std::ostream& os, const status_t& status) {
-			std::string s[] = { "optimal", "infeasible", "unbounded", "error" };
-			return os << s[static_cast<uint>(status)];
-		}
-		friend std::ostream& operator<<(std::ostream& os, const method_t& method) {
-			std::string s[] = { "simplex_primal", "simplex_dual", "interior" };
-			return os << s[static_cast<uint>(method)];
-		}
 
 	protected:
 		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
@@ -200,32 +208,45 @@ bool LinearProgram<eT>::glpk() {
 
 	glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
 
+	const int glp_msg_levs[] = { GLP_MSG_OFF, GLP_MSG_ERR, GLP_MSG_ON, GLP_MSG_ALL };
+	const int msg_lev = glp_msg_levs[static_cast<uint>(glp_msg_level)];
+
 	// solve
-	if(method == method_t::simplex_primal || method == method_t::simplex_dual) {
+	const bool is_interior = method == method_t::interior;
+	if(!is_interior) {	// simplex primal/dual/dualp
 		glp_smcp opt;
 		glp_init_smcp(&opt);
-		opt.msg_lev = GLP_OFF;		// no terminal output
-		//opt.presolve = GLP_ON;		// use presolver
+		opt.meth =
+			method == method_t::simplex_primal ? GLP_PRIMAL :
+			method == method_t::simplex_dual   ? GLP_DUAL :
+			GLP_DUALP;
+		opt.msg_lev = msg_lev;							// debug info sent to terminal, default off
+		opt.presolve = glp_presolve ? GLP_ON : GLP_OFF;	// use presolver
 
-		glp_simplex(lp, &opt);
+		//glp_scale_prob(lp, GLP_SF_AUTO);	// scaling is done by the presolver
+		int glp_res = glp_simplex(lp, &opt);
 
 		int glp_status = glp_get_status(lp);
-		status =
-			glp_status == GLP_OPT	? status_t::optimal :
-			glp_status == GLP_NOFEAS? status_t::infeasible :
-			glp_status == GLP_UNBND	? status_t::unbounded :
-									  status_t::error;
+		int glp_dual_st = glp_get_dual_stat(lp);
 
-		if(status == status_t::optimal) {
-			x.set_size(A.n_cols);
-			for(uint j = 0; j < A.n_cols; j++)
-				x.at(j) = glp_get_col_prim(lp, j+1);
-		}
+		// Note:
+		// - what we care about is the status if the primal problem
+		// - if the presolver is used, glp_simplex might return GLP_ENOPFS/GLP_ENODFS (no feas primal/dual)
+		//   while all statuses are GLP_UNDEF
+		// - if we know that the dual problem is infeasible, then the primal has to be infeasible OR unbounded
+		//   although we might not know which one
+		//
+		status =
+			glp_status == GLP_OPT								? status_t::optimal :
+			glp_status == GLP_NOFEAS || glp_res == GLP_ENOPFS	? status_t::infeasible :
+			glp_status == GLP_UNBND								? status_t::unbounded :
+			glp_dual_st == GLP_NOFEAS || glp_res == GLP_ENODFS	? status_t::infeasible_or_unbounded :
+		  status_t::error;
 
 	} else {
 		glp_iptcp opt;
 		glp_init_iptcp(&opt);
-		opt.msg_lev = GLP_OFF;		// no terminal output
+		opt.msg_lev = msg_lev;	// debug info sent to terminal, default off
 
 		glp_interior(lp, &opt);
 
@@ -236,14 +257,15 @@ bool LinearProgram<eT>::glpk() {
 		// std::cout << "interior status: " << (status == GLP_OPT ? "GLP_OPT" : status == GLP_NOFEAS  ? "GLP_NOFEAS" : status == GLP_INFEAS ? "GLP_INFEAS" : status == GLP_UNDEF ? "GLP_UNDEF" : "XXX") << "\n";
 		status =
 			glp_status == GLP_OPT	? status_t::optimal :
-			glp_status == GLP_NOFEAS? status_t::infeasible :
+			glp_status == GLP_NOFEAS? status_t::infeasible_or_unbounded :
 									  status_t::error;
+	}
 
-		if(status == status_t::optimal) {
-			x.set_size(A.n_cols);
-			for(uint j = 0; j < A.n_cols; j++)
-				x.at(j) = glp_ipt_col_prim(lp, j+1);
-		}
+	// get optimal solution
+	if(status == status_t::optimal) {
+		x.set_size(A.n_cols);
+		for(uint j = 0; j < A.n_cols; j++)
+			x.at(j) = is_interior ? glp_ipt_col_prim(lp, j+1) : glp_get_col_prim(lp, j+1);
 	}
 
 	// clean
@@ -468,6 +490,8 @@ EXIT:
 
 template<typename eT>
 string LinearProgram<eT>::to_mps() {
+	using std::to_string;
+
 	string s;
 	s = "NAME PROG\n";
 
@@ -514,5 +538,7 @@ inline
 string LinearProgram<rat>::to_mps() {
 	// TODO: make to_mps work for rat
 	throw std::runtime_error("not supported");
+}
+
 }
 

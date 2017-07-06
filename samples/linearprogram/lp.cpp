@@ -3,10 +3,10 @@
 #include <iostream>
 #include <list>
 
-using namespace qif;
+using namespace qif::lp;
 using namespace std;
 
-typedef qif::MatrixEntry<double> ME;
+typedef MatrixEntry<double> ME;
 
 int main() {
 	/*
@@ -71,7 +71,8 @@ int main() {
 //	lp.A(4,1) = 1;
 
 	// methods: simplex_primal, simplex_dual, interior
-	lp.method = LinearProgram<double>::method_t::simplex_primal;
+	lp.method = method_t::simplex_primal;
+	lp.glp_msg_level = msg_level_t::on;
 
 	bool solved = lp.solve();
 
