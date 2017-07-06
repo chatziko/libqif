@@ -6,12 +6,16 @@ template <typename eT> using ME = lp::MatrixEntry<eT>;
 // Returns the mechanism satisfying eps*d privacy and having the best utility wrt pi and loss
 //
 template<typename eT>
-Chan<eT> optimal_utility(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
-
+Chan<eT> optimal_utility(
+	const Prob<eT>& pi,
+	uint n_cols,
+	Metric<eT, uint> d_priv,
+	Metric<eT, uint> loss,
+	eT inf = eT(std::log(1e200))	// ignore large distances to avoid numerical instability. infinity<eT>() could be used to disable
+) {
 	uint M = pi.n_cols,
 		 N = n_cols,
 		 n_adj = 0;
-	eT inf = infinity<eT>();
 
 	// find how many adjacent elements do we have
 	for(uint x1 = 0; x1 < M; x1++)
