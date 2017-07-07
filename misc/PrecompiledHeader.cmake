@@ -87,6 +87,8 @@ MACRO(ADD_PRECOMPILED_HEADER _targetName _input)
     LIST(APPEND _compiler_FLAGS ${_directory_flags})
 
 	# Added by Kostas
+  # common flags
+  LIST(APPEND _compiler_FLAGS "${CMAKE_CXX_FLAGS}")
 	# type-dependent flags, eg CMAKE_SHARED_LIBRARY_CXX_FLAGS
 	GET_PROPERTY(_targetType TARGET ${_targetName} PROPERTY TYPE)
 	STRING(TOUPPER "CMAKE_${_targetType}_CXX_FLAGS" _flags_var_name)

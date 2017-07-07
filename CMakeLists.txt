@@ -13,7 +13,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # compiler flags
 #
-add_definitions(-std=c++11 -Wall -Wextra -pedantic)						# common flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")	# common flags
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	message(STATUS "Clang compiler on MacOS X detected. Added '-stdlib=libc++' to compiler flags")
