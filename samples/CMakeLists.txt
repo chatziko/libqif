@@ -16,7 +16,14 @@ MACRO(SUBDIRLIST result curdir)
 ENDMACRO()
 
 
-add_custom_target(samples)												# "samples" target, depends on all samples
+# dummy target, used only to generate a common precompiled header for all samples
+file(WRITE "${PROJECT_BINARY_DIR}/empty.cpp" "int main(){}")
+add_executable(samples_pch "${PROJECT_BINARY_DIR}/empty.cpp")
+set_target_properties(samples_pch PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "../include/precompiled.h")
+cotire(samples_pch)
+
+
+add_custom_target(samples)							# "samples" target, depends on all samples
 
 SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -26,22 +33,14 @@ foreach(DIR ${SUBDIRS})
 	file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/*.cpp)		# get all *.cpp files in SUBDIR
 	set(DEST ${DIR})
 
-	# make aux/<dest>-merged.cpp containing #include's for all source files
-	# much faster than independent .cpp compilation, it avoids multiple template instantiation
-	#
-	file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/aux/)
-	set(MERGED ${PROJECT_BINARY_DIR}/aux/${DEST}-merged.cpp)
-	add_custom_command(
-		OUTPUT ${MERGED}
-		COMMAND perl -e 'print qq{\#include \"$$_\" \\n} for @ARGV' ${SOURCES} > ${MERGED}
-		DEPENDS ${SOURCES}
-	)
-
-	add_executable(${DEST} ${MERGED} ${BACKWARD_ENABLE})
+	add_executable(${DEST} ${SOURCES} ${BACKWARD_ENABLE})
 	target_link_libraries(${DEST} qif)									# link sample against libqif
 	add_backward(${DEST})												# add stuff required by backward-cpp
 
-	add_precompiled_header(${DEST} ../include/precompiled.h)
+	# we manually add the dependency and the -include flag to the common precompiled header
+	cotire(${DEST})
+	add_dependencies("${DEST}_unity" samples_pch)
+	target_compile_options("${DEST}_unity" PRIVATE -include ${PROJECT_BINARY_DIR}/cotire/samples_pch_CXX_prefix.hxx)
 
-	add_dependencies(samples ${DEST})
+	add_dependencies(samples "${DEST}_unity")
 endforeach()

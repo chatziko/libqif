@@ -3,7 +3,8 @@ cmake_policy(VERSION 3.3)												# avoid MACOSX_RPATH warning
 
 project(libqif)
 
-include(misc/PrecompiledHeader.cmake)									# for add_precompiled_header
+include(misc/cotire.cmake)												# for unity builds and precompiled headers
+set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
 
 # default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)
@@ -27,10 +28,13 @@ include_directories(include)
 # build shard lib
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
-add_library(qif SHARED ${LIB_SOURCES})									# libqif, depends on all src/*.cpp files
+add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
 target_link_libraries(qif glpk gmp gmpxx gsl armadillo)					# libraries to link
 
-add_precompiled_header(qif include/precompiled.h)
+set_target_properties(qif PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "include/precompiled.h")
+cotire(qif)
+add_dependencies(qif_unity qif_pch)										# cotire seems to add the -include <precompiled> flag in the _unity build, but not a dependency to the _pch target that builds <precompiled>
+set_target_properties(qif_unity PROPERTIES EXCLUDE_FROM_ALL FALSE)		# 'all' builds qif_unity
 
 
 # other targets
@@ -39,10 +43,9 @@ add_subdirectory(samples EXCLUDE_FROM_ALL)								# build samples
 
 add_subdirectory(misc/doxygen EXCLUDE_FROM_ALL)							# build doc
 
-add_custom_target(allcode)												# 'all' builds just the library, 'allcode' builds also tests and samples
-add_dependencies(allcode samples)
+add_custom_target(allcode DEPENDS samples)								# 'all' builds just the library, 'allcode' builds also tests and samples
 
-# tests only external/googletest is checked out
+# tests, only if external/googletest is checked out
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/CMakeLists.txt")
 	add_subdirectory(tests EXCLUDE_FROM_ALL)							# build tests
 	add_dependencies(allcode tests)
@@ -72,7 +75,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
 	PATTERN "tests_aux.h" EXCLUDE
 	PATTERN "_*" EXCLUDE)
 
-install(TARGETS qif
+install(TARGETS qif_unity
 	ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 	LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
