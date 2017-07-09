@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
-add_subdirectory(../external/backward-cpp backward-cpp)
+# use backward.cpp of pretty stacktraces
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
+	add_subdirectory(../external/backward-cpp backward-cpp)
+else()
+	# backward.cpp not present, add dummy commands to avoid errors
+	set(BACKWARD_ENABLE "")
+	macro(add_backward target)
+	endmacro()
+endif()
 
 MACRO(SUBDIRLIST result curdir)
 	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
