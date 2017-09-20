@@ -51,7 +51,33 @@ scale(Metric<R, T> d, R coeff) {
 	return d2;
 }
 
-// 0 if below threshold t, 1 otherwise
+// min of two metrics (technically not a metric)
+//
+template<typename R, typename T>
+Metric<R, T>
+min(Metric<R, T> d1, Metric<R, T> d2) {
+	Metric<R, T> d = [d1, d2](const T& a, const T& b) -> R {
+		R r1 = d1(a, b);
+		R r2 = d2(a, b);
+		return less_than(r1, r2) ? r1 : r2;
+	};
+	return d;
+}
+
+// max of two metrics (always a metric)
+//
+template<typename R, typename T>
+Metric<R, T>
+max(Metric<R, T> d1, Metric<R, T> d2) {
+	Metric<R, T> d = [d1, d2](const T& a, const T& b) -> R {
+		R r1 = d1(a, b);
+		R r2 = d2(a, b);
+		return less_than(r1, r2) ? r2 : r1;
+	};
+	return d;
+}
+
+// 0 if below threshold t, 1 otherwise (technically not a metric)
 //
 template<typename R, typename T>
 Metric<R, T>
@@ -62,6 +88,22 @@ threshold(Metric<R, T> d, R thres) {
 	d2.is_adjacent = [d, thres](const T& a, const T& b) -> bool {
 		// a,b are non-adjacent in d2 if they are non-adjacent in d and below the threshold
 		return d.is_adjacent(a, b) || !less_than(d(a, b), thres);
+	};
+	return d2;
+}
+
+// inf if above threshold t, same as d otherwise (technically not a metric)
+//
+template<typename R, typename T>
+Metric<R, T>
+threshold_inf(Metric<R, T> d, R thres) {
+	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+		R res = d(a, b);
+		return less_than_or_eq(res, thres) ? res : inf;
+	};
+	d2.is_adjacent = [d, thres](const T& a, const T& b) -> bool {
+		// a,b are non-adjacent in d2 if they are non-adjacent in d and below the threshold
+		return d.is_adjacent(a, b) || !less_than_or_eq(d(a, b), thres);
 	};
 	return d2;
 }
