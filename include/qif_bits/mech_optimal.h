@@ -17,10 +17,10 @@ Chan<eT> optimal_utility(
 		 N = n_cols,
 		 n_adj = 0;
 
-	// find how many adjacent elements do we have
+	// find how many non-chainable elements do we have
 	for(uint x1 = 0; x1 < M; x1++)
 	for(uint x2 = x1+1; x2 < M; x2++)
-		if(d_priv.is_adjacent(x1, x2) && less_than(d_priv(x1, x2), inf))
+		if(!d_priv.chainable(x1, x2) && less_than(d_priv(x1, x2), inf))
 			n_adj++;
 
 	// C: M x N   unknowns
@@ -49,7 +49,7 @@ Chan<eT> optimal_utility(
 	//
 	for(uint x1 = 0; x1 < M; x1++) {
 	for(uint x2 = 0; x2 < M; x2++) {
-		if(x1 == x2 || !d_priv.is_adjacent(x1, x2)) continue;		// constraints for non-adjacent inputs are redundant
+		if(x1 == x2 || d_priv.chainable(x1, x2)) continue;			// constraints for chainable inputs are redundant
 		if(!less_than(d_priv(x1, x2), inf)) continue;				// inf distance, i.e. no constraint
 		for(uint y = 0; y < N; y++) {
 

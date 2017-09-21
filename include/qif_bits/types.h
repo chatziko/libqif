@@ -39,8 +39,8 @@ typedef Row<rat>  rrowvec;
 template<typename R, typename T>
 class Metric : public std::function<R(const T&, const T&)> {
 	public:
-	std::function<bool(const T&, const T&)> is_adjacent =
-		[](const T&, const T&) -> bool { return true; };		// safe default, see metric.h
+	std::function<bool(const T&, const T&)> chainable =
+		[](const T&, const T&) -> bool { return false; };		// safe default, see metric.h
 
 	using std::function<R(const T&, const T&)>::function;
 };

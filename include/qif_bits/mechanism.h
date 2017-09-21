@@ -133,8 +133,8 @@ bool is_private(const Chan<eT>& C, Metric<eT, uint> d) {
 
 	for(uint i = 0; i < C.n_rows; i++) {
 		for(uint j = i+1; j < C.n_rows; j++) {
-			// non-adjacent elements are redundant to check
-			if(!d.is_adjacent(i, j)) continue;
+			// chainable elements are redundant to check
+			if(d.chainable(i, j)) continue;
 
 			eT mp = mtv(C.row(i), C.row(j));
 
@@ -152,8 +152,8 @@ eT smallest_epsilon(const Chan<eT>& C, Metric<eT, uint> d) {
 	eT res(0);
 	for(uint i = 0; i < C.n_rows; i++) {
 		for(uint j = i+1; j < C.n_rows; j++) {
-			// non-adjacent elements are redundant to check
-			if(!d.is_adjacent(i, j)) continue;
+			// chainable elements are redundant to check
+			if(d.chainable(i, j)) continue;
 
 			eT ratio = mtv(C.row(i), C.row(j)) / d(i, j);
 			if(less_than(res, ratio))

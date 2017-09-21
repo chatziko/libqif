@@ -1,9 +1,9 @@
 namespace metric {
 
-// NOTE ON ADJACENCY
-// is_adjacent(a, b) should return false only if there is a path a = e_1, ..., e_n = b
-// such that d(a, b) = sum_i d(e_i, e_i+1).
-// Returning true is safe if we cannot guarantee this path, and is the default if is_adjacent is not defined.
+// NOTE ON chainable()
+// chainable(a, b) should true only if there is a "tight chain" between a, b, i.e. there
+// is a chain a = e_1, ..., e_n = b such that d(a, b) = sum_i d(e_i, e_i+1).
+// Returning false is safe if we cannot guarantee this chain, and is the default if chainable() is not defined.
 
 
 // Euclidean on arithmetic T except uint
@@ -16,7 +16,7 @@ euclidean() {
 }
 
 // on uint's (discrete space, particularly useful for measuring distances
-// between channel inputs), only consecutive elements are adjacent
+// between channel inputs), all non-consecutive elements are chainable
 //
 template<typename R, typename T, EnableIf<std::is_same<T, uint>> = _>
 Metric<R, T>
@@ -24,8 +24,8 @@ euclidean() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
 		return abs_diff(a, b);
 	};
-	d.is_adjacent = [](const T& a, const T& b) -> bool {
-		return abs_diff(a, b) == 1;
+	d.chainable = [](const T& a, const T& b) -> bool {
+		return abs_diff(a, b) != 1;
 	};
 	return d;
 }
@@ -47,7 +47,7 @@ scale(Metric<R, T> d, R coeff) {
 		if(r != R(0)) r *= coeff;
 		return r;
 	};
-	d2.is_adjacent = d.is_adjacent;
+	d2.chainable = d.chainable;
 	return d2;
 }
 
@@ -85,9 +85,9 @@ threshold(Metric<R, T> d, R thres) {
 	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
 		return less_than(d(a, b), thres) ? 0 : 1;
 	};
-	d2.is_adjacent = [d, thres](const T& a, const T& b) -> bool {
-		// a,b are non-adjacent in d2 if they are non-adjacent in d and below the threshold
-		return d.is_adjacent(a, b) || !less_than(d(a, b), thres);
+	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
+		// a,b are chainable in d2 if they are chainable in d and below the threshold
+		return d.chainable(a, b) && less_than(d(a, b), thres);
 	};
 	return d2;
 }
@@ -101,9 +101,9 @@ threshold_inf(Metric<R, T> d, R thres) {
 		R res = d(a, b);
 		return less_than_or_eq(res, thres) ? res : inf;
 	};
-	d2.is_adjacent = [d, thres](const T& a, const T& b) -> bool {
-		// a,b are non-adjacent in d2 if they are non-adjacent in d and below the threshold
-		return d.is_adjacent(a, b) || !less_than_or_eq(d(a, b), thres);
+	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
+		// a,b are chainable in d2 if they are chainable in d and below the threshold
+		return d.chainable(a, b) && less_than_or_eq(d(a, b), thres);
 	};
 	return d2;
 }
@@ -120,7 +120,7 @@ euclidean() {
 	};
 }
 
-// Euclidean distance on discrete (uint) points. The only _non_-adjacent points
+// Euclidean distance on discrete (uint) cartesian Points. The only chainable points
 // are on the same line or diagonal, and at index difference more than one
 //
 template<typename R, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
@@ -131,10 +131,10 @@ euclidean() {
 			 v2 = abs_diff(a.y, b.y);
 		return std::sqrt(v1*v1 + v2*v2);
 	};
-	d.is_adjacent = [](const T& a, const T& b) -> bool {
+	d.chainable = [](const T& a, const T& b) -> bool {
 		uint v1 = abs_diff(a.x, b.x),
 			 v2 = abs_diff(a.y, b.y);
-		return !(v1 == 0 || v2 == 0 || v1 == v2) || (v1 <= 1 && v2 <= 1);
+		return (v1 == 0 || v2 == 0 || v1 == v2) && (v1 > 1 || v2 > 1);
 	};
 	return d;
 }
@@ -147,8 +147,8 @@ manhattan() {
 	};
 }
 
-// Mahattan distance on discrete (uint) points. The only _adjacent_ points
-// are those whose index differs by at most 1
+// Mahattan distance on discrete (uint) cartesian Points. All points are chainable except
+// those whose index differs by at most 1
 //
 template<typename R, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
 Metric<R, T>
@@ -156,8 +156,8 @@ manhattan() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
 		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
 	};
-	d.is_adjacent = [](const T& a, const T& b) -> bool {
-		return abs_diff(a.x, b.x) <= 1 && abs_diff(a.y, b.y) <= 1;
+	d.chainable = [](const T& a, const T& b) -> bool {
+		return abs_diff(a.x, b.x) > 1 || abs_diff(a.y, b.y) > 1;
 	};
 	return d;
 }
@@ -183,8 +183,8 @@ grid(uint width, Metric<R, Point<uint>> d = metric::euclidean<R, Point<uint>>())
 	Metric<R, uint> d2 = [width, d](const uint& a, const uint& b) -> R {
 		return d( Point<uint>(a%width, a/width), Point<uint>(b%width, b/width) );
 	};
-	d2.is_adjacent = [width, d](const uint& a, const uint& b) -> bool {
-		return d.is_adjacent( Point<uint>(a%width, a/width), Point<uint>(b%width, b/width) );
+	d2.chainable = [width, d](const uint& a, const uint& b) -> bool {
+		return d.chainable( Point<uint>(a%width, a/width), Point<uint>(b%width, b/width) );
 	};
 	return d2;
 }
