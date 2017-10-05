@@ -8,6 +8,9 @@ using namespace qif;
 
 
 void compute_optimal(string method) {
+	if(method != "direct" && method != "kostas" && method != "geometric")
+		throw std::runtime_error("invalid method: " + method);
+
 	lp::Defaults::method = lp::method_t::simplex_dual;
 	lp::Defaults::glp_msg_level = lp::msg_level_t::all;
 	lp::Defaults::glp_presolve = true;
@@ -22,20 +25,21 @@ void compute_optimal(string method) {
 
 	auto d_grid = unit * metric::grid<double>(width);	// d_grid(i, j) = euclidean distance between cell indices i,j
 	auto d_loss = d_grid;								// loss metric = euclidean
+	auto dx = d_grid;									// privacy metric
 
-	Metric<double, uint> dx;							// privacy metric, depends on the method
+	// this disables the removal of constraints that are reduntant due to transitivity
+	dx.chainable = [](const uint&, const uint&) -> bool { return false; };
 
-	if(method == "direct") {
-		dx = d_grid;									// the real deal
-
-	} else {
+	if(method == "kostas") {
+		// use more relexed dx and update eps
+		//
 		dx = metric::threshold_inf(d_grid, R);			// inf if above threshold R
 
 		// Catuscia's crazy formula
-		double R2 = R * R;
-		double rho2 = rho * rho;
-		double delta = (R - rho) / std::sqrt(
-			R2 - 2*rho*R - 3*rho2 + 4*rho*rho2/R + rho2*rho2/R2
+		double c = R / rho;
+		double c2 = c * c;
+		double delta = (c - 1) / std::sqrt(
+			c2 - 2*c - 3 + 4/c + 1/c2
 		);
 		cout << "delta: " << delta << "\n";
 
@@ -43,12 +47,18 @@ void compute_optimal(string method) {
 	}
 
 	prob pi = probab::uniform<double>(n_inputs);		// uniform prior
+	chan C = method == "geometric"
+		? mechanism::planar_geometric_grid<double>(width, width, unit, eps)
+		: mechanism::optimal_utility(pi, n_outputs, eps * dx, d_loss);
 
-	chan opt = mechanism::optimal_utility(pi, n_outputs, eps * dx, d_loss);
+	cout << "size: " << C.n_rows << "\n";
+	cout << "proper: " << channel::is_proper(C) << "\n";
+	cout << "util : " << l::post_entropy(d_loss, pi, C) << "\n";	// expected d_loss between x and y
 
-	cout << "size: " << opt.n_rows << "\n";
-	cout << "proper: " << channel::is_proper(opt) << "\n";
-	cout << "util : " << l::post_entropy(d_loss, pi, opt) << "\n";	// expected d_loss between x and y
+	// apply optimal remap (probably does nothing for uniform priors)
+	mat Loss = l::metric_to_mat(d_loss, n_inputs);
+	chan Remap = channel::deterministic<double>(l::strategy(Loss, pi, C), Loss.n_rows);	// compute remap
+	cout << "util after remap : " << l::post_entropy(d_loss, pi, (chan)(C*Remap)) << "\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -56,6 +66,7 @@ int main(int argc, char *argv[]) {
 
 
 //	compute_optimal("direct");
+//	compute_optimal("geometric");
 	compute_optimal("kostas");
 }
 
