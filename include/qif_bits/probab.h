@@ -76,6 +76,20 @@ Prob<eT> randu(uint n) {
 
 template<typename eT>
 inline
+uint draw(const Prob<eT>& pi) {
+	eT p = Row<eT>(1).randu().at(0);		// use armadillo's rng
+
+	eT accu(0);
+	for(uint x = 0; x < pi.n_cols - 1; x++)
+		if(!less_than(accu += pi(x), p))
+			return x;
+
+	return pi.n_cols - 1;
+}
+
+
+template<typename eT>
+inline
 bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 	eT sum = 0;
 	for(uint j = 0; j < pi.n_cols; j++) {
