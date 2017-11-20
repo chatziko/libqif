@@ -60,7 +60,9 @@ class Defaults {
 
 template<typename eT>
 class LinearProgram {
-	const bool is_rat = std::is_same<eT, rat>::value;
+	// workaround a bug in g++ 4.9 (jessie), std::is_same<A,B> fails when A,B
+	// are aliases,  so we use __gmp_expr<mpq_t, mpq_t> instead of rat
+	const bool is_rat = std::is_same<eT, __gmp_expr<mpq_t, mpq_t>>::value;
 
 	public:
 		arma::SpMat<eT>
