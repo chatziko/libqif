@@ -78,8 +78,9 @@ namespace arma {
 		return x < rat(0) ? -x : x;
 	}
 
-	#if !defined(ARMA_RNG_ALT) && !defined(ARMA_USE_EXTERN_CXX11_RNG)
 	// in clang the cxx98 rng is used, and randn fails for rats
+	// recent armadillo renamed ARMA_USE_CXX11_RNG to ARMA_USE_EXTERN_CXX11_RNG
+	#if !defined(ARMA_RNG_ALT) && !defined(ARMA_USE_CXX11_RNG) && !defined(ARMA_USE_EXTERN_CXX11_RNG)
 	template<>
 	inline
 	void
