@@ -1,5 +1,7 @@
 # libqif
 
+[![Build Status](https://travis-ci.org/chatziko/libqif.svg?branch=master)](https://travis-ci.org/chatziko/libqif)
+
 ## Install via Homebrew
 
 The easiest way to install libqif (especially on OSX) is via [Homebrew](http://brew.sh/):

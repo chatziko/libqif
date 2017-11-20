@@ -1,0 +1,7 @@
+sudo: required
+os:
+  - linux
+  - osx
+language: cpp
+script:
+  - perl .travis.pl
