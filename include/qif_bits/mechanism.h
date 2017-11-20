@@ -27,15 +27,17 @@ Chan<eT>
 geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0) {
 	if(n_cols == 0) n_cols = n_rows;
 	if(n_rows > n_cols) throw std::runtime_error("n_cols should be at least as big as n_rows");
+	if(n_rows < 2)      throw std::runtime_error("n_rows should be at least 2");
 
 	eT c = std::exp(d(0,1)),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
 	Chan<eT> C = distance_matrix(n_rows, n_cols, d);
-	C.col(0)            *= lambda_f;
-	C.col(n_cols-1)     *= lambda_f;
-	C.cols(1, n_cols-2) *= lambda_m;
+	C.col(0)        	    *= lambda_f;
+	C.col(n_cols-1)			*= lambda_f;
+	if(n_cols > 2)
+		C.cols(1, n_cols-2)	*= lambda_m;
 
 	return C;
 }
