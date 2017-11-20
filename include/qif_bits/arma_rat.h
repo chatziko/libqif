@@ -78,6 +78,7 @@ namespace arma {
 		return x < rat(0) ? -x : x;
 	}
 
+	#ifndef ARMA_RNG_ALT
 	// in clang the cxx98 rng is used, and randn fails for rats
 	template<>
 	inline
@@ -85,5 +86,6 @@ namespace arma {
 	arma_rng_cxx98::randn_dual_val(rat&, rat&) {
 		throw std::runtime_error("randn not implemented for rat");
 	}
+	#endif
 }
 
