@@ -231,8 +231,8 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),                  mkant_euclid(t.dirac_4,  t.dirac_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.unif_4,   t.dirac_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.dirac_4,  t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(7.1560446514328175), mkant_euclid(t.unif_10,  t.dirac_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(7.1560446514328175), mkant_euclid(t.dirac_10, t.unif_10));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.unif_10,  t.dirac_10), 1e-12, 0);
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.dirac_10, t.unif_10), 1e-12, 0);
 
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
