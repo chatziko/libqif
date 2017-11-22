@@ -16,7 +16,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 #
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")	# common flags
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	message(STATUS "Clang compiler detected. Added '-stdlib=libc++' to compiler flags")
 endif()
