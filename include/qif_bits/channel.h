@@ -282,9 +282,9 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_di
 	// Solve B * X = A, if no solution exists then A is not factorizable
 	//
 	std::ostream nullstream(0);				// temporarily disable
-	arma::set_stream_err2(nullstream);		// error messages
+	ARMA_SET_CERR(nullstream);				// error messages
 	arma::solve(X, B, A);
-	arma::set_stream_err2(std::cout);
+	ARMA_SET_CERR(std::cerr);
 
 	if(!X.n_cols) return X;
 	project_to_simplex(X);

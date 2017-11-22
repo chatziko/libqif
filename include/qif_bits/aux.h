@@ -5,6 +5,13 @@
 #define VAR_NAME_VALUE(var) #var "="  VALUE(var)
 //#pragma message(VAR_NAME_VALUE(ARMA_USE_CXX11))
 
+// armadillo 8.0 changed set_stream2 to set_cerr_stream
+#ifdef ARMA_COUT_STREAM
+#define ARMA_SET_CERR(stream) arma::set_cerr_stream(stream)
+#else
+#define ARMA_SET_CERR(stream) arma::set_stream_err2(stream)
+#endif
+
 
 const double  inf = std::numeric_limits<double>::infinity();
 const float  finf = std::numeric_limits<float>::infinity();
