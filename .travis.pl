@@ -22,6 +22,7 @@ if($linux) {
 	# on OSX we just install libqif via homebrew. This is useful to test by itself,
 	# and also installs all dependencies needed for the actual build
 	#
+	run qq{rm -f /usr/local/include/c++};	# brew install will fail if this exists
 	run qq{brew update};
 	run qq{brew tap chatziko/tap};
 	run qq{brew install --HEAD libqif};
