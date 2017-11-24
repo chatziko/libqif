@@ -136,3 +136,43 @@ struct real_ops<float> {
 	inline static float log2(float x) { return qif::log2(x); }
 };
 
+// precise sum using Kahan algorithm (https://en.wikipedia.org/wiki/Kahan_summation_algorithm)
+//
+template<typename eT>
+class LargeSum {
+	private:
+	eT c = 0;
+	eT val = 0;
+
+	public:
+	inline eT add(eT n) {
+		eT y = n - c; 		// So far, so good: c is zero.
+		eT t = val + y;		// Alas, val is big, y small, so low-order digits of y are lost.
+		c = (t - val) - y;	// (t - val) recovers the high-order part of y; subtracting y recovers -(low part of y)
+		return val = t;		// Algebraically, c should always be zero. Beware eagerly optimising compilers!
+	}
+
+	inline eT value() {
+		return val;
+	}
+};
+
+// iterative mean (http://www.heikohoffmann.de/htmlthesis/node134.html)
+//
+template<typename eT>
+class LargeAvg {
+	private:
+	LargeSum<eT> sum;
+	uint samples = 1;
+
+	public:
+	inline eT add(eT n) {
+		eT diff = (n - sum.value()) / samples++;
+		return sum.add(diff);
+	}
+
+	inline eT value() {
+		return sum.value();
+	}
+};
+

@@ -33,6 +33,7 @@ namespace qif {
 	#include "qif_bits/planar_laplace.h"
 
 	#include "qif_bits/utility.h"
+	#include "qif_bits/games.h"
 }
 
 // patchs the arma namespace to rupport rat, needs to be outside qif
