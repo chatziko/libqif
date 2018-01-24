@@ -172,6 +172,40 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 }
 
 
+// returns the prior estimate produced by C, given observed output distribution out
+//
+template<typename eT>
+inline
+Prob<eT> bayesian_update(const Chan<eT>& C, const Prob<eT>& out, const Prob<eT>& pi = Prob<eT>(), const eT max_diff = 1e-6) {
+
+	Prob<eT> cur_pi = pi.is_empty()
+		? probab::uniform<eT>(C.n_rows)
+		: pi;
+
+	while(true) {
+		eT diff(0);
+		arma::Row<eT> coeff = out / (cur_pi * C);
+
+		// cur_pi * C will have zeroess only if out also has
+		// zeroes in the same place, so convert NaNs to 0.
+		for(eT& c : coeff)
+			if(std::isnan(c))
+				c = 0;
+
+		for(uint x = 0; x < cur_pi.n_elem; x++) {
+			eT val = cur_pi(x) * arma::cdot(coeff, C.row(x));
+			diff += abs_diff(val, cur_pi(x));
+			cur_pi(x) = val;
+		}
+
+		if(qif::equal(diff, eT(0), max_diff))
+			break;
+	}
+
+	return cur_pi;
+}
+
+
 // Returns a channel X such that A = B X
 //
 template<typename eT>
@@ -411,4 +445,4 @@ inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 	A.swap(temp);
 }
 
-} // namespace chan
+} // namespace channel
