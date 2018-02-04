@@ -152,11 +152,34 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 }
 
+TYPED_TEST_P(ChanTest, BayesianUpdate) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	// the identity channel should produce the real prior in 2 iterations
+	Prob<eT> pi;
+	EXPECT_EQ(2u, bayesian_update<eT>(t.id_10, t.prand_10 * t.id_10, pi));
+	expect_prob(t.prand_10, pi);
+
+	// a non interfering channel should produce the uniform prior in 1 iteration
+	pi.clear();
+	EXPECT_EQ(1u, bayesian_update<eT>(t.noint_10, t.prand_10 * t.noint_10, pi));
+	expect_prob(t.unif_10, pi);
+
+	if(std::is_same<eT, double>::value) {
+		// the geometric should produce the real prior in many iterations (and with limited accuracy)
+		// Note: for rat this is slow (probably has to do with the huge denominators in the random elements)
+		pi.clear();
+		auto C = mechanism::geometric<eT>(10);
+		bayesian_update<eT>(C, t.prand_10 * C, pi, eT(1e-7));
+		expect_prob(t.prand_10, pi, eT(0), eT(1e-4));
+	}
+}
 
 
 // run ChanTest for all types, ChanTestReals only for native types
 //
-REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize);
+REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize, BayesianUpdate);
 REGISTER_TYPED_TEST_CASE_P(ChanTestReals, FactorizeSubgrad);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);

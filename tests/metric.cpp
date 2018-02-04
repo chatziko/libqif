@@ -228,7 +228,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 			auto p1 = probab::randu<eT>(10),
 				 p2 = probab::randu<eT>(10);
 			EXPECT_PRED_FORMAT4(equal4<eT>, kant_disc  (p1, p2), kant_lp_disc  (p1, p2), 0, 1e-5);
-			EXPECT_PRED_FORMAT4(equal4<eT>, kant_euclid(p1, p2), kant_lp_euclid(p1, p2), 0, 1e-5);
+			EXPECT_PRED_FORMAT4(equal4<eT>, kant_euclid(p1, p2), kant_lp_euclid(p1, p2), 0, 1e-4);
 		}
 	}
 }

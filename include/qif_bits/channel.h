@@ -29,8 +29,8 @@ Chan<eT>& no_interference(Chan<eT>& C) {
 
 template<typename eT>
 inline
-Chan<eT> no_interference(uint n) {
-	Chan<eT> C(n, 1);
+Chan<eT> no_interference(uint n, uint cols = 1) {
+	Chan<eT> C(n, cols);
 	return no_interference(C);
 }
 
@@ -181,6 +181,9 @@ uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT ma
 
 	if(pi.is_empty())
 		pi = probab::uniform<eT>(C.n_rows);
+
+	if(C.n_rows != pi.n_cols || C.n_cols != out.n_cols)
+		throw std::runtime_error("invalid sizes");
 
 	for(uint count = 1; ; count++) {
 		// out_cur[i] == 0 implies out[i] == 0. Since we want to have out[i]/out_cur[i] = 0

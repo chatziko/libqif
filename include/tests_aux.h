@@ -42,7 +42,7 @@ typedef ::testing::Types<rat> RatTypes;
 template <typename eT>
 class BaseTest : public ::testing::Test {
 	public:
-		Prob<eT>
+		const Prob<eT>
 			unif_2   = probab::uniform<eT>(2),
 			unif_4   = probab::uniform<eT>(4),
 			unif_10  = probab::uniform<eT>(10),
@@ -54,9 +54,10 @@ class BaseTest : public ::testing::Test {
 			pi2      = format_num<eT>("0.2 0.8 0 0 0 0 0 0 0 0"),
 			pi3      = format_num<eT>("0.25 0.75"),
 			pi4      = format_num<eT>("0.75 0.25"),
-			pi5		 = format_num<eT>("0.1 0.1 0.1 0.7");
+			pi5		 = format_num<eT>("0.1 0.1 0.1 0.7"),
+			prand_10 = probab::randu<eT>(10);
 
-		Chan<eT>
+		const Chan<eT>
 			id_2      = channel::identity<eT>(2),
 			id_4      = channel::identity<eT>(4),
 			id_10     = channel::identity<eT>(10),
@@ -74,14 +75,14 @@ template<typename eT>
 inline ::testing::AssertionResult equal2(const char* x_expr, const char* y_expr, const eT& x, const eT& y) {
 	return equal<eT>(x, y)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " and " << y_expr << " are not equal";
+		: ::testing::AssertionFailure() << x_expr << " = " << x << " and " << y_expr << " = " << y << " are not equal";
 }
 
 template<typename eT>
-inline ::testing::AssertionResult equal4(const char* x_expr, const char* y_expr, const char* md_expr, const char* mrd_expr, const eT& x, const eT& y, const eT& md, const eT& mrd) {
+inline ::testing::AssertionResult equal4(const char* x_expr, const char* y_expr, const char* /* md_expr */, const char* /* mrd_expr */, const eT& x, const eT& y, const eT& md, const eT& mrd) {
 	return equal<eT>(x, y, md, mrd)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " and " << y_expr << " are not equal (md: " << md_expr << ", mrd: " << mrd_expr << ")";
+		: ::testing::AssertionFailure() << x_expr << " = " << x << " and " << y_expr << " = " << y << " are not equal (md: " << md << ", mrd: " << mrd << ")";
 }
 
 template<typename eT>
@@ -141,11 +142,11 @@ void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
 
 
 template<typename eT>
-void expect_prob(const Prob<eT>& m, const Prob<eT>& p) {
+void expect_prob(const Prob<eT>& m, const Prob<eT>& p, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
 	EXPECT_EQ(m.n_cols, p.n_cols);
 
 	for(uint j = 0; j < p.n_cols; j++)
-		EXPECT_PRED_FORMAT2(equal2<eT>, m.at(j), p.at(j));
+		EXPECT_PRED_FORMAT4(equal4<eT>, m.at(j), p.at(j), md, mrd);
 
 	EXPECT_PRED_FORMAT1(prob_is_proper1<eT>, p);
 }
