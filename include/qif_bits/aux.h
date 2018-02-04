@@ -194,3 +194,14 @@ template<>
 inline float norm1(const Row<float>& vec) {
 	return arma::norm(vec, 1);
 }
+
+// exp with rat support, by converting to double
+template<typename eT>
+inline eT exp(eT x) {
+	return std::exp(x);
+}
+
+template<>
+inline rat exp(rat x) {
+	return rat(std::exp(x.get_d()));
+}

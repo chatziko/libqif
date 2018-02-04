@@ -14,7 +14,8 @@ distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 	//
 	for(uint i = 0; i < n_rows; i++)
 		for(uint j = (i < n_cols ? i + 1 : 0); j < n_cols; j++) {
-			D(i, j) = std::exp(-d(i, j));
+			eT expon = -d(i, j);			// separate variable needed for rats
+			D(i, j) = qif::exp(expon);
 			if(j < n_rows && i < n_cols)
 				D(j, i) = D(i, j);
 		}
@@ -29,7 +30,7 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 	if(n_rows > n_cols) throw std::runtime_error("n_cols should be at least as big as n_rows");
 	if(n_rows < 2)      throw std::runtime_error("n_rows should be at least 2");
 
-	eT c = std::exp(d(0,1)),
+	eT c = qif::exp(d(0,1)),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
