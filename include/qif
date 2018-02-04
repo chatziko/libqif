@@ -4,11 +4,24 @@
 
 #include <functional>	// std::function
 #include <armadillo>
+#include <vector>
+#include <cassert>
 #include <set>
 #include <list>
 
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
+
+namespace fastemd {
+	// ignore warnings in FastEMD code
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-compare"
+	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
+	#include "qif_bits/FastEMD/emd_hat.hpp"
+
+	#pragma GCC diagnostic pop
+}
 
 namespace qif {
 	#include "qif_bits/types.h"

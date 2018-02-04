@@ -1,3 +1,4 @@
+
 namespace metric {
 
 // NOTE ON chainable()
@@ -77,11 +78,28 @@ max(Metric<R, T> d1, Metric<R, T> d2) {
 	return d;
 }
 
-// 0 if below threshold t, 1 otherwise (technically not a metric)
+// min( d(a,b), thres ) (always a metric)
 //
 template<typename R, typename T>
 Metric<R, T>
 threshold(Metric<R, T> d, R thres) {
+	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+		R r = d(a, b);
+		return less_than(r, thres) ? r : thres;
+	};
+	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
+		// a,b are chainable in d2 if they are chainable in d and below the threshold
+		return d.chainable(a, b) && less_than(d(a, b), thres);
+	};
+	return d2;
+}
+
+// 0 if below threshold t, 1 otherwise (technically not a metric)
+// Kostas: is this used somewhere?
+//
+template<typename R, typename T>
+Metric<R, T>
+threshold_bin(Metric<R, T> d, R thres) {
 	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
 		return less_than(d(a, b), thres) ? 0 : 1;
 	};
@@ -170,6 +188,19 @@ from_distance_matrix(Mat<R>& M) {
 	};
 }
 
+template<typename R>
+Mat<R>
+to_distance_matrix(Metric<R, uint> d, uint size) {
+
+	Mat<R> Dist(size, size);
+
+	for(uint i = 0; i < size; i++)
+		for(uint j = 0; j <= i; j++)
+			Dist(i, j) = Dist(j, i) = d(i, j);
+
+	return Dist;
+}
+
 // transform a metric on Point<uint> to a metric on indexes (uint) on a grid of the given width.
 // The cell of index 0 is (0,0) (bottom left), and the cell of index i
 // is (i%width, i/width).
@@ -256,11 +287,10 @@ bounded_entropy_distance() {
 }
 
 // kantorovich through linear programming
-// WISHLIST: faster method: jorlin.scripts.mit.edu/docs/publications/26-faster strongly polynomial.pdf
 //
 template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
-kantorovich(Metric<R, uint> d) {
+kantorovich_lp(Metric<R, uint> d) {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [d](const T& a, const T& b) -> R {
@@ -300,6 +330,58 @@ kantorovich(Metric<R, uint> d) {
 									 (lp.status == lp::status_t::infeasible ? "infeasible" : "unbounded"));
 		return lp.optimum();
 	};
+}
+
+// kantorovich using the FastEMD algorithm from:
+// http://ofirpele.droppages.com//ICCV2009.pdf
+// https://dl.dropboxusercontent.com/s/i5g3a8tqsm2hcpl/FastEMD-3.1.zip?dl=0
+//
+// It assumes that d is a metric!
+// Only T = double is supported. (emd_hat_fb_metric works with: int, long int, long long int, double)
+//
+// TODO: the double implementation is via ints, see: emd_hat_impl<double,FLOW_TYPE> in emd_hat_impl.hpp.
+//       we could do the same to support float, rat
+// 
+// (Note: an alternative algorithm: jorlin.scripts.mit.edu/docs/publications/26-faster strongly polynomial.pdf)
+//
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
+Metric<R, T>
+kantorovich_fastemd(Metric<R, uint> d) {
+	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
+
+	return [d](const T& a, const T& b) -> R {
+		if(a.n_cols != b.n_cols) throw std::runtime_error("size mismatch");
+
+		typedef std::vector<R> vec;
+
+		// create distance matrix
+		auto Dist = to_distance_matrix<R>(d, a.n_cols);
+
+		std::vector<vec> Dist_v( a.n_cols );
+		for(uint i = 0; i < a.n_cols; i++)
+			Dist_v[i] = arma::conv_to<vec>::from(Dist.row(i));
+
+		auto a_v = arma::conv_to<vec>::from(a);
+		auto b_v = arma::conv_to<vec>::from(b);
+
+		return fastemd::emd_hat_gd_metric<R>()(a_v, b_v, Dist_v);
+	};
+}
+
+//  kantorovich. use FastEMD for doubles, LP for all others
+//
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
+inline
+Metric<R, T>
+kantorovich(Metric<R, uint> d) {
+	return kantorovich_lp<R, T>(d);
+}
+
+template<>
+inline
+Metric<double, prob>
+kantorovich(Metric<double, uint> d) {
+	return kantorovich_fastemd<double, prob>(d);
 }
 
 // multiplicative kantorovich through linear programming

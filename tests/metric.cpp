@@ -2,10 +2,13 @@
 
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
-template <typename T>
-class MetricTest : public BaseTest<T> {};
-template <typename T>
-class MetricTestReals : public BaseTest<T> {};
+template <typename eT>
+class MetricTest : public BaseTest<eT> {
+	public:
+	void run_kantorovich(Metric<eT, Prob<eT>>(&kantorovich)(Metric<eT, uint>), eT mrd);
+};
+template <typename eT>
+class MetricTestReals : public BaseTest<eT> {};
 
 TYPED_TEST_CASE_P(MetricTest);
 TYPED_TEST_CASE_P(MetricTestReals);		// tests that run only on double/float
@@ -60,7 +63,7 @@ TYPED_TEST_P(MetricTest, Scale) {
 TYPED_TEST_P(MetricTest, Threshold) {
 	typedef TypeParam eT;
 
-	auto thres_euclid = metric::threshold(metric::euclidean<eT, uint>(), eT(10)) ;
+	auto thres_euclid = metric::threshold_bin(metric::euclidean<eT, uint>(), eT(10)) ;
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(0, 5));
@@ -169,14 +172,15 @@ TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mtv(t.pi5, t.unif_4));
 }
 
-TYPED_TEST_P(MetricTest, Kantorovich) {
-	typedef TypeParam eT;
+template<typename eT>
+void MetricTest<eT>::run_kantorovich(Metric<eT, Prob<eT>>(&kantorovich)(Metric<eT, uint>), eT mrd) {
+
 	BaseTest<eT>& t = *this;
 
 	auto disc		= metric::discrete<eT, uint>(),
 		 euclid		= metric::euclidean<eT, uint>();
-	auto kant_disc	= metric::kantorovich<eT, Prob<eT>>(disc),
-		 kant_euclid= metric::kantorovich<eT, Prob<eT>>(euclid),
+	auto kant_disc	= kantorovich(disc),
+		 kant_euclid= kantorovich(euclid),
 		 tv			= metric::total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_disc(t.unif_4, t.unif_4));
@@ -194,7 +198,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	for(uint i = 0; i < 3; i++) {
 		// distance of dirac dists is the same as the distance between the corresponding elements
 		EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
-		EXPECT_PRED_FORMAT2(equal2<eT>, euclid(0, i), kant_euclid(t.dirac_4, probab::dirac<eT>(4, i)));
+		EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_euclid(t.dirac_4, probab::dirac<eT>(4, i)), 0, mrd);
 	}
 
 	// kantorovich over the discrete metric = total variation
@@ -206,8 +210,22 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 	for(uint i = 0; i < 10; i++) {
 		auto p1 = probab::randu<eT>(10),
 			 p2 = probab::randu<eT>(10);
-		EXPECT_PRED_FORMAT2(equal2<eT>, tv(p1, p2), kant_disc(p1, p2));
+		EXPECT_PRED_FORMAT4(equal4<eT>, tv(p1, p2), kant_disc(p1, p2), 0, mrd);
 	}
+}
+
+TYPED_TEST_P(MetricTest, Kantorovich) {
+	typedef TypeParam eT;
+	bool is_double = std::is_same<eT, double>::value;
+
+	// metric::kantorovich runs kantorovich_fastemd for double and kantorovich_lp for the rest
+	// fastemd has worse precision, so we need to set a larger mrd
+
+	this->run_kantorovich(metric::kantorovich<eT,Prob<eT>>, is_double ? 1e-5 : def_max_rel_diff<eT>());
+
+	// for double, test also the _lp version
+	if(is_double)
+		this->run_kantorovich(metric::kantorovich_lp<eT,Prob<eT>>, def_max_rel_diff<eT>());
 }
 
 TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
