@@ -98,7 +98,6 @@ TYPED_TEST_P(ChanTest, Factorize) {
 		Z1 = B * X1;
 
 	expect_channel(m, n, X1);
-	return;
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
 
 	// factorize_lp
