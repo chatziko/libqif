@@ -176,33 +176,27 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 //
 template<typename eT>
 inline
-uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, const eT max_diff = 1e-6) {
+uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT max_diff = eT(1e-6), uint max_reps = 0) {
+	eT almost_zero(1e-6);
 
 	if(pi.is_empty())
 		pi = probab::uniform<eT>(C.n_rows);
 
-	uint count;
-	for(count = 1; ; count++) {
-		eT diff(0);
-		arma::Row<eT> coeff = out / (pi * C);
+	for(uint count = 1; ; count++) {
+		// out_cur[i] == 0 implies out[i] == 0. Since we want to have out[i]/out_cur[i] = 0
+		// in such cases, we change change out_cur[i] to 1 to avoid NaNs.
+		arma::Row<eT> out_cur = pi * C;
+		out_cur.elem( find(out_cur < almost_zero) ).ones();
 
-		// pi * C will have zeroess only if out also has
-		// zeroes in the same place, so convert NaNs to 0.
-		for(eT& c : coeff)
-			if(std::isnan(c))
-				c = 0;
+		Prob<eT> new_pi = pi % trans(C * trans(out / out_cur));
 
-		for(uint x = 0; x < pi.n_elem; x++) {
-			eT val = pi(x) * arma::cdot(coeff, C.row(x));
-			diff += abs_diff(val, pi(x));
-			pi(x) = val;
-		}
+		pi -= new_pi;
+		eT diff = qif::norm1(pi);
+		pi = new_pi;
 
-		if(qif::equal(diff, eT(0), max_diff))
-			break;
+		if(diff <= max_diff || count == max_reps)
+			return count;
 	}
-
-	return count;
 }
 
 

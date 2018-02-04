@@ -176,3 +176,21 @@ class LargeAvg {
 	}
 };
 
+// L-1 norm, with faster armadillo implementation for double/float
+template<typename eT>
+inline eT norm1(const Row<eT>& vec) {
+	eT sum(0);
+	for(eT e : vec)
+		sum += abs(e);
+	return sum;
+}
+
+template<>
+inline double norm1(const Row<double>& vec) {
+	return arma::norm(vec, 1);
+}
+
+template<>
+inline float norm1(const Row<float>& vec) {
+	return arma::norm(vec, 1);
+}
