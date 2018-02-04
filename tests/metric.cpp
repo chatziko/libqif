@@ -3,10 +3,7 @@
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
-class MetricTest : public BaseTest<eT> {
-	public:
-	void run_kantorovich(Metric<eT, Prob<eT>>(&kantorovich)(Metric<eT, uint>), eT mrd);
-};
+class MetricTest : public BaseTest<eT> {};
 template <typename eT>
 class MetricTestReals : public BaseTest<eT> {};
 
@@ -172,60 +169,68 @@ TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mtv(t.pi5, t.unif_4));
 }
 
-template<typename eT>
-void MetricTest<eT>::run_kantorovich(Metric<eT, Prob<eT>>(&kantorovich)(Metric<eT, uint>), eT mrd) {
-
-	BaseTest<eT>& t = *this;
-
-	auto disc		= metric::discrete<eT, uint>(),
-		 euclid		= metric::euclidean<eT, uint>();
-	auto kant_disc	= kantorovich(disc),
-		 kant_euclid= kantorovich(euclid),
-		 tv			= metric::total_variation<eT, Prob<eT>>();
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_disc(t.unif_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_disc(t.dirac_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_disc(t.unif_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_disc(t.dirac_4, t.unif_4));
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_euclid(t.unif_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_euclid(t.dirac_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_euclid(t.unif_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_euclid(t.dirac_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_euclid(t.unif_10, t.dirac_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_euclid(t.dirac_10, t.unif_10));
-
-	for(uint i = 0; i < 3; i++) {
-		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
-		EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_euclid(t.dirac_4, probab::dirac<eT>(4, i)), 0, mrd);
-	}
-
-	// kantorovich over the discrete metric = total variation
-	//
-	// Note: When eT=float, this test is unstable when randu uses the "naif normalize" algorithm,
-	//       probably the sum of each dist is slighly diffent than 1.0, so the transportation problem is infeasible.
-	//       When randu uses the "differences of sorted list" algorithm the test always passes.
-	//
-	for(uint i = 0; i < 10; i++) {
-		auto p1 = probab::randu<eT>(10),
-			 p2 = probab::randu<eT>(10);
-		EXPECT_PRED_FORMAT4(equal4<eT>, tv(p1, p2), kant_disc(p1, p2), 0, mrd);
-	}
-}
-
 TYPED_TEST_P(MetricTest, Kantorovich) {
 	typedef TypeParam eT;
-	bool is_double = std::is_same<eT, double>::value;
+	BaseTest<eT>& t = *this;
 
-	// metric::kantorovich runs kantorovich_fastemd for double and kantorovich_lp for the rest
-	// fastemd has worse precision, so we need to set a larger mrd
+	bool is_double		= std::is_same<eT, double>::value;
+	auto disc			= metric::discrete<eT, uint>(),
+		 euclid			= metric::euclidean<eT, uint>();
+	auto kant_disc		= metric::kantorovich<eT, Prob<eT>>(disc),
+		 kant_euclid	= metric::kantorovich<eT, Prob<eT>>(euclid),
+		 kant_lp_disc	= metric::kantorovich_lp<eT, Prob<eT>>(disc),
+		 kant_lp_euclid	= metric::kantorovich_lp<eT, Prob<eT>>(euclid),
+		 tv				= metric::total_variation<eT, Prob<eT>>();
 
-	this->run_kantorovich(metric::kantorovich<eT,Prob<eT>>, is_double ? 1e-5 : def_max_rel_diff<eT>());
+	for (bool use_lp : { false, true }) {
 
-	// for double, test also the _lp version
-	if(is_double)
-		this->run_kantorovich(metric::kantorovich_lp<eT,Prob<eT>>, def_max_rel_diff<eT>());
+		auto kant_cur_disc   = use_lp ? kant_lp_disc   : kant_disc;
+		auto kant_cur_euclid = use_lp ? kant_lp_euclid : kant_euclid;
+
+		// metric::kantorovich runs kantorovich_fastemd for double and kantorovich_lp for the rest
+		// fastemd has worse precision, so we need to set a larger mrd
+		eT mrd = is_double && !use_lp ? 1e-5 : def_max_rel_diff<eT>();
+
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.unif_4, t.unif_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.dirac_4, t.dirac_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.unif_4, t.dirac_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.dirac_4, t.unif_4));
+
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_euclid(t.unif_4, t.unif_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_euclid(t.dirac_4, t.dirac_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.unif_4, t.dirac_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.dirac_4, t.unif_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.unif_10, t.dirac_10));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.dirac_10, t.unif_10));
+
+		for(uint i = 0; i < 3; i++) {
+			// distance of dirac dists is the same as the distance between the corresponding elements
+			EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_cur_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
+			EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_cur_euclid(t.dirac_4, probab::dirac<eT>(4, i)), 0, mrd);
+		}
+
+		// kantorovich over the discrete metric = total variation
+		//
+		// Note: When eT=float, this test is unstable when randu uses the "naif normalize" algorithm,
+		//       probably the sum of each dist is slighly diffent than 1.0, so the transportation problem is infeasible.
+		//       When randu uses the "differences of sorted list" algorithm the test always passes.
+		//
+		for(uint i = 0; i < 10; i++) {
+			auto p1 = probab::randu<eT>(10),
+				 p2 = probab::randu<eT>(10);
+			EXPECT_PRED_FORMAT4(equal4<eT>, tv(p1, p2), kant_cur_disc(p1, p2), 0, mrd);
+		}
+	}
+
+	// kantorovich and kantorovich_lp should produce the same result
+	if(is_double) {
+		for(uint i = 0; i < 10; i++) {
+			auto p1 = probab::randu<eT>(10),
+				 p2 = probab::randu<eT>(10);
+			EXPECT_PRED_FORMAT4(equal4<eT>, kant_disc  (p1, p2), kant_lp_disc  (p1, p2), 0, 1e-5);
+			EXPECT_PRED_FORMAT4(equal4<eT>, kant_euclid(p1, p2), kant_lp_euclid(p1, p2), 0, 1e-5);
+		}
+	}
 }
 
 TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
