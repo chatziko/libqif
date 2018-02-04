@@ -360,6 +360,7 @@ kantorovich_fastemd(Metric<R, uint> d) {
 		std::vector<vec> Dist_v( a.n_cols );
 		for(uint i = 0; i < a.n_cols; i++)
 			Dist_v[i] = arma::conv_to<vec>::from(Dist.row(i));
+		Dist.clear();
 
 		auto a_v = arma::conv_to<vec>::from(a);
 		auto b_v = arma::conv_to<vec>::from(b);
