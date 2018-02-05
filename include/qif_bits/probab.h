@@ -150,4 +150,20 @@ Prob<eT>& project_to_simplex(Prob<eT>& x) {
 	return x;
 }
 
+// Takes a probability pi on a grid of given width.
+// Returns a grid representation of that probability.
+//
+template<typename eT>
+Mat<eT> to_grid(const Prob<eT>& pi, uint width) {
+	return arma::trans(arma::reshape(pi, pi.n_elem / width, width));
+}
+
+// Vectorizes a probability on a grid.
+// Element (i,j) is mapped to i+j*width.
+//
+template<typename eT>
+Prob<eT> from_grid(const Mat<eT>& grid) {
+	return arma::vectorise(grid, 1);
+}
+
 } // namespace probab
