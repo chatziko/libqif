@@ -54,14 +54,24 @@ struct Point {
 
 	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
 };
-template<typename eT>
-std::ostream& operator<<(std::ostream& os, const Point<eT>& p) {
-	return os << '(' << p.x << ',' << p.y << ')';
-}
 
 typedef Point<double> point;
 typedef Point<float> fpoint;
 typedef Point<rat>   rpoint;
+
+// LatLog
+template<typename eT>
+struct LatLon {
+	eT lat, lon;
+	LatLon() {}
+	LatLon(eT lat, eT lon) : lat(lat), lon(lon) {}
+
+	LatLon<eT> add_vector(eT distance, eT angle);
+};
+
+typedef LatLon<double> latlon;
+typedef LatLon<float> flatlon;
+typedef LatLon<rat>   rlatlon;
 
 // templates for SFINAE
 template<typename T>  using is_Chan = arma::is_Mat_only<T>;

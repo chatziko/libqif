@@ -8,6 +8,7 @@
 #include <cassert>
 #include <set>
 #include <list>
+#include <map>
 
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
@@ -27,8 +28,10 @@ namespace qif {
 	#include "qif_bits/types.h"
 	#include "qif_bits/aux.h"
 
+	#include "qif_bits/rng.h"
 	#include "qif_bits/LinearProgram.h"
 	#include "qif_bits/Graph.h"
+	#include "qif_bits/geo.h"
 
 	#include "qif_bits/probab.h"
 	#include "qif_bits/channel.h"
@@ -47,6 +50,7 @@ namespace qif {
 
 	#include "qif_bits/utility.h"
 	#include "qif_bits/games.h"
+	#include "qif_bits/gowalla.h"
 }
 
 // patchs the arma namespace to rupport rat, needs to be outside qif

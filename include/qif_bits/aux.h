@@ -200,3 +200,14 @@ template<>
 inline rat exp(rat x) {
 	return rat(std::exp(x.get_d()));
 }
+
+// pi with rat support, by converting to double
+template<typename eT>
+inline eT pi() {
+	return std::atan(1)*4;
+}
+
+template<>
+inline rat pi() {
+	return rat(std::atan(1)*4);
+}
