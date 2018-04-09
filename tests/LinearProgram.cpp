@@ -74,7 +74,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		lp.A = format_num<eT>("3 -4; 1 2; 1 0");
 		lp.b = format_num<eT>("12 4 1");
 		lp.c = format_num<eT>("3 4");
-		lp.sense = "< > >";
+		lp.sense = { '<', '>', '>' };
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
@@ -116,7 +116,7 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 		lp.A = format_num<eT>("1; 1");
 		lp.b = format_num<eT>("3 2");
 		lp.c = format_num<eT>("1");
-		lp.sense = "> <";
+		lp.sense = { '>', '<' };
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
@@ -124,7 +124,7 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 		lp.A = format_num<eT>("1; -1");
 		lp.b = format_num<eT>("3 -2");
 		lp.c = format_num<eT>("4");
-		lp.sense = "> >";
+		lp.sense = { '>', '>' };
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
@@ -154,7 +154,7 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 		lp.A = format_num<eT>("1");
 		lp.b = format_num<eT>("2");
 		lp.c = format_num<eT>("-1");
-		lp.sense = ">";
+		lp.sense = { '>' };
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
