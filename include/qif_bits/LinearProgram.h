@@ -199,9 +199,10 @@ bool LinearProgram<eT>::glpk() {
 			glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
 	}
 
+	// loop over non-zero elements of sparse array
 	int index = 1;
 	auto end = A.end();
-	for(auto c = A.begin(); c != end; c++) {		// loop over non-zero elements of sparse array
+	for(auto c = A.begin(); c != end; ++c) {		// c++ throws weird warning, ++c doesn't!
 		ia[index] = c.row() + 1;
 		ja[index] = c.col() + 1;
 		ar[index] = *c;
