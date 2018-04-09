@@ -88,5 +88,18 @@ namespace arma {
 		throw std::runtime_error("randn not implemented for rat");
 	}
 	#endif
+
+	// for parsing rats from strings 
+	//
+	#if ARMA_VERSION_MAJOR > 8 || (ARMA_VERSION_MAJOR == 8 && ARMA_VERSION_MINOR >= 400)
+	template<>
+	inline
+	bool
+	diskio::convert_token(rat& val, const std::string& token) {
+		std::istringstream iss(token);
+		iss >> val;
+		return true;
+	}
+	#endif
 }
 
