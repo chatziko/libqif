@@ -5,7 +5,7 @@
 
 
 int main(int argc, char **argv) {
-	arma::arma_rng::set_seed_random();
+	qif::rng::set_seed_random();
 
 	std::cout << std::setprecision(100);
 
