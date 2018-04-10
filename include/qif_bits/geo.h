@@ -1,10 +1,5 @@
 
-
-std::map<std::string,latlon> locations = {
-	{ "paris",			latlon(48.858072, 2.348050) },
-	{ "san_francisco",	latlon(37.755351, -122.440288) }
-};
-
+extern std::map<std::string,latlon> locations;
 
 // Point
 
