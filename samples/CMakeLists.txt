@@ -42,7 +42,7 @@ foreach(DIR ${SUBDIRS})
 	set(DEST ${DIR})
 
 	add_executable(${DEST} ${SOURCES} ${BACKWARD_ENABLE})
-	target_link_libraries(${DEST} qif)									# link sample against libqif
+	target_link_libraries(${DEST} qif pthread)									# link sample against libqif
 	add_backward(${DEST})												# add stuff required by backward-cpp
 
 	# we manually add the dependency and the -include flag to the common precompiled header
