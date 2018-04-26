@@ -78,6 +78,20 @@ max(Metric<R, T> d1, Metric<R, T> d2) {
 	return d;
 }
 
+// swap a and b
+//
+template<typename R, typename T>
+Metric<R, T>
+mirror(Metric<R, T> d) {
+	Metric<R, T> d2 = [d](const T& a, const T& b) -> R {
+		return d(b, a);
+	};
+	d2.chainable = [d](const T& a, const T& b) -> bool {
+		return d.chainable(b, a);
+	};
+	return d2;
+}
+
 // min( d(a,b), thres ) (always a metric)
 //
 template<typename R, typename T>
@@ -264,9 +278,11 @@ mult_total_variation() {
 	};
 }
 
+// the quasi metric that gives additive pi-capacity for 1-spanning Vg's
+//
 template<typename R, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
-bounded_entropy_distance() {
+convex_separation_quasi() {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
@@ -274,16 +290,24 @@ bounded_entropy_distance() {
 
 		R res = R(0);
 		for(uint i = 0; i < a.n_cols; i++) {
-			R m = std::max(a.at(i), b.at(i));
-			if(equal(m, R(0)))
+			if(equal(a.at(i), R(0)))
 				continue;
 
-			R d = abs(a.at(i) - b.at(i)) / m;
+			R d = 1 - b.at(i) / a.at(i);
 			if(d > res)
 				res = d;
 		}
 		return res;
 	};
+}
+
+// the old symmetric variant, less useful
+//
+template<typename R, typename T, EnableIf<is_Prob<T>> = _>
+Metric<R, T>
+convex_separation() {
+	auto q = convex_separation_quasi<R, T>();
+	return max(q, mirror(q));
 }
 
 // kantorovich through linear programming

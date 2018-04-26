@@ -137,11 +137,11 @@ TYPED_TEST_P(MetricTest, Total_variation) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, tv(t.dirac_4, t.unif_4));
 }
 
-TYPED_TEST_P(MetricTest, Bounded_entropy_distance) {
+TYPED_TEST_P(MetricTest, Convex_separation) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	auto bed = metric::bounded_entropy_distance<eT, Prob<eT>>();
+	auto bed = metric::convex_separation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), bed(t.unif_4, t.unif_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), bed(t.dirac_4, t.dirac_4));
@@ -272,7 +272,7 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 
 // run the MetricTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(MetricTest, Euclidean_uint, Scale, Threshold, Discrete, Manhattan_point, Total_variation, Bounded_entropy_distance, Kantorovich);
+REGISTER_TYPED_TEST_CASE_P(MetricTest, Euclidean_uint, Scale, Threshold, Discrete, Manhattan_point, Total_variation, Convex_separation, Kantorovich);
 REGISTER_TYPED_TEST_CASE_P(MetricTestReals, Euclidean_point, Grid_point, Multiplicative_distance, Mult_kantorovich);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Metric, MetricTest, AllTypes);
