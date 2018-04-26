@@ -76,8 +76,8 @@ arma::ucolvec strategy(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan
 }
 
 template<typename eT>
-eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning = true) {
-	return g::add_capacity(pi, C, one_spanning);
+eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning_g = false) {
+	return g::add_capacity(pi, C, one_spanning_g);
 }
 
 

@@ -11,6 +11,13 @@ void check_g_size(const Mat<eT>& G, const Prob<eT>& pi) {
 		throw std::runtime_error("invalid prior size");
 }
 
+template<typename eT>
+inline
+void check_g_size(const Mat<eT>& G1, const Mat<eT>& G2) {
+	if(G1.n_cols != G2.n_cols)
+		throw std::runtime_error("invalid G size");
+}
+
 // max_w sum_x pi[x] G[w, x]
 //
 template<typename eT>
@@ -35,7 +42,7 @@ eT post_vulnerability(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return vulnerability(G, pi) - post_vulnerability(G, pi, C);
+	return post_vulnerability(G, pi, C) - vulnerability(G, pi);
 }
 
 template<typename eT>
@@ -60,63 +67,104 @@ arma::ucolvec strategy(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 	return strategy;
 }
 
+
+// additive capacity for fixed pi and g ranging over 1-spanning Vg's (larger class, default) or
+// 1-spanning g's (if one_spanning_g == true)
+//
 template<typename eT>
-eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning = true) {
+eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning_g = false) {
 	channel::check_prior_size(pi, C);
 
-	// we essentially compute the Kantorovich distance between the hypers
-	// [pi] and [pi, C], where the underlying metric between the inners is pdist
-	// (CSF'14, Theorem 17). Since [pi] is a point hyper, computing the transportation
-	// problem is easy, since the full 1 mass of pi needs to be transferred to all
-	// the posteriors. Each posterior sigma^y needs to receive mass exactly delta(y),
-	// for a total cost of sum_y delta(y) * pdist(pi, sigma^y)
-	//
-	auto pdist = one_spanning
-		? metric::total_variation<eT, Prob<eT>>()
-		: metric::bounded_entropy_distance<eT, Prob<eT>>();
-	Prob<eT> outer = pi * C;
 	eT res(0);
 
-	for(uint y = 0; y < outer.n_elem; y++)
-		if(!equal(outer(y), eT(0)))		// ignore 0 prob outputs
-			res += outer(y) * pdist(pi, channel::posterior(C, pi, y));
+	if(one_spanning_g) {
+		// 1-spanning g's (smaller class). We compute the Kantorovich distance between the
+		// hypers [pi] and [pi, C], where the underlying metric between the inners is tv
+		// (CSF'14, Theorem 17). Since [pi] is a point hyper, computing the transportation
+		// problem is easy, since the full 1 mass of pi needs to be transferred to all
+		// the posteriors. Each posterior sigma^y needs to receive mass exactly delta(y),
+		// for a total cost of sum_y delta(y) * tv(pi, sigma^y)
+		//
+		auto tv = metric::total_variation<eT, Prob<eT>>();
+		// metric::convex_separation_quasi<eT, Prob<eT>>();
+		Prob<eT> outer = pi * C;
+
+		for(uint y = 0; y < outer.n_elem; y++)
+			if(!equal(outer(y), eT(0)))		// ignore 0 prob outputs
+				res += outer(y) * tv(pi, channel::posterior(C, pi, y));
+
+		
+	} else {
+		// For the larger class of 1-spanning Vg's, the capacity only depends on the support of pi and is
+		// equal to 1 - the sum of column minima (including only rows in the support of pi).
+		// The same result can also be obtained via the Kantorovich above, replacing tv with convex_separation_quasi.
+		// 
+		res = 1;
+		for(uint y = 0; y < C.n_cols; y++) {
+			eT min(1);
+			for(uint x = 0; x < C.n_rows; x++)
+				if(!equal(pi(x), eT(0)) && C(x,y) < min)
+					min = C(x,y);
+			res -= min;
+		}
+	}
 
 	return res;
 }
 
-// TODO: remove _kant method
+
+// mult leakage bound (even for negative g) coming from the miracle theorem, adjusted so that the minimum gain is exactly 0
 template<typename eT>
-eT add_capacity_kant(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning = true) {
-	channel::check_prior_size(pi, C);
+eT mult_leakage_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	eT lambda = arma::cdot(pi, arma::min(G, 0)) / vulnerability<eT>(G, pi); 
+	return bayes::mult_capacity(C) * (1-lambda) + lambda;
+}
 
-	// we need construct two hypers: [pi,C] and [pi]
-	// we need them to have the same support, so we first construct
-	// [pi, C] and extend the inners matrix (its support) with pi.
-	// outer is then extended with a 0 and pointhyper is a dirac on that extra column.
-	// (note: pi might exist in inners already but it's not really a problem)
-	//
-	Mat<eT> inners;
-	Prob<eT> outer = channel::hyper(C, pi, inners);
+// mult leakage bound (even for negative g) coming from the additive theorem
+template<typename eT>
+eT mult_leakage_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	return (G.max() - G.min()) * (eT(1) - channel::sum_column_min<eT>(C)) /  vulnerability<eT>(G, pi) + eT(1);
+}
 
-	inners.insert_cols(inners.n_cols, pi.t());
 
-	outer.resize(inners.n_cols);
-	outer(outer.n_elem-1) = 0;
 
-	Prob<eT> pointhyper = probab::dirac<eT>(inners.n_cols, inners.n_cols-1);
 
-	// kantorovich needs a metric on the elements of the distribution (just uints)
-	// This is pdist_inners, which applies pdist on the columns of inners
-	//
-	auto pdist = one_spanning
-		? metric::total_variation<eT, Prob<eT>>()
-		: metric::bounded_entropy_distance<eT, Prob<eT>>();
-	auto pdist_inners = [&pdist, &inners](const uint& a, const uint& b) -> eT {
-		return pdist(trans(inners.col(a)), trans(inners.col(b)));
-	};
-	auto kant = metric::kantorovich<eT, Prob<eT>>(pdist_inners);
+////////////////// Gain function manipulation //////////////////////////
 
-	return kant(pointhyper, outer);		// CSF'14, Theorem 17
+
+// Adding g1+g2 produces a g such that Vg = Vg1 + Vg2
+//
+template<typename eT>
+Mat<eT> g_add(const Mat<eT>& G1, const Mat<eT>& G2) {
+	check_g_size(G1, G2);
+
+	Mat<eT> G(G1.n_rows * G2.n_rows, G1.n_cols);
+	G.fill(0);
+
+	for(uint i = 0; i < G1.n_rows; i++)
+		for(uint j = 0; j < G2.n_rows; j++)
+			G.row(i * G2.n_rows + j) = G1.row(i) + G2.row(j);
+
+	return G;
+}
+
+// g such that Vg(pi) = Vg'(pi,C)
+//
+template<typename eT>
+Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
+	if(G.n_cols != C.n_rows)
+		throw std::runtime_error("invalid G size");
+
+	Mat<eT> Gres(1, G.n_cols);
+	Gres.fill(0);
+
+	for(uint y = 0; y < C.n_cols; y++) {
+		Mat<eT> Gtemp = G;
+		Gtemp.each_row() %= arma::trans(C.col(y));
+		Gres = add(Gres, Gtemp);
+	}
+
+	return Gres;
 }
 
 } // namespace g
