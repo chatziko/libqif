@@ -51,6 +51,7 @@ namespace qif {
 	#include "qif_bits/utility.h"
 	#include "qif_bits/games.h"
 	#include "qif_bits/gowalla.h"
+	#include "qif_bits/plot.h"
 }
 
 // patchs the arma namespace to rupport rat, needs to be outside qif
