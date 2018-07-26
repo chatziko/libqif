@@ -16,4 +16,10 @@ void set_seed_random() {
 	std::srand(v(0));
 }
 
+template<typename eT>
+eT
+randu() {
+	return Row<eT>(1).randu().at(0);		// use armadillo's rng
+}
+
 }
