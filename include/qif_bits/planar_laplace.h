@@ -12,6 +12,23 @@ int bound(int val, int min_val, int max_val);
 double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b, int calls = integration_calls);
 
 
+template<typename eT = eT_def>
+Point<eT>
+planar_laplace_draw_cart(Point<eT> pos, eT epsilon) {
+	//random number in [0, 2*PI)
+	eT theta = rng::randu<eT>() * arma::Datum<eT>::pi * 2;
+	//random variable in [0,1)
+	eT z = rng::randu<eT>();
+	eT r = inverse_cumulative_gamma(epsilon, z);
+
+	return Point<eT>(
+		pos.x + r * cos(theta),
+		pos.y + r * sin(theta)
+	);
+
+}
+
+
 template<typename eT>
 Mat<eT>
 grid_integration(uint width, uint height, eT step, eT epsilon) {
