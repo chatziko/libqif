@@ -48,3 +48,44 @@ LatLon<eT> LatLon<eT>::add_vector(eT distance, eT angle) {
 	lon2 = std::fmod(lon2 + 3 * pi, 2 * pi) - pi;		// normalise to -180..+180
 	return LatLon<eT>(deg_of_rad(lat2), deg_of_rad(lon2));
 }
+
+
+
+// TODO: include other geo stuff here
+namespace geo {
+
+
+// returns a function that convers grid cell-id (uint) to Point
+//
+template<typename eT = eT_def>
+std::function<Point<eT>(uint)>
+cell_to_point(uint grid_width, eT cell_size = 1.0, Point<eT> corner = Point<eT>(eT(0), eT(0))) {
+	return [=](uint i) -> Point<eT> {
+		return Point<eT>(
+			(i%grid_width) * cell_size + corner.x,
+			(i/grid_width) * cell_size + corner.y
+		);
+	};
+}
+
+// returns a function that convers Points to grid cell-id.
+// 0 is the bottom-left cell ((0,0), overridable), indexes increase left-to-right and bottom-to-top
+//
+template<typename eT = eT_def>
+std::function<uint(const Point<eT>&)>
+point_to_cell(uint grid_width, eT cell_size = eT(1), Point<eT> corner = Point<eT>(eT(0), eT(0))) {
+	return [=](Point<eT> p) -> uint {
+		// make sure we're within the grid
+		assert(
+			p.x >= corner.x &&
+			p.y >= corner.y &&
+			p.x < corner.x + grid_width * cell_size
+		);
+
+		return 
+			floor((p.x - corner.x) / cell_size) +
+			floor((p.y - corner.y) / cell_size) * grid_width;
+	};
+}
+
+} // namespace geo
