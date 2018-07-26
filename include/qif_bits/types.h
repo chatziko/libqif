@@ -12,6 +12,12 @@ template <typename Condition> using DisableIf = Invoke<std::enable_if< !Conditio
 typedef uint32_t uint;
 typedef mpq_class rat;
 
+// default eT type, allow overriding before including qif
+#ifndef QIF_DEFAULT_ET
+#define QIF_DEFAULT_ET double
+#endif
+typedef QIF_DEFAULT_ET eT_def;
+
 // Chan, Prob
 using arma::Mat;
 using arma::mat;
