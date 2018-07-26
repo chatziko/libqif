@@ -38,15 +38,15 @@ namespace qif {
 	#include "qif_bits/channel_comp.h"
 	#include "qif_bits/metric.h"
 
+	#include "qif_bits/mechanism.h"
+	#include "qif_bits/mech_optimal.h"
+	#include "qif_bits/planar_laplace.h"
+
 	#include "qif_bits/shannon.h"
 	#include "qif_bits/bayes.h"
 	#include "qif_bits/gain.h"
 	#include "qif_bits/loss.h"
 	#include "qif_bits/guessing.h"
-
-	#include "qif_bits/mechanism.h"
-	#include "qif_bits/mech_optimal.h"
-	#include "qif_bits/planar_laplace.h"
 
 	#include "qif_bits/utility.h"
 	#include "qif_bits/games.h"
