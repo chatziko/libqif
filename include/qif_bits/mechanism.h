@@ -8,17 +8,15 @@ template<typename eT>
 Mat<eT>
 distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 	Mat<eT> D(n_rows, n_cols);
-	D.diag().fill(eT(1));
 
-	// exploit symmetry, but careful about non-square matrices
+	// don't assume symmetry or anything about d (no big gain, and there are cases when assymetric distances are useful)
 	//
-	for(uint i = 0; i < n_rows; i++)
-		for(uint j = (i < n_cols ? i + 1 : 0); j < n_cols; j++) {
+	for(uint i = 0; i < n_rows; i++) {
+		for(uint j = 0; j < n_cols; j++) {
 			eT expon = -d(i, j);			// separate variable needed for rats
 			D(i, j) = qif::exp(expon);
-			if(j < n_rows && i < n_cols)
-				D(j, i) = D(i, j);
 		}
+	}
 	return D;
 }
 
