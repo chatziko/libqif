@@ -1,7 +1,7 @@
 
 namespace probab {
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT>& uniform(Prob<eT>& pi) {
 	// cast to uint cause rat is confused when dividing by const uint
@@ -9,14 +9,14 @@ Prob<eT>& uniform(Prob<eT>& pi) {
 	return pi;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline Prob<eT> uniform(uint n) {
 	Prob<eT> pi(n);
 	return uniform(pi);
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT>& dirac(Prob<eT>& pi, uint i = 0) {
 	pi.zeros();
@@ -24,7 +24,7 @@ Prob<eT>& dirac(Prob<eT>& pi, uint i = 0) {
 	return pi;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT> dirac(uint n, uint i = 0) {
 	Prob<eT> pi(n);
@@ -49,7 +49,7 @@ Prob<eT> dirac(uint n, uint i = 0) {
 // Note: if the n logn complexity is a problem, there's a linear algorithm involving logs in the following url:
 // http://stats.stackexchange.com/questions/14059/generate-uniformly-distributed-weights-that-sum-to-unity
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT>& randu(Prob<eT>& pi) {
 	pi.randu();
@@ -66,7 +66,7 @@ Prob<eT>& randu(Prob<eT>& pi) {
 	return pi;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT> randu(uint n) {
 	Prob<eT> pi(n);
@@ -74,7 +74,7 @@ Prob<eT> randu(uint n) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 uint draw(const Prob<eT>& pi) {
 	eT p = Row<eT>(1).randu().at(0);		// use armadillo's rng
@@ -88,7 +88,7 @@ uint draw(const Prob<eT>& pi) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 	eT sum = 0;
@@ -108,7 +108,7 @@ bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 	return true;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 void check_proper(const Prob<eT>& pi) {
 	if(!is_proper(pi))
@@ -121,7 +121,7 @@ void check_proper(const Prob<eT>& pi) {
 // Uses the algorithm of:
 //    http://www.springerlink.com/content/q1636371674m36p1/
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT>& project_to_simplex(Prob<eT>& x) {
 	uint n = x.n_cols;
@@ -153,7 +153,7 @@ Prob<eT>& project_to_simplex(Prob<eT>& x) {
 // Takes a probability pi on a grid of given width.
 // Returns a grid representation of that probability.
 //
-template<typename eT>
+template<typename eT = eT_def>
 Mat<eT> to_grid(const Prob<eT>& pi, uint width) {
 	return arma::trans(arma::reshape(pi, pi.n_elem / width, width));
 }
@@ -161,7 +161,7 @@ Mat<eT> to_grid(const Prob<eT>& pi, uint width) {
 // Vectorizes a probability on a grid.
 // Element (i,j) is mapped to i+j*width.
 //
-template<typename eT>
+template<typename eT = eT_def>
 Prob<eT> from_grid(const Mat<eT>& grid) {
 	return arma::vectorise(grid, 1);
 }
