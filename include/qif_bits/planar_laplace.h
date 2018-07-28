@@ -29,6 +29,43 @@ planar_laplace_draw_cart(Point<eT> pos, eT epsilon) {
 }
 
 
+template<typename eT = eT_def>
+eT
+planar_geometric_coeff(eT cell_size, eT eps) {
+	LargeSum<eT> sum;
+	Point<eT> zero(0,0);
+	auto euclid = metric::euclidean<double, Point<eT>>();
+
+	for(Point<eT> p : geo::GridWalk<eT>(cell_size)) {
+		eT prob = exp<eT>(-eps * euclid(p, zero));
+		sum.add(prob);
+		if(prob < 1e7)
+			break;
+	}
+	return 1/sum.value();
+}
+
+template<typename eT = eT_def>
+Point<eT>
+planar_geometric_draw(Point<eT> pos, eT cell_size, eT eps, eT coeff = 0) {
+	auto euclid = metric::euclidean<double, Point<eT>>();
+
+	if(equal(coeff, eT(0)))
+		coeff = planar_geometric_coeff(cell_size, eps);
+
+	eT q = rng::randu<eT>();
+	LargeSum<eT> cumul;
+	uint cnt = 0;
+	for(Point<eT> p : geo::GridWalk<eT>(cell_size)) {
+		eT prob = coeff * exp(-eps * euclid(p, pos));
+		cumul.add(prob);
+		if(cumul.value() > q || cnt++ > 1e7)		// make sure we always terminate, in case of numerical errors
+			return p;
+	}
+	throw std::runtime_error("unreachable");
+}
+
+
 template<typename eT>
 Mat<eT>
 grid_integration(uint width, uint height, eT step, eT epsilon) {
