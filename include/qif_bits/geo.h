@@ -95,19 +95,21 @@ point_to_cell(uint grid_width, eT cell_size = eT(1), Point<eT> corner = Point<eT
 }
 
 
-// iterate points on infinite grid
+// iterate points on infinite grid of given cell_size, starting at (0,0)
+// iterate per ring r, each ring is defined by max{|xd|,|yd|} == r
+//
 template<typename eT = eT_def>
 class GridWalk {
   private:
 	struct generator : public std::iterator<std::forward_iterator_tag, Point<eT>> {
 	  private:
-		const GridWalk<eT>& gw;
+		eT cell_size;
 		int r = 0, xd = 0, yd = 0;
 		Point<eT> cur;
 
 	  public:
-		generator(const GridWalk<eT>& _gw, uint _r)
-			: gw(_gw), r(_r), cur(_gw.start) {}
+		generator(eT _cell_size, uint _r)
+			: cell_size(_cell_size), r(_r), cur(0,0) {}
 
 		Point<eT>& operator*() {
 			return cur;
@@ -154,26 +156,25 @@ class GridWalk {
 			}
 
 			cur = Point<eT>(
-				gw.start.x + (xd * gw.cell_size),
-				gw.start.y + (yd * gw.cell_size)
+				xd * cell_size,
+				yd * cell_size
 			);
 			return *this;
 		}
 	};
 
   private:
-	Point<eT> start;
 	eT cell_size;
 
   public:
-	GridWalk(eT _cell_size = eT(1), Point<eT> _start = Point<eT>(eT(0),eT(0)))
-		: start(_start), cell_size(_cell_size) {}
+	GridWalk(eT _cell_size = eT(1))
+		: cell_size(_cell_size) {}
 
 	generator begin() const {
-		return generator(*this, 0);
+		return generator(cell_size, 0);
 	}
 	generator end() const {
-		return generator(*this, -1);
+		return generator(cell_size, -1);
 	}
 };
 

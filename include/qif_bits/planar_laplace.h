@@ -12,20 +12,19 @@ int bound(int val, int min_val, int max_val);
 double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b, int calls = integration_calls);
 
 
+// draw from a planar laplace centered at (0,0) (if origin is different, just add it to the result)
+//
 template<typename eT = eT_def>
 Point<eT>
-planar_laplace_draw(Point<eT> pos, eT epsilon) {
+planar_laplace_draw(eT epsilon) {
 	//random number in [0, 2*PI)
 	eT theta = rng::randu<eT>() * arma::Datum<eT>::pi * 2;
+
 	//random variable in [0,1)
 	eT z = rng::randu<eT>();
 	eT r = inverse_cumulative_gamma(epsilon, z);
 
-	return Point<eT>(
-		pos.x + r * cos(theta),
-		pos.y + r * sin(theta)
-	);
-
+	return Point<eT>::from_polar(r, theta);
 }
 
 template<typename eT>
