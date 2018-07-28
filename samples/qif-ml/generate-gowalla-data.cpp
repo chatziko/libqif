@@ -24,12 +24,13 @@ auto c2p_in = geo::cell_to_point<double>(width, cell_size, corner_in);
 auto c2p_out = geo::cell_to_point<double>(width_out, cell_size_out);
 auto p2c_out = geo::point_to_cell<double>(width_out, cell_size_out);
 
+auto euclid = metric::euclidean<double,point>();
+
 
 
 void generate_arimoto(prob& pi, double eps, ofstream &file) {
 
 	// distance between inputs and outputs
-	auto euclid = metric::euclidean<double,point>();
 	auto d_inout = metric::compose(euclid, c2p_in, c2p_out);
 
 	// generate mechanism
@@ -38,26 +39,37 @@ void generate_arimoto(prob& pi, double eps, ofstream &file) {
 
 	// draw
 	arma::Mat<uint> drawn = channel::draw(pi, C, samples);
+	LargeAvg<double> mean;
 
 	for(uint i = 0; i < samples; i++) {
 		uint x_i = drawn(i,0);
 		uint z_i = drawn(i,1);
+		point x = c2p_in(x_i);
 		point z = c2p_out(z_i);
+
+		mean.add(euclid(x, z));
 
 		file << x_i << "," << z_i << "," << z.x << "," << z.y << "\n";
 	}
+
+	std::cout << "arimoto utility: " << mean.value() << "\n";
 }
 
 void generate_laplace(prob& pi, double eps, ofstream& file) {
 
 	auto drawn = probab::draw(pi, samples);
+	LargeAvg<double> mean;
 
 	for(uint x_i : drawn) {
 		point x = c2p_in(x_i);
-		point z = mechanism::planar_laplace_draw_cart(x, eps);
+		point z = mechanism::planar_laplace_draw(x, eps);
+
+		mean.add(euclid(x, z));
 
 		file << x_i << ",," <<  z.x << "," << z.y << "\n";
 	}
+
+	std::cout << "laplace utility: " << mean.value() << "\n";
 }
 
 void generate_geometric(prob& pi, double eps, ofstream& file) {
@@ -67,6 +79,8 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 	// for efficiency, we batch sample n secrets, and n observations drawn from (0,0). Each z is added to the corresponding origin secret
 	auto drawn_x = probab::draw(pi, samples);
 	auto drawn_z = mechanism::planar_geometric_draw(point(0,0), cell_size_out, eps, samples);
+
+	LargeAvg<double> mean;
 
 	for(uint i = 0; i < samples; i++) {
 		uint x_i = drawn_x(i);
@@ -81,8 +95,12 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 			z_i = out_of_grid;
 		}
 
+		mean.add(euclid(x, z));
+
 		file << x_i << "," << z_i << "," <<  z.x << "," << z.y << "\n";
 	}
+
+	std::cout << "geometric utility: " << mean.value() << "\n";
 }
 
 
@@ -101,6 +119,8 @@ int main() {
 
 	for(double l : levels) {
 		double eps = log(l)/100;
+
+		cout << "eps = ln(" << l << ")/100\n";
 
 		file.open("arimoto-" + to_string(l) + ".csv");
 		generate_arimoto(pi, eps, file);
