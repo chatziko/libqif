@@ -28,42 +28,93 @@ planar_laplace_draw_cart(Point<eT> pos, eT epsilon) {
 
 }
 
+// Planar Geometric ----------------------------------------------------------------------------------------------
 
 template<typename eT = eT_def>
 eT
-planar_geometric_coeff(eT cell_size, eT eps) {
+_planar_geometric_coeff(eT cell_size, eT eps) {
 	LargeSum<eT> sum;
 	Point<eT> zero(0,0);
-	auto euclid = metric::euclidean<double, Point<eT>>();
+	auto d = eps * metric::euclidean<double, Point<eT>>();
 
-	for(Point<eT> p : geo::GridWalk<eT>(cell_size)) {
-		eT prob = exp<eT>(-eps * euclid(p, zero));
+	eT coeff_cur(0);
+	for(Point<eT> p : geo::GridWalk<eT>(cell_size, zero)) {
+		eT prob = exp<eT>(-d(p, zero));
 		sum.add(prob);
-		if(prob < 1e7)
+
+		// stop if adding a new value does not change the result at all
+		eT coeff_new(1 / sum.value());
+		if(equal(coeff_new, coeff_cur))
 			break;
+		coeff_cur = coeff_new;
 	}
-	return 1/sum.value();
+	return coeff_cur;
 }
 
 template<typename eT = eT_def>
 Point<eT>
-planar_geometric_draw(Point<eT> pos, eT cell_size, eT eps, eT coeff = 0) {
-	auto euclid = metric::euclidean<double, Point<eT>>();
+planar_geometric_draw(Point<eT> x, eT cell_size, eT eps) {
+	auto d = eps * metric::euclidean<double, Point<eT>>();
+	double coeff = _planar_geometric_coeff<eT>(cell_size, eps);
 
-	if(equal(coeff, eT(0)))
-		coeff = planar_geometric_coeff(cell_size, eps);
-
-	eT q = rng::randu<eT>();
-	LargeSum<eT> cumul;
+	eT p = rng::randu<eT>();
+	LargeSum<eT> accu;
 	uint cnt = 0;
-	for(Point<eT> p : geo::GridWalk<eT>(cell_size)) {
-		eT prob = coeff * exp(-eps * euclid(p, pos));
-		cumul.add(prob);
-		if(cumul.value() > q || cnt++ > 1e7)		// make sure we always terminate, in case of numerical errors
-			return p;
+	for(Point<eT> z : geo::GridWalk<eT>(cell_size, x)) {
+		eT prob = coeff * exp<eT>(-d(z, x));
+		accu.add(prob);
+
+		if(accu.value() > p)
+			return z;
+
+		if(cnt++ == 1e8)
+			throw std::runtime_error("infinite loop?");
 	}
-	throw std::runtime_error("unreachable");
+	return Point<eT>(0,0);		// unreachable, just avoid the warning
 }
+
+// efficient batch sampling
+template<typename eT = eT_def>
+std::vector<Point<eT>>
+planar_geometric_draw(Point<eT> x, eT cell_size, eT eps, uint n) {
+	auto d = eps * metric::euclidean<double, Point<eT>>();
+	double coeff = _planar_geometric_coeff<eT>(cell_size, eps);
+
+	// we need n numbers uniformly sampled in [0,1]. Sort them and keep the indexes of the sorted list in 'order'
+	Row<eT> ps(n);
+	ps.randu();
+	arma::uvec order = arma::sort_index(ps);
+
+	// single grid walk for all samples
+	geo::GridWalk<eT> gw(cell_size, x);
+	auto gw_it = gw.begin();
+
+	LargeSum<eT> accu;
+	accu.add(coeff);		// gw points at the first element (x itself), so accu should contain its probability (= coeff)!
+	uint cnt = 0;
+	std::vector<Point<eT>> res(n);
+
+	// sample n elements. 
+	for(uint i = 0; i < n; i++) {
+		// we need to visit elements in sorted order of p
+		eT p = ps(order(i));
+
+		while(less_than(accu.value(), p)) {
+			++gw_it;	// first increment, to get the probability of the new point
+			eT prob = coeff * exp<eT>(-d(*gw_it, x));
+			accu.add(prob);
+			if(cnt++ == 1e8)
+				throw std::runtime_error("infinite loop?");
+		}
+
+		// place the result in the same position in res as p was in ps.
+		res[order(i)] = *gw_it;
+	}
+
+	return res;
+}
+
+// ------------------------------------------------------------
 
 
 template<typename eT>
