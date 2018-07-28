@@ -119,7 +119,8 @@ Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist,
 		for(uint y = 0; y < n_cols; y++)
 			done = done && equal(out(y), new_out(y), md, mrd);
 
-		// out = new_out;
+		out = new_out;
+		// std::cout << " " << cnt++; std::cout.flush();
 		// cnt++; if(done) std::cout << cnt << " iterations\n";
 		if(done) {
 			C.each_row() %= out;
