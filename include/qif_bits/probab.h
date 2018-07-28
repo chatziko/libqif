@@ -74,17 +74,55 @@ Prob<eT> randu(uint n) {
 }
 
 
-template<typename eT = eT_def>
+// draw from pi. Allow pi to be anything iterable
+//
+template<typename eT = eT_def, typename T = Prob<eT>>
 inline
-uint draw(const Prob<eT>& pi) {
-	eT p = Row<eT>(1).randu().at(0);		// use armadillo's rng
+uint draw(const T& pi) {
+	eT p = rng::randu<eT>();
 
 	eT accu(0);
-	for(uint x = 0; x < pi.n_cols - 1; x++)
-		if(!less_than(accu += pi(x), p))
-			return x;
+	uint cur = 0;
+	for(auto pi_it = pi.begin(); pi_it != pi.end(); ++pi_it) {
+		if(!less_than(accu += *pi_it, p))
+			return cur;
+		cur++;
+	}
 
 	return pi.n_cols - 1;
+}
+
+// draw multiple samples efficiently (with a single iteration over pi)
+//
+template<typename eT = eT_def, typename T = Prob<eT>>
+inline
+Row<uint> draw(const T& pi, uint n) {
+	// we need n numbers uniformly sampled in [0,1]. Sort them and keep the indexes of the sorted list in 'order'
+	Row<eT> ps(n);
+	ps.randu();
+	arma::uvec order = arma::sort_index(ps);
+
+	eT accu(0);
+	int cur = -1;
+	auto pi_it = pi.begin();	// single iteration over pi for all samples
+	Row<uint> res(n);
+
+	// sample n elements. 
+	for(uint i = 0; i < n; i++) {
+		// we need to visit elements in sorted order of p
+		eT p = ps(order(i));
+
+		while(less_than(accu, p) && pi_it != pi.end()) {
+			accu += *pi_it;
+			pi_it++;
+			cur++;
+		}
+
+		// place the result in the same position in res as p was in ps.
+		res(order(i)) = cur;
+	}
+
+	return res;
 }
 
 
