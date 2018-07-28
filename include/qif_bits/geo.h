@@ -75,11 +75,11 @@ cell_to_point(uint grid_width, eT cell_size = 1.0, Point<eT> corner = Point<eT>(
 template<typename eT = eT_def>
 std::function<uint(const Point<eT>&)>
 point_to_cell(uint grid_width, eT cell_size = eT(1), Point<eT> corner = Point<eT>(eT(0), eT(0))) {
-	return [=](Point<eT> p) mutable -> uint {
-		// corner is the center of cell 0, make it the bottom-left corder of cell 0
-		corner.x -= cell_size/2;
-		corner.y -= cell_size/2;
+	// corner is the center of cell 0, make it the bottom-left corder of cell 0
+	corner.x -= cell_size/2;
+	corner.y -= cell_size/2;
 
+	return [=](Point<eT> p) -> uint {
 		// make sure we're within the grid
 		if(!(
 			p.x >= corner.x &&
