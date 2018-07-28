@@ -69,23 +69,113 @@ cell_to_point(uint grid_width, eT cell_size = 1.0, Point<eT> corner = Point<eT>(
 }
 
 // returns a function that convers Points to grid cell-id.
-// 0 is the bottom-left cell ((0,0), overridable), indexes increase left-to-right and bottom-to-top
+// 0 is the bottom-left cell, indexes increase left-to-right and bottom-to-top
+// corner is the _CENTER_ of cell 0 (default 0,0)
 //
 template<typename eT = eT_def>
 std::function<uint(const Point<eT>&)>
 point_to_cell(uint grid_width, eT cell_size = eT(1), Point<eT> corner = Point<eT>(eT(0), eT(0))) {
-	return [=](Point<eT> p) -> uint {
+	return [=](Point<eT> p) mutable -> uint {
+		// corner is the center of cell 0, make it the bottom-left corder of cell 0
+		corner.x -= cell_size/2;
+		corner.y -= cell_size/2;
+
 		// make sure we're within the grid
-		assert(
+		if(!(
 			p.x >= corner.x &&
 			p.y >= corner.y &&
 			p.x < corner.x + grid_width * cell_size
-		);
+		))
+			throw std::runtime_error("out of grid area");
 
 		return 
 			floor((p.x - corner.x) / cell_size) +
 			floor((p.y - corner.y) / cell_size) * grid_width;
 	};
 }
+
+
+// iterate points on infinite grid
+template<typename eT = eT_def>
+class GridWalk {
+  private:
+	struct generator : public std::iterator<std::forward_iterator_tag, Point<eT>> {
+	  private:
+		const GridWalk<eT>& gw;
+		int r = 0, xd = 0, yd = 0;
+		Point<eT> cur;
+
+	  public:
+		generator(const GridWalk<eT>& _gw, uint _r)
+			: gw(_gw), r(_r), cur(_gw.start) {}
+
+		Point<eT>& operator*() {
+			return cur;
+		}
+
+		bool operator != (const generator& other) const {
+			return !(r == other.r && xd == other.xd && yd == other.yd);
+		}
+
+		generator& operator++() {
+			// iteration steps:
+			//  A. xd =  r, yd = -r .. r
+			//  B. xd = -r, yd = -r .. r
+			//  C. xd = -r+1 .. r-1, yd = r
+			//  D. xd = -r+1 .. r-1, yd = -r
+			//
+			if(r == -1) { // r == -1 means past the end, cannot advance
+
+			} if(r == 0) { // edge case, the first ring has only one step
+				r++;
+				xd = r;
+				yd = -r;
+			} else if(xd == r) {	// step A
+				if(++yd > r) {		// goto step B
+					xd = -r;
+					yd = -r;
+				}
+			} else if(xd == -r) {	// step B
+				if(++yd > r) {		// goto step C
+					xd = -r+1;
+					yd = r;
+				}
+			} else if(yd == r) {	// step C
+				if(++xd == r) {		// goto step D
+					xd = -r+1;
+					yd = -r;
+				}
+			} else {				// step D
+				if(++xd == r) {		// inc r, goto step A
+					r++;
+					xd = r;
+					yd = -r;
+				}
+			}
+
+			cur = Point<eT>(
+				gw.start.x + (xd * gw.cell_size),
+				gw.start.y + (yd * gw.cell_size)
+			);
+			return *this;
+		}
+	};
+
+  private:
+	Point<eT> start;
+	eT cell_size;
+
+  public:
+	GridWalk(eT _cell_size = eT(1), Point<eT> _start = Point<eT>(eT(0),eT(0)))
+		: start(_start), cell_size(_cell_size) {}
+
+	generator begin() const {
+		return generator(*this, 0);
+	}
+	generator end() const {
+		return generator(*this, -1);
+	}
+};
+
 
 } // namespace geo
