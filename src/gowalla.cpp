@@ -55,5 +55,18 @@ std::vector<uint> to_grid(const std::vector<Entry>& dataset, latlon center, uint
 	return points;
 }
 
+prob to_grid_prior(const std::vector<Entry>& dataset, latlon center, uint width, uint height, double cell_size) {
+	std::vector<uint> points = to_grid(dataset, center, width, height, cell_size);
+	if(points.size() == 0)
+		throw std::runtime_error("empty list");
+
+	prob pi(width * height);
+	for(uint p : points)
+		pi(p)++;
+
+	pi /= arma::accu(pi);
+	return pi;
+}
+
 } // namespace gowalla
 } // namespace qif
