@@ -460,4 +460,38 @@ eT sum_column_min(const Chan<eT>& C) {
 	return res;
 }
 
+
+// draw an input, then an output
+template<typename eT>
+inline
+arma::Row<uint> draw(const Prob<eT>& pi, const Chan<eT>& C) {
+	uint x = probab::draw<eT>(pi);
+	uint y = probab::draw<eT>(C.row(x));
+	return { x, y };
+}
+
+// efficient batch sampling via the joint distribution
+template<typename eT>
+inline
+Mat<uint> draw(const Prob<eT>& pi, const Chan<eT>& C, uint n) {
+	// build the joint	
+	Mat<eT> J = C;
+	J.each_col() %= pi.t();
+
+	// draw from it (note that prbab::draw just needs an iterable object, and the drawn indexes are the positions in the iteration)
+	Row<uint> drawn = probab::draw(J, n);
+
+	Mat<uint> res(n, 2);
+	for(uint i = 0; i < n; i++) {
+		// J is iterated by probab::draw column-by-column. The index we get need to be converted to
+		// indexes for i and j
+		//
+		uint joint_i = drawn(i);
+		res(i, 0) = joint_i % J.n_rows;
+		res(i, 1) = joint_i / J.n_rows;
+	}
+	return res;
+}
+
+
 } // namespace channel
