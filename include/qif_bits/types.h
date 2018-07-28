@@ -59,6 +59,7 @@ struct Point {
 	Point(eT x, eT y) : x(x), y(y) {}
 
 	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
+	Point<eT> operator+(const Point<eT>& rhs) const { return Point<eT>(this->x + rhs.x, this->y + rhs.y); }
 };
 
 typedef Point<double> point;
