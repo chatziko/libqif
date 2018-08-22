@@ -1,6 +1,7 @@
 #include <qif>
 #include <vector>
 #include <iostream>
+#include "getopt.h"
 using namespace qif;
 using namespace std;
 
@@ -28,7 +29,7 @@ auto euclid = metric::euclidean<double,point>();
 
 
 
-void generate_arimoto(prob& pi, double eps, ofstream &file) {
+void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 
 	// distance between inputs and outputs
 	auto d_inout = metric::compose(euclid, c2p_in, c2p_out);
@@ -36,6 +37,8 @@ void generate_arimoto(prob& pi, double eps, ofstream &file) {
 	// generate mechanism
 	prob out = probab::uniform(width_out * width_out);
 	chan C = shannon::min_distortion(pi, out, eps/2 * d_inout, 1e-5, 1e-5);
+
+	file2 << C;
 
 	// draw
 	arma::Mat<uint> drawn = channel::draw(pi, C, samples);
@@ -52,7 +55,9 @@ void generate_arimoto(prob& pi, double eps, ofstream &file) {
 		file << x_i << "," << z_i << "," << z.x << "," << z.y << "\n";
 	}
 
-	std::cout << "arimoto utility: " << mean.value() << "\n";
+	std::cout << "arimoto sampled utility: " << mean.value() << "\n";
+	std::cout << "arimoto exact utility: " << utility::expected_distance(d_inout, pi, C) << "\n";
+	std::cout << "arimoto bayes risk: " << (1-bayes::post_vulnerability(pi, C)) << "\n";
 }
 
 void generate_laplace(prob& pi, double eps, ofstream& file) {
@@ -104,18 +109,35 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
 	qif::rng::set_seed_random();
 
-	string city = "san_francisco";
-	string filename = "/home/vagabond/Downloads/datasets/gowalla/Gowalla_totalCheckins.txt";
+	// parse command line opts
+	string gowalla_path = "/home/vagabond/Downloads/datasets/gowalla/Gowalla_totalCheckins.txt";
 
-	auto db = gowalla::read_dataset(filename);
+	struct option longopts[] = {
+		{ "gowalla",       required_argument, NULL,         'g' },
+		{ 0, 0, 0, 0 } // mark end
+	};
+	int c;
+	while ((c = getopt_long(argc, argv, ":f:", longopts, NULL)) != -1) {
+		switch (c) {
+		 case 'g':
+			gowalla_path = optarg;
+			break;
+		}
+	}
+
+
+	string city = "san_francisco";
+
+	auto db = gowalla::read_dataset(gowalla_path);
 	prob pi = gowalla::to_grid_prior(db, qif::locations[city], width, width, cell_size);
 	// prob pi = probab::uniform(width * width);
 
 	// file to write
 	ofstream file;
+	ofstream file2;
 
 	for(double l : levels) {
 		double eps = log(l)/100;
@@ -123,8 +145,10 @@ int main() {
 		cout << "eps = ln(" << l << ")/100\n";
 
 		file.open("arimoto-" + to_string(l) + ".csv");
-		generate_arimoto(pi, eps, file);
+		file2.open("arimoto-" + to_string(l) + ".channel");
+		generate_arimoto(pi, eps, file, file2);
 		file.close();
+		file2.close();
 
 		file.open("laplace-" + to_string(l) + ".csv");
 		generate_laplace(pi, eps, file);
