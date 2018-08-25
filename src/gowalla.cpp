@@ -68,5 +68,33 @@ prob to_grid_prior(const std::vector<Entry>& dataset, latlon center, uint width,
 	return pi;
 }
 
+// Dummy latlon -> euclid projection. Filters the latlon points keeping only those in a width x height (meters)
+// rectangle centered at 'center'. Coordinates are converted to euclidean, putting the bottom-left corner at (0,0)
+// and top-right at (width,height)
+//
+std::vector<point> project_dummy(const std::vector<Entry>& dataset, latlon center, double width, double height) {
+
+	double lon_d = std::abs(center.lon - center.add_vector(width, pi<double>()/2).lon);
+	double lat_d = std::abs(center.lat - center.add_vector(height, 0).lat);
+
+	double lon_min = center.lon - lon_d / 2;
+	double lon_max = center.lon + lon_d / 2;
+	double lat_min = center.lat - lat_d / 2;
+	double lat_max = center.lat + lat_d / 2;
+
+	std::vector<point> res;
+	for(Entry e : dataset) {
+		if(!(e.location.lat >= lat_min && e.location.lat < lat_max && e.location.lon >= lon_min && e.location.lon < lon_max))
+			continue;
+
+		res.push_back(point(
+			(e.location.lon - lon_min) / lon_d * width,
+			(e.location.lat - lat_min) / lat_d * height
+		));
+	}
+
+	return res;
+}
+
 } // namespace gowalla
 } // namespace qif
