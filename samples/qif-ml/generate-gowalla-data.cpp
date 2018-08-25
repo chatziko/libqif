@@ -7,6 +7,9 @@ using namespace std;
 
 
 // configuration
+string city = "san_francisco";
+string filename = "/home/vagabond/Downloads/datasets/gowalla/Gowalla_totalCheckins.txt";
+
 std::vector<double> levels = { 2, 4, 8 };	// eps = log(level)/100
 uint width = 20;
 uint split_factor = 10;
@@ -108,6 +111,29 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 	std::cout << "geometric utility: " << mean.value() << "\n";
 }
 
+// dumps the whole dataset in Euclidean coordinates but without discretization
+void dump_dataset(const vector<gowalla::Entry>& db) {
+	ofstream file;
+
+	// dump dataset
+	file.open("dataset");
+	for(uint x : gowalla::to_grid(db, qif::locations[city], width, width, cell_size)) {
+		point p = c2p_in(x);
+		file << x << "," << p.x << "," << p.y << "\n";
+	}
+	file.close();
+
+	// dump dataset, no discretization
+	file.open("dataset-nodisc");
+	for(auto p : gowalla::project_dummy(db, qif::locations[city], width * cell_size, width * cell_size)) {
+		// project_dummy puts the bottom-left corner at (0,0), but we want the _center_ of the bottom-left cell at corner_in
+		p = p + corner_in + point(-cell_size/2, -cell_size/2);
+
+		file << p.x << "," << p.y << "\n";
+	}
+	file.close();
+}
+
 
 int main(int argc, char** argv) {
 	qif::rng::set_seed_random();
@@ -135,10 +161,13 @@ int main(int argc, char** argv) {
 	prob pi = gowalla::to_grid_prior(db, qif::locations[city], width, width, cell_size);
 	// prob pi = probab::uniform(width * width);
 
+	dump_dataset(db);
+
 	// file to write
 	ofstream file;
 	ofstream file2;
 
+	// draw from different mechanisms for all levels
 	for(double l : levels) {
 		double eps = log(l)/100;
 
