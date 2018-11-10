@@ -37,6 +37,7 @@ namespace osqp {
 namespace qif {
 	#include "qif_bits/types.h"
 	#include "qif_bits/aux.h"
+	#include "qif_bits/wrapper.h"
 
 	#include "qif_bits/rng.h"
 	#include "qif_bits/LinearProgram.h"

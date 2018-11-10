@@ -94,7 +94,7 @@ csc* to_csc(const arma::SpMat<eT>& M) {
 	}
 	col_ptr[M.n_cols] = M.n_nonzero;
 
-	return csc_matrix(M.n_rows, M.n_cols, M.n_nonzero, val, row_ind, col_ptr);
+	return wrapper::csc_matrix(M.n_rows, M.n_cols, M.n_nonzero, val, row_ind, col_ptr);
 }
 
 inline void free_csc(csc* matrix) {
@@ -130,14 +130,14 @@ bool QuadraticProgram<eT>::osqp() {
 
 	// settings
 	OSQPSettings* settings = (OSQPSettings *)malloc(sizeof(OSQPSettings));
-	osqp_set_default_settings(settings);
+	wrapper::osqp_set_default_settings(settings);
 	settings->alpha = osqp_alpha;
 	settings->polish = osqp_polish;
 	settings->verbose = osqp_verbose;
 
 	// solve
-	OSQPWorkspace* work = osqp_setup(data, settings);
-	osqp_solve(work);
+	OSQPWorkspace* work = wrapper::osqp_setup(data, settings);
+	wrapper::osqp_solve(work);
 
 	c_int st = work->info->status_val;
 	status =
@@ -157,7 +157,7 @@ bool QuadraticProgram<eT>::osqp() {
 	free_csc(data->A);
 	free(data);
 	free(settings);
-	osqp_cleanup(work);
+	wrapper::osqp_cleanup(work);
 
 	return status == status_t::optimal;
 }
