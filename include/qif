@@ -24,12 +24,23 @@ namespace fastemd {
 	#pragma GCC diagnostic pop
 }
 
+namespace osqp {
+	// ignore warnings in osqp code
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-variable"
+
+	#include <osqp/osqp.h>
+
+	#pragma GCC diagnostic pop
+}
+
 namespace qif {
 	#include "qif_bits/types.h"
 	#include "qif_bits/aux.h"
 
 	#include "qif_bits/rng.h"
 	#include "qif_bits/LinearProgram.h"
+	#include "qif_bits/QuadraticProgram.h"
 	#include "qif_bits/Graph.h"
 	#include "qif_bits/geo.h"
 
