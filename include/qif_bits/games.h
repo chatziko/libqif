@@ -157,7 +157,7 @@ bayes_both_subgradients(
 }
 
 template<typename eT>
-Prob<eT>
+std::pair<eT, Prob<eT>>
 minmax_hidden_bayes_both(
 	const Prob<eT>& pi,
 	const vector<vector<Chan<eT>>>& Cs
@@ -165,32 +165,53 @@ minmax_hidden_bayes_both(
 	uint n_adv = Cs.size();
 	uint n_def = Cs[0].size();
 
+	// see minmax_hidden_bayes
+	const eT R2 = eT(1) - 1/eT(n_def);		// R^2
+
 	Prob<eT> alpha = probab::uniform<eT>(n_adv);		// start from uniform
 	Prob<eT> delta = probab::uniform<eT>(n_def);		// start from uniform
 	Prob<eT> alpha_avg(n_adv);
 	Prob<eT> delta_avg(n_def);
+	LargeAvg<eT> f_avg;
+	eT l_best(0);
 	vector<LargeAvg<eT>> alpha_lavg(n_adv);
 	vector<LargeAvg<eT>> delta_lavg(n_adv);
+	eT sum1(0), sum2(0), sum3(0);
 
 	for(eT k = 1; true; k++) {
 //		eT gamma = eT(1) / k;						// square summable, see Boyd page 3
-//		eT gamma = eT(0.1) / sqrt(k);				// Nonsummable diminishing, see Boyd page 3
-		eT gamma = eT(1);
+		eT gamma = eT(0.1) / sqrt(k);				// Nonsummable diminishing, see Boyd page 3
+		// eT gamma = eT(1);
 		arma::Row<eT> g_a, g_d;
 
-		bayes_both_subgradients(pi, Cs, alpha, delta, g_a, g_d);	// stores subgrads in g_a/g_d
+		eT f = bayes_both_subgradients(pi, Cs, alpha, delta, g_a, g_d);	// stores subgrads in g_a/g_d
 
-		// keep track over the average alpha/delta
+		// keep track over the average f/alpha/delta
+		f_avg.add(f);
+
 		for(uint a = 0; a < n_adv; a++)
 			alpha_avg(a) = alpha_lavg[a].add(alpha(a));
 
 		for(uint d = 0; d < n_def; d++)
 			delta_avg(d) = delta_lavg[d].add(delta(d));
 
-		// print
+		// print (both f_avg and f(alpha_avg, delta_avg)
 		arma::Row<eT> g1, g2;		// unused, just to call bayes_both_subgradients
 		eT ff = bayes_both_subgradients(pi, Cs, alpha_avg, delta_avg, g1, g2);
-		std::cout << ff << "\n";
+		std::cout << "\r" << f_avg.value() << ", " << ff << ", " << std::abs(f_avg.value() - 0.087649797994) << "     ";
+
+		// stopping criterion, see notes Section 3.4
+		// sum1 += gamma * f;
+		// sum2 += gamma * gamma * arma::cdot(g_d, g_d);
+		// sum3 += gamma;
+		// eT l = (2 * sum1 - R2 - sum2) / (2 * sum3);
+		// if(l > l_best) {
+		// 	l_best = l;
+		// 	std::cerr << "\r" << f_avg.value() << "   " << (f_avg.value() - l_best) << "                 ";
+		// }
+
+		// if(f_avg.value() - l_best < 1e-2)
+		// 	break;
 
 		// update and project back to the probability simplex
 		alpha += gamma * g_a;
@@ -199,8 +220,63 @@ minmax_hidden_bayes_both(
 		delta -= gamma * g_d;
 		delta = probab::project_to_simplex(delta);
 	}
+	std::cerr << "\r";
 
-	return delta_avg;		// TODO return both averages
+	return std::pair<eT, Prob<eT>>(f_avg.value(), delta_avg);	// TODO return also alpha_avg?
+}
+
+template<typename eT>
+std::pair<eT, Prob<eT>>
+minmax_hidden_bayes_both2(
+	const Prob<eT>& pi,
+	const vector<vector<Chan<eT>>>& Cs
+) {
+	uint n_adv = Cs.size();
+	uint n_def = Cs[0].size();
+
+	Prob<eT> alpha = probab::uniform<eT>(n_adv);		// start from uniform
+	Prob<eT> delta = probab::uniform<eT>(n_def);		// start from uniform
+	Prob<eT> delta1 = probab::uniform<eT>(n_def);		// start from uniform
+	Prob<eT> alpha_avg(n_adv);
+	Prob<eT> delta_avg(n_def);
+	LargeAvg<eT> f_avg;
+	eT f_best = infinity<eT>();
+	vector<LargeAvg<eT>> alpha_lavg(n_adv);
+	vector<LargeAvg<eT>> delta_lavg(n_adv);
+
+	for(eT k = 1; true; k++) {
+//		eT gamma = eT(1) / k;						// square summable, see Boyd page 3
+		eT gamma = eT(0.1) / sqrt(k);				// Nonsummable diminishing, see Boyd page 3
+		// eT gamma = eT(1);
+		arma::Row<eT> g;
+		arma::Row<eT> g_a, g_d;
+
+		// first our method
+		eT f = bayes_subgradient(pi, Cs, delta1, g);	// returns f, stores subgrad in g
+		if(f < f_best) {
+			f_best = f;
+		}
+
+		// then theirs
+		f = bayes_both_subgradients(pi, Cs, alpha, delta, g_a, g_d);	// stores subgrads in g_a/g_d
+		f_avg.add(f);
+
+		std::cerr << "\r" << f_best << ", " << f_avg.value() << "   " << std::abs(f_avg.value() - f_best) << "                 ";
+
+		// update 1
+		delta1 -= gamma * g;
+		delta1 = probab::project_to_simplex(delta1);
+
+		// update and project back to the probability simplex
+		alpha += gamma * g_a;
+		alpha = probab::project_to_simplex(alpha);
+
+		delta -= gamma * g_d;
+		delta = probab::project_to_simplex(delta);
+	}
+	std::cerr << "\r";
+
+	return std::pair<eT, Prob<eT>>(f_avg.value(), delta_avg);	// TODO return also alpha_avg?
 }
 
 
