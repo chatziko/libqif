@@ -1,7 +1,7 @@
 
 namespace channel {
 
-template <typename eT> using ME = lp::MatrixEntry<eT>;
+template <typename eT> using ME = MatrixEntry<eT>;
 
 template<typename eT>
 inline
@@ -259,7 +259,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 
 	n_cons_elems -= entries.size();
 	assert(0 == n_cons_elems);				// added all constraint elements
-	lp.fill_A(entries);
+	fill_spmat(lp.A, n_cons, n_vars, entries);
 
 	// solve program
 	//

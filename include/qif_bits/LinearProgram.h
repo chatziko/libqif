@@ -38,14 +38,6 @@ std::ostream& operator<<(std::ostream& os, const method_t& method);
 std::ostream& operator<<(std::ostream& os, const msg_level_t& level);
 
 
-template<typename eT>
-class MatrixEntry {
-	public:
-		uint row, col;
-		eT val;
-		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
-};
-
 class Defaults {
 	public:
 		static bool        glp_presolve ;
@@ -90,7 +82,6 @@ class LinearProgram {
 		inline eT optimum()				{ return arma::dot(x, c); }
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
-		void fill_A(const std::list<MatrixEntry<eT>>& l, bool add_duplicates = false);
 		LinearProgram canonical_form();
 
 	protected:
@@ -106,32 +97,6 @@ bool LinearProgram<eT>::solve() {
 	check_sizes();
 
 	return glpk();
-}
-
-template<typename eT>
-void LinearProgram<eT>::fill_A(const std::list<MatrixEntry<eT>>& entries, bool add_duplicates) {
-	if(b.is_empty() || c.is_empty())
-		throw std::runtime_error("b and c vectors should be set before calling fill_A");
-
-	// for batch-insertion into sparse matrix A
-	arma::umat locations(2, entries.size());
-	Col<eT> values(entries.size());
-
-	uint i = 0;
-	for(auto entry : entries) {
-		if(entry.row >= b.n_elem || entry.col >= c.n_elem) {
-			std::ostringstream oss;
-			oss << "fill_A: entry #" << i << " sets A(" << entry.row << "," << entry.col << ")=" << entry.val << " but A's size is " << b.n_elem << "x" << c.n_elem;
-			throw std::runtime_error(oss.str());
-		}
-
-		locations(0, i) = entry.row;
-		locations(1, i) = entry.col;
-		values(i) = entry.val;
-		i++;
-	}
-
-	A = arma::SpMat<eT>(add_duplicates, locations, values, b.n_elem, c.n_elem);	// arma has no batch-insert method into existing A
 }
 
 // for rats, we use the simplex() method after transforming to canonical form

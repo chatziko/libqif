@@ -6,7 +6,7 @@
 using namespace qif::lp;
 using namespace std;
 
-typedef MatrixEntry<double> ME;
+typedef qif::MatrixEntry<double> ME;
 
 int main() {
 	/*
@@ -59,7 +59,7 @@ int main() {
 	entries.push_back(ME(3, 1, 1));
 	entries.push_back(ME(4, 0, 1));
 	entries.push_back(ME(4, 1, 1));
-	lp.fill_A(entries);
+	qif::fill_spmat(lp.A, 5, 2, entries);
 
 	// same thing but much slower
 //	lp.A.set_size(5, 2);

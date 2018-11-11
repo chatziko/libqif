@@ -1,7 +1,7 @@
 
 namespace mechanism {
 
-template <typename eT> using ME = lp::MatrixEntry<eT>;
+template <typename eT> using ME = MatrixEntry<eT>;
 
 // Returns the mechanism satisfying eps*d privacy and having the best utility wrt pi and loss
 //
@@ -80,7 +80,7 @@ Chan<eT> optimal_utility(
 	n_cons_elems *= 1;							// avoid unused warning
 	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.fill_A(entries);
+	fill_spmat(lp.A, n_cons, n_vars, entries);
 
 	// solve program
 	//
@@ -186,7 +186,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 	n_cons_elems *= 1;							// avoid unused warning
 	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.fill_A(entries);
+	fill_spmat(lp.A, n_cons, n_vars, entries);
 
 	// solve program
 	//
@@ -292,7 +292,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 	n_cons_elems *= 1;							// avoid unused warning
 	assert(entries.size() == n_cons_elems);		// added all constraint elements
 
-	lp.fill_A(entries, true);					// add duplicate entries
+	fill_spmat(lp.A, n_cons, n_vars, entries, true);	// add duplicate entries
 
 	// solve program
 	//

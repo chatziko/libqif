@@ -1,8 +1,6 @@
 
 namespace plot {
 
-template <typename eT> using ME = lp::MatrixEntry<eT>;
-
 
 template<typename eT>
 void gnuplot_barycentric_3d(std::function<eT(Prob<eT>&)> f, std::string filename) {
