@@ -434,6 +434,17 @@ rchan factorize(const rchan& A, const rchan& B) {
 }
 
 
+// true if A is refined by B (i.e. A's leakage is >= B's)
+//
+template<typename eT>
+inline
+bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
+	// true if AX = B for some X
+	auto X = factorize(B, A);
+	return !X.empty();
+}
+
+
 template<typename eT>
 inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 	Mat<eT> temp(B.memptr(), B.n_rows, B.n_cols, false, false);
