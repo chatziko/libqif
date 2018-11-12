@@ -127,13 +127,14 @@ eT mult_leakage_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 }
 
 
-// returns a gain function such that A leaks strictly less than B (for the uniform prior),
-// or an empty matrix if no such function exists (i.e. B refines A).
-// If R is given, the remapping channel R that minimizes the distance between AR and B is returned.
-// If B refines A then AR = B.
+// returns true if the leakage of A is always >= the leakage of B (i.e. if A is refined by B)
+// - if false, a counter-example G is given
+//   (i.e. a gain function such that A leaks strictly less than B for the uniform prior)
+// - also, the remapping channel R that minimizes the euclidean distance between AR and B is returned.
+//   When the function returns true, then AR = B holds.
 //
 template<typename eT>
-Mat<eT> leak_more(const Chan<eT>& A, const Chan<eT>& B, Chan<eT>& R) {
+bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	if(A.n_rows != B.n_rows)
 		throw std::runtime_error("invalid sizes");
 
@@ -225,13 +226,15 @@ Mat<eT> leak_more(const Chan<eT>& A, const Chan<eT>& B, Chan<eT>& R) {
 
 	// ready
 	if(!qp.solve())
-		throw std::runtime_error("leak_more: QP infeasible, this shouldn't happen");
+		throw std::runtime_error("leakage_ge: QP infeasible, this shouldn't happen");
 
 	// add B.B to the cost function to obtained the squared distance (see the program definition above)
 	eT dist = qp.optimum() + arma::dot(B, B);
 
-	Mat<eT> G;
-	if(!equal(dist, eT(0), eT(1e-5))) {
+	bool res = equal(dist, eT(0), eT(1e-5));
+	if(res) {
+		G.clear();
+	} else {
 		G = B.t() - arma::reshape(qp.x.head(Cc*Cr), Cc, Cr);
 		G -= G.min();	// non-negative
 		G /= G.max();	// and in [0,1]
@@ -239,13 +242,20 @@ Mat<eT> leak_more(const Chan<eT>& A, const Chan<eT>& B, Chan<eT>& R) {
 
 	R = arma::reshape(qp.x.tail(Rc*Rr), Rc, Rr).t();
 
-	return G;
+	return res;
 }
 
 template<typename eT>
-Mat<eT> leak_more(const Chan<eT>& A, const Chan<eT>& B) {
+bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B) {
+	Mat<eT> G;
 	Chan<eT> R;
-	return leak_more<eT>(A, B, R);
+	return leakage_ge<eT>(A, B, G, R);
+}
+
+template<typename eT>
+bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G) {
+	Chan<eT> R;
+	return leakage_ge<eT>(A, B, G, R);
 }
 
 

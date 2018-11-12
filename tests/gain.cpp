@@ -72,7 +72,7 @@ TYPED_TEST_P(GainTest, Add_capacity) {
 	ASSERT_ANY_THROW(g::add_capacity(t.unif_2, t.id_10));
 }
 
-TYPED_TEST_P(GainTestReals, Leak_more) {
+TYPED_TEST_P(GainTestReals, Leakage_ge) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
@@ -82,29 +82,29 @@ TYPED_TEST_P(GainTestReals, Leak_more) {
 
 	// cases when B can leak more than A
 	//
-	G = g::leak_more(t.crand_10, t.id_10);
+	EXPECT_FALSE(g::leakage_ge(t.crand_10, t.id_10, G));
 	EXPECT_FALSE(G.empty());
 	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, t.crand_10) < g::post_vulnerability(G, t.unif_10, t.id_10));
 
-	G = g::leak_more(t.noint_10, t.crand_10);
+	EXPECT_FALSE(g::leakage_ge(t.noint_10, t.crand_10, G));
 	EXPECT_FALSE(G.empty());
 	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, t.noint_10) < g::post_vulnerability(G, t.unif_10, t.crand_10));
 
-	G = g::leak_more(T, t.crand_10);
+	EXPECT_FALSE(g::leakage_ge(T, t.crand_10, G));
 	EXPECT_FALSE(G.empty());
 	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, T) < g::post_vulnerability(G, t.unif_10, t.crand_10));
 
 	// cases when B refines A (cannot leak more)
 	//
-	G = g::leak_more(t.id_10, t.crand_10, R);
+	EXPECT_TRUE(g::leakage_ge(t.id_10, t.crand_10, G, R));
 	EXPECT_TRUE(G.empty());
-	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.id_10*R, t.crand_10, 1e-4, 0);
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.id_10*R, t.crand_10, 1e-3, 0);
 
-	G = g::leak_more(t.crand_10, t.noint_10, R);
+	EXPECT_TRUE(g::leakage_ge(t.crand_10, t.noint_10, G, R));
 	EXPECT_TRUE(G.empty());
-	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.crand_10*R, t.noint_10, 1e-4, 0);
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.crand_10*R, t.noint_10, 1e-3, 0);
 
-	G = g::leak_more(t.crand_10, T, R);
+	EXPECT_TRUE(g::leakage_ge(t.crand_10, T, G, R));
 	EXPECT_TRUE(G.empty());
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.crand_10*R, T, 1e-3, 0);
 }
@@ -112,7 +112,7 @@ TYPED_TEST_P(GainTestReals, Leak_more) {
 // run the GainTest test-case for all types, and the GainTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Cond_vulnerability, Add_capacity);
-REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mulg_leakage, Leak_more);
+REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mulg_leakage, Leakage_ge);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Gain, GainTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(GainReals, GainTestReals, NativeTypes);
