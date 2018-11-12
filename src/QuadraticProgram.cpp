@@ -4,10 +4,12 @@ namespace qif {
 namespace qp {
 
 
+method_t    Defaults::method       = method_t::addm;
 bool        Defaults::osqp_polish  = true;
 bool        Defaults::osqp_verbose = false;
-double      Defaults::osqp_alpha   = 1.0;
-method_t    Defaults::method       = method_t::addm;
+double      Defaults::osqp_alpha   = -1.0;		// negative means
+double      Defaults::osqp_eps_abs = -1.0;		// keep OSQP's
+double      Defaults::osqp_eps_rel = -1.0;		// defaults
 
 
 std::ostream& operator<<(std::ostream& os, const status_t& status) {

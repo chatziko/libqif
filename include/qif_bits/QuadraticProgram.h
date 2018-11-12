@@ -15,6 +15,8 @@ class Defaults {
 		static bool		osqp_polish;
 		static bool		osqp_verbose;
 		static double	osqp_alpha;
+		static double	osqp_eps_abs;
+		static double	osqp_eps_rel;
 		static method_t	method;
 };
 
@@ -37,10 +39,13 @@ class QuadraticProgram {
 
 		bool non_negative = false;
 		method_t method = Defaults::method;
+		status_t status;
+
 		bool osqp_polish = Defaults::osqp_polish;
 		bool osqp_verbose = Defaults::osqp_verbose;
-		bool osqp_alpha = Defaults::osqp_alpha;
-		status_t status;
+		double osqp_alpha = Defaults::osqp_alpha;
+		double osqp_eps_abs = Defaults::osqp_eps_abs;
+		double osqp_eps_rel = Defaults::osqp_eps_rel;
 
 		QuadraticProgram() {}
 
@@ -131,9 +136,11 @@ bool QuadraticProgram<eT>::osqp() {
 	// settings
 	OSQPSettings* settings = (OSQPSettings *)malloc(sizeof(OSQPSettings));
 	wrapper::osqp_set_default_settings(settings);
-	settings->alpha = osqp_alpha;
 	settings->polish = osqp_polish;
 	settings->verbose = osqp_verbose;
+	if(osqp_alpha   >= 0.0) settings->alpha = osqp_alpha;
+	if(osqp_eps_abs >= 0.0) settings->eps_abs = osqp_eps_abs;
+	if(osqp_eps_rel >= 0.0) settings->eps_rel = osqp_eps_rel;
 
 	// solve
 	OSQPWorkspace* work = wrapper::osqp_setup(data, settings);
