@@ -39,9 +39,7 @@ Compile and run with:
 
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
-Depending on the functionality used, you might need to compile with any of the following:
-
-    -lglpk -lgsl -lgmp
+If the `rat` type is used you also need to compile with `-lgmp`.
 
 ## Build libqif from source
 
