@@ -8,8 +8,6 @@ namespace wrapper {
 
 // OSQP methods /////////////////////////////////////////////////////////////////
 
-using namespace osqp;
-
 void osqp_set_default_settings(OSQPSettings *settings);
 OSQPWorkspace* osqp_setup(const OSQPData *data, OSQPSettings *settings);
 c_int osqp_solve(OSQPWorkspace *work);

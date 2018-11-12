@@ -1,7 +1,6 @@
 namespace qp {
 
 using std::string;
-using namespace osqp;
 
 enum class status_t { optimal, infeasible, error };
 enum class method_t { addm };
