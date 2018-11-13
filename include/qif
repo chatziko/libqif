@@ -14,15 +14,11 @@
 #include <gmpxx.h>		// for rats
 
 // OSQP
-// a slighly annoying incompatibility: in the local include dir (external/osqp/include) osqp.h is at the root level.
-// but when osqp is installed, it is available as "osqp/osqp.h". So we use whatever is available.
+// Note: in the source include dir, qif_bits/osqp is a symlink to external/osqp/include.
+// When installed, osqp's includes are copied to qif_bits/osqp
 #pragma GCC diagnostic push		// ignore warnings in osqp code
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#if __has_include("osqp.h")
-	#include "osqp.h"
-#elif __has_include("osqp/osqp.h")
-	#include "osqp/osqp.h"
-#endif
+#include "qif_bits/osqp/osqp.h"
 #pragma GCC diagnostic pop
 
 

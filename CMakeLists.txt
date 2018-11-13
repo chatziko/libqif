@@ -77,7 +77,11 @@ endif()
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
 	PATTERN "precompiled*.h" EXCLUDE
 	PATTERN "tests_aux.h" EXCLUDE
+	PATTERN "osqp" EXCLUDE
 	PATTERN "_*" EXCLUDE)
+
+# install OSQP's includes under qif_bits/osqp
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/osqp/include/ DESTINATION "include/qif_bits/osqp")
 
 install(TARGETS qif_unity
 	ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
