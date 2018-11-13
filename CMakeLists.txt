@@ -6,8 +6,8 @@ project(libqif)
 include(misc/cotire.cmake)												# for unity builds and precompiled headers
 set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
 
-# build osqp in dir 'osqp'
-add_subdirectory(external/osqp osqp)
+# build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
+add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 
 # default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)
@@ -33,7 +33,7 @@ include_directories(include)
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqp)		# libraries to link
+target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqpstatic)		# libraries to link
 
 set_target_properties(qif PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "include/precompiled.h")
 cotire(qif)
