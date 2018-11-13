@@ -211,3 +211,38 @@ template<>
 inline rat pi() {
 	return rat(std::atan(1)*4);
 }
+
+
+// Facilitate populating spart matrices
+//
+template<typename eT>
+class MatrixEntry {
+	public:
+		uint row, col;
+		eT val;
+		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
+};
+
+template<typename eT>
+void fill_spmat(arma::SpMat<eT>& M, uint n_rows, uint n_cols, const std::list<MatrixEntry<eT>>& entries, bool add_duplicates = false) {
+	// for batch-insertion into sparse matrix A
+	arma::umat locations(2, entries.size());
+	Col<eT> values(entries.size());
+
+	uint i = 0;
+	for(auto entry : entries) {
+		if(entry.row >= n_rows || entry.col >= n_cols) {
+			std::ostringstream oss;
+			oss << "fill_spmat: entry #" << i << " sets A(" << entry.row << "," << entry.col << ")=" << entry.val << " but A's size is " << n_rows << "x" << n_cols;
+			throw std::runtime_error(oss.str());
+		}
+
+		locations(0, i) = entry.row;
+		locations(1, i) = entry.col;
+		values(i) = entry.val;
+		i++;
+	}
+
+	// arma has no batch-insert method into existing A, but this should be efficient using move semantics
+	M = arma::SpMat<eT>(add_duplicates, locations, values, n_rows, n_cols);
+}

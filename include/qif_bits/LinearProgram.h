@@ -38,14 +38,6 @@ std::ostream& operator<<(std::ostream& os, const method_t& method);
 std::ostream& operator<<(std::ostream& os, const msg_level_t& level);
 
 
-template<typename eT>
-class MatrixEntry {
-	public:
-		uint row, col;
-		eT val;
-		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
-};
-
 class Defaults {
 	public:
 		static bool        glp_presolve ;
@@ -90,7 +82,6 @@ class LinearProgram {
 		inline eT optimum()				{ return arma::dot(x, c); }
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
-		void fill_A(const std::list<MatrixEntry<eT>>& l, bool add_duplicates = false);
 		LinearProgram canonical_form();
 
 	protected:
@@ -106,32 +97,6 @@ bool LinearProgram<eT>::solve() {
 	check_sizes();
 
 	return glpk();
-}
-
-template<typename eT>
-void LinearProgram<eT>::fill_A(const std::list<MatrixEntry<eT>>& entries, bool add_duplicates) {
-	if(b.is_empty() || c.is_empty())
-		throw std::runtime_error("b and c vectors should be set before calling fill_A");
-
-	// for batch-insertion into sparse matrix A
-	arma::umat locations(2, entries.size());
-	Col<eT> values(entries.size());
-
-	uint i = 0;
-	for(auto entry : entries) {
-		if(entry.row >= b.n_elem || entry.col >= c.n_elem) {
-			std::ostringstream oss;
-			oss << "fill_A: entry #" << i << " sets A(" << entry.row << "," << entry.col << ")=" << entry.val << " but A's size is " << b.n_elem << "x" << c.n_elem;
-			throw std::runtime_error(oss.str());
-		}
-
-		locations(0, i) = entry.row;
-		locations(1, i) = entry.col;
-		values(i) = entry.val;
-		i++;
-	}
-
-	A = arma::SpMat<eT>(add_duplicates, locations, values, b.n_elem, c.n_elem);	// arma has no batch-insert method into existing A
 }
 
 // for rats, we use the simplex() method after transforming to canonical form
@@ -159,21 +124,21 @@ bool LinearProgram<rat>::solve() {
 template<typename eT>
 bool LinearProgram<eT>::glpk() {
 	// create problem
-	glp_prob *lp = glp_create_prob();
+	glp_prob *lp = wrapper::glp_create_prob();
 
-	glp_set_obj_dir(lp, maximize ? GLP_MAX : GLP_MIN);
+	wrapper::glp_set_obj_dir(lp, maximize ? GLP_MAX : GLP_MIN);
 
 	// add variables
 	// CAREFULL: all glp indexes are 1-based
 	//
-	glp_add_cols(lp, A.n_cols);
+	wrapper::glp_add_cols(lp, A.n_cols);
 	for(uint j = 0; j < A.n_cols; j++) {
 		if(non_negative)
-			glp_set_col_bnds(lp, j+1, GLP_LO, 0.0, 0.0);	// x_j >= 0
+			wrapper::glp_set_col_bnds(lp, j+1, GLP_LO, 0.0, 0.0);	// x_j >= 0
 		else
-			glp_set_col_bnds(lp, j+1, GLP_FR, 0.0, 0.0);	// x_j is free
+			wrapper::glp_set_col_bnds(lp, j+1, GLP_FR, 0.0, 0.0);	// x_j is free
 
-		glp_set_obj_coef(lp, j+1, c.at(j));					// coefficient in the cost functoin
+		wrapper::glp_set_obj_coef(lp, j+1, c.at(j));				// coefficient in the cost functoin
 	}
 
 	// add constraints. glpk uses a "sparse" way of entering the rows, using
@@ -181,7 +146,7 @@ bool LinearProgram<eT>::glpk() {
 	// set, and ar[z] = A[ ia[z], ja[z] ]
 	// we add entries only for non-zero elements, it's much faster!
 	//
-	glp_add_rows(lp, A.n_rows);
+	wrapper::glp_add_rows(lp, A.n_rows);
 
 	int size = A.n_nonzero;
 
@@ -192,11 +157,11 @@ bool LinearProgram<eT>::glpk() {
 	for(uint i = 0; i < A.n_rows; i++) {
 		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
 		if(sense_i == '<')
-			glp_set_row_bnds(lp, i+1, GLP_UP, 0.0, b.at(i));	// row_i dot x <= b(i)
+			wrapper::glp_set_row_bnds(lp, i+1, GLP_UP, 0.0, b.at(i));	// row_i dot x <= b(i)
 		else if(sense_i == '>')
-			glp_set_row_bnds(lp, i+1, GLP_LO, b.at(i), 0.0);	// row_i dot x >= b(i)
+			wrapper::glp_set_row_bnds(lp, i+1, GLP_LO, b.at(i), 0.0);	// row_i dot x >= b(i)
 		else
-			glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
+			wrapper::glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
 	}
 
 	// loop over non-zero elements of sparse array
@@ -209,7 +174,7 @@ bool LinearProgram<eT>::glpk() {
 		index++;
 	}
 
-	glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
+	wrapper::glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
 
 	const int glp_msg_levs[] = { GLP_MSG_OFF, GLP_MSG_ERR, GLP_MSG_ON, GLP_MSG_ALL };
 	const int msg_lev = glp_msg_levs[static_cast<uint>(glp_msg_level)];
@@ -218,7 +183,7 @@ bool LinearProgram<eT>::glpk() {
 	const bool is_interior = method == method_t::interior;
 	if(!is_interior) {	// simplex primal/dual/dualp
 		glp_smcp opt;
-		glp_init_smcp(&opt);
+		wrapper::glp_init_smcp(&opt);
 		opt.meth =
 			method == method_t::simplex_primal ? GLP_PRIMAL :
 			method == method_t::simplex_dual   ? GLP_DUAL :
@@ -227,10 +192,10 @@ bool LinearProgram<eT>::glpk() {
 		opt.presolve = glp_presolve ? GLP_ON : GLP_OFF;	// use presolver
 
 		//glp_scale_prob(lp, GLP_SF_AUTO);	// scaling is done by the presolver
-		int glp_res = glp_simplex(lp, &opt);
+		int glp_res = wrapper::glp_simplex(lp, &opt);
 
-		int glp_status = glp_get_status(lp);
-		int glp_dual_st = glp_get_dual_stat(lp);
+		int glp_status = wrapper::glp_get_status(lp);
+		int glp_dual_st = wrapper::glp_get_dual_stat(lp);
 
 		// Note:
 		// - what we care about is the status if the primal problem
@@ -248,15 +213,15 @@ bool LinearProgram<eT>::glpk() {
 
 	} else {
 		glp_iptcp opt;
-		glp_init_iptcp(&opt);
+		wrapper::glp_init_iptcp(&opt);
 		opt.msg_lev = msg_lev;	// debug info sent to terminal, default off
 
-		glp_interior(lp, &opt);
+		wrapper::glp_interior(lp, &opt);
 
 		// NOTE: glpk's interior point returns GLP_NOFEAS also for unbounded problems,
 		//       not sure how we can check for boundedness
 		//
-		int glp_status = glp_ipt_status(lp);
+		int glp_status = wrapper::glp_ipt_status(lp);
 		// std::cout << "interior status: " << (status == GLP_OPT ? "GLP_OPT" : status == GLP_NOFEAS  ? "GLP_NOFEAS" : status == GLP_INFEAS ? "GLP_INFEAS" : status == GLP_UNDEF ? "GLP_UNDEF" : "XXX") << "\n";
 		status =
 			glp_status == GLP_OPT	? status_t::optimal :
@@ -268,12 +233,12 @@ bool LinearProgram<eT>::glpk() {
 	if(status == status_t::optimal) {
 		x.set_size(A.n_cols);
 		for(uint j = 0; j < A.n_cols; j++)
-			x.at(j) = is_interior ? glp_ipt_col_prim(lp, j+1) : glp_get_col_prim(lp, j+1);
+			x.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
 	}
 
 	// clean
-	glp_delete_prob(lp);
-	glp_free_env();
+	wrapper::glp_delete_prob(lp);
+	wrapper::glp_free_env();
 
 	return status == status_t::optimal;
 }
