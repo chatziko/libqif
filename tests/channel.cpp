@@ -152,6 +152,25 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 }
 
+TYPED_TEST_P(ChanTest, LeftFactorize) {
+	typedef TypeParam eT;
+	BaseTest<eT>& t = *this;
+
+	// non factorizable
+	expect_channel(0, 0, left_factorize(t.id_10, t.noint_10));
+	expect_channel(0, 0, left_factorize(t.id_4,  t.noint_10));
+
+	int n = 4, m = 6;
+	Chan<eT>
+		B = channel::randu<eT>(n, m),
+		A = channel::randu<eT>(m, n) * B,
+		X1 = left_factorize(A, B),
+		Z1 = X1 * B;
+
+	expect_channel(m, n, X1);
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
+}
+
 TYPED_TEST_P(ChanTest, BayesianUpdate) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
@@ -179,7 +198,7 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 
 // run ChanTest for all types, ChanTestReals only for native types
 //
-REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize, BayesianUpdate);
+REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize, LeftFactorize, BayesianUpdate);
 REGISTER_TYPED_TEST_CASE_P(ChanTestReals, FactorizeSubgrad);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);

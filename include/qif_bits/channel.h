@@ -204,10 +204,11 @@ uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT ma
 
 
 // Returns a channel X such that A = B X
+// If col_stoch == true then the returned X is column-stochastic
 //
 template<typename eT>
 inline
-Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
+Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
 	// A: M x N
 	// B: M x R
 	// X: R x N   unknowns
@@ -215,9 +216,9 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 	uint M = A.n_rows,
 		 N = A.n_cols,
 		 R = B.n_cols,
-		 n_vars = R * N,			// one var for each element of X
-		 n_cons = M * N + R,		// one constraint for each element of A (A[i,j] = dot(B[i,:], X[: j]), plus one constraint for row of X (sum = 1)
-		 n_cons_elems = (M+1)*N*R;	// M*N*R elements for the A = B X constrains and N*R elements for the sum=1 constraints
+		 n_vars = R * N,						// one var for each element of X
+		 n_cons = M * N + (col_stoch ? N : R),	// one constraint for each element of A (A[i,j] = dot(B[i,:], X[: j]), plus one constraint for each row (or col for col_stoch) of X (sum = 1)
+		 n_cons_elems = (M+1)*N*R;				// M*N*R elements for the A = B X constrains and N*R elements for the sum=1 constraints
 
 	if(B.n_rows != M)
 		return Chan<eT>();
@@ -246,16 +247,16 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 		}
 	}
 
-	// equalities for summing up to 1
+	// equalities for rows/cols summing up to 1
 	//
 	for(uint r = 0; r < R; r++) {
-		uint row = M*N+r;
-		lp.b(row) = eT(1);						// sum of row = 1
+	for(uint n = 0; n < N; n++) {
+		uint row = M*N + (col_stoch ? n : r);
+		lp.b(row) = eT(1);						// sum of col = 1
 
-		for(uint n = 0; n < N; n++)
-			// coeff 1 for variable X[r,n]
-			entries.push_back(ME<eT>(row, r*N+n, eT(1)));
-	}
+		// coeff 1 for variable X[r,n]
+		entries.push_back(ME<eT>(row, r*N+n, eT(1)));
+	}}
 
 	n_cons_elems -= entries.size();
 	assert(0 == n_cons_elems);				// added all constraint elements
@@ -278,11 +279,19 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B) {
 
 template<typename eT>
 inline
-Chan<eT>& project_to_simplex(Chan<eT>& C) {
-	Prob<eT> temp(C.n_cols);
-	for(uint i = 0; i < C.n_rows; i++) {
-		temp = C.row(i);
-		C.row(i) = probab::project_to_simplex(temp);
+Chan<eT>& project_to_simplex(Chan<eT>& C, bool col_stoch = false) {
+	if(col_stoch) {
+		Prob<eT> temp(C.n_rows);
+		for(uint j = 0; j < C.n_cols; j++) {
+			temp = C.col(j).t();
+			C.col(j) = probab::project_to_simplex(temp).t();
+		}
+	} else {
+		Prob<eT> temp(C.n_cols);
+		for(uint i = 0; i < C.n_rows; i++) {
+			temp = C.row(i);
+			C.row(i) = probab::project_to_simplex(temp);
+		}
 	}
 	return C;
 }
@@ -293,7 +302,7 @@ Chan<eT>& project_to_simplex(Chan<eT>& C) {
 //
 template<typename eT>
 inline
-Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_diff = 1e-4) {
+Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const eT max_diff = 1e-4) {
 	using arma::dot;
 
 	const bool debug = false;
@@ -318,7 +327,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_di
 	ARMA_SET_CERR(std::cerr);
 
 	if(!X.n_cols) return X;
-	project_to_simplex(X);
+	project_to_simplex(X, col_stoch);
 
 	// G = max l2-norm of B's rows
 	eT G(0);
@@ -395,7 +404,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_di
 		eT alpha = f / s_norm_sq;
 		X -= alpha * S;
 
-		project_to_simplex(X);
+		project_to_simplex(X, col_stoch);
 
 		// compute the lower bound given by the stopping criterion in section 3.4 of the lecture notes.
 		// if the bound is positive then the optimal is also positive, so the channel cannot be factorized
@@ -423,14 +432,27 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const eT max_di
 //
 template<typename eT>
 inline
-Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B) {
-	return factorize_subgrad(A, B);
+Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+	return factorize_subgrad(A, B, col_stoch);
 }
 
 template<>
 inline
-rchan factorize(const rchan& A, const rchan& B) {
-	return factorize_lp(A, B);
+rchan factorize(const rchan& A, const rchan& B, const bool col_stoch) {
+	return factorize_lp(A, B, col_stoch);
+}
+
+
+// Returns a channel X such that A = X B
+//
+template<typename eT>
+inline
+Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+	// A = X B if A^t = B^t X^t, so we use factorize asking for an "inversly"-stochastic matrix
+	//
+	Chan<eT> X = factorize((Chan<eT>)A.t(), (Chan<eT>)B.t(), !col_stoch);
+	arma::inplace_trans(X);
+	return X;
 }
 
 
@@ -441,6 +463,24 @@ inline
 bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 	// true if AX = B for some X
 	auto X = factorize(B, A);
+	return !X.empty();
+}
+
+
+// true if A is max-case refined by B (i.e. A's max-case leakage is >= B's)
+//
+template<typename eT>
+inline
+bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
+	// true if X A* = B* for some X, where C* is produced from C by normalizing each column and transposing
+	Mat<eT> An = A.t();
+	Mat<eT> Bn = B.t();
+
+	An.each_col() /= arma::max(An, 1);	// normalize
+	Bn.each_col() /= arma::max(Bn, 1);
+
+	auto X = left_factorize(Bn, An);
+
 	return !X.empty();
 }
 
