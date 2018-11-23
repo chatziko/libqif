@@ -131,6 +131,21 @@ Prob<eT> posterior(const Chan<eT>& C, const Prob<eT>& pi, uint y) {
 }
 
 
+// returns all posteriors produced by C and pi. The returned matrix has the same
+// size as C, with each column being a posterior
+//
+template<typename eT>
+inline
+Mat<eT> posteriors(const Chan<eT>& C, const Prob<eT>& pi = {}) {
+	Mat<eT>res = C;
+	if(!pi.is_empty())					// if pi is not given it is assumed to be uniform, so no need to multiply
+		res.each_col() %= pi.t();		// creates the joint
+	res.each_row() /= arma::sum(res);	// normalizes each column into the posterior
+	return res;
+}
+
+
+
 // returns the hyper produced by C and pi
 //
 template<typename eT>
@@ -476,8 +491,8 @@ bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 	Mat<eT> An = A.t();
 	Mat<eT> Bn = B.t();
 
-	An.each_col() /= arma::max(An, 1);	// normalize
-	Bn.each_col() /= arma::max(Bn, 1);
+	An.each_col() /= arma::sum(An, 1);	// normalize
+	Bn.each_col() /= arma::sum(Bn, 1);
 
 	auto X = left_factorize(Bn, An);
 
