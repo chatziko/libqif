@@ -148,7 +148,7 @@ bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 
 template<typename eT = eT_def>
 inline
-void check_proper(const Prob<eT>& pi) {
+void assert_proper(const Prob<eT>& pi) {
 	if(!is_proper(pi))
 		throw std::runtime_error("not a proper dist");
 }

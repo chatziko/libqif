@@ -35,7 +35,7 @@ Chan<T> crowds_matrix(uint _n, uint _c, T pf) {
 			C.at(i, j) = j == n ? alpha : i == j ? beta : gamma;
 		}
 	}
-	channel::check_proper(C);
+	channel::assert_proper(C);
 
 	return C;
 }
@@ -53,7 +53,7 @@ Prob<T> biased_prior(uint n, T p) {
 	Prob<T> pi(n);
 	pi.fill(equal(p, T(1)) ? T(0) : (1-p)/(n-1));
 	pi.at(0) = p;
-	probab::check_proper(pi);
+	probab::assert_proper(pi);
 	return pi;
 }
 

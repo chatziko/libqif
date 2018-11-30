@@ -52,9 +52,9 @@ TYPED_TEST_P(ChanTest, Construct) {
 	const char* s2 = "1 2; 3 0.5";
 	Chan<eT> C2(s2);
 
-	EXPECT_ANY_THROW( check_proper(Chan<eT>(s2));              ); // char*
-	EXPECT_ANY_THROW( check_proper(Chan<eT>(std::string(s2))); ); // std::string
-	EXPECT_ANY_THROW( check_proper(Chan<eT>(C2));              ); // Mat
+	EXPECT_ANY_THROW( assert_proper(Chan<eT>(s2));              ); // char*
+	EXPECT_ANY_THROW( assert_proper(Chan<eT>(std::string(s2))); ); // std::string
+	EXPECT_ANY_THROW( assert_proper(Chan<eT>(C2));              ); // Mat
 }
 
 TYPED_TEST_P(ChanTest, Identity) {

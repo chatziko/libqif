@@ -81,7 +81,7 @@ bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
 
 template<typename eT>
 inline
-void check_proper(const Chan<eT>& C) {
+void assert_proper(const Chan<eT>& C) {
 	if(!is_proper(C))
 		throw std::runtime_error("not a proper matrix");
 }

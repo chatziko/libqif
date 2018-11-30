@@ -49,9 +49,9 @@ TYPED_TEST_P(ProbTest, Construct) {
 	std::string s2 = format_num<eT>("0.1 0.2 0.3");
 	Prob<eT> pi2(s2);
 
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2.c_str())); ); // char*
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(s2));         ); // std::string
-	EXPECT_ANY_THROW( check_proper(Prob<eT>(pi2));        ); // Prob
+	EXPECT_ANY_THROW( assert_proper(Prob<eT>(s2.c_str())); ); // char*
+	EXPECT_ANY_THROW( assert_proper(Prob<eT>(s2));         ); // std::string
+	EXPECT_ANY_THROW( assert_proper(Prob<eT>(pi2));        ); // Prob
 }
 
 TYPED_TEST_P(ProbTest, Uniform) {
