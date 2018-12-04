@@ -5,14 +5,14 @@ template <typename eT> using ME = MatrixEntry<eT>;
 
 // normalizes all rows of C to create a channel
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT>& normalize(Mat<eT>& C) {
 	C.each_col() /= arma::sum(C, 1);
 	return C;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT>& identity(Chan<eT>& C) {
 	if(!C.is_square()) throw std::runtime_error("not square");
@@ -20,7 +20,7 @@ Chan<eT>& identity(Chan<eT>& C) {
 	return C;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> identity(uint n) {
 	Chan<eT> C(n, n);
@@ -28,7 +28,7 @@ Chan<eT> identity(uint n) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT>& no_interference(Chan<eT>& C) {
 	C.zeros();
@@ -36,7 +36,7 @@ Chan<eT>& no_interference(Chan<eT>& C) {
 	return C;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> no_interference(uint n, uint cols = 1) {
 	Chan<eT> C(n, cols);
@@ -44,7 +44,7 @@ Chan<eT> no_interference(uint n, uint cols = 1) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT>& randu(Chan<eT>& C) {
 	for(uint i = 0; i < C.n_rows; i++)
@@ -53,21 +53,21 @@ Chan<eT>& randu(Chan<eT>& C) {
 	return C;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> randu(uint n) {
 	Chan<eT> C(n, n);
 	return randu(C);
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> randu(uint n, uint m) {
 	Chan<eT> C(n, m);
 	return randu(C);
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> deterministic(arma::ucolvec map, uint n_cols) {
 	Chan<eT> C(map.n_rows, n_cols, arma::fill::zeros);
@@ -76,7 +76,7 @@ Chan<eT> deterministic(arma::ucolvec map, uint n_cols) {
 	return C;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> deterministic(std::function<uint(uint)> map, uint n_rows, uint n_cols) {
 	Chan<eT> C(n_rows, n_cols, arma::fill::zeros);
@@ -86,7 +86,7 @@ Chan<eT> deterministic(std::function<uint(uint)> map, uint n_rows, uint n_cols) 
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
 	for(uint i = 0; i < C.n_rows; i++)
@@ -97,7 +97,7 @@ bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 void assert_proper(const Chan<eT>& C) {
 	if(!is_proper(C))
@@ -105,7 +105,7 @@ void assert_proper(const Chan<eT>& C) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 void check_prior_size(const Prob<eT>& pi, const Chan<eT>& C) {
 	if(C.n_rows != pi.n_cols)
@@ -113,7 +113,7 @@ void check_prior_size(const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
@@ -128,7 +128,7 @@ inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_d
 
 
 // lexicographic order
-template<typename eT>
+template<typename eT = eT_def>
 int compare_columns(const Mat<eT>& A, uint j1, uint j2) {
 	for(uint i = 0; i < A.n_rows; i++) {
 		if(less_than(A(i, j1), A(i, j2)))
@@ -142,7 +142,7 @@ int compare_columns(const Mat<eT>& A, uint j1, uint j2) {
 
 // returns the posterior for a specific output y
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT> posterior(const Chan<eT>& C, const Prob<eT>& pi, uint y) {
 	return (arma::trans(C.col(y)) % pi) / arma::dot(C.col(y), pi);
@@ -152,7 +152,7 @@ Prob<eT> posterior(const Chan<eT>& C, const Prob<eT>& pi, uint y) {
 // returns all posteriors produced by C and pi. The returned matrix has the same
 // size as C, with each column being a posterior
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Mat<eT> posteriors(const Chan<eT>& C, const Prob<eT>& pi = {}) {
 	Mat<eT>res = C;
@@ -166,7 +166,7 @@ Mat<eT> posteriors(const Chan<eT>& C, const Prob<eT>& pi = {}) {
 
 // returns the hyper produced by C and pi
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 	Prob<eT> outer = pi * C;
@@ -207,7 +207,7 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 
 // returns the prior estimate produced by C, given observed output distribution out
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT max_diff = eT(1e-6), uint max_reps = 0) {
 	eT almost_zero(1e-6);
@@ -239,7 +239,7 @@ uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT ma
 // Returns a channel X such that A = B X
 // If col_stoch == true then the returned X is column-stochastic
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
 	// A: M x N
@@ -310,7 +310,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 	return X;
 }
 
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT>& project_to_simplex(Chan<eT>& C, bool col_stoch = false) {
 	if(col_stoch) {
@@ -333,7 +333,7 @@ Chan<eT>& project_to_simplex(Chan<eT>& C, bool col_stoch = false) {
 // factorize using a subgradient method.
 // see: http://see.stanford.edu/materials/lsocoee364b/02-subgrad_method_notes.pdf
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const eT max_diff = 1e-4) {
 	using arma::dot;
@@ -463,7 +463,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 
 // Returns a channel X such that A = B X
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
 	return factorize_subgrad(A, B, col_stoch);
@@ -478,7 +478,7 @@ rchan factorize(const rchan& A, const rchan& B, const bool col_stoch) {
 
 // Returns a channel X such that A = X B
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
 	// A = X B if A^t = B^t X^t, so we use factorize asking for an "inversly"-stochastic matrix
@@ -491,7 +491,7 @@ Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_sto
 
 // true if A is refined by B (i.e. A's leakage is >= B's)
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 	// true if AX = B for some X
@@ -502,7 +502,7 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 
 // true if A is max-case refined by B (i.e. A's max-case leakage is >= B's)
 //
-template<typename eT>
+template<typename eT = eT_def>
 inline
 bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 	// true if X A* = B* for some X, where C* is produced from C by normalizing each column and transposing
@@ -518,7 +518,7 @@ bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 }
 
 
-template<typename eT>
+template<typename eT = eT_def>
 inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 	Mat<eT> temp(B.memptr(), B.n_rows, B.n_cols, false, false);
 
@@ -528,7 +528,7 @@ inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 
 // sum of column minima
 //
-template<typename eT>
+template<typename eT = eT_def>
 eT sum_column_min(const Chan<eT>& C) {
 	// this doesn't work for rat, investigae
 	// return arma::accu(arma::min(C, 0));
@@ -546,7 +546,7 @@ eT sum_column_min(const Chan<eT>& C) {
 
 
 // draw an input, then an output
-template<typename eT>
+template<typename eT = eT_def>
 inline
 arma::Row<uint> draw(const Prob<eT>& pi, const Chan<eT>& C) {
 	uint x = probab::draw<eT>(pi);
@@ -555,7 +555,7 @@ arma::Row<uint> draw(const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 // efficient batch sampling via the joint distribution
-template<typename eT>
+template<typename eT = eT_def>
 inline
 Mat<uint> draw(const Prob<eT>& pi, const Chan<eT>& C, uint n) {
 	// build the joint	
