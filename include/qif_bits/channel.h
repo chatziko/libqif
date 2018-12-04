@@ -3,6 +3,15 @@ namespace channel {
 
 template <typename eT> using ME = MatrixEntry<eT>;
 
+// normalizes all rows of C to create a channel
+//
+template<typename eT>
+inline
+Chan<eT>& normalize(Mat<eT>& C) {
+	C.each_col() /= arma::sum(C, 1);
+	return C;
+}
+
 template<typename eT>
 inline
 Chan<eT>& identity(Chan<eT>& C) {
@@ -63,6 +72,15 @@ inline
 Chan<eT> deterministic(arma::ucolvec map, uint n_cols) {
 	Chan<eT> C(map.n_rows, n_cols, arma::fill::zeros);
 	for(uint i = 0; i < map.n_rows; i++)
+		C(i, map(i)) = 1;
+	return C;
+}
+
+template<typename eT>
+inline
+Chan<eT> deterministic(std::function<uint(uint)> map, uint n_rows, uint n_cols) {
+	Chan<eT> C(n_rows, n_cols, arma::fill::zeros);
+	for(uint i = 0; i < n_rows; i++)
 		C(i, map(i)) = 1;
 	return C;
 }
@@ -491,8 +509,8 @@ bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 	Mat<eT> An = A.t();
 	Mat<eT> Bn = B.t();
 
-	An.each_col() /= arma::sum(An, 1);	// normalize
-	Bn.each_col() /= arma::sum(Bn, 1);
+	normalize(An);
+	normalize(Bn);
 
 	auto X = left_factorize(Bn, An);
 
