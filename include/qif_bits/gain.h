@@ -224,6 +224,11 @@ bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 		for(uint z = 0; z < Cc; z++)
 			qp.c(x*Cc+z) = -2 * B(x,z);
 
+	// precision of the solution (Kostas: not 100% sure here)
+	eT eps(1e-5); 
+	qp.osqp_eps_abs = eps;
+	qp.osqp_eps_rel = eps;
+
 	// ready
 	if(!qp.solve())
 		throw std::runtime_error("leakage_ge: QP infeasible, this shouldn't happen");
@@ -231,7 +236,7 @@ bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	// add B.B to the cost function to obtained the squared distance (see the program definition above)
 	eT dist = qp.optimum() + arma::dot(B, B);
 
-	bool res = equal(dist, eT(0), eT(1e-5));
+	bool res = equal(dist, eT(0), eps);
 	if(res) {
 		G.clear();
 	} else {
