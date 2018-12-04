@@ -74,7 +74,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	expect_channel(geom, tc );
 	expect_channel(geom, tc2);
 
-	// non-square
+	// fat
 	geom = mechanism::geometric<eT>(size, epsilon * d, 2*size);
 	expon = mechanism::exponential<eT>(size, epsilon * d, 2*size);
 
@@ -88,7 +88,16 @@ TYPED_TEST_P(MechTest, Reals) {
 	expect_channel(size, 2*size, expon);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 
+	// skinny
+	geom = mechanism::geometric<eT>(2*size, epsilon * d, size);
 	expon = mechanism::exponential<eT>(2*size, epsilon * d, size);
+
+	expect_channel(2*size, size, geom);
+	if(!std::is_same<eT, float>::value) { // not-enough precision
+		EXPECT_TRUE(is_private(geom, epsilon * d));
+		EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
+		EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom, d));
+	}
 
 	expect_channel(2*size, size, expon);
 	EXPECT_TRUE(is_private(expon, epsilon * d));

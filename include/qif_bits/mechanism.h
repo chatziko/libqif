@@ -25,8 +25,15 @@ template<typename eT>
 Chan<eT>
 geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0) {
 	if(n_cols == 0) n_cols = n_rows;
-	if(n_rows > n_cols) throw std::runtime_error("n_cols should be at least as big as n_rows");
 	if(n_rows < 2)      throw std::runtime_error("n_rows should be at least 2");
+
+	// the standard formula requires n_cols >= n_rows, for fewer rows we create the
+	// channel with n_cols = n_rows and then truncate the extra columns
+	uint truncate = 0;
+	if(n_cols < n_rows) {
+		truncate = n_cols;
+		n_cols = n_rows;
+	}
 
 	eT c = qif::exp(d(0,1)),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
@@ -37,6 +44,12 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 	C.col(n_cols-1)			*= lambda_f;
 	if(n_cols > 2)
 		C.cols(1, n_cols-2)	*= lambda_m;
+
+	// if we need to truncate, move the probabilities to the last col and remove the truncated columns
+	if(truncate) {
+		C.col(truncate-1) += arma::sum(C.cols(truncate, n_cols-1), 1);
+		C.shed_cols(truncate, n_cols-1);
+	}
 
 	return C;
 }
