@@ -101,6 +101,32 @@ TYPED_TEST_P(MechTest, Reals) {
 
 	expect_channel(2*size, size, expon);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
+
+	// geometric, different truncations
+	// We create 4 channels with secrets 5..14 and obs 0..9 / 10..19 / 1..18 / 7..12
+	// We first create by remapping a 0..19 x 0..19 channel, then create directly and compare
+	//
+	Chan<eT> G0 = mechanism::geometric(20, epsilon * d);		// the 0..19 x 0..19 to remap
+
+	Chan<eT> T1 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  0u), 9u); }, 20, 20);	// 0..9
+	Chan<eT> T2 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x, 10u), 19u); }, 20, 20);	// 10..19
+	Chan<eT> T3 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  1u), 18u); }, 20, 20);	// 1..18
+	Chan<eT> T4 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  7u), 12u); }, 20, 20);	// 7..12
+
+	Chan<eT> G1 = T1.submat(5, 0,  14,  9);		// crop rows to
+	Chan<eT> G2 = T2.submat(5, 10, 14, 19);		// 5..14
+	Chan<eT> G3 = T3.submat(5, 1,  14, 18);		// and the columns to
+	Chan<eT> G4 = T4.submat(5, 7,  14, 12);		// 0..9 / 10..19 / 1..18 / 7..12
+
+	Chan<eT> D1 = mechanism::geometric(10, epsilon * d, 10,  0, 5);	// same channels
+	Chan<eT> D2 = mechanism::geometric(10, epsilon * d, 10, 10, 5);	// created
+	Chan<eT> D3 = mechanism::geometric(10, epsilon * d, 18,  1, 5);	// directly by passing
+	Chan<eT> D4 = mechanism::geometric(10, epsilon * d, 6,   7, 5);	// first_y / first_x
+
+	expect_channel(G1, D1);
+	expect_channel(G2, D2);
+	expect_channel(G3, D3);
+	expect_channel(G4, D4);
 }
 
 TYPED_TEST_P(MechTest, Discrete) {

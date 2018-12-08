@@ -21,23 +21,37 @@ distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 }
 
 // d should be a scaled version of metric::euclidean<eT,uint>()
+// it should be a distance between _inputs_  (not inputs/outputs)
+// first_y,first_x are the number corresponding to the first column/row
+//
 template<typename eT>
 Chan<eT>
-geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0) {
+geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0, int first_y = 0, int first_x = 0) {
 	if(n_cols == 0) n_cols = n_rows;
-	if(n_rows < 2)      throw std::runtime_error("n_rows should be at least 2");
+	if(n_cols < 2)      throw std::runtime_error("n_cols should be at least 2");
+	eT step = d(0,1);
 
-	// the standard formula requires n_cols >= n_rows, for fewer rows we create the
-	// channel with n_cols = n_rows and then truncate the extra columns
-	uint truncate = 0;
-	if(n_cols < n_rows) {
-		truncate = n_cols;
-		n_cols = n_rows;
+	// shift x's and y's so that first_x is 0
+	first_y -= first_x;
+	first_x = 0;
+
+	// if first_y < 0 then d does not properly express distances between _x and y_, we need to adapt it.
+	// Note that if first_y > 0 we will add columns and truncate, so no need to change d.
+	if(first_y < 0) {
+		d = [=](uint x, uint y) -> eT {
+			return step * abs((signed)(y + first_y - x));
+		};
 	}
 
-	eT c = qif::exp(d(0,1)),
+	eT c = qif::exp(step),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
+
+	// the standard formula requires the "peaks" for each x to be included in the colums.
+	// If the are not, we add extra columns and manually truncate them afterwards.
+	uint trunc_left = std::max(first_y, 0),										// we left-truncate when first_y > 0
+		 trunc_right = std::max((signed)(n_rows - first_y - n_cols), 0);		// we right-truncate when first_y+n_cols < n_rows
+	n_cols += trunc_left + trunc_right;
 
 	Chan<eT> C = distance_matrix(n_rows, n_cols, d);
 	C.col(0)        	    *= lambda_f;
@@ -45,10 +59,16 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 	if(n_cols > 2)
 		C.cols(1, n_cols-2)	*= lambda_m;
 
-	// if we need to truncate, move the probabilities to the last col and remove the truncated columns
-	if(truncate) {
-		C.col(truncate-1) += arma::sum(C.cols(truncate, n_cols-1), 1);
-		C.shed_cols(truncate, n_cols-1);
+	// if we need to truncate, move the probabilities to the first/last col and remove the truncated columns
+	if(trunc_left) {
+		C.col(trunc_left) += arma::sum(C.cols(0, trunc_left-1), 1);
+		C.shed_cols(0, trunc_left-1);
+		n_cols -= trunc_left;
+	}
+	if(trunc_right) {
+		C.col(n_cols-trunc_right-1) += arma::sum(C.cols(n_cols-trunc_right, n_cols-1), 1);
+		C.shed_cols(n_cols-trunc_right, n_cols-1);
+		n_cols -= trunc_right;
 	}
 
 	return C;
