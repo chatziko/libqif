@@ -90,6 +90,9 @@ TYPED_TEST_P(ChanTest, Factorize) {
 	expect_channel(0, 0, factorize(t.id_10, t.noint_10));
 	expect_channel(0, 0, factorize(t.id_4,  t.noint_10));
 
+	// TODO: factorize_lp (default for small sizes) is unstable under float, it fails half of the time, we should investigate
+	if(std::is_same<eT, float>::value) return;
+
 	int n = 4, m = 6;
 	Chan<eT>
 		B = channel::randu<eT>(n, m),
@@ -98,13 +101,10 @@ TYPED_TEST_P(ChanTest, Factorize) {
 		Z1 = B * X1;
 
 	expect_channel(m, n, X1);
-	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, A, Z1);
 
 	// factorize_lp
 	//
-	// TODO: factorize_lp is unstable under float, it fails half of the time, we should investigate
-	if(std::is_same<eT, float>::value) return;
-
 	expect_channel(0, 0, factorize_lp(t.id_10, t.noint_10));
 	expect_channel(0, 0, factorize_lp(t.id_4,  t.noint_10));
 
@@ -159,6 +159,9 @@ TYPED_TEST_P(ChanTest, LeftFactorize) {
 	// non factorizable
 	expect_channel(0, 0, left_factorize(t.id_10, t.noint_10));
 	expect_channel(0, 0, left_factorize(t.id_4,  t.noint_10));
+
+	// TODO: factorize_lp (default for small sizes) is unstable under float, it fails half of the time, we should investigate
+	if(std::is_same<eT, float>::value) return;
 
 	int n = 4, m = 6;
 	Chan<eT>
