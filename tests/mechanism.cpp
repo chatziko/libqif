@@ -139,14 +139,16 @@ TYPED_TEST_P(MechTest, Discrete) {
 
 	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 	Chan<eT> expon = mechanism::exponential<eT>(size, 2 * epsilon * d);
+	Chan<eT> rr = mechanism::randomized_response<eT>(size, epsilon);
 
 	expect_channel(size, size, tc);
 	EXPECT_TRUE(is_private(tc, epsilon * d));
 	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
 
-	// the exponential mechanism with 2*epsilon should be the same as the tight constraints
+	// the exponential mechanism with 2*epsilon should be the same as the tight constraints and randomized response
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon, tc);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon, rr);
 }
 
 TYPED_TEST_P(MechTest, Grid) {

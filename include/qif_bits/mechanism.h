@@ -85,6 +85,21 @@ exponential(uint n_rows, Metric<eT, uint> d, uint n_cols = 0) {
 
 template<typename eT>
 Chan<eT>
+randomized_response(uint n_rows, eT epsilon = 1.0, uint n_cols = 0) {
+	if(n_cols == 0) n_cols = n_rows;
+
+	// Essentially the exponential for the discrete metric.
+	// But due to the symmetry we don't need to half the epsilon!
+	//
+	auto d = epsilon * metric::discrete<eT,uint>();
+	Chan<eT> C = distance_matrix(n_rows, n_cols, d);
+	channel::normalize(C);
+
+	return C;
+}
+
+template<typename eT>
+Chan<eT>
 tight_constraints(uint n, Metric<eT, uint> d) {
 	// Note: in the perl code, scaling the ones(n) vector somehow improves numerical stability
 	//       (the non-negativity of diag). We should investigate if this still happens
