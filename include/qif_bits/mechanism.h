@@ -163,38 +163,24 @@ tight_constraints(arma::uvec cols, Metric<eT, uint> d) {
 
 template<typename eT>
 bool is_private(const Chan<eT>& C, Metric<eT, uint> d) {
-	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
-	for(uint i = 0; i < C.n_rows; i++) {
-		for(uint j = i+1; j < C.n_rows; j++) {
-			// chainable elements are redundant to check
-			if(d.chainable(i, j)) continue;
-
-			eT mp = mtv(C.row(i), C.row(j));
-
-			if(!less_than_or_eq(mp, d(i, j)))
-				return false;
-		}
-	}
-	return true;
+	return metric::is_lipschitz<eT,uint,Prob<eT>>(
+		[&](uint x) -> Prob<eT> { return C.row(x); },
+		d,
+		metric::mult_total_variation<eT, Prob<eT>>(),
+		range<uint>(0, C.n_rows)
+	);
 }
 
 template<typename eT>
 eT smallest_epsilon(const Chan<eT>& C, Metric<eT, uint> d) {
-	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
-	eT res(0);
-	for(uint i = 0; i < C.n_rows; i++) {
-		for(uint j = i+1; j < C.n_rows; j++) {
-			// chainable elements are redundant to check
-			if(d.chainable(i, j)) continue;
-
-			eT ratio = mtv(C.row(i), C.row(j)) / d(i, j);
-			if(less_than(res, ratio))
-				res = ratio;
-		}
-	}
-	return res;
+	return metric::lipschitz_constant<eT,uint,Prob<eT>>(
+		[&](uint x) -> Prob<eT> { return C.row(x); },
+		d,
+		metric::mult_total_variation<eT, Prob<eT>>(),
+		range<uint>(0, C.n_rows)
+	);
 }
 
 template<typename eT>
