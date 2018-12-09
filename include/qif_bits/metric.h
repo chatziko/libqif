@@ -524,6 +524,42 @@ mult_kantorovich(Metric<R, uint> d) {
 	};
 }
 
+template<typename R = R_def, typename A, typename B, typename D>
+bool
+is_lipschitz(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain) {
+
+	for(auto a1 = domain.begin(); a1 != domain.end(); a1++) {
+		auto a2 = a1;
+		for(++a2; a2 != domain.end(); a2++) {
+			// chainable elements are redundant to check
+			if(da.chainable(*a1, *a2)) continue;
+
+			if(!less_than_or_eq(db(f(*a1), f(*a2)), da(*a1, *a2)))
+				return false;
+		}
+	}
+	return true;
+}
+
+template<typename R = R_def, typename A, typename B, typename D>
+R
+lipschitz_constant(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain) {
+
+	R res(0);
+	for(auto a1 = domain.begin(); a1 != domain.end(); a1++) {
+		auto a2 = a1;
+		for(++a2; a2 != domain.end(); a2++) {
+			// chainable elements are redundant to check
+			if(da.chainable(*a1, *a2)) continue;
+
+			R ratio = db(f(*a1), f(*a2)) / da(*a1, *a2);
+			if(less_than(res, ratio))
+				res = ratio;
+		}
+	}
+	return res;
+}
+
 } // namespace metric
 
 template<typename R = metric::R_def, typename T>
