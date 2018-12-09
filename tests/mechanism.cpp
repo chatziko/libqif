@@ -53,7 +53,7 @@ TYPED_TEST_P(MechTest, Reals) {
 
 	auto d = step * metric::euclidean<eT, uint>();
 
-	Chan<eT> geom = mechanism::geometric<eT>(size, epsilon * d);
+	Chan<eT> geom = mechanism::geometric<eT>(size, epsilon * step);
 	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
 	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 
@@ -75,7 +75,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	expect_channel(geom, tc2);
 
 	// fat
-	geom = mechanism::geometric<eT>(size, epsilon * d, 2*size);
+	geom = mechanism::geometric<eT>(size, epsilon * step, 2*size);
 	expon = mechanism::exponential<eT>(size, epsilon * d, 2*size);
 
 	expect_channel(size, 2*size, geom);
@@ -89,7 +89,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 
 	// skinny
-	geom = mechanism::geometric<eT>(2*size, epsilon * d, size);
+	geom = mechanism::geometric<eT>(2*size, epsilon * step, size);
 	expon = mechanism::exponential<eT>(2*size, epsilon * d, size);
 
 	expect_channel(2*size, size, geom);
@@ -106,7 +106,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	// We create 4 channels with secrets 5..14 and obs 0..9 / 10..19 / 1..18 / 7..12
 	// We first create by remapping a 0..19 x 0..19 channel, then create directly and compare
 	//
-	Chan<eT> G0 = mechanism::geometric(20, epsilon * d);		// the 0..19 x 0..19 to remap
+	Chan<eT> G0 = mechanism::geometric(20, epsilon);		// the 0..19 x 0..19 to remap
 
 	Chan<eT> T1 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  0u), 9u); }, 20, 20);	// 0..9
 	Chan<eT> T2 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x, 10u), 19u); }, 20, 20);	// 10..19
@@ -118,10 +118,10 @@ TYPED_TEST_P(MechTest, Reals) {
 	Chan<eT> G3 = T3.submat(5, 1,  14, 18);		// and the columns to
 	Chan<eT> G4 = T4.submat(5, 7,  14, 12);		// 0..9 / 10..19 / 1..18 / 7..12
 
-	Chan<eT> D1 = mechanism::geometric(10, epsilon * d, 10,  0, 5);	// same channels
-	Chan<eT> D2 = mechanism::geometric(10, epsilon * d, 10, 10, 5);	// created
-	Chan<eT> D3 = mechanism::geometric(10, epsilon * d, 18,  1, 5);	// directly by passing
-	Chan<eT> D4 = mechanism::geometric(10, epsilon * d, 6,   7, 5);	// first_y / first_x
+	Chan<eT> D1 = mechanism::geometric(10, epsilon, 10, 5, 0 );	// same channels
+	Chan<eT> D2 = mechanism::geometric(10, epsilon, 10, 5, 10);	// created
+	Chan<eT> D3 = mechanism::geometric(10, epsilon, 18, 5, 1 );	// directly by passing
+	Chan<eT> D4 = mechanism::geometric(10, epsilon, 6,  5, 7 );	// first_y / first_x
 
 	expect_channel(G1, D1);
 	expect_channel(G2, D2);

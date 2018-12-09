@@ -20,30 +20,24 @@ distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 	return D;
 }
 
-// d should be a scaled version of metric::euclidean<eT,uint>()
-// it should be a distance between _inputs_  (not inputs/outputs)
 // first_y,first_x are the number corresponding to the first column/row
 //
 template<typename eT>
 Chan<eT>
-geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n_cols = 0, int first_y = 0, int first_x = 0) {
+geometric(uint n_rows, eT epsilon = 1.0, uint n_cols = 0, int first_x = 0, int first_y = 0) {
 	if(n_cols == 0) n_cols = n_rows;
 	if(n_cols < 2)      throw std::runtime_error("n_cols should be at least 2");
-	eT step = d(0,1);
 
-	// shift x's and y's so that first_x is 0
+	// shift x's and y's so that first_x is 0. This does not affect the matrix but makes formulas easier
 	first_y -= first_x;
 	first_x = 0;
 
-	// if first_y < 0 then d does not properly express distances between _x and y_, we need to adapt it.
-	// Note that if first_y > 0 we will add columns and truncate, so no need to change d.
-	if(first_y < 0) {
-		d = [=](uint x, uint y) -> eT {
-			return step * abs((signed)(y + first_y - x));
-		};
-	}
+	// construct a metric between inputs and _outputs_
+	Metric<eT,uint> d = [&](uint x, uint y) -> eT {
+		return epsilon * abs((signed)(y + first_y - x));
+	};
 
-	eT c = qif::exp(step),
+	eT c = qif::exp(epsilon),
 	   lambda_f = c / (c + eT(1)),				// lambda for the first/last cols
 	   lambda_m = (c - eT(1)) / (c + eT(1));	// lambda for the middle colums
 
@@ -52,6 +46,7 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 	uint trunc_left = std::max(first_y, 0),										// we left-truncate when first_y > 0
 		 trunc_right = std::max((signed)(n_rows - first_y - n_cols), 0);		// we right-truncate when first_y+n_cols < n_rows
 	n_cols += trunc_left + trunc_right;
+	first_y -= trunc_left;
 
 	Chan<eT> C = distance_matrix(n_rows, n_cols, d);
 	C.col(0)        	    *= lambda_f;
@@ -64,6 +59,7 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 		C.col(trunc_left) += arma::sum(C.cols(0, trunc_left-1), 1);
 		C.shed_cols(0, trunc_left-1);
 		n_cols -= trunc_left;
+		first_y += trunc_left;
 	}
 	if(trunc_right) {
 		C.col(n_cols-trunc_right-1) += arma::sum(C.cols(n_cols-trunc_right, n_cols-1), 1);
@@ -74,13 +70,15 @@ geometric(uint n_rows, Metric<eT, uint> d = metric::euclidean<eT,uint>(), uint n
 	return C;
 }
 
+// d should be a metric between inputs and outputs
+//
 template<typename eT>
 Chan<eT>
 exponential(uint n_rows, Metric<eT, uint> d, uint n_cols = 0) {
 	if(n_cols == 0) n_cols = n_rows;
 
 	Chan<eT> C = distance_matrix(n_rows, n_cols, eT(1)/2 * d);
-	C.each_col() /= sum(C, 1);	// normalize
+	channel::normalize(C);
 
 	return C;
 }
