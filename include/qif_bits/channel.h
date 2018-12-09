@@ -205,6 +205,20 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 }
 
 
+// returns the reduced form of the channel
+//
+template<typename eT = eT_def>
+inline
+Chan<eT> reduced(const Chan<eT>& C) {
+	// compute via a hyper constructed on a uniform prior
+	Chan<eT> R;
+	prob outer = channel::hyper(C, probab::uniform<eT>(C.n_rows), R);
+	R.each_row() %= outer;
+	normalize(R);
+	return R;
+}
+
+
 // returns the prior estimate produced by C, given observed output distribution out
 //
 template<typename eT = eT_def>
