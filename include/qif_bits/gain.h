@@ -225,9 +225,9 @@ bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 			qp.c(x*Cc+z) = -2 * B(x,z);
 
 	// precision of the solution (Kostas: not 100% sure here)
-	eT eps(1e-5); 
-	qp.osqp_eps_abs = eps;
-	qp.osqp_eps_rel = eps;
+	// if no value is set by the user, use 1e-5 instead of OSQP's defaults
+	if(qp::Defaults::osqp_eps_abs < 0.0)	qp.osqp_eps_abs = 1e-5;
+	if(qp::Defaults::osqp_eps_rel < 0.0)	qp.osqp_eps_rel = 1e-5;
 
 	// ready
 	if(!qp.solve())
@@ -236,7 +236,7 @@ bool leakage_ge(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	// add B.B to the cost function to obtained the squared distance (see the program definition above)
 	eT dist = qp.optimum() + arma::dot(B, B);
 
-	bool res = equal(dist, eT(0), eps);
+	bool res = equal(dist, eT(0), eT(qp.osqp_eps_abs), eT(qp.osqp_eps_rel));
 	if(res) {
 		G.clear();
 	} else {
