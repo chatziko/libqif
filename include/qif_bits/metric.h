@@ -270,7 +270,7 @@ compose(Metric<R,T2> d, std::function<T2(const T1&)> f1, std::function<T2(const 
 }
 
 
-// OBSOLETE. Use compose(cell_to_point(...), euclidean())
+// OBSOLETE. Use compose(euclidean(), cell_to_point(...))
 // 
 // transform a metric on Point<uint> to a metric on indexes (uint) on a grid of the given width.
 // The cell of index 0 is (0,0) (bottom left), and the cell of index i
