@@ -116,14 +116,34 @@ eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning_g = fal
 // mult leakage bound (even for negative g) coming from the miracle theorem, adjusted so that the minimum gain is exactly 0
 template<typename eT>
 eT mult_leakage_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	eT lambda = arma::cdot(pi, arma::min(G, 0)) / vulnerability<eT>(G, pi); 
-	return bayes::mult_capacity(C) * (1-lambda) + lambda;
+	// NOTE: wrt the notation of the book  (Thm 4.7), arma::min(G, 0) is _minus_ the kappa vector we need to add to G to make it non-negative.
+	// So the z here and the lambda of the book are related by lambda = z / (z-1)
+	//
+	eT z = arma::cdot(pi, arma::min(G, 0)) / vulnerability<eT>(G, pi); 
+	// std::cout << "z:" << z << "\n";
+	return bayes::mult_capacity(C) * (1-z) + z;
+}
+
+template<typename eT>
+eT post_vulnerability_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	return vulnerability<eT>(G, pi) * mult_leakage_bound1(G, pi, C);
 }
 
 // mult leakage bound (even for negative g) coming from the additive theorem
 template<typename eT>
 eT mult_leakage_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	return (G.max() - G.min()) * (eT(1) - channel::sum_column_min<eT>(C)) /  vulnerability<eT>(G, pi) + eT(1);
+}
+
+// add leakage bound (even for g not bounded by 1) coming from the additive miracle theorem, adjusted so that the max gain is exactly 1
+template<typename eT>
+eT add_leakage_bound1(const Mat<eT>& G, const Chan<eT>& C) {
+	return G.max() * (eT(1) - channel::sum_column_min<eT>(C));
+}
+
+template<typename eT>
+eT post_vulnerability_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	return vulnerability<eT>(G, pi) + add_leakage_bound1(G, C);
 }
 
 
