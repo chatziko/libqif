@@ -196,6 +196,24 @@ eT smallest_epsilon(const Chan<eT>& C, Metric<eT, uint> d) {
 	);
 }
 
+// true if A is privacy-based refined by B (i.e. A sat. d-privact => B sat. d-privacy for all d)
+//
+template<typename eT = eT_def>
+inline
+bool priv_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
+	typedef eT R;		// use eT as the type for the metric result
+
+	// This holds if B is d_A-private, where d_A is the metric "induced by" A:
+	// d_A(x1, x2) = mtv(A.row(x1), A.row(x2))
+	//
+	auto d_A = metric::compose<R,uint,Prob<eT>>(
+		metric::mult_total_variation<R, Prob<eT>>(),
+		[&](uint x) -> Prob<eT> { return A.row(x); }
+	);
+
+	return is_private(B, d_A);
+}
+
 template<typename eT>
 eT d_vulnerability(Metric<eT, uint> d, const Prob<eT>& pi) {
 
