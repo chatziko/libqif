@@ -45,12 +45,12 @@ If the `rat` type is used you also need to compile with `-lgmp`.
 
 Prerequisites
 
-* [CMake](http://www.cmake.org/) (tested with version 2.8.12)
-* [Armadillo](http://arma.sourceforge.net/) (tested with version 4.4)
-* [GMP](https://gmplib.org/) (tested with version 6.0.0)
-* [GLPK](https://www.gnu.org/software/glpk/) (tested with version 4.54)
-* [GSL](http://www.gnu.org/software/gsl/) (tested with version 1.16)
-* A C++11 compliant compiler (tested with g++ 4.9.1 and clang 7)
+* [CMake](http://www.cmake.org/)
+* [Armadillo](http://arma.sourceforge.net/)
+* [GMP](https://gmplib.org/)
+* [GLPK](https://www.gnu.org/software/glpk/)
+* [GSL](http://www.gnu.org/software/gsl/)
+* A C++11 compliant compiler (g++ 4.9.1 and clang)
 
 On Ubuntu, these can be installed with:
 
