@@ -193,7 +193,7 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 		// Note: for rat this is slow (probably has to do with the huge denominators in the random elements)
 		pi.clear();
 		auto C = mechanism::geometric<eT>(10);
-		bayesian_update<eT>(C, t.prand_10 * C, pi, eT(1e-7));
+		bayesian_update<eT>(C, t.prand_10 * C, pi, eT(1e-8));
 		expect_prob(t.prand_10, pi, eT(0), eT(1e-4));
 	}
 }
