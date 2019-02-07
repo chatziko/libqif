@@ -174,6 +174,24 @@ tight_constraints(arma::uvec cols, Metric<eT, uint> d) {
 	return phi;
 }
 
+// A mechanism C such that for all x,x', mult_total_var(C.row(x), C.row(x')) = d(x,x') (exactly)
+//
+template<typename eT>
+Chan<eT>
+exact_distance(uint n, Metric<eT, uint> d) {
+	Chan<eT> C(n, n+1);
+
+	for(uint i = 0; i < n; i++) {
+	for(uint j = 0; j < n; j++) {
+		C(i,j) = eT(1)/n * qif::exp( -d(j,i)-1 );
+	}}
+
+	C.col(n).fill(0);
+	C.col(n) = 1 - arma::sum(C, 1);
+
+	return C;
+}
+
 template<typename eT>
 bool is_private(const Chan<eT>& C, Metric<eT, uint> d) {
 
