@@ -44,6 +44,14 @@ discrete() {
 
 template<typename R = R_def, typename T>
 Metric<R, T>
+mult_reals() {
+	return [](const T& a, const T& b) -> R {
+		return abs_diff(std::log(a), std::log(b));
+	};
+}
+
+template<typename R = R_def, typename T>
+Metric<R, T>
 scale(Metric<R, T> d, R coeff) {
 	Metric<R, T> d2 = [d, coeff](const T& a, const T& b) -> R {
 		// separate treatment of 0 allows to scale by infinity and still get d(x,x) == 0
