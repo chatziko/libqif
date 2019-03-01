@@ -506,35 +506,6 @@ Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_sto
 }
 
 
-// true if A is refined by B (i.e. A's leakage is >= B's)
-//
-template<typename eT = eT_def>
-inline
-bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
-	// true if AX = B for some X
-	auto X = factorize(B, A);
-	return !X.empty();
-}
-
-
-// true if A is max-case refined by B (i.e. A's max-case leakage is >= B's)
-//
-template<typename eT = eT_def>
-inline
-bool max_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
-	// true if X A* = B* for some X, where C* is produced from C by normalizing each column and transposing
-	Mat<eT> An = A.t();
-	Mat<eT> Bn = B.t();
-
-	normalize(An);
-	normalize(Bn);
-
-	auto X = left_factorize(Bn, An);
-
-	return !X.empty();
-}
-
-
 template<typename eT = eT_def>
 inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 	Mat<eT> temp(B.memptr(), B.n_rows, B.n_cols, false, false);
