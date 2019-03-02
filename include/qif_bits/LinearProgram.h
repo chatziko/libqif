@@ -52,6 +52,9 @@ class Defaults {
 
 template<typename eT>
 class LinearProgram {
+	typedef uint Var;
+	typedef uint Con;
+
 	// workaround a bug in g++ 4.9 (jessie), std::is_same<A,B> fails when A,B
 	// are aliases,  so we use __gmp_expr<mpq_t, mpq_t> instead of rat
 	const bool is_rat = std::is_same<eT, __gmp_expr<mpq_t, mpq_t>>::value;
@@ -79,24 +82,152 @@ class LinearProgram {
 		bool solve();
 		string to_mps();
 
-		inline eT optimum()				{ return arma::dot(x, c); }
+		eT optimum();
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
 		LinearProgram canonical_form();
+		void to_canonical_form();
+		Col<eT> original_x();
+
+		Var make_var(eT lb = -infinity<eT>(), eT ub = infinity<eT>());
+		std::vector<Var> make_vars(uint n, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
+		Con make_con(eT lb, eT ub);
+		void set_obj_coeff(Var var, eT coeff);
+		void set_con_coeff(Con cons, Var var, eT coeff);
 
 	protected:
 		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
 
 		bool glpk();
 		bool simplex();
+		void compat_build_matrix();
+
+		std::vector<eT> obj_coeff;
+		std::list<MatrixEntry<eT>> con_coeff;
+		std::vector<eT> var_lb, var_ub, con_lb, con_ub;
+		uint n_var = 0, n_con = 0;
+
+		// info for transforming solution to the original one (see canonical_form, original_x)
+		std::vector< std::tuple<int,eT,eT> > var_transform;
 };
 
 
 template<typename eT>
+inline
+eT LinearProgram<eT>::optimum() {
+	// TODO: remove
+	if(n_var == 0)
+		return arma::cdot(x, c);
+
+	if(x.empty())
+		throw std::runtime_error("no solution");
+
+	eT res(0);
+	for(uint var = 0; var < n_var; var++)
+		res += obj_coeff[var] * x(var);
+	return res;
+}
+
+template<typename eT>
+Col<eT> LinearProgram<eT>::original_x() {
+	Col<eT> res(var_transform.size());
+
+	for(uint v = 0; v < res.n_elem; v++) {
+		// A tuple (var, coeff, add) for v means that the original value of v is:  v*coeff + add - var
+		int v2;
+		eT coeff, add;
+		std::tie(v2, coeff, add) = var_transform[v];
+
+		res(v) = x(v) * coeff + add - (v2 >= 0 ? x(v2) : 0);
+	}
+
+	return res;
+}
+
+template<typename eT>
+inline
+typename LinearProgram<eT>::Var LinearProgram<eT>::make_var(eT lb, eT ub) {
+	var_lb.push_back(lb);
+	var_ub.push_back(ub);
+	obj_coeff.push_back(0);
+	return n_var++;
+}
+
+template<typename eT>
+inline
+std::vector<typename LinearProgram<eT>::Var> LinearProgram<eT>::make_vars(uint n, eT lb, eT ub) {
+	std::vector<Var> res(n);
+	for(uint i = 0; i < n; i++)
+		res[i] = make_var(lb, ub);
+	return res;
+}
+
+template<typename eT>
+inline
+typename LinearProgram<eT>::Con LinearProgram<eT>::make_con(eT lb, eT ub) {
+	if(ub == infinity<eT>() && lb == -ub)
+		throw std::runtime_error("trying to add unconstrained constraint");
+
+	con_lb.push_back(lb);
+	con_ub.push_back(ub);
+	return n_con++;
+}
+
+template<typename eT>
+inline
+void LinearProgram<eT>::set_obj_coeff(Var var, eT coeff) {
+	obj_coeff[var] = coeff;
+}
+
+template<typename eT>
+inline
+void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff) {
+	con_coeff.push_back(MatrixEntry<eT>(con, var, coeff));
+}
+
+
+template<typename eT>
+void LinearProgram<eT>::compat_build_matrix() {
+	// TODO compat, remove
+	if(n_var == 0) {
+		// build *_coeff *_ub *_lb from A, b, c, sense
+		obj_coeff.clear();
+		con_coeff.clear();
+		var_lb.clear(); var_ub.clear();
+		con_lb.clear(); con_ub.clear();
+
+		n_var = c.n_elem;
+		n_con = A.n_rows;
+
+		var_lb.resize(n_var, non_negative ? eT(0) : -infinity<eT>());
+		var_ub.resize(n_var, infinity<eT>());
+
+		for(uint con = 0; con < n_con; con++) {
+			con_lb.push_back(get_sense(con) == '<' ? -infinity<eT>() : b[con]);
+			con_ub.push_back(get_sense(con) == '>' ?  infinity<eT>() : b[con]);
+		}
+
+		for(uint var = 0; var < n_var; var++) {
+			obj_coeff.push_back(c[var]);
+		}
+		
+		auto end = A.end();
+		for(auto c = A.begin(); c != end; ++c) {		// c++ throws weird warning, ++c doesn't!
+			set_con_coeff(c.row(), c.col(), *c);
+		}
+	}
+}
+
+template<typename eT>
 bool LinearProgram<eT>::solve() {
 	check_sizes();
+	uint orig = n_var;
+	compat_build_matrix();
+	bool res = glpk();
+	n_var = orig;
+	return res;
 
-	return glpk();
+	// return glpk();
 }
 
 // for rats, we use the simplex() method after transforming to canonical form
@@ -105,18 +236,22 @@ template<>
 inline
 bool LinearProgram<rat>::solve() {
 	check_sizes();
+	uint orig = n_var;
+	compat_build_matrix();
 
 	if(method != method_t::simplex_primal)
 		throw std::runtime_error("not supported");
 
-	LinearProgram<rat> lp = canonical_form();
+	LinearProgram<rat> lp(*this);	// clone
+	lp.to_canonical_form();
 
 	bool res = lp.simplex();
 	status = lp.status;
 
 	if(res)
-		x = lp.x.subvec(0, A.n_cols-1);
+		x = lp.original_x();
 
+	n_var = orig;
 	return res;
 }
 
@@ -128,17 +263,27 @@ bool LinearProgram<eT>::glpk() {
 
 	wrapper::glp_set_obj_dir(lp, maximize ? GLP_MAX : GLP_MIN);
 
+	eT  inf = infinity<eT>();
+	eT minf = -inf;
+
 	// add variables
 	// CAREFULL: all glp indexes are 1-based
 	//
-	wrapper::glp_add_cols(lp, A.n_cols);
-	for(uint j = 0; j < A.n_cols; j++) {
-		if(non_negative)
-			wrapper::glp_set_col_bnds(lp, j+1, GLP_LO, 0.0, 0.0);	// x_j >= 0
-		else
-			wrapper::glp_set_col_bnds(lp, j+1, GLP_FR, 0.0, 0.0);	// x_j is free
+	wrapper::glp_add_cols(lp, n_var);
+	for(uint j = 0; j < n_var; j++) {
+		eT lb = var_lb[j];
+		eT ub = var_ub[j];
 
-		wrapper::glp_set_obj_coef(lp, j+1, c.at(j));				// coefficient in the cost functoin
+		int type =
+			lb == minf && ub == inf ? GLP_FR :	// free
+			lb == minf              ? GLP_UP :	// upper only
+			ub ==  inf              ? GLP_LO :	// lower only
+			lb ==   ub              ? GLP_FX :	// fixed value
+			                          GLP_DB ;	// both bounds
+
+		wrapper::glp_set_col_bnds(lp, j+1, type, lb, ub);
+
+		wrapper::glp_set_obj_coef(lp, j+1, obj_coeff[j]);				// coefficient in the cost functoin
 	}
 
 	// add constraints. glpk uses a "sparse" way of entering the rows, using
@@ -146,31 +291,34 @@ bool LinearProgram<eT>::glpk() {
 	// set, and ar[z] = A[ ia[z], ja[z] ]
 	// we add entries only for non-zero elements, it's much faster!
 	//
-	wrapper::glp_add_rows(lp, A.n_rows);
+	wrapper::glp_add_rows(lp, n_con);
 
-	int size = A.n_nonzero;
+	int size = con_coeff.size();
 
 	std::vector<int>	ia(size+1),
 						ja(size+1);
 	std::vector<double> ar(size+1);
 
-	for(uint i = 0; i < A.n_rows; i++) {
-		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
-		if(sense_i == '<')
-			wrapper::glp_set_row_bnds(lp, i+1, GLP_UP, 0.0, b.at(i));	// row_i dot x <= b(i)
-		else if(sense_i == '>')
-			wrapper::glp_set_row_bnds(lp, i+1, GLP_LO, b.at(i), 0.0);	// row_i dot x >= b(i)
-		else
-			wrapper::glp_set_row_bnds(lp, i+1, GLP_FX, b.at(i), 0.0);	// row_i dot x >= b(i)
+	for(uint i = 0; i < n_con; i++) {
+		eT lb = con_lb[i];
+		eT ub = con_ub[i];
+
+		int type =
+			lb == minf && ub == inf ? GLP_FR :	// free
+			lb == minf              ? GLP_UP :	// upper only
+			ub ==  inf              ? GLP_LO :	// lower only
+			lb ==   ub              ? GLP_FX :	// fixed value
+			                          GLP_DB ;	// both bounds
+
+		wrapper::glp_set_row_bnds(lp, i+1, type, lb, ub);
 	}
 
 	// loop over non-zero elements of sparse array
 	int index = 1;
-	auto end = A.end();
-	for(auto c = A.begin(); c != end; ++c) {		// c++ throws weird warning, ++c doesn't!
-		ia[index] = c.row() + 1;
-		ja[index] = c.col() + 1;
-		ar[index] = *c;
+	for(auto me : con_coeff) {
+		ia[index] = me.row + 1;
+		ja[index] = me.col + 1;
+		ar[index] = me.val;
 		index++;
 	}
 
@@ -231,8 +379,8 @@ bool LinearProgram<eT>::glpk() {
 
 	// get optimal solution
 	if(status == status_t::optimal) {
-		x.set_size(A.n_cols);
-		for(uint j = 0; j < A.n_cols; j++)
+		x.set_size(n_var);
+		for(uint j = 0; j < n_var; j++)
 			x.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
 	}
 
@@ -303,6 +451,142 @@ LinearProgram<eT> LinearProgram<eT>::canonical_form() {
 	return lp;
 }
 
+
+// transform the progarm in canonical form:
+//        min  dot(c,x)
+// subject to  A x == b
+//               x >= 0
+// b must be >= 0.
+//
+template<typename eT>
+void LinearProgram<eT>::to_canonical_form() {
+
+	uint n_var_orig = n_var;
+	eT inf = infinity<eT>();
+
+	if(var_transform.size() != 0)
+		throw std::runtime_error("var_transform already set");
+
+	// in canonical form, all variable bounds should be [0, infty]
+	// we need to do various transformations, in the following we denote by x* the value of x in the original program
+	//
+	for(uint x = 0; x < n_var_orig; x++) {
+		eT lb = var_lb[x];
+		eT ub = var_ub[x];
+
+		var_lb[x] = 0;
+		var_ub[x] = inf;
+
+		if(lb == -inf && ub == inf) {
+			// An unbounded variable becomes two variables x* = x - xnew
+			uint xnew = make_var(0, inf);
+
+			// recover x as x1 - x2
+			var_transform.push_back(std::make_tuple(xnew, 1, 0));
+
+			// "c * x*" becomes "c * (x - xnew)", so we need to update the obj
+			set_obj_coeff(xnew, -obj_coeff[x]);
+			
+			// and for every coeff c of x in constraints, we need to add -c to x2
+			for(auto me : con_coeff)
+				if(me.col == x)
+					set_con_coeff(me.row, xnew, -me.val);
+
+		} else if(lb == inf) {
+			// upper bounded variable, we set x* = ub - x
+			var_transform.push_back(std::make_tuple(-1, -1, ub));
+
+			obj_coeff[x] *= -1;
+
+			for(auto& me : con_coeff) {
+				if(me.col == x) {
+					if(con_lb[me.row] != -inf)
+						con_lb[me.row] += me.val * -ub;
+					else if(con_ub[me.row] != inf)
+						con_ub[me.row] += me.val * -ub;
+				}
+				me.val *= -1;
+			}
+
+		} else {
+			// lower or doubly bounded variable, we set x* = x - l
+			var_transform.push_back(std::make_tuple(-1, 1, -lb));
+
+			for(auto me : con_coeff)
+				if(me.col == x) {
+					if(con_lb[me.row] != -inf)
+						con_lb[me.row] += me.val * lb;
+					else if(con_ub[me.row] != inf)
+						con_ub[me.row] += me.val * lb;
+				}
+
+			// if an upper bound exists, we add a new constraint x <= lb + ub
+			if(ub != inf) {
+				uint con = make_con(-inf, lb+ub);
+				set_con_coeff(con, x, 1);
+			}
+		}
+	}
+
+	// for every constraint lb <= cx <= ub with lb != ub, change ub to infty and add a separate consraint cx <= ub
+	for(uint c = 0; c < n_con; c++) {
+		eT lb = con_lb[c];
+		eT ub = con_ub[c];
+
+		if(lb != -inf && ub != inf && lb != ub) {
+			con_ub[c] = inf;
+
+			uint newc = make_con(-inf, ub);
+
+			for(auto me : con_coeff)
+				if(me.row == c)
+					set_con_coeff(newc, me.col, me.val);
+		}
+	}
+
+	// for every non-equality constraint, add slack variable
+	for(uint c = 0; c < n_con; c++) {
+		eT lb = con_lb[c];
+		eT ub = con_ub[c];
+
+		if(lb == -inf) {
+			// upper bound, add slack newx to make equal
+			con_lb[c] = ub;
+
+			uint xnew = make_var(0, inf);
+			set_con_coeff(c, xnew, 1);
+
+		} else if(ub == inf) {
+			// lower bound, subtract slack newx to make equal
+			con_ub[c] = lb;
+
+			uint xnew = make_var(0, inf);
+			set_con_coeff(c, xnew, -1);
+		}
+	}
+
+	// invert constraints with negative constants
+	for(uint c = 0; c < n_con; c++) {
+
+		if(con_ub[c] < eT(0)) {
+			con_lb[c] *= -1;
+			con_ub[c] *= -1;
+
+			for(auto& me : con_coeff)
+				if(me.row == c)
+					me.val *= -1;
+		}
+	}
+
+	// canonical form is minimizing
+	if(maximize) {
+		maximize = false;
+
+		for(auto& c : obj_coeff)
+			c *= -1;
+	}
+}
+
 // simplex
 // Solve the linear program in canonical form
 //        min  dot(c,x)
@@ -328,15 +612,20 @@ bool LinearProgram<eT>::simplex() {
 	using arma::eye;
 	using arma::umat;
 
-	uint m = A.n_rows,
-		 n = A.n_cols;
+	// write program in matrix form
+	Row<eT> b = con_lb,
+			c = obj_coeff;
+	Mat<eT> Adense = zeros<Mat<eT>>(n_con, n_var);	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
+
+	for(auto me : con_coeff)
+		Adense(me.row, me.col) = me.val;
+
+	uint m = n_con,
+		 n = n_var;
 
 	assert(!maximize);
 	for(uint i = 0; i < m; i++)
 		assert(!less_than(b.at(i), eT(0)));
-
-	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
-	Mat<eT> Adense(A);
 
 	Mat<char> is_basic	= zeros<Mat<char>>(n + m);
 	umat basic			= zeros<umat>(m);				// indices of current basis
