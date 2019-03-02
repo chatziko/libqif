@@ -14,36 +14,18 @@ Chan<eT> optimal_utility(
 	eT inf = eT(std::log(1e200))	// ignore large distances to avoid numerical instability. infinity<eT>() could be used to disable
 ) {
 	uint M = pi.n_cols,
-		 N = n_cols,
-		 n_adj = 0;
-
-	// find how many non-chainable elements do we have
-	for(uint x1 = 0; x1 < M; x1++)
-	for(uint x2 = x1+1; x2 < M; x2++)
-		if(!d_priv.chainable(x1, x2) && less_than(d_priv(x1, x2), inf))
-			n_adj++;
+		 N = n_cols;
 
 	// C: M x N   unknowns
-	// We have M x N variables, that will be unfolded in a vector.
-	// The varialbe C[x,y] will have variable number xN+y.
-	//
-	uint n_vars = M * N,					// one var for each element of C
-		 n_cons = 2*n_adj*N+M,				// one constraint for each C_xy, C_x'y for x adj x', plus M sum=1 constraints
-		 n_cons_elems = 4*n_adj*N+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
-
+	// We have M x N variables
 	lp::LinearProgram<eT> lp;
-	lp.b.set_size(n_cons);
-	lp.sense.set_size(n_cons);
+	auto vars = lp.make_vars(M, N, 0, 1);
 
 	// cost function: minimize sum_xy pi_x C_xy loss(x,y)
 	lp.maximize = false;
-	lp.c = Col<eT>(n_vars);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			lp.c(x*N+y) = pi(x) * loss(x, y);
-
-	std::list<ME<eT>> entries;
-	uint cons_i = 0;
+			lp.set_obj_coeff(vars[x][y], pi(x) * loss(x, y));
 
 	// Build equations for C_xy <= exp(eps d_priv(x,x')) C_x'y
 	//
@@ -51,36 +33,24 @@ Chan<eT> optimal_utility(
 	for(uint x2 = 0; x2 < M; x2++) {
 		if(x1 == x2 || d_priv.chainable(x1, x2)) continue;			// constraints for chainable inputs are redundant
 		if(!less_than(d_priv(x1, x2), inf)) continue;				// inf distance, i.e. no constraint
+
 		for(uint y = 0; y < N; y++) {
+			auto con = lp.make_con(-infinity<eT>(), 0);
 
-			lp.sense(cons_i) = '<';
-			lp.b(cons_i) = eT(0);
-
-			entries.push_back(ME<eT>(cons_i, x1*N+y, eT(1)));
-			entries.push_back(ME<eT>(cons_i, x2*N+y, - std::exp(d_priv(x1, x2))));
-
-			cons_i++;
+			lp.set_con_coeff(con, vars[x1][y], 1);
+			lp.set_con_coeff(con, vars[x2][y], - std::exp(d_priv(x1, x2)));
 		}
 	}}
 
 	// equalities for summing up to 1
 	//
 	for(uint x = 0; x < M; x++) {
-		lp.b(cons_i) = eT(1);					// sum of row = 1
-		lp.sense(cons_i) = '=';
+		auto con = lp.make_con(1, 1);
 
+		// coeff 1 for variable C[x,y]
 		for(uint y = 0; y < N; y++)
-			// coeff 1 for variable C[x,y]
-			entries.push_back(ME<eT>(cons_i, x*N+y, eT(1)));
-
-		cons_i++;
+			lp.set_con_coeff(con, vars[x][y], 1);
 	}
-
-	assert(cons_i == n_cons);					// added all constraints
-	n_cons_elems *= 1;							// avoid unused warning
-	assert(entries.size() == n_cons_elems);		// added all constraint elements
-
-	fill_spmat(lp.A, n_cons, n_vars, entries);
 
 	// solve program
 	//
@@ -92,7 +62,7 @@ Chan<eT> optimal_utility(
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.x(x*N+y);
+			C(x, y) = lp.get_solution(vars[x][y]);
 
 	return C;
 }
