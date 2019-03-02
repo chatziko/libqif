@@ -13,4 +13,5 @@
 
 samples/scribble
 build/
-.vscode/
+.vscode
+.vstags
