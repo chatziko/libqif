@@ -83,14 +83,16 @@ class LinearProgram {
 		string to_mps();
 
 		eT optimum();
+		inline eT get_solution(Var v)	{ return x(v); }
+		inline Row<eT> get_solution()	{ return x; };
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
 		LinearProgram canonical_form();
 		void to_canonical_form();
-		Col<eT> original_x();
 
 		Var make_var(eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		std::vector<Var> make_vars(uint n, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
+		std::vector<std::vector<Var>> make_vars(uint n, uint m, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		Con make_con(eT lb, eT ub);
 		void set_obj_coeff(Var var, eT coeff);
 		void set_con_coeff(Con cons, Var var, eT coeff);
@@ -101,6 +103,7 @@ class LinearProgram {
 		bool glpk();
 		bool simplex();
 		void compat_build_matrix();
+		Col<eT> original_x();
 
 		std::vector<eT> obj_coeff;
 		std::list<MatrixEntry<eT>> con_coeff;
@@ -159,6 +162,18 @@ std::vector<typename LinearProgram<eT>::Var> LinearProgram<eT>::make_vars(uint n
 	std::vector<Var> res(n);
 	for(uint i = 0; i < n; i++)
 		res[i] = make_var(lb, ub);
+	return res;
+}
+
+template<typename eT>
+inline
+std::vector<std::vector<typename LinearProgram<eT>::Var>> LinearProgram<eT>::make_vars(uint n, uint m, eT lb, eT ub) {
+	std::vector<std::vector<Var>> res(n);
+	for(uint i = 0; i < n; i++) {
+		res[i].resize(m);
+		for(uint j = 0; j < m; j++)
+			res[i][j] = make_var(lb, ub);
+	}
 	return res;
 }
 
