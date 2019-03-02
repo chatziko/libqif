@@ -178,66 +178,41 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 			DI(x, y) = arma::find(dists == d_priv(x, y), 1).eval()(0);
 
 	// C: D variables
-	//
-	uint n_vars = D,						// one var for each distinct distance
-		 n_cons = 2*(D-1)+M,				// 2 constraints for each consecutive distances, plus M sum=1 constraints
-		 n_cons_elems = 4*(D-1)+M*N;		// 2 elems for each DP constraint + M*N elements for the sum=1 constraints
-
 	lp::LinearProgram<eT> lp;
-	lp.b.set_size(n_cons);
-	lp.sense.set_size(n_cons);
+	auto vars = lp.make_vars(D, eT(0), eT(1));		// one var for each distinct distance
 
 	// cost function: minimize sum_xy pi_x var<C_xy> loss(x,y)
 	lp.maximize = false;
-	lp.c = Col<eT>(n_vars, arma::fill::zeros);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			lp.c(DI(x,y)) += pi(x) * loss(x, y);
-
-	std::list<ME<eT>> entries;
-	uint cons_i = 0;
+			lp.set_obj_coeff(vars[DI(x,y)], pi(x) * loss(x, y), true);
 
 	// Build equations for X_d_i <= exp(eps |d_i - d_i+1|) X_d_j
 	//
 	for(uint dist_i = 0; dist_i < D-1; dist_i++) {
 		eT diff = dists(dist_i+1) - dists(dist_i);
 
-		lp.sense(cons_i) = '<';
-		lp.b(cons_i) = eT(0);
+		auto con = lp.make_con(-infinity<eT>(), 0);
 
-		entries.push_back(ME<eT>(cons_i, dist_i, eT(1)));
-		entries.push_back(ME<eT>(cons_i, dist_i+1, - std::exp(diff)));
+		lp.set_con_coeff(con, vars[dist_i  ], 1);
+		lp.set_con_coeff(con, vars[dist_i+1], - std::exp(diff));
 
-		cons_i++;
+		con = lp.make_con(-infinity<eT>(), 0);
 
-		lp.sense(cons_i) = '<';
-		lp.b(cons_i) = eT(0);
-
-		entries.push_back(ME<eT>(cons_i, dist_i+1, eT(1)));
-		entries.push_back(ME<eT>(cons_i, dist_i, - std::exp(diff)));
-
-		cons_i++;
+		lp.set_con_coeff(con, vars[dist_i+1], 1);
+		lp.set_con_coeff(con, vars[dist_i  ], - std::exp(diff));
 	}
 
 	// equalities for summing up to 1
 	// Note: if the same distance appears multiple times in the same row, we're going to insert multiple 1's
-	// for the same cell, which are summed due to the "true" param in the batch-insert below
+	// for the same con/var, which are summed due to add = true in set_con_coeff
 	//
 	for(uint x = 0; x < M; x++) {
-		lp.b(cons_i) = eT(1);					// sum of row = 1
-		lp.sense(cons_i) = '=';
+		auto con = lp.make_con(1, 1);
 
 		for(uint y = 0; y < N; y++)
-			entries.push_back(ME<eT>(cons_i, DI(x,y), eT(1)));
-
-		cons_i++;
+			lp.set_con_coeff(con, vars[DI(x,y)], 1, true);
 	}
-
-	assert(cons_i == n_cons);					// added all constraints
-	n_cons_elems *= 1;							// avoid unused warning
-	assert(entries.size() == n_cons_elems);		// added all constraint elements
-
-	fill_spmat(lp.A, n_cons, n_vars, entries, true);	// add duplicate entries
 
 	// solve program
 	//
@@ -249,7 +224,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.x(DI(x,y));
+			C(x, y) = lp.get_solution(vars[DI(x,y)]);
 
 	return C;
 }
