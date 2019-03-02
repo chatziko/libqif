@@ -489,35 +489,41 @@ mult_kantorovich(Metric<R, uint> d) {
 		//           sum_i x_ij exp(d(i,j)) - r_j - b[j] z <= 0     forall j
 		//
 		lp::LinearProgram<R> lp;
-		uint n_vars = n * n + n + 1,
-			 n_cons = 2 * n;
+
+		auto vars_x = lp.make_vars(n, n, R(0), infinity<R>());
+		auto vars_r = lp.make_vars(n, R(0), infinity<R>());
+		auto var_z = lp.make_var(0, infinity<R>());
 
 		lp.maximize = false;
-		lp.A = arma::zeros<Mat<R>>(n_cons, n_vars);
-		lp.b = arma::join_cols(a.t(), arma::zeros<Col<R>>(n));
-		lp.c = arma::zeros<Col<R>>(n_vars);
-		lp.c(n_vars - 1) = R(1);
-		lp.sense.set_size(n_cons);
-		lp.sense.rows(0, n-1     ).fill('=');
-		lp.sense.rows(n, n_cons-1).fill('<');
+		lp.set_obj_coeff(var_z, 1);
 
-		lp.A.col(n_vars-1).rows(n, n_cons-1) = - b.t();
-
+		// s.t.      sum_j x_ij             - r_i           = a[i]  forall i
 		for(uint i = 0; i < n; i++) {
-			uint ri_id = n * n + i;			// index of the variable r_i in A,c
-			lp.A(i,     ri_id) = R(-1);		// var r_i participates in the i-th constraint of the first family
-			lp.A(i + n, ri_id) = R(-1);		// and the i-th constraint of the second
+			auto con = lp.make_con(a[i], a[i]);
+
+			lp.set_con_coeff(con, vars_r[i], -1);
 
 			for(uint j = 0; j < n; j++) {
-				uint xij_id = i * n + j;	// index of the variable x_ij in A,c
-
 				// when m(i,j) == inf, it forces the x_ij variable to be 0. We capture the same effect
-				// by leaving the A coefficients of x_ij to be 0. So all (in)equalities behave as if x_ij was fixed to 0.
+				// by leaving the coefficients of x_ij to be 0. So all (in)equalities behave as if x_ij was fixed to 0.
 				R dist = d(i, j);
-				if(equal(dist, infinity<R>())) continue;
+				if(!equal(dist, infinity<R>()))
+					lp.set_con_coeff(con, vars_x[i][j], 1);
+			}
+		}
 
-				lp.A(i,     xij_id) = R(1);					// var x_ij participates in the i-th constraint of the first family
-				lp.A(j + n, xij_id) = R(std::exp(dist));	// and the j-th constraint of the second
+		//           sum_i x_ij exp(d(i,j)) - r_j - b[j] z <= 0     forall j
+		for(uint j = 0; j < n; j++) {
+			auto con = lp.make_con(-infinity<R>(), 0);
+
+			lp.set_con_coeff(con, vars_r[j], -1);
+			lp.set_con_coeff(con, var_z, - b[j]);
+
+			for(uint i = 0; i < n; i++) {
+				// ignore inf again, see comment above
+				R dist = d(i, j);
+				if(!equal(dist, infinity<R>()))
+					lp.set_con_coeff(con, vars_x[i][j], std::exp(dist));
 			}
 		}
 
