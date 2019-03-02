@@ -94,8 +94,8 @@ class LinearProgram {
 		std::vector<Var> make_vars(uint n, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		std::vector<std::vector<Var>> make_vars(uint n, uint m, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		Con make_con(eT lb, eT ub);
-		void set_obj_coeff(Var var, eT coeff);
-		void set_con_coeff(Con cons, Var var, eT coeff);
+		void set_obj_coeff(Var var, eT coeff, bool add = false);
+		void set_con_coeff(Con cons, Var var, eT coeff, bool add = false);
 
 	protected:
 		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
@@ -190,13 +190,23 @@ typename LinearProgram<eT>::Con LinearProgram<eT>::make_con(eT lb, eT ub) {
 
 template<typename eT>
 inline
-void LinearProgram<eT>::set_obj_coeff(Var var, eT coeff) {
-	obj_coeff[var] = coeff;
+void LinearProgram<eT>::set_obj_coeff(Var var, eT coeff, bool add) {
+	if(add)
+		obj_coeff[var] += coeff;
+	else
+		obj_coeff[var] = coeff;
 }
 
 template<typename eT>
 inline
-void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff) {
+void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
+	if(add) {
+		for(auto& me : con_coeff)
+			if(me.row == con && me.col == var) {
+				me.val += coeff;
+				return;
+			}
+	}
 	con_coeff.push_back(MatrixEntry<eT>(con, var, coeff));
 }
 
