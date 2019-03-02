@@ -99,6 +99,11 @@ inline eT infinity() {
 		: std::numeric_limits<eT>::max();
 }
 
+template<>
+inline rat infinity() {
+	return rat(std::numeric_limits<long>::max(), 1);
+}
+
 
 // errors close to 1 are translated by log2 to errors close to 0, which are harder to test
 inline float log2(float a) {
