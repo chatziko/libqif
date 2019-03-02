@@ -315,7 +315,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 	Chan<eT> X(R, N);
 	for(uint r = 0; r < R; r++)
 		for(uint n = 0; n < N; n++)
-			X(r, n) = lp.get_solution(vars[r][n]);
+			X(r, n) = lp.solution(vars[r][n]);
 
 	return X;
 }

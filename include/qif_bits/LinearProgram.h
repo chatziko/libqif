@@ -47,8 +47,8 @@ class Defaults {
 
 // Solve the linear program
 // {min/max} dot(c,x)
-// subject to A x {>=|==|<=} b
-// x >= 0
+// subject to lb <= A x <= ub
+// lb <= x <= ub
 
 template<typename eT>
 class LinearProgram {
@@ -60,58 +60,49 @@ class LinearProgram {
 	const bool is_rat = std::is_same<eT, __gmp_expr<mpq_t, mpq_t>>::value;
 
 	public:
-		arma::SpMat<eT>
-			A;				// constraints.
-		Col<eT>
-			x,				// solution
-			b,				// constants
-			c;				// cost function
-		Col<char>
-			sense;			// sense of each constraint, can be '<', '=', '>' (<,> really mean <=,>=), default is '<'
-
 		bool maximize = true;
-		bool non_negative = true;
 		method_t method = is_rat ? method_t::simplex_primal : Defaults::method;	// rat only supports simplex_primal
 		bool glp_presolve = is_rat ? false : Defaults::glp_presolve;
 		status_t status;
 		msg_level_t glp_msg_level = Defaults::glp_msg_level;
 
-		LinearProgram() {}
-		LinearProgram(const Mat<eT>& A, const Col<eT>& b, const Col<eT>& c) : A(A), b(b), c(c) { check_sizes(); }
-
 		bool solve();
 		string to_mps();
 
 		eT optimum();
-		inline eT get_solution(Var v)	{ return x(v); }
-		inline Row<eT> get_solution()	{ return x; };
-		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
+		inline eT solution(Var x)	{ return sol(x); }
+		inline Col<eT> solution()	{ return sol; };
 
-		void from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense = {});
-		LinearProgram canonical_form();
-		void to_canonical_form();
+		void from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense = {}, bool non_negative = true);
 
+		// API for creating variables and constraints
 		Var make_var(eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		std::vector<Var> make_vars(uint n, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
 		std::vector<std::vector<Var>> make_vars(uint n, uint m, eT lb = -infinity<eT>(), eT ub = infinity<eT>());
+
 		Con make_con(eT lb, eT ub);
+
 		void set_obj_coeff(Var var, eT coeff, bool add = false);
 		void set_con_coeff(Con cons, Var var, eT coeff, bool add = false);
 
 	protected:
-		inline void check_sizes()		{ if(A.n_rows != b.n_rows || A.n_cols != c.n_rows) throw std::runtime_error("invalid size"); }
+		Col<eT> sol;			// solution
 
 		bool glpk();
 		bool simplex();
-		void compat_build_matrix();
-		Col<eT> original_x();
 
-		std::vector<eT> obj_coeff;
-		std::list<MatrixEntry<eT>> con_coeff;
-		std::vector<eT> var_lb, var_ub, con_lb, con_ub;
-		uint n_var = 0, n_con = 0;
+		void to_canonical_form();
+		Col<eT> original_solution();
 
-		// info for transforming solution to the original one (see canonical_form, original_x)
+		uint n_var = 0,							// number of variables
+			 n_con = 0;							// number of constraints
+
+		std::vector<eT> obj_coeff;				// coefficients for the objective function
+		std::list<MatrixEntry<eT>> con_coeff;	// coefficients for the constraints
+		std::vector<eT> var_lb, var_ub,			// variables lower/upper bounds
+						con_lb, con_ub;			// constraints lower/upper
+
+		// info for transforming solution to the original one (see canonical_form, original_solution)
 		std::vector< std::tuple<int,eT,eT> > var_transform;
 };
 
@@ -119,21 +110,17 @@ class LinearProgram {
 template<typename eT>
 inline
 eT LinearProgram<eT>::optimum() {
-	// TODO: remove
-	if(n_var == 0)
-		return arma::cdot(x, c);
-
-	if(x.empty())
+	if(sol.empty())
 		throw std::runtime_error("no solution");
 
 	eT res(0);
 	for(uint var = 0; var < n_var; var++)
-		res += obj_coeff[var] * x(var);
+		res += obj_coeff[var] * sol(var);
 	return res;
 }
 
 template<typename eT>
-Col<eT> LinearProgram<eT>::original_x() {
+Col<eT> LinearProgram<eT>::original_solution() {
 	Col<eT> res(var_transform.size());
 
 	for(uint v = 0; v < res.n_elem; v++) {
@@ -142,7 +129,7 @@ Col<eT> LinearProgram<eT>::original_x() {
 		eT coeff, add;
 		std::tie(v2, coeff, add) = var_transform[v];
 
-		res(v) = x(v) * coeff + add - (v2 >= 0 ? x(v2) : 0);
+		res(v) = sol(v) * coeff + add - (v2 >= 0 ? sol(v2) : 0);
 	}
 
 	return res;
@@ -217,9 +204,10 @@ void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 // b: constraint constants
 // c: objective constants
 // sense: < = > for each constraint
+// non_negative: if true assume x >= 0
 //
 template<typename eT>
-void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense) {
+void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense, bool non_negative) {
 
 	if(A.n_rows != b.n_rows || A.n_cols != c.n_rows)
 		throw std::runtime_error("invalid size");
@@ -274,7 +262,7 @@ bool LinearProgram<rat>::solve() {
 	status = lp.status;
 
 	if(res)
-		x = lp.original_x();
+		sol = lp.original_solution();
 
 	return res;
 }
@@ -403,9 +391,9 @@ bool LinearProgram<eT>::glpk() {
 
 	// get optimal solution
 	if(status == status_t::optimal) {
-		x.set_size(n_var);
+		sol.set_size(n_var);
 		for(uint j = 0; j < n_var; j++)
-			x.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
+			sol.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
 	}
 
 	// clean
@@ -419,60 +407,6 @@ template<>
 inline
 bool LinearProgram<rat>::glpk() {
 	throw std::runtime_error("not available for rat");
-}
-
-
-// transform the progarm in canonical form:
-//        min  dot(c,x)
-// subject to  A x == b
-//               x >= 0
-// b must be >= 0.
-//
-template<typename eT>
-LinearProgram<eT> LinearProgram<eT>::canonical_form() {
-	uint m = A.n_rows,
-		 n = A.n_cols;
-
-	LinearProgram lp;
-	lp.maximize = false;		// minimization
-	lp.non_negative = 1;		// x_i >= 0
-	lp.sense.set_size(m);		// all constraints
-	lp.sense.fill('=');			// are equalities
-
-	// Count number of auxiliaries we will need
-	uint extra = 0;
-	for(uint i = 0; i < m; i++)
-		if(get_sense(i) != '=')
-			extra += 1;
-
-	lp.A.set_size(m, n + extra);
-	lp.A.cols(0, n-1) = A;
-
-	lp.c = arma::zeros<Col<eT>>(n + extra);
-	lp.c.rows(0, n-1) = c;
-
-	if(maximize)		// canonical form program is minimization
-		lp.c *= eT(-1);
-
-	// Add the auxiliaries
-	uint offset = 0;
-	for(uint i = 0; i < m; i++) {
-		if(get_sense(i) != '=') {
-			lp.A.at(i, n + offset) = eT(get_sense(i) == '<' ? 1 : -1);
-			offset++;
-		}
-	}
-
-	// Make sure right-hand-side is non-negative
-	lp.b = b;
-	for(uint i = 0; i < m; i++) {
-		if(b.at(i) < eT(0)) {
-			lp.A.row(i) *= eT(-1);
-			lp.b.at(i) *= eT(-1);
-		}
-	}
-
-	return lp;
 }
 
 
@@ -655,13 +589,13 @@ bool LinearProgram<eT>::simplex() {
 	umat basic			= zeros<umat>(m);				// indices of current basis
 	Mat<eT> Binv		= eye<Mat<eT>>(m, m);			// inverse of basis matrix
 	Row<eT> cB			= ones<Row<eT>>(m);				// costs of basic variables
-	x					= zeros<Col<eT>>(n + m);		// current solution
+	sol					= zeros<Col<eT>>(n + m);		// current solution
 
 	// Intialize phase 1
 	for(uint i = 0; i < m; i++) {
 		basic(i) = i + n;
 		is_basic(i + n) = 1;
-		x(i + n) = b(i);
+		sol(i + n) = b(i);
 	}
 	bool phase_one = true;
 
@@ -689,7 +623,7 @@ bool LinearProgram<eT>::simplex() {
 				phase_one = false;
 				// Check objective - if 0, we are OK
 				for(uint j = n; j < n + m; j++) {
-					if(less_than(eT(0), x(j))) {
+					if(less_than(eT(0), sol(j))) {
 						// It couldn't reduce objective to 0 which is equivalent
 						// to saying a feasible basis with no artificials could
 						// not be found
@@ -720,7 +654,7 @@ bool LinearProgram<eT>::simplex() {
 		eT min_ratio = eT(0);
 		for(uint i = 0; i < m; i++) {
 			if(less_than(eT(0), BinvAs(i))) {
-				eT ratio = x(basic(i)) / BinvAs(i);
+				eT ratio = sol(basic(i)) / BinvAs(i);
 				if(less_than(ratio, min_ratio) || leaving == -1) {
 					min_ratio = ratio;
 					leaving = i;
@@ -738,9 +672,9 @@ bool LinearProgram<eT>::simplex() {
 
 		// Now we update solution...
 		for(uint i = 0; i < m; i++) {
-			x(basic(i)) -= min_ratio * BinvAs(i);
+			sol(basic(i)) -= min_ratio * BinvAs(i);
 		}
-		x(entering) = min_ratio;
+		sol(entering) = min_ratio;
 
 		// ... and the basis inverse...
 		// Our tableau is ( Binv b | Binv | BinvAs )
@@ -763,7 +697,7 @@ bool LinearProgram<eT>::simplex() {
 	}
 
 EXIT:
-	x = x.subvec(0, n-1);		// the solution are the first n vars
+	sol = sol.subvec(0, n-1);		// the solution are the first n vars
 
 	return status == status_t::optimal;
 }
@@ -771,47 +705,61 @@ EXIT:
 
 template<typename eT>
 string LinearProgram<eT>::to_mps() {
-	using std::to_string;
+	throw std::runtime_error("not implemented");
 
-	string s;
-	s = "NAME PROG\n";
+	// using std::to_string;
 
-	// rows
-	s += "ROWS\n";
-	s += " N  OBJ\n";	// objective function
-	for(uint i = 0; i < A.n_rows; i++) {
-		char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
-		string s_sense = sense_i == '<' ? "L" :
-						 sense_i == '>' ? "G" :
-							 			  "E";
-		s += " " + s_sense + " ROW" + to_string(i+1) + "\n";
-	}
+	// string s;
+	// s = "NAME PROG\n";
 
-	// columns
-	s += "COLUMNS\n";
-	for(uint j = 0; j < A.n_cols; j++) {
-		s += " X" + to_string(j+1) + " OBJ " + to_string(c.at(j)) + "\n";
+	// // rows
+	// s += "ROWS\n";
+	// s += " N  OBJ\n";	// objective function
+	// for(uint i = 0; i < n_con; i++) {
+	// 	char sense_i = sense.n_rows > i ? sense.at(i) : '<';	// default sense is <
+	// 	string s_sense = sense_i == '<' ? "L" :
+	// 					 sense_i == '>' ? "G" :
+	// 						 			  "E";
+	// 	s += " " + s_sense + " ROW" + to_string(i+1) + "\n";
+	// }
 
-		for(uint i = 0; i < A.n_rows; i++)
-			s += " X" + to_string(j+1) + " ROW" + to_string(i+1) + " " + to_string(A.at(i, j)) + "\n";
-	}
+	// // columns
+	// s += "COLUMNS\n";
+	// for(uint j = 0; j < n_var; j++) {
+	// 	s += " X" + to_string(j+1) + " OBJ " + to_string(obj_coeff[j]) + "\n";
 
-	// RHS
-	s += "RHS\n";
-	for(uint i = 0; i < A.n_rows; i++) {
-		s += " RHS ROW" + to_string(i+1) + " " + to_string(b.at(i)) + "\n";
-	}
+	// 	for(uint i = 0; i < n_var; i++)
+	// 		s += " X" + to_string(j+1) + " ROW" + to_string(i+1) + " " + to_string(A.at(i, j)) + "\n";
+	// }
 
-	if(!non_negative) {
-		// No BOUNDS assumes >= 0
-		s += "\nBOUNDS\n";
-		for(uint j = 0; j < A.n_cols; j++)
-			s += " FR BND X" + to_string(j+1) + "\n";
-	}
+	// // RHS
+	// s += "RHS\n";
+	// for(uint i = 0; i < n_con; i++) {
+	// 	s += " RHS ROW" + to_string(i+1) + " " + to_string(con_ub[i]) + "\n";
+	// }
 
-	s += "ENDATA\n";
+	// // BOUNDS
+	// eT inf = infinity<eT>();
+	// s += "\nBOUNDS\n";
+	// for(uint j = 0; j < n_var; j++) {
+	// 	eT lb = var_lb[j];
+	// 	eT ub = var_ub[j];
 
-	return s;
+	// 	if(lb == -inf && ub == inf)
+	// 		s += " FR BND X" + to_string(j+1) + "\n";
+	// 	else(lb == ub)
+	// 		s += " FX BND X" + to_string(j+1) + " " + to_string(lb) + "\n";
+	// 	else {
+	// 		if(ub != inf)
+	// 			s += " UP BND X" + to_string(j+1) + " " + to_string(ub) + "\n";
+	// 		else(lb != -inf)
+	// 			s += " LO BND X" + to_string(j+1) + " " + to_string(lb) + "\n";
+	// 	}
+	// }
+
+	// s += "ENDATA\n";
+
+	// return s;
 }
 
 template<>

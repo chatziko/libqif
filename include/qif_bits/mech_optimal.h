@@ -62,7 +62,7 @@ Chan<eT> optimal_utility(
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.get_solution(vars[x][y]);
+			C(x, y) = lp.solution(vars[x][y]);
 
 	return C;
 }
@@ -143,7 +143,7 @@ Chan<eT> dist_optimal_utility(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv,
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.get_solution(vars[DI(x,y)][y]);
+			C(x, y) = lp.solution(vars[DI(x,y)][y]);
 
 	return C;
 }
@@ -224,7 +224,7 @@ Chan<eT> dist_optimal_utility_strict(Prob<eT> pi, uint n_cols, Metric<eT, uint> 
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.get_solution(vars[DI(x,y)]);
+			C(x, y) = lp.solution(vars[DI(x,y)]);
 
 	return C;
 }
