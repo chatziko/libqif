@@ -386,26 +386,27 @@ kantorovich_lp(Metric<R, uint> d) {
 		//           sum_i x_ij = b[j]     forall j
 		//
 		lp::LinearProgram<R> lp;
-		uint n      = a.n_cols,
-			 n_vars = n * n,
-			 n_cons = 2 * n;
-
 		lp.maximize = false;
-		lp.A = arma::zeros<Mat<R>>(n_cons, n_vars);
-		lp.b = arma::trans(arma::join_rows(a, b));
-		lp.c.set_size(n_vars);
-		lp.sense.set_size(n_cons);
-		lp.sense.fill('=');
+		uint n = a.n_cols;
+		auto vars = lp.make_vars(n, n, 0, infinity<R>());
 
+		// minimize  sum_ij x_ij d(i,j)
+		for(uint i = 0; i < n; i++)
+		for(uint j = 0; j < n; j++)
+			lp.set_obj_coeff(vars[i][j], d(i, j));
+
+		// s.t.      sum_j x_ij = a[i]     forall i
 		for(uint i = 0; i < n; i++) {
-			for(uint j = 0; j < n; j++) {
-				uint xij_id = i * n + j;	// index of the variable x_ij in A,c
+			auto con = lp.make_con(a[i], a[i]);
+			for(uint j = 0; j < n; j++)
+				lp.set_con_coeff(con, vars[i][j], 1);
+		}
 
-				lp.c(xij_id) = d(i, j);		// coefficient
-
-				lp.A(i,     xij_id) = R(1);	// var x_ij participates in the i-th constraint of the first family
-				lp.A(j + n, xij_id) = R(1);	// and the j-th constraint of the second
-			}
+		//           sum_i x_ij = b[j]     forall j
+		for(uint j = 0; j < n; j++) {
+			auto con = lp.make_con(b[j], b[j]);
+			for(uint i = 0; i < n; i++)
+				lp.set_con_coeff(con, vars[i][j], 1);
 		}
 
 		if(!lp.solve())
