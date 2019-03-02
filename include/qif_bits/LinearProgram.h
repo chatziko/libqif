@@ -87,6 +87,7 @@ class LinearProgram {
 		inline Row<eT> get_solution()	{ return x; };
 		inline char get_sense(uint i)	{ return i < sense.n_rows ? sense.at(i) : '<'; }		// default sense is <
 
+		void from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense = {});
 		LinearProgram canonical_form();
 		void to_canonical_form();
 
@@ -211,48 +212,50 @@ void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 }
 
 
+// input program in matrix form
+// A: constraint coefficients
+// b: constraint constants
+// c: objective constants
+// sense: < = > for each constraint
+//
 template<typename eT>
-void LinearProgram<eT>::compat_build_matrix() {
-	// TODO compat, remove
-	if(n_var == 0) {
-		// build *_coeff *_ub *_lb from A, b, c, sense
-		obj_coeff.clear();
-		con_coeff.clear();
-		var_lb.clear(); var_ub.clear();
-		con_lb.clear(); con_ub.clear();
+void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense) {
 
-		n_var = c.n_elem;
-		n_con = A.n_rows;
+	if(A.n_rows != b.n_rows || A.n_cols != c.n_rows)
+		throw std::runtime_error("invalid size");
 
-		var_lb.resize(n_var, non_negative ? eT(0) : -infinity<eT>());
-		var_ub.resize(n_var, infinity<eT>());
+	obj_coeff.clear();
+	con_coeff.clear();
+	var_lb.clear();
+	var_ub.clear();
+	con_lb.clear();
+	con_ub.clear();
 
-		for(uint con = 0; con < n_con; con++) {
-			con_lb.push_back(get_sense(con) == '<' ? -infinity<eT>() : b[con]);
-			con_ub.push_back(get_sense(con) == '>' ?  infinity<eT>() : b[con]);
-		}
+	n_var = c.n_elem;
+	n_con = A.n_rows;
 
-		for(uint var = 0; var < n_var; var++) {
-			obj_coeff.push_back(c[var]);
-		}
-		
-		auto end = A.end();
-		for(auto c = A.begin(); c != end; ++c) {		// c++ throws weird warning, ++c doesn't!
-			set_con_coeff(c.row(), c.col(), *c);
-		}
+	var_lb.resize(n_var, non_negative ? eT(0) : -infinity<eT>());
+	var_ub.resize(n_var, infinity<eT>());
+
+	for(uint con = 0; con < n_con; con++) {
+		char s = sense.n_elem > con ? sense(con) : '<';
+		con_lb.push_back(s == '<' ? -infinity<eT>() : b[con]);
+		con_ub.push_back(s == '>' ?  infinity<eT>() : b[con]);
+	}
+
+	for(uint var = 0; var < n_var; var++) {
+		obj_coeff.push_back(c[var]);
+	}
+	
+	auto end = A.end();
+	for(auto c = A.begin(); c != end; ++c) {		// c++ throws weird warning, ++c doesn't!
+		set_con_coeff(c.row(), c.col(), *c);
 	}
 }
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	check_sizes();
-	uint orig = n_var;
-	compat_build_matrix();
-	bool res = glpk();
-	n_var = orig;
-	return res;
-
-	// return glpk();
+	return glpk();
 }
 
 // for rats, we use the simplex() method after transforming to canonical form
@@ -260,9 +263,6 @@ bool LinearProgram<eT>::solve() {
 template<>
 inline
 bool LinearProgram<rat>::solve() {
-	check_sizes();
-	uint orig = n_var;
-	compat_build_matrix();
 
 	if(method != method_t::simplex_primal)
 		throw std::runtime_error("not supported");
@@ -276,7 +276,6 @@ bool LinearProgram<rat>::solve() {
 	if(res)
 		x = lp.original_x();
 
-	n_var = orig;
 	return res;
 }
 

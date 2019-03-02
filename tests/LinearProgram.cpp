@@ -52,18 +52,22 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		lp.method = method;
 		lp.glp_presolve = presolve;
 
-		lp.A = format_num<eT>("1 2; 3 1");
-		lp.b = format_num<eT>("1 2");
-		lp.c = format_num<eT>("0.6 0.5");
+		lp.from_matrix(
+			format_num<eT>("1 2; 3 1"),
+			format_num<eT>("1 2"),
+			format_num<eT>("0.6 0.5")
+		);
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(46)/100, lp.optimum(), md, mrd);
 		expect_mat(format_num<eT>("0.6; 0.2"), lp.x, md, mrd);
 
-		lp.A = format_num<eT>("1 1 0; 0 1 1");
-		lp.b = format_num<eT>("1 1");
-		lp.c = format_num<eT>("1 2 -1");
+		lp.from_matrix(
+			format_num<eT>("1 1 0; 0 1 1"),
+			format_num<eT>("1 1"),
+			format_num<eT>("1 2 -1")
+		);
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
@@ -71,10 +75,12 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		expect_mat(format_num<eT>("0; 1; 0"), lp.x, md, mrd);
 
 		lp.maximize = false;
-		lp.A = format_num<eT>("3 -4; 1 2; 1 0");
-		lp.b = format_num<eT>("12 4 1");
-		lp.c = format_num<eT>("3 4");
-		lp.sense = { '<', '>', '>' };
+		lp.from_matrix(
+			format_num<eT>("3 -4; 1 2; 1 0"),
+			format_num<eT>("12 4 1"),
+			format_num<eT>("3 4"),
+			{ '<', '>', '>' }
+		);
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
@@ -82,10 +88,11 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		expect_mat(format_num<eT>("1; 1.5"), lp.x, md, mrd);
 
 		lp.maximize = false;
-		lp.A = format_num<eT>("1 2 2; 2 1 2; 2 2 1");
-		lp.b = format_num<eT>("20 20 20");
-		lp.c = format_num<eT>("-10 -12 -12");
-		lp.sense.set_size(0);
+		lp.from_matrix(
+			format_num<eT>("1 2 2; 2 1 2; 2 2 1"),
+			format_num<eT>("20 20 20"),
+			format_num<eT>("-10 -12 -12")
+		);
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
@@ -113,18 +120,22 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 				? s_t::infeasible_or_unbounded	// sometimes we just know that the problem is infeasible OR unbounded
 				: s_t::infeasible;
 
-		lp.A = format_num<eT>("1; 1");
-		lp.b = format_num<eT>("3 2");
-		lp.c = format_num<eT>("1");
-		lp.sense = { '>', '<' };
+		lp.from_matrix(
+			format_num<eT>("1; 1"),
+			format_num<eT>("3 2"),
+			format_num<eT>("1"),
+			{ '>', '<' }
+		);
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
 
-		lp.A = format_num<eT>("1; -1");
-		lp.b = format_num<eT>("3 -2");
-		lp.c = format_num<eT>("4");
-		lp.sense = { '>', '>' };
+		lp.from_matrix(
+			format_num<eT>("1; -1"),
+			format_num<eT>("3 -2"),
+			format_num<eT>("4"),
+			{ '>', '>' }
+		);
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
@@ -151,10 +162,12 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 				: s_t::infeasible_or_unbounded;	// sometimes we just know that the problem is infeasible OR unbounded
 
 		lp.maximize = false;
-		lp.A = format_num<eT>("1");
-		lp.b = format_num<eT>("2");
-		lp.c = format_num<eT>("-1");
-		lp.sense = { '>' };
+		lp.from_matrix(
+			format_num<eT>("1"),
+			format_num<eT>("2"),
+			format_num<eT>("-1"),
+			{ '>' }
+		);
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
