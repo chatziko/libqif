@@ -412,7 +412,7 @@ kantorovich_lp(Metric<R, uint> d) {
 		if(!lp.solve())
 			throw std::runtime_error(std::string("Kantorovich program failed: ") +
 									 (lp.status == lp::status_t::infeasible ? "infeasible" : "unbounded"));
-		return lp.optimum();
+		return lp.objective();
 	};
 }
 
@@ -529,7 +529,7 @@ mult_kantorovich(Metric<R, uint> d) {
 
 		// an infeasible problem means that there's no finite z to satisfy it, so the distance is infinite
 		return lp.solve()
-			? std::log(lp.optimum())
+			? std::log(lp.objective())
 			: infinity<R>();
 	};
 

@@ -60,7 +60,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED_FORMAT4(equal4<eT>, eT(46)/100, lp.optimum(), md, mrd);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(46)/100, lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("0.6; 0.2"), lp.solution(), md, mrd);
 
 		lp.from_matrix(
@@ -71,7 +71,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED_FORMAT4(equal4<eT>, eT(2), lp.optimum(), md, mrd);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(2), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("0; 1; 0"), lp.solution(), md, mrd);
 
 		lp.maximize = false;
@@ -84,7 +84,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED_FORMAT4(equal4<eT>, eT(9), lp.optimum(), md, mrd);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(9), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("1; 1.5"), lp.solution(), md, mrd);
 
 		lp.maximize = false;
@@ -96,7 +96,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-136), lp.optimum(), md, mrd);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-136), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("4; 4; 4"), lp.solution(), md, mrd);
 
 		lp.clear();
@@ -107,7 +107,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(s_t::optimal, lp.status);
-		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.optimum(), md, mrd);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
 	}}
 }

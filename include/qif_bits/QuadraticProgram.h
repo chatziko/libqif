@@ -50,7 +50,7 @@ class QuadraticProgram {
 
 		bool solve();
 
-		inline eT optimum()				{ return eT(1)/2 * arma::dot(x.t() * P, x) + arma::dot(x, c); }
+		inline eT objective()				{ return eT(1)/2 * arma::dot(x.t() * P, x) + arma::dot(x, c); }
 
 	protected:
 		inline void check_sizes() {

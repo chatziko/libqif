@@ -69,7 +69,7 @@ class LinearProgram {
 		bool solve();
 		string to_mps();
 
-		eT optimum();
+		eT objective();
 		inline eT solution(Var x)	{ return sol(x); }
 		inline Col<eT> solution()	{ return sol; };
 
@@ -111,7 +111,7 @@ class LinearProgram {
 
 template<typename eT>
 inline
-eT LinearProgram<eT>::optimum() {
+eT LinearProgram<eT>::objective() {
 	if(sol.empty())
 		throw std::runtime_error("no solution");
 

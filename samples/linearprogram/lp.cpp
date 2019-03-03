@@ -35,7 +35,7 @@ int main() {
 	// 	<< "\nstatus: " << lp.status
 	// 	<< "\nmethod: " << lp.method
 	// 	<< "\nsolution:\n" << lp.solution()
-	// 	<< "\noptimum: " << lp.optimum()
+	// 	<< "\nobjective: " << lp.objective()
 	// 	<< "\n";
 	// return 0;
 
@@ -76,7 +76,7 @@ int main() {
 		<< "\nstatus: " << lp.status
 		<< "\nmethod: " << lp.method
 		<< "\nsolution:\n" << lp.solution()
-		<< "\noptimum: " << lp.optimum()
+		<< "\nobjective: " << lp.objective()
 		<< "\n";
 }
 

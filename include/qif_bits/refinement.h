@@ -120,7 +120,7 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 		throw std::runtime_error("refined_by: QP infeasible, this shouldn't happen");
 
 	// add B.B to the cost function to obtained the squared distance (see the program definition above)
-	eT dist = qp.optimum() + arma::dot(B, B);
+	eT dist = qp.objective() + arma::dot(B, B);
 
 	bool res = equal(dist, eT(0), eT(qp.osqp_eps_abs), eT(qp.osqp_eps_rel));
 	if(res) {
@@ -248,7 +248,7 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 		for(uint x = 0; x < K; x++)
 			G(w,x) = lp.solution(vars[w][x]);
 
-	return lp.optimum();
+	return lp.objective();
 }
 
 // same, but not interested in G
