@@ -217,6 +217,13 @@ inline rat pi() {
 	return rat(std::atan(1)*4);
 }
 
+// convert float/double/rat to double
+template<typename eT>
+inline double to_double(eT x) { return x; }
+
+template<>
+inline double to_double(rat x) { return x.get_d(); }
+
 
 // Facilitate populating spart matrices
 //
