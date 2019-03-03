@@ -73,6 +73,7 @@ class LinearProgram {
 		inline eT solution(Var x)	{ return sol(x); }
 		inline Col<eT> solution()	{ return sol; };
 
+		void clear();
 		void from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, const Col<eT>& c, const Col<char>& sense = {}, bool non_negative = true);
 
 		// API for creating variables and constraints
@@ -189,6 +190,7 @@ template<typename eT>
 inline
 void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 	if(add) {
+		// SLOW
 		for(auto& me : con_coeff)
 			if(me.row == con && me.col == var) {
 				me.val += coeff;
@@ -198,6 +200,17 @@ void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 	con_coeff.push_back(MatrixEntry<eT>(con, var, coeff));
 }
 
+
+template<typename eT>
+void LinearProgram<eT>::clear() {
+	obj_coeff.clear();
+	con_coeff.clear();
+	var_lb.clear();
+	var_ub.clear();
+	con_lb.clear();
+	con_ub.clear();
+	n_var = n_con = 0;
+}
 
 // input program in matrix form
 // A: constraint coefficients
@@ -212,12 +225,7 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 	if(A.n_rows != b.n_rows || A.n_cols != c.n_rows)
 		throw std::runtime_error("invalid size");
 
-	obj_coeff.clear();
-	con_coeff.clear();
-	var_lb.clear();
-	var_ub.clear();
-	con_lb.clear();
-	con_ub.clear();
+	clear();
 
 	n_var = c.n_elem;
 	n_con = A.n_rows;
@@ -439,48 +447,50 @@ void LinearProgram<eT>::to_canonical_form() {
 			// An unbounded variable becomes two variables x* = x - xnew
 			uint xnew = make_var(0, inf);
 
-			// recover x as x1 - x2
+			// recover x* as x - xnew
 			var_transform.push_back(std::make_tuple(xnew, 1, 0));
 
 			// "c * x*" becomes "c * (x - xnew)", so we need to update the obj
 			set_obj_coeff(xnew, -obj_coeff[x]);
 			
-			// and for every coeff c of x in constraints, we need to add -c to x2
+			// and for every coeff c of x in constraints, we need to add -c to xnew
 			for(auto me : con_coeff)
 				if(me.col == x)
 					set_con_coeff(me.row, xnew, -me.val);
 
-		} else if(lb == inf) {
-			// upper bounded variable, we set x* = ub - x
+		} else if(lb == -inf) {
+			// upper bounded variable, we set x = ub - x* (x* = ub - x)
 			var_transform.push_back(std::make_tuple(-1, -1, ub));
 
 			obj_coeff[x] *= -1;
 
 			for(auto& me : con_coeff) {
+				// a <= c x* <= b becomes a <= c(ub-x) <= b, so we need to subtract c*ub from lower/upper bound and then change sign of c
 				if(me.col == x) {
 					if(con_lb[me.row] != -inf)
-						con_lb[me.row] += me.val * -ub;
-					else if(con_ub[me.row] != inf)
-						con_ub[me.row] += me.val * -ub;
+						con_lb[me.row] -= me.val * ub;
+					if(con_ub[me.row] != inf)
+						con_ub[me.row] -= me.val * ub;
 				}
 				me.val *= -1;
 			}
 
 		} else {
-			// lower or doubly bounded variable, we set x* = x - l
-			var_transform.push_back(std::make_tuple(-1, 1, -lb));
+			// lower or doubly bounded variable, we set x = x* - lb  (x* = x + lb)
+			var_transform.push_back(std::make_tuple(-1, 1, lb));
 
 			for(auto me : con_coeff)
+				// a <= c x* <= b becomes a <= c(x+lb) <= b, so we need to subtract c*lb from lower/upper bound
 				if(me.col == x) {
 					if(con_lb[me.row] != -inf)
-						con_lb[me.row] += me.val * lb;
-					else if(con_ub[me.row] != inf)
-						con_ub[me.row] += me.val * lb;
+						con_lb[me.row] -= me.val * lb;
+					if(con_ub[me.row] != inf)
+						con_ub[me.row] -= me.val * lb;
 				}
 
-			// if an upper bound exists, we add a new constraint x <= lb + ub
+			// if an upper bound x* <= ub exists, it bocomes x+lb <= ub so we add a new constraint x <= ub - lb
 			if(ub != inf) {
-				uint con = make_con(-inf, lb+ub);
+				uint con = make_con(-inf, ub - lb);
 				set_con_coeff(con, x, 1);
 			}
 		}
@@ -526,7 +536,7 @@ void LinearProgram<eT>::to_canonical_form() {
 	// invert constraints with negative constants
 	for(uint c = 0; c < n_con; c++) {
 
-		if(con_ub[c] < eT(0)) {
+		if(less_than(con_ub[c], eT(0))) {
 			con_lb[c] *= -1;
 			con_ub[c] *= -1;
 
@@ -573,10 +583,10 @@ bool LinearProgram<eT>::simplex() {
 	// write program in matrix form
 	Row<eT> b = con_lb,
 			c = obj_coeff;
-	Mat<eT> Adense = zeros<Mat<eT>>(n_con, n_var);	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
+	Mat<eT> A = zeros<Mat<eT>>(n_con, n_var);	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
 
 	for(auto me : con_coeff)
-		Adense(me.row, me.col) = me.val;
+		A(me.row, me.col) = me.val;
 
 	uint m = n_con,
 		 n = n_var;
@@ -608,7 +618,7 @@ bool LinearProgram<eT>::simplex() {
 		int entering = -1;
 		for(uint j = 0; j < n; j++) {
 			if(is_basic(j)) continue;
-			eT rc = (phase_one ? eT(0) : c(j)) - dot(pi_T, Adense.col(j));
+			eT rc = (phase_one ? eT(0) : c(j)) - dot(pi_T, A.col(j));
 			if(less_than(rc, eT(0))) {
 				entering = j;
 				break;
@@ -634,7 +644,7 @@ bool LinearProgram<eT>::simplex() {
 				}
 				// Start again in phase 2 with our nice feasible basis
 				for(uint i = 0; i < m; i++) {
-					cB(i) = basic(i) > n ? eT(0) : c(basic(i));
+					cB(i) = basic(i) >= n ? eT(0) : c(basic(i));
 				}
 				continue;
 			} else {
@@ -646,7 +656,7 @@ bool LinearProgram<eT>::simplex() {
 
 		// Calculate how the solution will change when our new
 		// variable enters the basis and increases from 0
-		Col<eT> BinvAs = Binv * Adense.col(entering);
+		Col<eT> BinvAs = Binv * A.col(entering);
 
 		// Perform a "ratio test" on each variable to determine
 		// which will reach 0 first

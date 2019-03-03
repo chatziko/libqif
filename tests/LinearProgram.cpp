@@ -98,6 +98,17 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_EQ(s_t::optimal, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-136), lp.optimum(), md, mrd);
 		expect_mat(format_num<eT>("4; 4; 4"), lp.solution(), md, mrd);
+
+		lp.clear();
+		lp.maximize = false;
+		auto v = lp.make_var(-5, infinity<eT>());
+		lp.make_con(0, 0);		// glpk needs at least one constraint, add dummy one
+		lp.set_obj_coeff(v, 1);
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.optimum(), md, mrd);
+		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
 	}}
 }
 
