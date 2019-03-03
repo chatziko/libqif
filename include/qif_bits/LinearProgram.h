@@ -94,6 +94,7 @@ class LinearProgram {
 
 		void to_canonical_form();
 		Col<eT> original_solution();
+		void dump();
 
 		uint n_var = 0,							// number of variables
 			 n_con = 0;							// number of constraints
@@ -445,12 +446,12 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		if(lb == -inf && ub == inf) {
 			// An unbounded variable becomes two variables x* = x - xnew
-			uint xnew = make_var(0, inf);
+			auto xnew = make_var(0, inf);
 
 			// recover x* as x - xnew
 			var_transform.push_back(std::make_tuple(xnew, 1, 0));
 
-			// "c * x*" becomes "c * (x - xnew)", so we need to update the obj
+			// c*x* becomes c(x-xnew), so we need to update the obj
 			set_obj_coeff(xnew, -obj_coeff[x]);
 			
 			// and for every coeff c of x in constraints, we need to add -c to xnew
@@ -471,11 +472,12 @@ void LinearProgram<eT>::to_canonical_form() {
 						con_lb[me.row] -= me.val * ub;
 					if(con_ub[me.row] != inf)
 						con_ub[me.row] -= me.val * ub;
+
+					me.val *= -1;
 				}
-				me.val *= -1;
 			}
 
-		} else {
+		} else { // lb != inf
 			// lower or doubly bounded variable, we set x = x* - lb  (x* = x + lb)
 			var_transform.push_back(std::make_tuple(-1, 1, lb));
 
@@ -710,6 +712,23 @@ EXIT:
 	sol = sol.subvec(0, n-1);		// the solution are the first n vars
 
 	return status == status_t::optimal;
+}
+
+
+template<typename eT>
+void LinearProgram<eT>::dump() {
+	std::cerr
+		<< "var_lb: " << Row<eT>(var_lb)
+		<< "var_ub: " << Row<eT>(var_ub)
+		<< "con_lb: " << Row<eT>(con_lb)
+		<< "con_ub: " << Row<eT>(con_ub)
+		<< "obj_coeff: " << Row<eT>(obj_coeff)
+		<< "con_coeff:\n";
+
+	for(auto me : con_coeff)
+		std::cout << "\t" << me.row << ", " << me.row << ", " << me.val << "\n";
+
+	std::cout  << "\n";
 }
 
 
