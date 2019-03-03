@@ -36,10 +36,13 @@ Compile and run with:
 
     g++ test.cpp -std=c++11 -lqif -larmadillo -o test
     ./test
+ 
+    # or with clang
+    clang++ test.cpp -std=c++11 -lqif -larmadillo -o test
 
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
-If the `rat` type is used you also need to compile with `-lgmp`.
+If the `rat` type is used you also need to compile with `-lgmp -lgmpxx`.
 
 ## Build libqif from source
 
@@ -50,7 +53,7 @@ Prerequisites
 * [GMP](https://gmplib.org/)
 * [GLPK](https://www.gnu.org/software/glpk/)
 * [GSL](http://www.gnu.org/software/gsl/)
-* A C++11 compliant compiler (g++ 4.9.1 and clang)
+* A C++11 compliant compiler (eg g++ or clang)
 
 On Ubuntu, these can be installed with:
 
