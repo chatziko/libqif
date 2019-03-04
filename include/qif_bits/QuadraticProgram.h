@@ -2,11 +2,11 @@ namespace qp {
 
 using std::string;
 
-enum class status_t { optimal, infeasible, error };
-enum class method_t { addm };
+enum class Status { OPTIMAL, INFEASIBLE, ERROR };
+enum class Method { ADDM };
 
-std::ostream& operator<<(std::ostream& os, const status_t& status);
-std::ostream& operator<<(std::ostream& os, const method_t& method);
+std::ostream& operator<<(std::ostream& os, const Status& status);
+std::ostream& operator<<(std::ostream& os, const Method& method);
 
 
 class Defaults {
@@ -16,7 +16,7 @@ class Defaults {
 		static double	osqp_alpha;
 		static double	osqp_eps_abs;
 		static double	osqp_eps_rel;
-		static method_t	method;
+		static Method	method;
 };
 
 // Solve the quadratic program
@@ -37,8 +37,8 @@ class QuadraticProgram {
 			c;				// cost function, linear part
 
 		bool non_negative = false;
-		method_t method = Defaults::method;
-		status_t status;
+		Method method = Defaults::method;
+		Status status;
 
 		bool osqp_polish = Defaults::osqp_polish;
 		bool osqp_verbose = Defaults::osqp_verbose;
@@ -147,12 +147,12 @@ bool QuadraticProgram<eT>::osqp() {
 
 	c_int st = work->info->status_val;
 	status =
-		st == OSQP_SOLVED											? status_t::optimal :
-		st == OSQP_PRIMAL_INFEASIBLE || st == OSQP_DUAL_INFEASIBLE	? status_t::infeasible :
-		status_t::error;
+		st == OSQP_SOLVED											? Status::OPTIMAL :
+		st == OSQP_PRIMAL_INFEASIBLE || st == OSQP_DUAL_INFEASIBLE	? Status::INFEASIBLE :
+		Status::ERROR;
 
 	// get optimal solution
-	if(status == status_t::optimal) {
+	if(status == Status::OPTIMAL) {
 		x.set_size(A.n_cols);
 		for(uint j = 0; j < A.n_cols; j++)
 			x.at(j) = work->solution->x[j];
@@ -165,7 +165,7 @@ bool QuadraticProgram<eT>::osqp() {
 	free(settings);
 	wrapper::osqp_cleanup(work);
 
-	return status == status_t::optimal;
+	return status == Status::OPTIMAL;
 }
 
 

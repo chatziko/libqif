@@ -11,9 +11,9 @@ void compute_optimal(string method) {
 	if(method != "direct" && method != "kostas" && method != "geometric")
 		throw std::runtime_error("invalid method: " + method);
 
-	lp::Defaults::method = lp::method_t::simplex_dual;
-	lp::Defaults::glp_msg_level = lp::msg_level_t::all;
-	lp::Defaults::glp_presolve = true;
+	lp::Defaults::method = lp::Method::SIMPLEX_DUAL;
+	lp::Defaults::msg_level = lp::MsgLevel::ALL;
+	lp::Defaults::presolve = true;
 
 	double unit = 1;
 	double eps = std::log(2) / (2*unit);

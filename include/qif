@@ -2,6 +2,7 @@
 #ifndef _QIF_qif_h_
 #define _QIF_qif_h_
 
+// heavy stuff should also go to precompiled.h
 #include <functional>	// std::function
 #include <armadillo>
 #include <vector>
@@ -15,6 +16,16 @@
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
 
+// Google OR-tools (has to be *before* OSQP for some crazy reason)
+#ifdef QIF_USE_ORTOOLS
+#undef USE_GLOP			// USE_GLOP,USE_CLP are automatically enabled when compiling via cmake, but they are
+#undef USE_CLP			// not enabled in the ortools headers, so we force them here
+#define USE_GLOP
+#define USE_CLP
+#include <ortools/linear_solver/linear_solver.h>
+#include <ortools/linear_solver/linear_solver.pb.h>
+#endif
+
 // OSQP
 // Note: in the source include dir, qif_bits/osqp is a symlink to external/osqp/include.
 // When installed, osqp's includes are copied to qif_bits/osqp
@@ -22,7 +33,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #include "qif_bits/osqp/osqp.h"
 #pragma GCC diagnostic pop
-
 
 namespace fastemd {
 	// ignore warnings in FastEMD code

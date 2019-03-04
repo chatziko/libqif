@@ -4,23 +4,29 @@ namespace qif {
 namespace lp {
 
 
-bool        Defaults::glp_presolve  = true;
-msg_level_t Defaults::glp_msg_level = msg_level_t::off;
-method_t    Defaults::method        = method_t::simplex_dual;
+bool     Defaults::presolve  = true;
+MsgLevel Defaults::msg_level = MsgLevel::OFF;
+Method   Defaults::method    = Method::AUTO;
+Solver   Defaults::solver    = Solver::AUTO;
 
 
-std::ostream& operator<<(std::ostream& os, const status_t& status) {
-	std::string s[] = { "optimal", "infeasible", "unbounded", "infeasible_or_unbounded", "error" };
+std::ostream& operator<<(std::ostream& os, const Status& status) {
+	std::string s[] = { "OPTIMAL", "INFEASIBLE", "UNBOUNDED", "INFEASIBLE_OR_UNBOUNDED", "ERROR" };
 	return os << s[static_cast<uint>(status)];
 }
 
-std::ostream& operator<<(std::ostream& os, const method_t& method) {
-	std::string s[] = { "simplex_primal", "simplex_dual", "simplex_dualp", "interior" };
+std::ostream& operator<<(std::ostream& os, const Method& method) {
+	std::string s[] = { "AUTO", "SIMPLEX_PRIMAL", "SIMPLEX_DUAL", "INTERIOR" };
 	return os << s[static_cast<uint>(method)];
 }
 
-std::ostream& operator<<(std::ostream& os, const msg_level_t& level) {
-	std::string s[] = { "off", "err", "on", "all" };
+std::ostream& operator<<(std::ostream& os, const Solver& solver) {
+	std::string s[] = { "AUTO", "INTERNAL", "GLPK", "GLOP", "CLP", "GUROBI", "CPLEX" };
+	return os << s[static_cast<uint>(solver)];
+}
+
+std::ostream& operator<<(std::ostream& os, const MsgLevel& level) {
+	std::string s[] = { "OFF", "ERR", "ON", "ALL" };
 	return os << s[static_cast<uint>(level)];
 }
 

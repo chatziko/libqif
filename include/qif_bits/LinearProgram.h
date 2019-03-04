@@ -1,5 +1,5 @@
 /*
-The canonical_form and simplex methods are adapted from
+The simplex method is adapted from
 https://github.com/IainNZ/RationalSimplex.jl
 Original code is under the MIT licence.
 
@@ -29,20 +29,23 @@ namespace lp {
 
 using std::string;
 
-enum class status_t { optimal, infeasible, unbounded, infeasible_or_unbounded, error };
-enum class method_t { simplex_primal, simplex_dual, simplex_dualp, interior };
-enum class msg_level_t { off, err, on, all };
+enum class Status { OPTIMAL, INFEASIBLE, UNBOUNDED, INFEASIBLE_OR_UNBOUNDED, ERROR };
+enum class Method { AUTO, SIMPLEX_PRIMAL, SIMPLEX_DUAL, INTERIOR };		// AUTO: whatever is best
+enum class Solver { AUTO, INTERNAL, GLPK, GLOP, CLP, GUROBI, CPLEX };	// for the each application
+enum class MsgLevel { OFF, ERR, ON, ALL };
 
-std::ostream& operator<<(std::ostream& os, const status_t& status);
-std::ostream& operator<<(std::ostream& os, const method_t& method);
-std::ostream& operator<<(std::ostream& os, const msg_level_t& level);
+std::ostream& operator<<(std::ostream& os, const Status& status);
+std::ostream& operator<<(std::ostream& os, const Method& method);
+std::ostream& operator<<(std::ostream& os, const Solver& solver);
+std::ostream& operator<<(std::ostream& os, const MsgLevel& level);
 
 
 class Defaults {
 	public:
-		static bool        glp_presolve ;
-		static msg_level_t glp_msg_level;
-		static method_t    method;
+		static bool presolve;
+		static MsgLevel msg_level;
+		static Method method;
+		static Solver solver;
 };
 
 // Solve the linear program
@@ -61,10 +64,11 @@ class LinearProgram {
 
 	public:
 		bool maximize = true;
-		method_t method = is_rat ? method_t::simplex_primal : Defaults::method;	// rat only supports simplex_primal
-		bool glp_presolve = is_rat ? false : Defaults::glp_presolve;
-		status_t status;
-		msg_level_t glp_msg_level = Defaults::glp_msg_level;
+		Method method = Defaults::method;
+		Solver solver = Defaults::solver;
+		bool presolve = Defaults::presolve;
+		Status status;
+		MsgLevel msg_level = Defaults::msg_level;
 
 		bool solve();
 		string to_mps();
@@ -90,6 +94,8 @@ class LinearProgram {
 		Col<eT> sol;			// solution
 
 		bool glpk();
+		bool ortools();
+		bool internal_solver();
 		bool simplex();
 
 		void to_canonical_form();
@@ -252,19 +258,37 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	return glpk();
+	// AUTO: internal for rat, GLOP if available, otherwise GLPK
+	auto s = solver;
+	if(s == Solver::AUTO) {
+		if(is_rat) {
+			s = Solver::INTERNAL;
+		} else {
+			#if QIF_USE_ORTOOLS
+				// TODO: use GLOP after fixing tests
+				s = Solver::GLPK;
+			#else
+				s = Solver::GLPK;
+			#endif
+		}
+	}
+
+	return
+		s == Solver::GLPK ? glpk() :
+		s == Solver::INTERNAL ? internal_solver() :
+		ortools();
 }
 
-// for rats, we use the simplex() method after transforming to canonical form
+// internal solver, uses simplex() after cloning and converting to canonical form. Mostly useful for rats
 //
-template<>
+template<typename eT>
 inline
-bool LinearProgram<rat>::solve() {
+bool LinearProgram<eT>::internal_solver() {
 
-	if(method != method_t::simplex_primal)
-		throw std::runtime_error("not supported");
+	if(method != Method::AUTO && method != Method::SIMPLEX_PRIMAL)
+		throw std::runtime_error("internal solver only supports simplex_primal method");
 
-	LinearProgram<rat> lp(*this);	// clone
+	LinearProgram<eT> lp(*this);	// clone
 	lp.to_canonical_form();
 
 	bool res = lp.simplex();
@@ -276,7 +300,7 @@ bool LinearProgram<rat>::solve() {
 	return res;
 }
 
-
+// solve the program using GLPK (directly, not through ortools)
 template<typename eT>
 bool LinearProgram<eT>::glpk() {
 	// create problem
@@ -346,19 +370,16 @@ bool LinearProgram<eT>::glpk() {
 	wrapper::glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
 
 	const int glp_msg_levs[] = { GLP_MSG_OFF, GLP_MSG_ERR, GLP_MSG_ON, GLP_MSG_ALL };
-	const int msg_lev = glp_msg_levs[static_cast<uint>(glp_msg_level)];
+	const int msg_lev = glp_msg_levs[static_cast<uint>(msg_level)];
 
 	// solve
-	const bool is_interior = method == method_t::interior;
-	if(!is_interior) {	// simplex primal/dual/dualp
+	const bool is_interior = method == Method::INTERIOR;
+	if(!is_interior) {	// simplex primal/dual
 		glp_smcp opt;
 		wrapper::glp_init_smcp(&opt);
-		opt.meth =
-			method == method_t::simplex_primal ? GLP_PRIMAL :
-			method == method_t::simplex_dual   ? GLP_DUAL :
-			GLP_DUALP;
+		opt.meth = method == Method::SIMPLEX_PRIMAL ? GLP_PRIMAL : GLP_DUALP;	// DUALP: use dual, switch to primal if it fails. DUALP is also set if method == AUTO
 		opt.msg_lev = msg_lev;							// debug info sent to terminal, default off
-		opt.presolve = glp_presolve ? GLP_ON : GLP_OFF;	// use presolver
+		opt.presolve = presolve ? GLP_ON : GLP_OFF;		// use presolver
 
 		//glp_scale_prob(lp, GLP_SF_AUTO);	// scaling is done by the presolver
 		int glp_res = wrapper::glp_simplex(lp, &opt);
@@ -374,11 +395,11 @@ bool LinearProgram<eT>::glpk() {
 		//   although we might not know which one
 		//
 		status =
-			glp_status == GLP_OPT								? status_t::optimal :
-			glp_status == GLP_NOFEAS || glp_res == GLP_ENOPFS	? status_t::infeasible :
-			glp_status == GLP_UNBND								? status_t::unbounded :
-			glp_dual_st == GLP_NOFEAS || glp_res == GLP_ENODFS	? status_t::infeasible_or_unbounded :
-		  status_t::error;
+			glp_status == GLP_OPT								? Status::OPTIMAL :
+			glp_status == GLP_NOFEAS || glp_res == GLP_ENOPFS	? Status::INFEASIBLE :
+			glp_status == GLP_UNBND								? Status::UNBOUNDED :
+			glp_dual_st == GLP_NOFEAS || glp_res == GLP_ENODFS	? Status::INFEASIBLE_OR_UNBOUNDED :
+			Status::ERROR;
 
 	} else {
 		glp_iptcp opt;
@@ -393,13 +414,13 @@ bool LinearProgram<eT>::glpk() {
 		int glp_status = wrapper::glp_ipt_status(lp);
 		// std::cout << "interior status: " << (status == GLP_OPT ? "GLP_OPT" : status == GLP_NOFEAS  ? "GLP_NOFEAS" : status == GLP_INFEAS ? "GLP_INFEAS" : status == GLP_UNDEF ? "GLP_UNDEF" : "XXX") << "\n";
 		status =
-			glp_status == GLP_OPT	? status_t::optimal :
-			glp_status == GLP_NOFEAS? status_t::infeasible_or_unbounded :
-									  status_t::error;
+			glp_status == GLP_OPT	? Status::OPTIMAL :
+			glp_status == GLP_NOFEAS? Status::INFEASIBLE_OR_UNBOUNDED :
+									  Status::ERROR;
 	}
 
 	// get optimal solution
-	if(status == status_t::optimal) {
+	if(status == Status::OPTIMAL) {
 		sol.set_size(n_var);
 		for(uint j = 0; j < n_var; j++)
 			sol.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
@@ -409,7 +430,113 @@ bool LinearProgram<eT>::glpk() {
 	wrapper::glp_delete_prob(lp);
 	wrapper::glp_free_env();
 
-	return status == status_t::optimal;
+	return status == Status::OPTIMAL;
+}
+
+template<typename eT>
+bool LinearProgram<eT>::ortools() {
+
+#ifndef QIF_USE_ORTOOLS
+	throw std::runtime_error("ortools not available");
+#else
+	using namespace operations_research;
+
+	// ortools uses flags USE_<SOLVER> to enable the various solvers, but they don't seem to be "saved" in the headers
+	// installed in the systme, instead the user is expected to pass them. Here we assume that USE_GLOP/USE_CLP are always
+	// set (infact they are set in the qif header if USE_ORTOOLS is set). For the others (GUROBI/CPLEX), the user should
+	// probably set -DUSE_<SOLVER> when compiling (not tested).
+	//
+	MPSolver::OptimizationProblemType ptype;
+	switch(solver) {
+		case Solver::AUTO:
+		case Solver::GLOP:
+			ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
+			break;
+
+		case Solver::CLP:
+			ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
+			break;
+
+		case Solver::GUROBI:
+			#ifdef USE_GUROBI
+			ptype = MPSolver::GUROBI_LINEAR_PROGRAMMING;
+			break;
+			#else
+			throw std::runtime_error("GUROBI not enabled, please compile ortools with GUROBI and use -DUSE_GUROBI");
+			#endif
+
+		case Solver::CPLEX:
+			#ifdef USE_CPLEX
+			ptype = MPSolver::CP:EX_LINEAR_PROGRAMMING;
+			break;
+			#else
+			throw std::runtime_error("CPLEX not enabled, please compile ortools with GUROBI and use -DUSE_CPLEX");
+			#endif
+
+		default:
+			// GLPK/INTERNAL are handled by other methods
+			throw std::runtime_error("shouldn't arrive here");
+	}
+	MPSolver solver("libqif", ptype);
+
+	eT inf = infinity<eT>();
+	const double sol_inf = solver.infinity();
+	auto val = [&](eT a) -> double { return a == -inf ? -sol_inf : a == inf ? sol_inf : to_double(a); };
+
+	MPObjective* const objective = solver.MutableObjective();
+	if(maximize)
+		objective->SetMaximization();
+	else
+		objective->SetMinimization();
+
+	std::vector<MPVariable*> vars(n_var);
+	std::vector<MPConstraint*> cons(n_con);
+
+	for(uint x = 0; x < n_var; x++) {
+		vars[x] = solver.MakeNumVar(val(var_lb[x]), val(var_ub[x]), "x"+std::to_string(x));
+
+		objective->SetCoefficient(vars[x], val(obj_coeff[x]));
+	}
+
+	for(uint c = 0; c < n_con; c++)
+		cons[c] = solver.MakeRowConstraint(val(con_lb[c]), val(con_ub[c]));
+
+	for(auto me : con_coeff)
+		cons[me.row]->SetCoefficient(vars[me.col], val(me.val));
+
+	// set params
+	MPSolverParameters param;
+	param.SetIntegerParam(MPSolverParameters::LP_ALGORITHM,
+		method == Method::SIMPLEX_PRIMAL ? MPSolverParameters::PRIMAL :
+		method == Method::INTERIOR ? MPSolverParameters::BARRIER :
+		MPSolverParameters::DUAL			// AUTO | SIMPLEX_DUAL
+	);
+	param.SetIntegerParam(MPSolverParameters::PRESOLVE, presolve ? MPSolverParameters::PRESOLVE_ON : MPSolverParameters::PRESOLVE_OFF);
+
+	if(msg_level == MsgLevel::OFF)
+		solver.SuppressOutput();
+	else
+		solver.EnableOutput();
+
+	// go
+	auto result_status = solver.Solve(param);
+
+	// std::cout << "status: " << result_status << "\n";
+	status =
+		result_status == MPSolver::OPTIMAL    ? Status::OPTIMAL :
+		result_status == MPSolver::INFEASIBLE ? Status::INFEASIBLE :
+		result_status == MPSolver::UNBOUNDED  ? Status::UNBOUNDED :
+		Status::ERROR;
+
+	if(status == Status::OPTIMAL) {
+		sol.set_size(n_var);
+		for(uint x = 0; x < n_var; x++)
+			sol(x) = vars[x]->solution_value();
+	}
+
+	return status == Status::OPTIMAL;
+
+#endif // QIF_USE_ORTOOLS
 }
 
 template<>
@@ -639,7 +766,7 @@ bool LinearProgram<eT>::simplex() {
 						// It couldn't reduce objective to 0 which is equivalent
 						// to saying a feasible basis with no artificials could
 						// not be found
-						status = status_t::infeasible;
+						status = Status::INFEASIBLE;
 						// std::cout << "-- infeasible\n";
 						goto EXIT;
 					}
@@ -650,7 +777,7 @@ bool LinearProgram<eT>::simplex() {
 				}
 				continue;
 			} else {
-				status = status_t::optimal;
+				status = Status::OPTIMAL;
 				// std::cout << "-- optimal\n";
 				goto EXIT;
 			}
@@ -677,7 +804,7 @@ bool LinearProgram<eT>::simplex() {
 		// If no variable will leave basis, then we have an 
 		// unbounded problem.
 		if(leaving == -1) {
-			status = status_t::unbounded;
+			status = Status::UNBOUNDED;
 			// std::cout << "--unbounded\n";
 			goto EXIT;
 		}
@@ -711,7 +838,7 @@ bool LinearProgram<eT>::simplex() {
 EXIT:
 	sol = sol.subvec(0, n-1);		// the solution are the first n vars
 
-	return status == status_t::optimal;
+	return status == Status::OPTIMAL;
 }
 
 

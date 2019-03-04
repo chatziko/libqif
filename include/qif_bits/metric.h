@@ -411,7 +411,7 @@ kantorovich_lp(Metric<R, uint> d) {
 
 		if(!lp.solve())
 			throw std::runtime_error(std::string("Kantorovich program failed: ") +
-									 (lp.status == lp::status_t::infeasible ? "infeasible" : "unbounded"));
+									 (lp.status == lp::Status::INFEASIBLE ? "infeasible" : "unbounded"));
 		return lp.objective();
 	};
 }

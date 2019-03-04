@@ -35,22 +35,22 @@ TYPED_TEST_CASE_P(LinearProgramTest);
 
 TYPED_TEST_P(LinearProgramTest, Optimal) {
 	typedef TypeParam eT;
-	typedef method_t m_t;
-	typedef status_t s_t;
+	typedef Method m_t;
+	typedef Status s_t;
 	const bool is_rat = std::is_same<eT, rat>::value;
 
 	// the default acceptance range is too string for linear programs, we need a more permissive mrd
 	eT md =	def_max_diff<eT>();
 	eT mrd = def_max_rel_diff<float>();		// always use the mrd for floats
 
-	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::interior) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::simplex_primal)) continue;	// rat supports only simplex_primal/no presolve
+		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
+		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
 
 		LinearProgram<eT> lp;
 		lp.method = method;
-		lp.glp_presolve = presolve;
+		lp.presolve = presolve;
 
 		lp.from_matrix(
 			format_num<eT>("1 2; 3 1"),
@@ -59,7 +59,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		);
 
 		EXPECT_TRUE(lp.solve());
-		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(46)/100, lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("0.6; 0.2"), lp.solution(), md, mrd);
 
@@ -70,7 +70,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		);
 
 		EXPECT_TRUE(lp.solve());
-		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(2), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("0; 1; 0"), lp.solution(), md, mrd);
 
@@ -83,7 +83,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		);
 
 		EXPECT_TRUE(lp.solve());
-		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(9), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("1; 1.5"), lp.solution(), md, mrd);
 
@@ -95,7 +95,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		);
 
 		EXPECT_TRUE(lp.solve());
-		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-136), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("4; 4; 4"), lp.solution(), md, mrd);
 
@@ -106,7 +106,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		lp.set_obj_coeff(v, 1);
 
 		EXPECT_TRUE(lp.solve());
-		EXPECT_EQ(s_t::optimal, lp.status);
+		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
 	}}
@@ -114,22 +114,22 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 TYPED_TEST_P(LinearProgramTest, Infeasible) {
 	typedef TypeParam eT;
-	typedef method_t m_t;
-	typedef status_t s_t;
+	typedef Method m_t;
+	typedef Status s_t;
 	const bool is_rat = std::is_same<eT, rat>::value;
 
-	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::interior) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::simplex_primal)) continue;	// rat supports only simplex_primal/no presolve
+		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
+		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
 
 		LinearProgram<eT> lp;
 		lp.method = method;
-		lp.glp_presolve = presolve;
+		lp.presolve = presolve;
 
-		s_t status = method == m_t::interior
-				? s_t::infeasible_or_unbounded	// sometimes we just know that the problem is infeasible OR unbounded
-				: s_t::infeasible;
+		s_t status = method == m_t::INTERIOR
+				? s_t::INFEASIBLE_OR_UNBOUNDED	// sometimes we just know that the problem is infeasible OR unbounded
+				: s_t::INFEASIBLE;
 
 		lp.from_matrix(
 			format_num<eT>("1; 1"),
@@ -155,22 +155,22 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 
 TYPED_TEST_P(LinearProgramTest, Unbounded) {
 	typedef TypeParam eT;
-	typedef method_t m_t;
-	typedef status_t s_t;
+	typedef Method m_t;
+	typedef Status s_t;
 	const bool is_rat = std::is_same<eT, rat>::value;
 
-	for(m_t method : { m_t::simplex_primal, m_t::simplex_dual, m_t::interior }) {
+	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::interior) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::simplex_primal)) continue;	// rat supports only simplex_primal/no presolve
+		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
+		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
 
 		LinearProgram<eT> lp;
 		lp.method = method;
-		lp.glp_presolve = presolve;
+		lp.presolve = presolve;
 
-		s_t status = method == m_t::simplex_primal && !presolve
-				? s_t::unbounded
-				: s_t::infeasible_or_unbounded;	// sometimes we just know that the problem is infeasible OR unbounded
+		s_t status = method == m_t::SIMPLEX_PRIMAL && !presolve
+				? s_t::UNBOUNDED
+				: s_t::INFEASIBLE_OR_UNBOUNDED;	// sometimes we just know that the problem is infeasible OR unbounded
 
 		lp.maximize = false;
 		lp.from_matrix(

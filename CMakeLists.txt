@@ -1,10 +1,16 @@
-cmake_minimum_required(VERSION 2.6)
-cmake_policy(VERSION 3.0)												# avoid MACOSX_RPATH warning
+cmake_minimum_required(VERSION 3.1)
+cmake_policy(VERSION 3.1)												# avoid MACOSX_RPATH warning
+if(POLICY CMP0058)
+	cmake_policy(SET CMP0058 NEW)										# void cotire warning under ninja
+endif()
 
 project(libqif)
 
 include(misc/cotire.cmake)												# for unity builds and precompiled headers
 set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
+
+# use ortools, if available
+find_package(ortools CONFIG)
 
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
@@ -17,7 +23,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # compiler flags
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")	# common flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")	# common flags
+set(CMAKE_CXX_STANDARD 11)											# easier method for setting c++11, also avoid cotire issue with ortools
 
 message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -34,6 +41,10 @@ include_directories(include)
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
 target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqpstatic)		# libraries to link
+if(ortools_FOUND)
+	target_link_libraries(qif ortools::ortools)
+	target_compile_definitions(qif PUBLIC QIF_USE_ORTOOLS=1)
+endif()
 
 set_target_properties(qif PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "include/precompiled.h")
 cotire(qif)
