@@ -43,6 +43,7 @@ Compile and run with:
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
 If the `rat` type is used you also need to compile with `-lgmp -lgmpxx`.
+If OR-Tools are used you also need to compile with `-lortools`.
 
 ## Build libqif from source
 
@@ -54,6 +55,10 @@ Prerequisites
 * [GLPK](https://www.gnu.org/software/glpk/)
 * [GSL](http://www.gnu.org/software/gsl/)
 * A C++11 compliant compiler (eg g++ or clang)
+
+Optionally
+
+* [OR-Tools](https://developers.google.com/optimization/)
 
 On Ubuntu, these can be installed with:
 
@@ -79,6 +84,14 @@ To build the samples:
 
     make samples
     ./samples/<sample>
+
+#### Use OR-Tools
+
+If OR-Tools are installed in your system when libqif is compiled, they will
+be used by some libqif methods for linear optimization and network flow.
+cmake needs to be able to find OR-Tools for this to work: the only tested
+method is to
+[install OR-Tools from source via cmake](https://github.com/google/or-tools/blob/stable/cmake/README.md#building-or-tools-with-cmake).
 
 ### Repository structure:
 
