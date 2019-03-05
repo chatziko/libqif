@@ -255,7 +255,7 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 template<typename eT>
 eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B) {
 	Mat<eT> G;
-	return add_metric(pi, A, B);
+	return add_metric(pi, A, B, G);
 }
 
 
