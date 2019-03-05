@@ -43,13 +43,22 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 	eT md =	def_max_diff<eT>();
 	eT mrd = def_max_rel_diff<float>();		// always use the mrd for floats
 
+	#ifdef QIF_USE_ORTOOLS
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK, Solver::GLOP, Solver::CLP };
+	#else
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK };
+	#endif
+
 	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
+	for(Solver solver : solvers) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
+		if(method == m_t::INTERIOR    && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
+		if(solver == Solver::INTERNAL && (presolve || method != m_t::SIMPLEX_PRIMAL)                  ) continue; // internal solver: only simplex_primal/no presolve
+		if(is_rat                     && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
 
 		LinearProgram<eT> lp;
 		lp.method = method;
+		lp.solver = solver;
 		lp.presolve = presolve;
 
 		lp.from_matrix(
@@ -109,7 +118,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_EQ(s_t::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
-	}}
+	}}}
 }
 
 TYPED_TEST_P(LinearProgramTest, Infeasible) {
@@ -118,13 +127,22 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 	typedef Status s_t;
 	const bool is_rat = std::is_same<eT, rat>::value;
 
+	#ifdef QIF_USE_ORTOOLS
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK, Solver::GLOP, Solver::CLP };
+	#else
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK };
+	#endif
+
 	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
+	for(Solver solver : solvers) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
+		if(method == m_t::INTERIOR    && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
+		if(solver == Solver::INTERNAL && (presolve || method != m_t::SIMPLEX_PRIMAL)                  ) continue; // internal solver: only simplex_primal/no presolve
+		if(is_rat                     && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
 
 		LinearProgram<eT> lp;
 		lp.method = method;
+		lp.solver = solver;
 		lp.presolve = presolve;
 
 		s_t status = method == m_t::INTERIOR
@@ -150,7 +168,7 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
-	}}
+	}}}
 }
 
 TYPED_TEST_P(LinearProgramTest, Unbounded) {
@@ -159,16 +177,28 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 	typedef Status s_t;
 	const bool is_rat = std::is_same<eT, rat>::value;
 
+	#ifdef QIF_USE_ORTOOLS
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK, Solver::GLOP, Solver::CLP };
+	#else
+	std::vector<Solver> solvers = { Solver::INTERNAL, Solver::GLPK };
+	#endif
+
 	for(m_t method : { m_t::SIMPLEX_PRIMAL, m_t::SIMPLEX_DUAL, m_t::INTERIOR }) {
+	for(Solver solver : solvers) {
 	for(bool presolve : { false, true }) {
-		if(presolve && method == m_t::INTERIOR) continue;					// interior method has no presolver
-		if(is_rat && (presolve || method != m_t::SIMPLEX_PRIMAL)) continue;	// rat supports only simplex_primal/no presolve
+		if(method == m_t::INTERIOR    && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
+		if(solver == Solver::INTERNAL && (presolve || method != m_t::SIMPLEX_PRIMAL)                  ) continue; // internal solver: only simplex_primal/no presolve
+		if(is_rat                     && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
+
+		// EXTRA conditions only for unbounded
+		if(solver == Solver::GLOP || solver == Solver::CLP) continue; // OR-tools/DUAL seems unstable with unbounded problems (TODO: investigae)
 
 		LinearProgram<eT> lp;
 		lp.method = method;
+		lp.solver = solver;
 		lp.presolve = presolve;
 
-		s_t status = method == m_t::SIMPLEX_PRIMAL && !presolve
+		s_t status = solver != Solver::GLPK || (method == m_t::SIMPLEX_PRIMAL && !presolve)
 				? s_t::UNBOUNDED
 				: s_t::INFEASIBLE_OR_UNBOUNDED;	// sometimes we just know that the problem is infeasible OR unbounded
 
@@ -182,7 +212,7 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 
 		EXPECT_FALSE(lp.solve());
 		EXPECT_EQ(status, lp.status);
-	}}
+	}}}
 }
 
 

@@ -258,17 +258,18 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	// AUTO: internal for rat, GLOP if available, otherwise GLPK
+	// AUTO: internal for rat, GLPK for Interior, CLP if available, otherwise GLPK
 	auto s = solver;
 	if(s == Solver::AUTO) {
 		if(is_rat) {
 			s = Solver::INTERNAL;
+		} else if(method == Method::INTERIOR) {
+			s = Solver::GLPK;
 		} else {
 			#if QIF_USE_ORTOOLS
-				// TODO: use GLOP/CLP after fixing tests
-				s = Solver::GLPK;
+			s = Solver::CLP;
 			#else
-				s = Solver::GLPK;
+			s = Solver::GLPK;
 			#endif
 		}
 	}
@@ -482,13 +483,13 @@ bool LinearProgram<eT>::ortools() {
 			// GLPK/INTERNAL are handled by other methods
 			throw std::runtime_error("shouldn't arrive here");
 	}
-	MPSolver solver("libqif", ptype);
+	MPSolver orsolver("libqif", ptype);
 
 	eT inf = infinity<eT>();
-	const double sol_inf = solver.infinity();
+	const double sol_inf = orsolver.infinity();
 	auto val = [&](eT a) -> double { return a == -inf ? -sol_inf : a == inf ? sol_inf : to_double(a); };
 
-	MPObjective* const objective = solver.MutableObjective();
+	MPObjective* const objective = orsolver.MutableObjective();
 	if(maximize)
 		objective->SetMaximization();
 	else
@@ -498,13 +499,13 @@ bool LinearProgram<eT>::ortools() {
 	std::vector<MPConstraint*> cons(n_con);
 
 	for(uint x = 0; x < n_var; x++) {
-		vars[x] = solver.MakeNumVar(val(var_lb[x]), val(var_ub[x]), "x"+std::to_string(x));
+		vars[x] = orsolver.MakeNumVar(val(var_lb[x]), val(var_ub[x]), "x"+std::to_string(x));
 
 		objective->SetCoefficient(vars[x], val(obj_coeff[x]));
 	}
 
 	for(uint c = 0; c < n_con; c++)
-		cons[c] = solver.MakeRowConstraint(val(con_lb[c]), val(con_ub[c]));
+		cons[c] = orsolver.MakeRowConstraint(val(con_lb[c]), val(con_ub[c]));
 
 	for(auto me : con_coeff)
 		cons[me.row]->SetCoefficient(vars[me.col], val(me.val));
@@ -519,14 +520,13 @@ bool LinearProgram<eT>::ortools() {
 	param.SetIntegerParam(MPSolverParameters::PRESOLVE, presolve ? MPSolverParameters::PRESOLVE_ON : MPSolverParameters::PRESOLVE_OFF);
 
 	if(msg_level == MsgLevel::OFF)
-		solver.SuppressOutput();
+		orsolver.SuppressOutput();
 	else
-		solver.EnableOutput();
+		orsolver.EnableOutput();
 
 	// go
-	auto result_status = solver.Solve(param);
+	auto result_status = orsolver.Solve(param);
 
-	// std::cout << "status: " << result_status << "\n";
 	status =
 		result_status == MPSolver::OPTIMAL    ? Status::OPTIMAL :
 		result_status == MPSolver::INFEASIBLE ? Status::INFEASIBLE :
