@@ -20,12 +20,11 @@ class LinearProgramTest : public BaseTest<eT> {
 				// some combinations are not valid
 				if(method == Method::INTERIOR && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
 				if(solver == Solver::INTERNAL && (presolve || method != Method::SIMPLEX_PRIMAL)               ) continue; // internal solver: only simplex_primal/no presolve
-				if(is_rat                     && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
+				if(this->is_rat               && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
 
 				combs.push_back(std::make_tuple(method, solver, presolve));
 			}}}
 		}
-		const bool is_rat = std::is_same<eT, rat>::value;
 		std::vector<std::tuple<Method,Solver,bool>> combs;
 };
 
