@@ -10,6 +10,10 @@ The easiest way to install libqif (especially on OSX) is via [Homebrew](http://b
     brew install --HEAD libqif
     brew test --HEAD libqif
 
+To upgrade to the latest version:
+
+    brew reinstall --HEAD libqif
+
 __On Linux__: the method above is available via [Linuxbrew](http://linuxbrew.sh/). Make sure you have ```csh``` installed (needed only for the installation). Also, Linuxbrew installs everything under ```$HOME/.linuxbrew```, so you need to either configure your system to use libraries from there, or symlink eveything under ```/usr/local```:
 
     sudo ln -s $HOME/.linuxbrew/include/qif* /usr/local/include/
