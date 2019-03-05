@@ -265,7 +265,7 @@ bool LinearProgram<eT>::solve() {
 			s = Solver::INTERNAL;
 		} else {
 			#if QIF_USE_ORTOOLS
-				// TODO: use GLOP after fixing tests
+				// TODO: use GLOP/CLP after fixing tests
 				s = Solver::GLPK;
 			#else
 				s = Solver::GLPK;
@@ -303,6 +303,9 @@ bool LinearProgram<eT>::internal_solver() {
 // solve the program using GLPK (directly, not through ortools)
 template<typename eT>
 bool LinearProgram<eT>::glpk() {
+	if(is_rat)
+		std::cout << "\nWARNING: using GLPK with rat. This will convert to double so it's not exact.\n\n";
+
 	// create problem
 	glp_prob *lp = wrapper::glp_create_prob();
 
@@ -326,9 +329,9 @@ bool LinearProgram<eT>::glpk() {
 			lb ==   ub              ? GLP_FX :	// fixed value
 			                          GLP_DB ;	// both bounds
 
-		wrapper::glp_set_col_bnds(lp, j+1, type, lb, ub);
+		wrapper::glp_set_col_bnds(lp, j+1, type, to_double(lb), to_double(ub));
 
-		wrapper::glp_set_obj_coef(lp, j+1, obj_coeff[j]);				// coefficient in the cost functoin
+		wrapper::glp_set_obj_coef(lp, j+1, to_double(obj_coeff[j]));				// coefficient in the cost functoin
 	}
 
 	// add constraints. glpk uses a "sparse" way of entering the rows, using
@@ -355,7 +358,7 @@ bool LinearProgram<eT>::glpk() {
 			lb ==   ub              ? GLP_FX :	// fixed value
 			                          GLP_DB ;	// both bounds
 
-		wrapper::glp_set_row_bnds(lp, i+1, type, lb, ub);
+		wrapper::glp_set_row_bnds(lp, i+1, type, to_double(lb), to_double(ub));
 	}
 
 	// loop over non-zero elements of sparse array
@@ -363,7 +366,7 @@ bool LinearProgram<eT>::glpk() {
 	for(auto me : con_coeff) {
 		ia[index] = me.row + 1;
 		ja[index] = me.col + 1;
-		ar[index] = me.val;
+		ar[index] = to_double(me.val);
 		index++;
 	}
 
@@ -435,6 +438,8 @@ bool LinearProgram<eT>::glpk() {
 
 template<typename eT>
 bool LinearProgram<eT>::ortools() {
+	if(is_rat)
+		std::cout << "\nWARNING: using OR-tools with rat. This will convert to double so it's not exact.\n\n";
 
 #ifndef QIF_USE_ORTOOLS
 	throw std::runtime_error("ortools not available");
@@ -537,12 +542,6 @@ bool LinearProgram<eT>::ortools() {
 	return status == Status::OPTIMAL;
 
 #endif // QIF_USE_ORTOOLS
-}
-
-template<>
-inline
-bool LinearProgram<rat>::glpk() {
-	throw std::runtime_error("not available for rat");
 }
 
 
@@ -916,13 +915,6 @@ string LinearProgram<eT>::to_mps() {
 	// s += "ENDATA\n";
 
 	// return s;
-}
-
-template<>
-inline
-string LinearProgram<rat>::to_mps() {
-	// TODO: make to_mps work for rat
-	throw std::runtime_error("not supported");
 }
 
 }
