@@ -22,9 +22,6 @@ add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 11)											# easier method for setting c++11, also avoid cotire issue with ortools
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(include)
-
-
 # build shared lib
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
@@ -36,14 +33,19 @@ target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqpstatic)		# libraries 
 find_package(ortools CONFIG)
 if(ortools_FOUND)
 	message(STATUS "Found ortools")
+	set(QIF_USE_ORTOOLS 1)							# this will be used in qif_bits/config.h
 	target_link_libraries(qif ortools::ortools)
-	target_compile_definitions(qif PUBLIC QIF_USE_ORTOOLS)
 endif()
 
 # compiler options
 #
 target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native>)
 target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG>)
+
+# includes and config file
+configure_file(include/qif_bits/config.h include/qif_bits/config.h)
+
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/include" include)
 
 # apply cotire
 #
@@ -69,20 +71,20 @@ endif()
 # installation
 #
 if(NOT INSTALL_LIB_DIR) # Allow for the "lib" directory to be specified on the command line
-  set(INSTALL_LIB_DIR "lib")
-  if(UNIX AND NOT APPLE)   # I don't know how Mac OS handles 64 bit systems
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      message(STATUS "*** Detected 64 bit system")
-      # use "lib64" only on systems that have it (eg. Fedora, Red Hat).
-      # if installing in /usr/local/, the use of lib64 might be unreliable on systems which have /usr/local/lib64 but don't use it
-      if(IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib64")
-        unset(INSTALL_LIB_DIR)
-        set(INSTALL_LIB_DIR "lib64")
-        message(STATUS "*** ${CMAKE_INSTALL_PREFIX}/lib64/ exists, so destination directory for the run-time library changed to ${CMAKE_INSTALL_PREFIX}/lib64/")
-        message(STATUS "*** Your system and/or compiler must search ${CMAKE_INSTALL_PREFIX}/lib64/ during linking")
-      endif()
-    endif()
-  endif()
+	set(INSTALL_LIB_DIR "lib")
+	if(UNIX AND NOT APPLE)	 # I don't know how Mac OS handles 64 bit systems
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			message(STATUS "*** Detected 64 bit system")
+			# use "lib64" only on systems that have it (eg. Fedora, Red Hat).
+			# if installing in /usr/local/, the use of lib64 might be unreliable on systems which have /usr/local/lib64 but don't use it
+			if(IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib64")
+				unset(INSTALL_LIB_DIR)
+				set(INSTALL_LIB_DIR "lib64")
+				message(STATUS "*** ${CMAKE_INSTALL_PREFIX}/lib64/ exists, so destination directory for the run-time library changed to ${CMAKE_INSTALL_PREFIX}/lib64/")
+				message(STATUS "*** Your system and/or compiler must search ${CMAKE_INSTALL_PREFIX}/lib64/ during linking")
+			endif()
+		endif()
+	endif()
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
@@ -90,6 +92,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
 	PATTERN "tests_aux.h" EXCLUDE
 	PATTERN "osqp" EXCLUDE
 	PATTERN "_*" EXCLUDE)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/ DESTINATION "include")
 
 # install OSQP's includes under qif_bits/osqp
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/osqp/include/ DESTINATION "include/qif_bits/osqp")

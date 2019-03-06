@@ -16,6 +16,9 @@
 #include <glpk.h>
 #include <gmpxx.h>		// for rats
 
+// configuration. use <...> to load the cmake-processed file from the bin dir (not the raw file from the source dir)
+#include <qif_bits/config.h>
+
 // Google OR-tools (has to be *before* OSQP for some crazy reason)
 #ifdef QIF_USE_ORTOOLS
 #undef USE_GLOP			// USE_GLOP,USE_CLP are automatically enabled when compiling via cmake, but they are
