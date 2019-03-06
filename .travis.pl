@@ -34,11 +34,12 @@ if($linux) {
 }
 
 # install ortools
-rmdir "or-tools";					# if cache is empty the dir will be empty and we delete it
-run qq{git clone https://github.com/google/or-tools --depth 1}
-	if ! -d "or-tools";				# might be cached!
-run qq{cd or-tools && git checkout examples && mkdir -p build && cd build && cmake -GNinja .. && sudo cmake --build . --target install};
-run qq{rm -rf or-tools/examples};	# huge dir, don't cache, we'll do git checkout next time
+rmdir "or-tools";					# if cache is empty travis will create an empty dir. We try to delete it.
+unless(-d "or-tools") {				# if not cached
+	run qq{git clone https://github.com/google/or-tools --depth 1 && mkdir or-tools/build };
+	run qq{rm -rf or-tools/examples/data or-tools/.git};	# huge unneeded dirs, don't cache
+}
+run qq{cd or-tools/build && cmake -GNinja .. && sudo cmake --build . --target install};
 
 # build for each compiler
 my @cxx = $linux ? qw/g++-5 g++-6 g++-7 g++-8/ : qw/clang++/;
