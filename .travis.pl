@@ -18,6 +18,8 @@ if($linux) {
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 7.800.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
 
+	run qq{sudo apt-get -y install pkg-config build-essential autoconf libtool zlib1g-dev lsb-release}; # for ortools
+
 } else {
 	# on OSX we just install libqif via homebrew. This is useful to test by itself,
 	# and also installs all dependencies needed for the actual build
@@ -28,6 +30,10 @@ if($linux) {
 	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
 }
+
+# install ortools
+run qq{git clone https://github.com/google/or-tools --depth 1};
+run qq{cd or-tools && mkdir build && cd build && cmake .. && sudo cmake --build . --target install};
 
 # build for each compiler
 my @cxx = $linux ? qw/g++-5 g++-6 g++-7 g++-8/ : qw/clang++/;
