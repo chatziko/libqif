@@ -9,32 +9,18 @@ project(libqif)
 include(misc/cotire.cmake)												# for unity builds and precompiled headers
 set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
 
-# use ortools, if available
-find_package(ortools CONFIG)
-if(ortools_FOUND)
-	message(STATUS "Found ortools")
-endif()
-
-# build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
-add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
-
 # default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-# compiler flags
-#
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")	# common flags
-set(CMAKE_CXX_STANDARD 11)											# easier method for setting c++11, also avoid cotire issue with ortools
+# build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
+add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 
-message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-	message(STATUS "Clang compiler detected. Added '-stdlib=libc++' to compiler flags")
-endif()
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -DARMA_NO_DEBUG")		# Release flags
+# use c++11
+set(CMAKE_CXX_STANDARD 11)											# easier method for setting c++11, also avoid cotire issue with ortools
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
@@ -44,16 +30,27 @@ include_directories(include)
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
 target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqpstatic)		# libraries to link
+
+# use ortools, if available
+#
+find_package(ortools CONFIG)
 if(ortools_FOUND)
+	message(STATUS "Found ortools")
 	target_link_libraries(qif ortools::ortools)
-	target_compile_definitions(qif PUBLIC QIF_USE_ORTOOLS=1)
+	target_compile_definitions(qif PUBLIC QIF_USE_ORTOOLS)
 endif()
 
+# compiler options
+#
+target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native>)
+target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG>)
+
+# apply cotire
+#
 set_target_properties(qif PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "include/precompiled.h")
 cotire(qif)
 add_dependencies(qif_unity qif_pch)										# cotire seems to add the -include <precompiled> flag in the _unity build, but not a dependency to the _pch target that builds <precompiled>
 set_target_properties(qif_unity PROPERTIES EXCLUDE_FROM_ALL FALSE)		# 'all' builds qif_unity
-
 
 # other targets
 #
