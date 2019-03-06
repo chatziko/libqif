@@ -11,6 +11,9 @@ set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
 
 # use ortools, if available
 find_package(ortools CONFIG)
+if(ortools_FOUND)
+	message(STATUS "Found ortools")
+endif()
 
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
