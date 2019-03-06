@@ -34,8 +34,10 @@ if($linux) {
 }
 
 # install ortools
-run qq{git clone https://github.com/google/or-tools --depth 1};
-run qq{cd or-tools && mkdir build && cd build && cmake -GNinja .. && sudo cmake --build . --target install};
+run qq{git clone https://github.com/google/or-tools --depth 1}
+	if ! -d "or-tools";				# might be cached!
+run qq{cd or-tools && git checkout examples && mkdir -p build && cd build && cmake -GNinja .. && sudo cmake --build . --target install};
+run qq{rm -rf or-tools/examples};	# huge dir, don't cache, we'll do git checkout next time
 
 # build for each compiler
 my @cxx = $linux ? qw/g++-5 g++-6 g++-7 g++-8/ : qw/clang++/;

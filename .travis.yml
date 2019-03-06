@@ -7,5 +7,8 @@ matrix:
     - os: osx
       osx_image: xcode9.4 # OS X 10.13
 language: cpp
+cache:
+  directories:
+  - or-tools
 script:
   - perl .travis.pl
