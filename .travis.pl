@@ -34,6 +34,7 @@ if($linux) {
 }
 
 # install ortools
+rmdir "or-tools";					# if cache is empty the dir will be empty and we delete it
 run qq{git clone https://github.com/google/or-tools --depth 1}
 	if ! -d "or-tools";				# might be cached!
 run qq{cd or-tools && git checkout examples && mkdir -p build && cd build && cmake -GNinja .. && sudo cmake --build . --target install};
