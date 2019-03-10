@@ -701,141 +701,166 @@ void LinearProgram<eT>::to_canonical_form() {
 // work for anything except the most simple problem due to accumulated
 // errors and the comparisons with zero.
 //
+// Summary of the algorithm:
+// https://ocw.mit.edu/courses/sloan-school-of-management/15-093j-optimization-methods-fall-2009/lecture-notes/MIT15_093J_F09_lec04.pdf
+//
 template<typename eT>
 bool LinearProgram<eT>::simplex() {
 	using arma::zeros;
 	using arma::ones;
 	using arma::eye;
-	using arma::umat;
+	using arma::uvec;
 
 	// write program in matrix form
-	Row<eT> b = con_lb,
-			c = obj_coeff;
+	Col<eT> b = con_lb;
+	const Row<eT> c = obj_coeff;
 	Mat<eT> A = zeros<Mat<eT>>(n_con, n_var);	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
 
 	for(auto me : con_coeff)
 		A(me.row, me.col) = me.val;
 
-	uint m = n_con,
-		 n = n_var;
-
 	assert(!maximize);
-	for(uint i = 0; i < m; i++)
+	for(uint i = 0; i < n_con; i++)
 		assert(!less_than(b.at(i), eT(0)));
+	
+	uint n_con = this->n_con;		// to update locally
 
-	Mat<char> is_basic	= zeros<Mat<char>>(n + m);
-	umat basic			= zeros<umat>(m);				// indices of current basis
-	Mat<eT> Binv		= eye<Mat<eT>>(m, m);			// inverse of basis matrix
-	Row<eT> cB			= ones<Row<eT>>(m);				// costs of basic variables
-	sol					= zeros<Col<eT>>(n + m);		// current solution
+	Row<char> is_basic	= zeros<Row<char>>(n_var + n_con);
+	uvec basic			= zeros<uvec>(n_con);				// indices of current basis
+	Mat<eT> Binv		= eye<Mat<eT>>(n_con, n_con);		// inverse of basis matrix
+	Row<eT> cB			= ones<Row<eT>>(n_con);				// costs of basic variables
+	sol					= zeros<Col<eT>>(n_var + n_con);	// current solution
 
-	// Intialize phase 1
-	for(uint i = 0; i < m; i++) {
-		basic(i) = i + n;
-		is_basic(i + n) = 1;
-		sol(i + n) = b(i);
-	}
+	Col<eT> BinvAs;
+
+	// Intialize phase one of RSM by setting basis = auxiliaries.
+	basic = arma::linspace<uvec>(n_var, n_var + n_con - 1, n_con); // n_var..n_var+n_con-1
+	is_basic.tail(n_con).fill(1);
+	sol.tail(n_con) = b;
 	bool phase_one = true;
+
+	auto pivot = [&](uint leaving, uint entering) -> void {
+		// Update basis inverse. Pivot on the `leaving' row, last col of [ Binv | BinvAs ]
+		// Add to each row a multiple of Binv.row(leaving), so that the last col
+		// becomes the identity vector with 1 on 'leaving'-row.
+		//
+		Binv.row(leaving) /= BinvAs(leaving);		// now the leaving row is normalized, there's 1 in the last col
+		for(uint r = 0; r < n_con; r++)
+			if(r != leaving)		// all rows except leaving row
+				Binv.row(r) -= BinvAs(r) * Binv.row(leaving);
+
+		// ... and variable status flags
+		is_basic(basic(leaving)) = 0;
+		is_basic(entering) = 1;
+		cB(leaving) = phase_one ? eT(0) : c(entering);
+		basic(leaving) = entering;
+	};
 
 	// Begin simplex iterations
 	while(true) {
 		// Calculate dual solution...
-		Row<eT> pi_T = cB * Binv;
+		Row<eT> pi = cB * Binv;
 
-		// ... and thus the reduced costs
-		int entering = -1;
-		for(uint j = 0; j < n; j++) {
-			if(is_basic(j)) continue;
-			eT rc = (phase_one ? eT(0) : c(j)) - dot(pi_T, A.col(j));
-			if(less_than(rc, eT(0))) {
-				entering = j;
-				break;
-			}
-		}
+		// Use it to calculate the reduced costs of the variables. Don't
+		// calculate for auxiliaries - they can't re-enter the basis.
+		Row<eT> rc = (phase_one ? zeros<Row<eT>>(n_var) : c) - pi * A;
+		for(uint i = 0; i < n_var; i++)
+			if(is_basic(i))
+				rc(i) = eT(0);
+		uint entering = rc.index_min();		// NOTE: Smallest element rule, might not avoid degenerate cycles
+		eT min_rc = rc(entering);
 
 		// If we couldn't find a variable with a negative reduced cost, 
 		// we terminate this phase because we are at optimality for this
 		// phase - not necessarily optimal for the actual problem.
-		if(entering == -1) {
+		if(less_than_or_eq(eT(0), min_rc)) {
 			if(phase_one) {
 				phase_one = false;
 				// Check objective - if 0, we are OK
-				for(uint j = n; j < n + m; j++) {
-					if(less_than(eT(0), sol(j))) {
-						// It couldn't reduce objective to 0 which is equivalent
-						// to saying a feasible basis with no artificials could
-						// not be found
-						status = Status::INFEASIBLE;
-						// std::cout << "-- infeasible\n";
-						goto EXIT;
+				if(less_than(eT(0), accu(sol.tail(n_con)))) {
+					// If any auxiliary still nonzero, we couldn't find a feasible
+					// basis without auxiliaries.
+					status = Status::INFEASIBLE;
+					break;
+				}
+
+				// IMPORTANT: this fixes a bug in RationalSimplex.jl
+				// if an artificial variable is still left in the basis (with 0 value) we need to drive it out
+				// before starting Phase 2. Otherwise the artificial variable might become > 0 in the future!
+				for(uint i = 0; i < n_con; i++) {
+					if(basic(i) < n_var) continue; // non-artificial
+
+					// Rule: check the i-th row of Binv*A, find a non-zero element
+					Row<eT> t = Binv.row(i) * A;
+					for(entering = 0; entering < n_var; entering++)
+						if(!is_basic(entering) && !equal(t(entering), eT(0)))
+							break;
+
+					if(entering == n_var) { // didn't find non-zero element
+						// constraint i is redundant, remove
+						A.shed_row(i);
+						b.shed_row(i);
+						is_basic.shed_col(n_var + i);
+						basic.shed_row(i);
+						Binv.shed_row(i);
+						Binv.shed_col(i);
+						cB.shed_col(i);
+						sol.shed_row(n_var + i);
+
+						basic -= (basic > n_var + i);	// variable n_var+i is gone, so var-indexes above that should be shifted down by 1
+
+						n_con--;
+						i--;
+
+					} else {
+						// ... otherwise, pivot on the non-zero element we found
+						BinvAs = Binv * A.col(entering);
+						pivot(i, entering);
 					}
 				}
-				// Start again in phase 2 with our nice feasible basis
-				for(uint i = 0; i < m; i++) {
-					cB(i) = basic(i) >= n ? eT(0) : c(basic(i));
-				}
-				continue;
+				cB = c(basic).t();
+				continue; // start phase 2
+
 			} else {
 				status = Status::OPTIMAL;
-				// std::cout << "-- optimal\n";
-				goto EXIT;
+				break;
 			}
 		}
 
 		// Calculate how the solution will change when our new
 		// variable enters the basis and increases from 0
-		Col<eT> BinvAs = Binv * A.col(entering);
+		BinvAs = Binv * A.col(entering);
 
 		// Perform a "ratio test" on each variable to determine
 		// which will reach 0 first
-		int leaving = -1;
-		eT min_ratio = eT(0);
-		for(uint i = 0; i < m; i++) {
-			if(less_than(eT(0), BinvAs(i))) {
-				eT ratio = sol(basic(i)) / BinvAs(i);
-				if(less_than(ratio, min_ratio) || leaving == -1) {
+		uint leaving = n_con;
+		eT min_ratio(0);
+		for(uint j = 0; j < n_con; j++) {
+			if(less_than(eT(0), BinvAs(j))) {
+				eT ratio = sol(basic(j)) / BinvAs(j);
+				if(less_than(ratio, min_ratio) || leaving == n_con) {
 					min_ratio = ratio;
-					leaving = i;
+					leaving = j;
 				}
 			}
 		}
 
 		// If no variable will leave basis, then we have an 
 		// unbounded problem.
-		if(leaving == -1) {
+		if(leaving == n_con) {
 			status = Status::UNBOUNDED;
-			// std::cout << "--unbounded\n";
-			goto EXIT;
+			break;
 		}
 
-		// Now we update solution...
-		for(uint i = 0; i < m; i++) {
-			sol(basic(i)) -= min_ratio * BinvAs(i);
-		}
+		// Update solution.
+		sol(basic) -= min_ratio * BinvAs;
 		sol(entering) = min_ratio;
 
-		// ... and the basis inverse...
-		// Our tableau is ( Binv b | Binv | BinvAs )
-		// and we doing a pivot on the leaving row of BinvAs
-		eT pivot_value = BinvAs(leaving);
-		for(uint i = 0; i < m; i++) {  // all rows except leaving row
-			if(i == static_cast<uint>(leaving)) continue;
-			eT factor = BinvAs(i) / pivot_value;
-			for(uint j = 0; j < m; j++)
-				Binv(i, j) -= factor * Binv(leaving, j);
-		}
-		for(uint j = 0; j < m; j++)
-			Binv(leaving, j) /= pivot_value;
-
-		// ... and variable status flags
-		is_basic(basic(leaving)) = 0;
-		is_basic(entering) = 0;
-		cB(leaving) = phase_one ? eT(0) : c(entering);
-		basic(leaving) = entering;
+		// do the actual pivot
+		pivot(leaving, entering);
 	}
 
-EXIT:
-	sol = sol.subvec(0, n-1);		// the solution are the first n vars
+	sol = sol.head(n_var);		// the solution are the first n vars
 
 	return status == Status::OPTIMAL;
 }

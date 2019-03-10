@@ -101,6 +101,29 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.objective(), md, mrd);
 		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
+
+		// the problematic program from the add. refin. metric: redundant constraints causing internal simplex to fail
+		lp.maximize = false;
+		lp.from_matrix(
+			format_num<eT>(R"(
+				-1       0        1        0        0        0       -1        0        0        0        0        0        0        0        0;
+				-1       0        0        0        1        0        0       -1        0        0        0        0        0        0        0;
+				0.75     0    -0.75        0        0        0        0        0       -1        0        0        0        0        0        0;
+				0        0    -0.75        0     0.75        0        0        0        0       -1        0        0        0        0        0;
+				0.25     0        0        0    -0.25        0        0        0        0        0       -1        0        0        0        0;
+				0        0     0.25        0    -0.25        0        0        0        0        0        0       -1        0        0        0;
+				1        0        0        0        0        0        0        0        0        0        0        0        1        0        0;
+				0        0     0.75        0        0        0        0        0        0        0        0        0        0        1        0;
+				0        0        0        0     0.25        0        0        0        0        0        0        0        0        0        1;
+			)"),
+			format_num<eT>(" 0 0 0 0 0 0 1 0.75 0.25"),
+			format_num<eT>("-1 0 0.75 0 0.25 0 0 0 0 0 0 0 0 0 0"),
+			"= = = = = = = = ="
+		);
+
+		EXPECT_TRUE(lp.solve());
+		EXPECT_EQ(Status::OPTIMAL, lp.status);
+		EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), lp.objective(), md, mrd);
 	}
 }
 
