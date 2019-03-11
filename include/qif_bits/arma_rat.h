@@ -98,6 +98,7 @@ namespace arma {
 	diskio::convert_token(rat& val, const std::string& token) {
 		std::istringstream iss(token);
 		iss >> val;
+		val.canonicalize();
 		return true;
 	}
 	#endif
