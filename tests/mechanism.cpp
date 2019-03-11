@@ -108,7 +108,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	//
 	Chan<eT> G0 = mechanism::geometric(20, epsilon);		// the 0..19 x 0..19 to remap
 
-	Chan<eT> T1 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  0u), 9u); }, 20, 20);	// 0..9
+	Chan<eT> T1 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(         x      ,  9u); }, 20, 20);	// 0..9
 	Chan<eT> T2 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x, 10u), 19u); }, 20, 20);	// 10..19
 	Chan<eT> T3 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  1u), 18u); }, 20, 20);	// 1..18
 	Chan<eT> T4 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x,  7u), 12u); }, 20, 20);	// 7..12

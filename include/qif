@@ -41,7 +41,9 @@ namespace fastemd {
 	// ignore warnings in FastEMD code
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wsign-compare"
+	#ifndef __clang__
 	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+	#endif
 
 	#include "qif_bits/FastEMD/emd_hat.hpp"
 
