@@ -712,7 +712,7 @@ bool LinearProgram<eT>::simplex() {
 	using arma::uvec;
 
 	// write program in matrix form
-	Col<eT> b = con_lb;
+	const Col<eT> b = con_lb;
 	const Row<eT> c = obj_coeff;
 	Mat<eT> A = zeros<Mat<eT>>(n_con, n_var);	// use a dense matrix. The current algorithm doesn't use sparsity anyway, and operations on SpMat are much slower
 
@@ -792,37 +792,36 @@ bool LinearProgram<eT>::simplex() {
 				// IMPORTANT: this fixes a bug in RationalSimplex.jl
 				// if an artificial variable is still left in the basis (with 0 value) we need to drive it out
 				// before starting Phase 2. Otherwise the artificial variable might become > 0 in the future!
+				uvec keep = ones<uvec>(n_con);
+
 				for(uint i = 0; i < n_con; i++) {
 					if(basic(i) < n_var) continue; // non-artificial
 
-					// Rule: check the i-th row of Binv*A, find a non-zero element
+					// Rule: check for non-zero elements in the i-th row of Binv*A
 					Row<eT> t = Binv.row(i) * A;
 					for(entering = 0; entering < n_var; entering++)
 						if(!is_basic(entering) && !equal(t(entering), eT(0)))
 							break;
 
-					if(entering == n_var) { // didn't find non-zero element
-						// constraint i is redundant, remove
-						A.shed_row(i);
-						b.shed_row(i);
-						is_basic.shed_col(n_var + i);
-						basic.shed_row(i);
-						Binv.shed_row(i);
-						Binv.shed_col(i);
-						cB.shed_col(i);
-						sol.shed_row(n_var + i);
-
-						basic -= (basic > n_var + i);	// variable n_var+i is gone, so var-indexes above that should be shifted down by 1
-
-						n_con--;
-						i--;
-
+					if(entering == n_var) {
+						// all elements are zero so constraint i is redundant, mark to delete
+						keep(i) = 0;
 					} else {
-						// ... otherwise, pivot on the non-zero element we found
+						// found non-zero element (entering), pivot on that
 						BinvAs = Binv * A.col(entering);
 						pivot(i, entering);
 					}
 				}
+
+				// remove marked constraints
+				auto keep_i = arma::find(keep);
+				if(size(keep_i).n_rows != n_con) {
+					A = A.rows(keep_i);
+					Binv = Binv.submat(keep_i, keep_i);
+					basic = basic(keep_i);
+					n_con = A.n_rows;
+				}
+
 				cB = c(basic).t();
 				continue; // start phase 2
 
