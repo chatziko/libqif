@@ -26,7 +26,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx gsl armadillo osqpstatic)		# libraries to link
+target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)		# libraries to link
 
 # use ortools, if available
 #
