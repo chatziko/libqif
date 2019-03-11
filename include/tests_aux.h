@@ -34,6 +34,29 @@ string format_num<rat>(string s) {
 }
 
 
+// for tests, change num strings like "5/10 1/10" to "0.5 0.1"
+//
+template<typename eT>
+inline
+string format_rat(string s) {
+	std::smatch m;
+	std::regex e("(\\d+)/(\\d+)");
+
+	while(std::regex_search(s, m, e)) {
+		string num = m[1];
+		string den = m[2];
+		string r = std::to_string(to_double(rat(std::stoi(num), std::stoi(den))));
+		s = s.replace(m.position(), m.length(), r);
+	}
+	return s;
+}
+template<>
+inline
+string format_rat<rat>(string s) {
+	return s;
+}
+
+
 typedef ::testing::Types<double, float, rat> AllTypes;
 typedef ::testing::Types<double, float> NativeTypes;
 typedef ::testing::Types<rat> RatTypes;
