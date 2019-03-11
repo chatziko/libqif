@@ -764,11 +764,11 @@ bool LinearProgram<eT>::simplex() {
 		// Use it to calculate the reduced costs of the variables. Don't
 		// calculate for auxiliaries - they can't re-enter the basis.
 		Row<eT> rc = (phase_one ? zeros<Row<eT>>(n_var) : c) - pi * A;
-		for(uint i = 0; i < n_var; i++)
-			if(is_basic(i))
-				rc(i) = eT(0);
-		uint entering = rc.index_min();		// NOTE: Smallest element rule, might not avoid degenerate cycles
-		eT min_rc = rc(entering);
+		eT min_rc = infinity<eT>();
+		uint entering = n_var;
+		for(uint i = 0; i < n_var; i++)						// crazy: using arma::index_min causes linker to complain about gmp symbols, even if rat is not used
+			if(!is_basic(i) && less_than(rc(i), min_rc))	// NOTE: Smallest element rule, might not avoid degenerate cycles
+				min_rc = rc(entering = i);
 
 		// If we couldn't find a variable with a negative reduced cost, 
 		// we terminate this phase because we are at optimality for this
