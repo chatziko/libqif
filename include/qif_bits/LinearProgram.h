@@ -740,6 +740,11 @@ bool LinearProgram<eT>::simplex() {
 	bool phase_one = true;
 
 	auto pivot = [&](uint leaving, uint entering) -> void {
+		// Update solution.
+		eT ratio = sol(basic(leaving)) / BinvAs(leaving);
+		sol(basic) -= ratio * BinvAs;
+		sol(entering) = ratio;
+
 		// Update basis inverse. Pivot on the `leaving' row, last col of [ Binv | BinvAs ]
 		// Add to each row a multiple of Binv.row(leaving), so that the last col
 		// becomes the identity vector with 1 on 'leaving'-row.
@@ -852,11 +857,7 @@ bool LinearProgram<eT>::simplex() {
 			break;
 		}
 
-		// Update solution.
-		sol(basic) -= min_ratio * BinvAs;
-		sol(entering) = min_ratio;
-
-		// do the actual pivot
+		// ready to pivot
 		pivot(leaving, entering);
 	}
 
