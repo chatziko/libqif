@@ -196,6 +196,9 @@ void LinearProgram<eT>::set_obj_coeff(Var var, eT coeff, bool add) {
 template<typename eT>
 inline
 void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
+	if(equal<eT>(coeff, eT(0)))
+		return;
+
 	if(add) {
 		// SLOW
 		for(auto& me : con_coeff)
