@@ -13,7 +13,7 @@ eT post_entropy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_entropy(L, pi, C) - entropy(L, pi);
+	return entropy(L, pi) - post_entropy(L, pi, C);
 }
 
 template<typename eT>

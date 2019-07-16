@@ -27,7 +27,7 @@ eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_entropy(pi, C) - entropy(pi);
+	return entropy(pi) - post_entropy(pi, C);
 }
 
 template<typename eT>
