@@ -121,7 +121,7 @@ eT mult_leakage_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 	//
 	eT z = arma::cdot(pi, arma::min(G, 0)) / vulnerability<eT>(G, pi); 
 	// std::cout << "z:" << z << "\n";
-	return bayes::mult_capacity(C) * (1-z) + z;
+	return bayes_vuln::mult_capacity(C) * (1-z) + z;
 }
 
 template<typename eT>

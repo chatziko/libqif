@@ -10,7 +10,7 @@ TYPED_TEST_CASE_P(GainTest);
 TYPED_TEST_CASE_P(GainTestReals);		// tests that run only on double/float
 
 
-// TODO: test more gain functions. Currently these tests are copies from bayes.cpp and test only the id gain function
+// TODO: test more gain functions. Currently these tests are copies from bayes_vuln.cpp and test only the id gain function
 
 
 TYPED_TEST_P(GainTest, Vulnerability) {

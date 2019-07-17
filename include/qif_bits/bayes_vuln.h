@@ -2,17 +2,17 @@
 
 #include <cmath>
 
-namespace bayes {
+namespace bayes_vuln {
 
 template<typename eT>
-eT vulnerability(const Prob<eT>& pi) {
+eT prior(const Prob<eT>& pi) {
 	return arma::max(pi);
 }
 
 //sum y max x pi(x) C[x,y]
 //
 template<typename eT>
-eT post_vulnerability(const Prob<eT>& pi, const Chan<eT>& C) {
+eT posterior(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
 
 	eT s = eT(0);
@@ -23,12 +23,12 @@ eT post_vulnerability(const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_vulnerability(pi, C) - vulnerability(pi);
+	return posterior(pi, C) - prior(pi);
 }
 
 template<typename eT>
 eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_vulnerability(pi, C) / vulnerability(pi);
+	return posterior(pi, C) / prior(pi);
 }
 
 template<typename eT>
@@ -80,4 +80,4 @@ eT mult_capacity_bound_cap(const Chan<eT>& C, uint n) {
 
 
 
-} // namespace bayes
+} // namespace bayes_vuln

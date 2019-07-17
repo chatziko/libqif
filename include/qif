@@ -74,7 +74,7 @@ namespace qif {
 	#include "qif_bits/refinement.h"
 
 	#include "qif_bits/shannon.h"
-	#include "qif_bits/bayes.h"
+	#include "qif_bits/bayes_vuln.h"
 	#include "qif_bits/gain.h"
 	#include "qif_bits/loss.h"
 	#include "qif_bits/guessing.h"

@@ -33,7 +33,7 @@ Create a simple ```test.cpp``` file:
         std::cout
             << "Bayes vulnerability of \n"
             << C << " under " << pi << " is "
-            << bayes::post_vulnerability(pi, C) << "\n";
+            << bayes_vuln::posterior(pi, C) << "\n";
     }
 
 Compile and run with:
