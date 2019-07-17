@@ -4,7 +4,7 @@ namespace shannon {
 // H(X) = - sum_x pi[x] log2(pi[x])
 //
 template<typename eT>
-eT entropy(const Prob<eT>& pi) {
+eT prior(const Prob<eT>& pi) {
 	eT sum_x = 0;
 	for(uint x = 0; x < pi.n_cols; x++) {
 		eT el = pi.at(x);
@@ -22,24 +22,24 @@ eT entropy(const Prob<eT>& pi) {
 //    H(Y|X) = sum_x pi[x] H(C[x,-])   (entropy of row x)
 //
 template<typename eT>
-eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
+eT posterior(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
 
 	eT Hyx = 0;
 	for(uint x = 0; x < C.n_rows; x++)
-		Hyx += pi.at(x) * entropy<eT>(C.row(x));
+		Hyx += pi.at(x) * prior<eT>(C.row(x));
 
-	return Hyx + entropy<eT>(pi) - entropy<eT>(pi * C);
+	return Hyx + prior<eT>(pi) - prior<eT>(pi * C);
 }
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(pi) - post_entropy(pi, C);
+	return prior(pi) - posterior(pi, C);
 }
 
 template<typename eT>
 eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(pi) / post_entropy(pi, C);
+	return prior(pi) / posterior(pi, C);
 }
 
 template<typename eT>

@@ -12,33 +12,33 @@ TYPED_TEST_P(ShannonTest, Entropy) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1, shannon::entropy(t.unif_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::entropy(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::entropy(t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0.721928094887362, shannon::entropy(t.pi1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1, shannon::prior(t.unif_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::prior(t.unif_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.721928094887362, shannon::prior(t.pi1));
 }
 
 TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.dirac_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.pi1, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.pi1, t.id_2));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.dirac_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.pi2, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.pi2, t.id_10));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::post_entropy(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::post_entropy(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::posterior(t.unif_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_10, t.noint_10));
 
 	Prob<eT> pi = probab::randu<eT>(10);
-	EXPECT_PRED_FORMAT2(equal2<eT>, shannon::entropy(pi), shannon::post_entropy(pi, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, shannon::prior(pi), shannon::posterior(pi, t.noint_10));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0.669020059980807, shannon::post_entropy(t.pi3, t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.669020059980807, shannon::posterior(t.pi3, t.c1));
 
-	ASSERT_ANY_THROW(shannon::post_entropy<eT>(t.unif_2, t.id_10););
+	ASSERT_ANY_THROW(shannon::posterior<eT>(t.unif_2, t.id_10););
 }
 
 TYPED_TEST_P(ShannonTest, Capacity) {
@@ -66,7 +66,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		".5 .3 .2;"
 		".2 .5 .3;"
 	);
-	double cap = qif::log2(C.n_cols) - shannon::entropy<eT>(C.row(0));
+	double cap = qif::log2(C.n_cols) - shannon::prior<eT>(C.row(0));
 	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C));
 
 	// weakly symmetric
@@ -74,7 +74,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		"0.333333333 0.166666667 0.5;"
 		"0.333333333 0.5         0.166666667;"
 	);
-	cap = qif::log2(C.n_cols) - shannon::entropy<eT>(C.row(0));
+	cap = qif::log2(C.n_cols) - shannon::prior<eT>(C.row(0));
 	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C));
 }
 
