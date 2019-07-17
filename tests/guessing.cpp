@@ -14,33 +14,33 @@ TYPED_TEST_P(GuessingTest, Vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(15)/10, guessing::entropy(t.unif_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::entropy(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::entropy(t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(12)/10, guessing::entropy(t.pi1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(15)/10, guessing::prior(t.unif_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::prior(t.unif_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(12)/10, guessing::prior(t.pi1));
 }
 
 TYPED_TEST_P(GuessingTest, Post_entropy) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.dirac_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.pi1, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.pi1, t.id_2));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.dirac_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::post_entropy(t.pi2, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.pi2, t.id_10));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::post_entropy(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::post_entropy(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::posterior(t.unif_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::posterior(t.dirac_10, t.noint_10));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, guessing::entropy(t.pi2), guessing::post_entropy(t.pi2, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, guessing::prior(t.pi2), guessing::posterior(t.pi2, t.noint_10));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, guessing::entropy(t.pi3), guessing::post_entropy(t.pi3, t.c1));	// no change in entropy
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1225)/1000, guessing::post_entropy(t.pi4, t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, guessing::prior(t.pi3), guessing::posterior(t.pi3, t.c1));	// no change in entropy
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1225)/1000, guessing::posterior(t.pi4, t.c1));
 
-	ASSERT_ANY_THROW(guessing::post_entropy(t.unif_2, t.id_10));
+	ASSERT_ANY_THROW(guessing::posterior(t.unif_2, t.id_10));
 }
 
 

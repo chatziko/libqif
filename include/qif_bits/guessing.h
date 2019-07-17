@@ -2,7 +2,7 @@
 namespace guessing {
 
 template<typename eT>
-eT entropy(const Prob<eT>& pi) {
+eT prior(const Prob<eT>& pi) {
 	Prob<eT> sorted = sort(pi);
 
 	eT sum(0);
@@ -13,26 +13,26 @@ eT entropy(const Prob<eT>& pi) {
 }
 
 template<typename eT>
-eT post_entropy(const Prob<eT>& pi, const Chan<eT>& C) {
+eT posterior(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
 
 	eT result(0);
 	for(uint y = 0; y < C.n_cols; y++) {
 		//create the vector vy = pi(1)* C[1,y] ... pi(x)* C[x,y]
 		Prob<eT> vy = pi % arma::trans(C.col(y));
-		result += entropy<eT>(vy);
+		result += prior<eT>(vy);
 	}
 	return result;
 }
 
 template<typename eT>
 eT add_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(pi) - post_entropy(pi, C);
+	return prior(pi) - posterior(pi, C);
 }
 
 template<typename eT>
 eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(pi) / post_entropy(pi, C);
+	return prior(pi) / posterior(pi, C);
 }
 
 template<typename eT>
