@@ -60,7 +60,7 @@ void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 
 	std::cout << "arimoto sampled utility: " << mean.value() << "\n";
 	std::cout << "arimoto exact utility: " << utility::expected_distance(d_inout, pi, C) << "\n";
-	std::cout << "arimoto bayes risk: " << (1-bayes::post_vulnerability(pi, C)) << "\n";
+	std::cout << "arimoto bayes risk: " << (1-bayes_vuln::posterior(pi, C)) << "\n";
 }
 
 void generate_laplace(prob& pi, double eps, ofstream& file) {
