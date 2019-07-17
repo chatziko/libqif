@@ -53,12 +53,12 @@ void compute_optimal(string method) {
 
 	cout << "size: " << C.n_rows << "\n";
 	cout << "proper: " << channel::is_proper(C) << "\n";
-	cout << "util : " << l::post_entropy(d_loss, pi, C) << "\n";	// expected d_loss between x and y
+	cout << "util : " << l_uncert::posterior(d_loss, pi, C) << "\n";	// expected d_loss between x and y
 
 	// apply optimal remap (probably does nothing for uniform priors)
-	mat Loss = l::metric_to_mat(d_loss, n_inputs);
-	chan Remap = channel::deterministic<double>(l::strategy(Loss, pi, C), Loss.n_rows);	// compute remap
-	cout << "util after remap : " << l::post_entropy(d_loss, pi, (chan)(C*Remap)) << "\n";
+	mat Loss = l_uncert::metric_to_mat(d_loss, n_inputs);
+	chan Remap = channel::deterministic<double>(l_uncert::strategy(Loss, pi, C), Loss.n_rows);	// compute remap
+	cout << "util after remap : " << l_uncert::posterior(d_loss, pi, (chan)(C*Remap)) << "\n";
 }
 
 int main(int argc, char *argv[]) {

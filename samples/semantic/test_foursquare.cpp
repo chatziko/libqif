@@ -84,7 +84,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	{
 		cout << "Creating strategy" << "\n";
 
-		auto strategy = l::strategy(L, prior_global, laplace);
+		auto strategy = l_uncert::strategy(L, prior_global, laplace);
 
 		cout << "Strategy done!" << "\n";
 		strategy.save("temp_foursquare/strategy-"+std::to_string(eps)+".mat");
@@ -156,7 +156,7 @@ void compute_laplace_privacy_seml(string area, string dataset, string priv_metri
 	{
 		cout << "Creating strategy" << "\n";
 
-		auto strategy = l::strategy(L, prior_global, laplace);
+		auto strategy = l_uncert::strategy(L, prior_global, laplace);
 
 		cout << "Strategy done!" << "\n";
 		strategy.save("temp_foursquare/strategy-"+std::to_string(eps)+"-"+seml+".mat");

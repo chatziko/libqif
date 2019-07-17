@@ -1,24 +1,24 @@
 
-namespace l {
+namespace l_uncert {
 
 template<typename eT>
-eT entropy(const Mat<eT>& L, const Prob<eT>& pi) {
+eT prior(const Mat<eT>& L, const Prob<eT>& pi) {
 	return -g_vuln::prior<eT>(-L, pi);
 }
 
 template<typename eT>
-eT post_entropy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
+eT posterior(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 	return -g_vuln::posterior<eT>(-L, pi, C);
 }
 
 template<typename eT>
 eT add_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(L, pi) - post_entropy(L, pi, C);
+	return prior(L, pi) - posterior(L, pi, C);
 }
 
 template<typename eT>
 eT mult_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return entropy(L, pi) / post_entropy(L, pi, C);
+	return prior(L, pi) / posterior(L, pi, C);
 }
 
 template<typename eT>
@@ -46,13 +46,13 @@ Mat<eT> metric_to_mat(Metric<eT, uint> l, uint n) {
 }
 
 template<typename eT>
-eT entropy(const Metric<eT, uint>& l, const Prob<eT>& pi) {
-	return entropy(metric_to_mat(l, pi.n_cols), pi);
+eT prior(const Metric<eT, uint>& l, const Prob<eT>& pi) {
+	return prior(metric_to_mat(l, pi.n_cols), pi);
 }
 
 template<typename eT>
-eT post_entropy(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_entropy(metric_to_mat(l, pi.n_cols), pi, C);
+eT posterior(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan<eT>& C) {
+	return posterior(metric_to_mat(l, pi.n_cols), pi, C);
 }
 
 template<typename eT>
