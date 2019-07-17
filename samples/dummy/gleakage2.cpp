@@ -25,10 +25,10 @@ void gleakage2() {
 	prob p4 = prob(vector4_elements);
 
 	//calculating measures
-	double Lg1 = g::mulg_leakage(g, p1, C);
-	double Lg2 = g::mulg_leakage(g, p2, C);
-	double Lg3 = g::mulg_leakage(g, p3, C);
-	double Lg4 = g::mulg_leakage(g, p4, C);
+	double Lg1 = g_vuln::mulg_leakage(g, p1, C);
+	double Lg2 = g_vuln::mulg_leakage(g, p2, C);
+	double Lg3 = g_vuln::mulg_leakage(g, p3, C);
+	double Lg4 = g_vuln::mulg_leakage(g, p4, C);
 
 	std::cout << "Lg p1" << Lg1 << std::endl;
 	std::cout << "Lg p2" << Lg2 << std::endl;

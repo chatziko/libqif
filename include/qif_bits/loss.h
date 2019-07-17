@@ -3,12 +3,12 @@ namespace l {
 
 template<typename eT>
 eT entropy(const Mat<eT>& L, const Prob<eT>& pi) {
-	return -g::vulnerability<eT>(-L, pi);
+	return -g_vuln::prior<eT>(-L, pi);
 }
 
 template<typename eT>
 eT post_entropy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return -g::post_vulnerability<eT>(-L, pi, C);
+	return -g_vuln::posterior<eT>(-L, pi, C);
 }
 
 template<typename eT>
@@ -28,7 +28,7 @@ eT mulg_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 arma::ucolvec strategy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return g::strategy<eT>(-L, pi, C);
+	return g_vuln::strategy<eT>(-L, pi, C);
 }
 
 
@@ -77,7 +77,7 @@ arma::ucolvec strategy(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan
 
 template<typename eT>
 eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning_g = false) {
-	return g::add_capacity(pi, C, one_spanning_g);
+	return g_vuln::add_capacity(pi, C, one_spanning_g);
 }
 
 

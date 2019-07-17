@@ -111,9 +111,9 @@ void gleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (g::mult_leakage(G, pi, C1)) << "   "
-			<< (g::mult_leakage(G, pi, C2)) << "   "
-			<< (g::mult_leakage(G, pi, C3)) << "\n";
+			<< (g_vuln::mult_leakage(G, pi, C1)) << "   "
+			<< (g_vuln::mult_leakage(G, pi, C2)) << "   "
+			<< (g_vuln::mult_leakage(G, pi, C3)) << "\n";
 	}
 }
 
@@ -131,9 +131,9 @@ void gleakage_by_pf() {
 		Mat<T> G = tiger_g(honest);
 
 		file << pf << "   " 
-			<< (g::mult_leakage(G, pi1, C)) << "   "
-			<< (g::mult_leakage(G, pi2, C)) << "   "
-			<< (g::mult_leakage(G, pi3, C)) << "\n";
+			<< (g_vuln::mult_leakage(G, pi1, C)) << "   "
+			<< (g_vuln::mult_leakage(G, pi2, C)) << "   "
+			<< (g_vuln::mult_leakage(G, pi3, C)) << "\n";
 	}
 }
 

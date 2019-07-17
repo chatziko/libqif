@@ -1,5 +1,5 @@
 
-namespace g {
+namespace g_vuln {
 
 //		void * compare_over_prior(chan& other_channel);
 //		void * compare_over_gain(chan& other_channel,Prob<eT>& prior);
@@ -21,7 +21,7 @@ void check_g_size(const Mat<eT>& G1, const Mat<eT>& G2) {
 // max_w sum_x pi[x] G[w, x]
 //
 template<typename eT>
-eT vulnerability(const Mat<eT>& G, const Prob<eT>& pi) {
+eT prior(const Mat<eT>& G, const Prob<eT>& pi) {
 	check_g_size(G, pi);
 
 	return arma::max(G * trans(pi));
@@ -30,7 +30,7 @@ eT vulnerability(const Mat<eT>& G, const Prob<eT>& pi) {
 // sum_y max_w sum_x pi[x] C[x, y] G[w, x]
 //
 template<typename eT>
-eT post_vulnerability(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+eT posterior(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	check_g_size(G, pi);
 	channel::check_prior_size(pi, C);
 
@@ -42,12 +42,12 @@ eT post_vulnerability(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 
 template<typename eT>
 eT add_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_vulnerability(G, pi, C) - vulnerability(G, pi);
+	return posterior(G, pi, C) - prior(G, pi);
 }
 
 template<typename eT>
 eT mult_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return post_vulnerability(G, pi, C) / vulnerability(G, pi);
+	return posterior(G, pi, C) / prior(G, pi);
 }
 
 template<typename eT>
@@ -119,20 +119,20 @@ eT mult_leakage_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 	// NOTE: wrt the notation of the book  (Thm 4.7), arma::min(G, 0) is _minus_ the kappa vector we need to add to G to make it non-negative.
 	// So the z here and the lambda of the book are related by lambda = z / (z-1)
 	//
-	eT z = arma::cdot(pi, arma::min(G, 0)) / vulnerability<eT>(G, pi); 
+	eT z = arma::cdot(pi, arma::min(G, 0)) / prior<eT>(G, pi); 
 	// std::cout << "z:" << z << "\n";
 	return bayes_vuln::mult_capacity(C) * (1-z) + z;
 }
 
 template<typename eT>
-eT post_vulnerability_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return vulnerability<eT>(G, pi) * mult_leakage_bound1(G, pi, C);
+eT posterior_bound1(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	return prior<eT>(G, pi) * mult_leakage_bound1(G, pi, C);
 }
 
 // mult leakage bound (even for negative g) coming from the additive theorem
 template<typename eT>
 eT mult_leakage_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return (G.max() - G.min()) * (eT(1) - channel::sum_column_min<eT>(C)) /  vulnerability<eT>(G, pi) + eT(1);
+	return (G.max() - G.min()) * (eT(1) - channel::sum_column_min<eT>(C)) /  prior<eT>(G, pi) + eT(1);
 }
 
 // add leakage bound (even for g not bounded by 1) coming from the additive miracle theorem, adjusted so that the max gain is exactly 1
@@ -142,8 +142,8 @@ eT add_leakage_bound1(const Mat<eT>& G, const Chan<eT>& C) {
 }
 
 template<typename eT>
-eT post_vulnerability_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return vulnerability<eT>(G, pi) + add_leakage_bound1(G, C);
+eT posterior_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
+	return prior<eT>(G, pi) + add_leakage_bound1(G, C);
 }
 
 
@@ -186,4 +186,4 @@ Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
 	return Gres;
 }
 
-} // namespace g
+} // namespace g_vuln

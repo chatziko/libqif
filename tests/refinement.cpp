@@ -23,15 +23,15 @@ TYPED_TEST_P(RefinementTestReals, Refined_by_project) {
 	//
 	EXPECT_FALSE(refinement::refined_by(t.crand_10, t.id_10, G));
 	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, t.crand_10) < g::post_vulnerability(G, t.unif_10, t.id_10));
+	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, t.crand_10) < g_vuln::posterior(G, t.unif_10, t.id_10));
 
 	EXPECT_FALSE(refinement::refined_by(t.noint_10, t.crand_10, G));
 	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, t.noint_10) < g::post_vulnerability(G, t.unif_10, t.crand_10));
+	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, t.noint_10) < g_vuln::posterior(G, t.unif_10, t.crand_10));
 
 	EXPECT_FALSE(refinement::refined_by(T, t.crand_10, G));
 	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g::post_vulnerability(G, t.unif_10, T) < g::post_vulnerability(G, t.unif_10, t.crand_10));
+	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, T) < g_vuln::posterior(G, t.unif_10, t.crand_10));
 
 	// cases when B refines A (cannot leak more)
 	//
