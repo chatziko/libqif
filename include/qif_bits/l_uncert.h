@@ -22,11 +22,6 @@ eT mult_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 template<typename eT>
-eT mulg_leakage(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
-	return real_ops<eT>::log2(mult_leakage(L, pi, C));
-}
-
-template<typename eT>
 arma::ucolvec strategy(const Mat<eT>& L, const Prob<eT>& pi, const Chan<eT>& C) {
 	return g_vuln::strategy<eT>(-L, pi, C);
 }
@@ -63,11 +58,6 @@ eT add_leakage(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan<eT>& C)
 template<typename eT>
 eT mult_leakage(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan<eT>& C) {
 	return mult_leakage(metric_to_mat(l, pi.n_cols), pi, C);
-}
-
-template<typename eT>
-eT mulg_leakage(const Metric<eT, uint>& l, const Prob<eT>& pi, const Chan<eT>& C) {
-	return mulg_leakage(metric_to_mat(l, pi.n_cols), pi, C);
 }
 
 template<typename eT>

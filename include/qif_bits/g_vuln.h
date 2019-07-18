@@ -51,11 +51,6 @@ eT mult_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 template<typename eT>
-eT mulg_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
-	return real_ops<eT>::log2(mult_leakage(G, pi, C));
-}
-
-template<typename eT>
 arma::ucolvec strategy(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	check_g_size(G, pi);
 	channel::check_prior_size(pi, C);

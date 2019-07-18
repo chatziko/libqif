@@ -3,11 +3,8 @@
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
 class GuessingTest : public BaseTest<eT> {};
-template <typename eT>
-class GuessingTestReals : public BaseTest<eT> {};
 
 TYPED_TEST_CASE_P(GuessingTest);
-TYPED_TEST_CASE_P(GuessingTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(GuessingTest, Vulnerability) {
@@ -44,20 +41,9 @@ TYPED_TEST_P(GuessingTest, Post_entropy) {
 }
 
 
-TYPED_TEST_P(GuessingTestReals, Mulg_leakage) {
-	typedef TypeParam eT;
-	BaseTest<eT>& t = *this;
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), guessing::mulg_leakage(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(5.5), guessing::mulg_leakage(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0,              guessing::mulg_leakage(t.unif_10, t.noint_10));
-}
-
-// run the GuessingTest test-case for all types, and the GuessingTestReals only for double/float
+// run the GuessingTest test-case for all types
 //
 REGISTER_TYPED_TEST_CASE_P(GuessingTest, Vulnerability, Post_entropy);
-REGISTER_TYPED_TEST_CASE_P(GuessingTestReals, Mulg_leakage);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Guessing, GuessingTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(GuessingReals, GuessingTestReals, NativeTypes);
 

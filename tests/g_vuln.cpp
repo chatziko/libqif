@@ -3,11 +3,8 @@
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
 class GainTest : public BaseTest<eT> {};
-template <typename eT>
-class GainTestReals : public BaseTest<eT> {};
 
 TYPED_TEST_CASE_P(GainTest);
-TYPED_TEST_CASE_P(GainTestReals);		// tests that run only on double/float
 
 
 // TODO: test more gain functions. Currently these tests are copies from bayes_vuln.cpp and test only the id gain function
@@ -23,7 +20,7 @@ TYPED_TEST_P(GainTest, Vulnerability) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(8)/10, g_vuln::prior(t.id_2, t.pi1));
 }
 
-TYPED_TEST_P(GainTest, Cond_vulnerability) {
+TYPED_TEST_P(GainTest, Post_vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
@@ -46,16 +43,6 @@ TYPED_TEST_P(GainTest, Cond_vulnerability) {
 	ASSERT_ANY_THROW(g_vuln::posterior(t.id_10, t.unif_2, t.id_10));
 }
 
-TYPED_TEST_P(GainTestReals, Mulg_leakage) {
-	typedef TypeParam eT;
-	BaseTest<eT>& t = *this;
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,              g_vuln::mulg_leakage(t.id_2, t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10),  g_vuln::mulg_leakage(t.id_10, t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0,              g_vuln::mulg_leakage(t.id_10, t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), g_vuln::mulg_leakage(t.id_2, t.unif_2, t.c1));
-}
-
 TYPED_TEST_P(GainTest, Add_capacity) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
@@ -72,11 +59,9 @@ TYPED_TEST_P(GainTest, Add_capacity) {
 	ASSERT_ANY_THROW(g_vuln::add_capacity(t.unif_2, t.id_10));
 }
 
-// run the GainTest test-case for all types, and the GainTestReals only for double/float
+// run the GainTest test-case for all types
 //
-REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Cond_vulnerability, Add_capacity);
-REGISTER_TYPED_TEST_CASE_P(GainTestReals, Mulg_leakage);
+REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Post_vulnerability, Add_capacity);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Gain, GainTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(GainReals, GainTestReals, NativeTypes);
 

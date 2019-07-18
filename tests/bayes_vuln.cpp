@@ -56,14 +56,14 @@ TYPED_TEST_P(BayesTest, Mult_capacity) {
 }
 
 
-TYPED_TEST_P(BayesTestReals, Mulg_leakage) {
+TYPED_TEST_P(BayesTestReals, Min_entropy_leakage) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,              bayes_vuln::mulg_leakage(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10),  bayes_vuln::mulg_leakage(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0,              bayes_vuln::mulg_leakage(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), bayes_vuln::mulg_leakage(t.unif_2, t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1,              bayes_vuln::min_entropy_leakage(t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10),  bayes_vuln::min_entropy_leakage(t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0,              bayes_vuln::min_entropy_leakage(t.unif_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(1.5), bayes_vuln::min_entropy_leakage(t.unif_2, t.c1));
 }
 
 TYPED_TEST_P(BayesTestReals, Mult_capacity_bound_cap) {
@@ -80,7 +80,7 @@ TYPED_TEST_P(BayesTestReals, Mult_capacity_bound_cap) {
 // run the BayesTest test-case for all types, and the BayesTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(BayesTest, Vulnerability, Post_vulnerability, Mult_capacity);
-REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Mulg_leakage, Mult_capacity_bound_cap);
+REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Min_entropy_leakage, Mult_capacity_bound_cap);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Bayes, BayesTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(BayesReals, BayesTestReals, NativeTypes);
