@@ -30,6 +30,7 @@ target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)		# l
 
 # use ortools, if available
 #
+set(GFLAGS_USE_TARGET_NAMESPACE TRUE)
 find_package(ortools CONFIG)
 if(ortools_FOUND)
 	message(STATUS "Found ortools")

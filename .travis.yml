@@ -11,4 +11,8 @@ cache:
   directories:
   - or-tools
 script:
+  # Output something every 10 minutes or Travis kills the job
+  - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
   - perl .travis.pl
+  # Killing background sleep loop
+  - kill %1

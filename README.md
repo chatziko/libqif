@@ -96,6 +96,15 @@ be used by some libqif methods for linear optimization and network flow.
 cmake needs to be able to find OR-Tools for this to work: the only tested
 method is to
 [install OR-Tools from source via cmake](https://github.com/google/or-tools/blob/stable/cmake/README.md#building-or-tools-with-cmake).
+These instructions are dated, so here's a method that has been tested:
+```
+git clone https://github.com/google/or-tools --depth 1 --branch=v7.2
+mkdir or-tools/build && cd or-tools/build
+
+cmake -DBUILD_DEPS:BOOL=ON ..
+sudo cmake --build . --target install
+sudo cp -r dependencies/install/* /usr/local
+```
 
 ### Repository structure:
 
