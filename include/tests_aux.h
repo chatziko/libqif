@@ -89,6 +89,7 @@ class BaseTest : public ::testing::Test {
 			noint_4   = channel::no_interference<eT>(4),
 			noint_10  = channel::no_interference<eT>(10),
 			c1        = format_num<eT>("0.8 0.2; 0.3 0.7"),
+			crand_2   = channel::randu<eT>(2),
 			crand_10  = channel::randu<eT>(10),
 			crand_100 = channel::randu<eT>(100);
 };

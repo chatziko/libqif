@@ -93,6 +93,11 @@ inline eT abs_diff(const eT& x, const eT& y) {
 }
 
 template<typename eT>
+inline eT max(const eT& a, const eT& b) {
+	return less_than<eT>(a, b) ? b : a;
+}
+
+template<typename eT>
 inline eT infinity() {
 	return std::numeric_limits<eT>::has_infinity
 		? std::numeric_limits<eT>::infinity()

@@ -75,6 +75,7 @@ namespace qif {
 
 	#include "qif_bits/shannon.h"
 	#include "qif_bits/bayes_vuln.h"
+	#include "qif_bits/bayes_risk.h"
 	#include "qif_bits/g_vuln.h"
 	#include "qif_bits/l_uncert.h"
 	#include "qif_bits/guessing.h"
