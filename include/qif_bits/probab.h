@@ -73,6 +73,11 @@ Prob<eT> randu(uint n) {
 	return randu(pi);
 }
 
+template<typename eT = eT_def>
+inline void normalize(Prob<eT>& pi) {
+	pi /= arma::accu(pi);
+}
+
 
 // draw from pi. Allow pi to be anything iterable
 //
