@@ -177,27 +177,4 @@ inline ::testing::AssertionResult prob_is_proper_size2(const char* x_expr, char*
 }
 
 
-
-
-template<typename eT>
-void expect_mat(const Mat<eT>& m, const Mat<eT>& c, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
-	EXPECT_EQ(m.n_rows, c.n_rows);
-	EXPECT_EQ(m.n_rows, c.n_rows);
-
-	for(uint i = 0; i < c.n_rows; i++)
-		for(uint j = 0; j < c.n_cols; j++)
-			EXPECT_PRED_FORMAT4(equal4<eT>, m.at(i, j), c.at(i, j), md, mrd);
-}
-
-template<typename eT>
-void expect_mat(const string& s, const Mat<eT>& c, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
-	expect_mat(Mat<eT>(s), c, md, mrd);
-}
-
-template<typename eT>
-void expect_mat(uint rn, uint cn, const Mat<eT>& c) {
-	EXPECT_EQ(rn, c.n_rows);
-	EXPECT_EQ(cn, c.n_cols);
-}
-
 #endif

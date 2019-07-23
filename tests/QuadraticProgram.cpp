@@ -24,7 +24,7 @@ TYPED_TEST_P(QuadraticProgramTest, Optimal) {
 	EXPECT_TRUE(qp.solve());
 	EXPECT_EQ(qp::Status::OPTIMAL, qp.status);
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1.88), qp.objective());
-	expect_mat(format_num<eT>("0.3; 0.7"), qp.x);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, qp.x, format_num<eT>("0.3; 0.7"));
 }
 
 TYPED_TEST_P(QuadraticProgramTest, Infeasible) {

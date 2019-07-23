@@ -53,7 +53,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(46)/100, lp.objective(), md, mrd);
-		expect_mat(format_num<eT>("0.6; 0.2"), lp.solution(), md, mrd);
+		EXPECT_PRED_FORMAT4(chan_equal4<eT>, lp.solution(), format_num<eT>("0.6; 0.2"), md, mrd);
 
 		lp.from_matrix(
 			format_num<eT>("1 1 0; 0 1 1"),
@@ -64,7 +64,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(2), lp.objective(), md, mrd);
-		expect_mat(format_num<eT>("0; 1; 0"), lp.solution(), md, mrd);
+		EXPECT_PRED_FORMAT4(chan_equal4<eT>, lp.solution(), format_num<eT>("0; 1; 0"), md, mrd);
 
 		lp.maximize = false;
 		lp.from_matrix(
@@ -77,7 +77,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(9), lp.objective(), md, mrd);
-		expect_mat(format_num<eT>("1; 1.5"), lp.solution(), md, mrd);
+		EXPECT_PRED_FORMAT4(chan_equal4<eT>, lp.solution(), format_num<eT>("1; 1.5"), md, mrd);
 
 		lp.maximize = false;
 		lp.from_matrix(
@@ -89,7 +89,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-136), lp.objective(), md, mrd);
-		expect_mat(format_num<eT>("4; 4; 4"), lp.solution(), md, mrd);
+		EXPECT_PRED_FORMAT4(chan_equal4<eT>, lp.solution(), format_num<eT>("4; 4; 4"), md, mrd);
 
 		lp.clear();
 		lp.maximize = false;
@@ -100,7 +100,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);
 		EXPECT_PRED_FORMAT4(equal4<eT>, eT(-5), lp.objective(), md, mrd);
-		expect_mat(format_num<eT>("-5"), lp.solution(), md, mrd);
+		EXPECT_PRED_FORMAT4(chan_equal4<eT>, lp.solution(), format_num<eT>("-5"), md, mrd);
 
 		// the problematic program from the add. refin. metric: redundant constraints causing internal simplex to fail
 		lp.maximize = false;
