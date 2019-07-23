@@ -170,7 +170,7 @@ inline ::testing::AssertionResult prob_is_proper1(const char* x_expr, const Prob
 }
 
 template<typename eT>
-inline ::testing::AssertionResult prob_is_proper_size2(const char* x_expr, char* n_cols_expr, const Chan<eT>& x, const uint& n_cols) {
+inline ::testing::AssertionResult prob_is_proper_size2(const char* x_expr, const char* n_cols_expr, const Chan<eT>& x, const uint& n_cols) {
 	return probab::is_proper<eT>(x) && x.n_cols == n_cols
 		? ::testing::AssertionSuccess()
 		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution of size " << n_cols_expr << " == " << n_cols << "\n" << x_expr << ": " << x << "\n";
