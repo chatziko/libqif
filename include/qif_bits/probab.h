@@ -158,6 +158,19 @@ void assert_proper(const Prob<eT>& pi) {
 		throw std::runtime_error("not a proper dist");
 }
 
+template<typename eT = eT_def>
+inline bool equal(const Prob<eT>& A, const Prob<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+	if(A.n_cols != B.n_cols)
+		return false;
+
+	for(uint i = 0; i < A.n_cols; i++)
+		if(!qif::equal(A.at(i), B.at(i), md, mrd))
+			return false;
+
+	return true;
+}
+
+
 
 // Computes in place the (euclidean) projection of vector x \in R^n onto the
 // n-simplex. That is, finds the point of the simplex that is closer  to x.

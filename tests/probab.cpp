@@ -38,16 +38,16 @@ TYPED_TEST_P(ProbTest, Construct) {
 	typedef TypeParam eT;
 
 	std::string s = format_num<eT>("0.5 0.25 0.25");
-	Prob<eT> pi(s);
+	Prob<eT> pi = { eT(1)/2, eT(1)/4, eT(1)/4 };
 
-	expect_prob( s, Prob<eT>(s.c_str()) ); // char*
-	expect_prob( s, Prob<eT>(s)         ); // std::string
-	expect_prob( s, Prob<eT>(pi)        ); // copy
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, Prob<eT>(s.c_str()),  pi); // char*
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, Prob<eT>(s),          pi); // std::string
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, Prob<eT>(pi),         pi); // copy
 
 	// malformed prob
 	//
 	std::string s2 = format_num<eT>("0.1 0.2 0.3");
-	Prob<eT> pi2(s2);
+	Prob<eT> pi2 = { eT(1)/10, eT(2)/10, eT(3)/10 };
 
 	EXPECT_ANY_THROW( assert_proper(Prob<eT>(s2.c_str())); ); // char*
 	EXPECT_ANY_THROW( assert_proper(Prob<eT>(s2));         ); // std::string
@@ -59,10 +59,10 @@ TYPED_TEST_P(ProbTest, Uniform) {
 
 	Prob<eT> pi(1);
 	uniform(pi);
-	expect_prob(1, pi);
+	EXPECT_PRED_FORMAT2(prob_is_proper_size2<eT>, pi, 1);
 
 	pi = uniform<eT>(4);
-	expect_prob(format_num<eT>("0.25 0.25 0.25 0.25"), pi);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, format_num<eT>("0.25 0.25 0.25 0.25"));
 }
 
 TYPED_TEST_P(ProbTest, Randu) {
@@ -70,10 +70,10 @@ TYPED_TEST_P(ProbTest, Randu) {
 
 	Prob<eT> pi(200);
 	randu(pi);
-	expect_prob(200, pi);
+	EXPECT_PRED_FORMAT2(prob_is_proper_size2<eT>, pi, 200);
 
 	pi = probab::randu<eT>(5);
-	expect_prob(5, pi);
+	EXPECT_PRED_FORMAT2(prob_is_proper_size2<eT>, pi, 5);
 }
 
 TYPED_TEST_P(ProbTest, Dirac) {
@@ -81,10 +81,10 @@ TYPED_TEST_P(ProbTest, Dirac) {
 
 	Prob<eT> pi(4);
 	dirac(pi);
-	expect_prob("1 0 0 0", pi);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, "1 0 0 0");
 
 	pi = probab::dirac<eT>(4, 2);
-	expect_prob("0 0 1 0", pi);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, "0 0 1 0");
 }
 
 
