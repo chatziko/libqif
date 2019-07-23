@@ -115,55 +115,42 @@ template<typename eT>
 inline ::testing::AssertionResult chan_equal2(const char* x_expr, const char* y_expr, const Chan<eT>& x, const Chan<eT>& y) {
 	return channel::equal<eT>(x, y)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal";
+		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal\n" << x_expr << ":\n" << x << y_expr << ":\n" << y;
 }
 
 template<typename eT>
 inline ::testing::AssertionResult chan_equal4(const char* x_expr, const char* y_expr, const char* md_expr, const char* mrd_expr, const Chan<eT>& x, const Chan<eT>& y, const eT& md, const eT& mrd) {
 	return channel::equal<eT>(x, y, md, mrd)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal with md: " << md_expr << ", mrd: " << mrd_expr;
+		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal with md: " << md_expr << ", mrd: " << mrd_expr << "\n" << x_expr << ":\n" << x << y_expr << ":\n" << y;
 }
 
 template<typename eT>
 inline ::testing::AssertionResult prob_is_proper1(const char* x_expr, const Prob<eT>& x) {
 	return probab::is_proper<eT>(x)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution";
+		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution\n" << x_expr << ": " << x << "\n";
 }
 
 template<typename eT>
 inline ::testing::AssertionResult chan_is_proper1(const char* x_expr, const Chan<eT>& x) {
 	return channel::is_proper<eT>(x)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper channel";
+		: ::testing::AssertionFailure() << x_expr << " is not a proper channel\n" << x_expr << ":\n" << x;
 }
 
 template<typename eT>
 inline ::testing::AssertionResult chan_is_proper2(const char* x_expr, const char* mrd_expr, const Chan<eT>& x, const eT& mrd) {
 	return channel::is_proper<eT>(x, mrd)
 		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper channel (mrd: " << mrd_expr << ")";
-}
-
-
-template<typename eT>
-void expect_channel(const Mat<eT>& m, const Chan<eT>& c) {
-	EXPECT_PRED_FORMAT2(chan_equal2<eT>, m, c);
-	EXPECT_PRED_FORMAT1(chan_is_proper1<eT>, c);
+		: ::testing::AssertionFailure() << x_expr << " is not a proper channel (mrd: " << mrd_expr << ")\n" << x_expr << ":\n" << x;
 }
 
 template<typename eT>
-void expect_channel(const string& s, const Chan<eT>& c) {
-	expect_channel(Mat<eT>(s), c);
-}
-
-template<typename eT>
-void expect_channel(uint rn, uint cn, const Chan<eT>& c) {
-	EXPECT_EQ(rn, c.n_rows);
-	EXPECT_EQ(cn, c.n_cols);
-
-	EXPECT_PRED_FORMAT1(chan_is_proper1<eT>, c);
+inline ::testing::AssertionResult chan_is_proper_size3(const char* x_expr, const char* n_rows_expr, const char* n_cols_expr, const Chan<eT>& x, const uint& n_rows, const uint& n_cols) {
+	return channel::is_proper<eT>(x) && x.n_rows == n_rows && x.n_cols == n_cols
+		? ::testing::AssertionSuccess()
+		: ::testing::AssertionFailure() << x_expr << " is not a proper " << n_rows_expr << " x " << n_cols_expr << " (" << n_rows << " x " << n_cols << ") channel\n" << x_expr << ":\n" << x;
 }
 
 

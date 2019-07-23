@@ -27,8 +27,8 @@ TYPED_TEST_P(MechOptTest, OptimalUtility) {
 	Chan<eT> dist_opt = mechanism::dist_optimal_utility<eT>(t.unif_10, size, epsilon * d, bin_loss);
 	Chan<eT> dist_opt2 = mechanism::dist_optimal_utility_strict<eT>(t.unif_10, size, epsilon * d, bin_loss);
 
-	expect_channel(geom, opt);
-	expect_channel(geom, dist_opt);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, geom, opt);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, geom, dist_opt);
 
 	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, dist_opt2, eT(1e-3));		// not sure why we don't get good precision
 
@@ -38,7 +38,7 @@ TYPED_TEST_P(MechOptTest, OptimalUtility) {
 
 	opt = mechanism::optimal_utility<eT>(t.unif_10, size, epsilon * d, bin_loss);
 
-	expect_channel(t.id_10, opt);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, t.id_10, opt);
 }
 
 

@@ -41,11 +41,11 @@ TYPED_TEST_P(ChanTest, Construct) {
 	typedef TypeParam eT;
 
 	const char* s = "1 0 0; 0 1 0";
-	Chan<eT> C(s);
+	Chan<eT> C = { {1, 0, 0}, {0, 1, 0} };
 
-	expect_channel( s,  Chan<eT>(s)              ); // char*
-	expect_channel( s,  Chan<eT>(std::string(s)) ); // std::string
-	expect_channel( s,  Chan<eT>(C)              ); // copy
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>(s),              C); // char*
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>(std::string(s)), C); // std::string
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>(C),              C); // copy
 
 	// malformed channel
 	//
@@ -62,10 +62,10 @@ TYPED_TEST_P(ChanTest, Identity) {
 
 	Chan<eT> C;
 	C = identity<eT>(0);
-	expect_channel(0, 0, C);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, C, 0, 0);
 
 	C = identity<eT>(3);
-	expect_channel("1 0 0; 0 1 0; 0 0 1", C);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, C, Chan<eT>("1 0 0; 0 1 0; 0 0 1"));
 }
 
 TYPED_TEST_P(ChanTest, Randu) {
@@ -73,13 +73,13 @@ TYPED_TEST_P(ChanTest, Randu) {
 
 	Chan<eT> C(200, 200);
 	randu(C);
-	expect_channel(200, 200, C);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, C, 200, 200);
 
 	C = randu<eT>(5);
-	expect_channel(5, 5, C);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, C, 5, 5);
 
 	C = randu<eT>(4, 6);
-	expect_channel(4, 6, C);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, C, 4, 6);
 }
 
 TYPED_TEST_P(ChanTest, Factorize) {
@@ -87,8 +87,8 @@ TYPED_TEST_P(ChanTest, Factorize) {
 	BaseTest<eT>& t = *this;
 
 	// non factorizable
-	expect_channel(0, 0, factorize(t.id_10, t.noint_10));
-	expect_channel(0, 0, factorize(t.id_4,  t.noint_10));
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize(t.id_10, t.noint_10), 0, 0);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize(t.id_4,  t.noint_10), 0, 0);
 
 	// TODO: factorize_lp (default for small sizes) is unstable under float, it fails half of the time, we should investigate
 	if(std::is_same<eT, float>::value) return;
@@ -100,19 +100,19 @@ TYPED_TEST_P(ChanTest, Factorize) {
 		X1 = factorize(A, B),
 		Z1 = B * X1;
 
-	expect_channel(m, n, X1);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X1, m, n);
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, A, Z1);
 
 	// factorize_lp
 	//
-	expect_channel(0, 0, factorize_lp(t.id_10, t.noint_10));
-	expect_channel(0, 0, factorize_lp(t.id_4,  t.noint_10));
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize_lp(t.id_10, t.noint_10), 0, 0);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize_lp(t.id_4,  t.noint_10), 0, 0);
 
 	Chan<eT>
 		X2 = factorize_lp(A, B),
 		Z2 = B * X2;
 
-	expect_channel(m, n, X2);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X2, m, n);
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, A, Z2);
 }
 
@@ -121,8 +121,8 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 	BaseTest<eT>& t = *this;
 
 	// non factorizable
-	expect_channel(0, 0, factorize_subgrad(t.id_10, t.noint_10));
-	expect_channel(0, 0, factorize_subgrad(t.id_4,  t.noint_10));
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize_subgrad(t.id_10, t.noint_10), 0, 0);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, factorize_subgrad(t.id_4,  t.noint_10), 0, 0);
 
 	// a "fat" B matrix with cols = 1.5 * rows seems to be a good case where the initial solution of A = B X is
 	// not a proper matrix, and needs to be improved by the subgradient method (when cols == rows or cols = 2 * rows it
@@ -135,7 +135,7 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 		X = factorize_subgrad(A, B),
 		Z = B * X;
 
-	expect_channel(m, n, X);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X, m, n);
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 
 	// the following matrices cause the S matrix of the subgradient method to contain inf, causing X to contain -nan
@@ -148,7 +148,7 @@ TYPED_TEST_P(ChanTestReals, FactorizeSubgrad) {
 	X = factorize_subgrad(A, B),
 	Z = B * X;
 
-	expect_channel(3, 2, X);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X, 3, 2);
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z, 1e-4, 0);
 }
 
@@ -157,8 +157,8 @@ TYPED_TEST_P(ChanTest, LeftFactorize) {
 	BaseTest<eT>& t = *this;
 
 	// non factorizable
-	expect_channel(0, 0, left_factorize(t.id_10, t.noint_10));
-	expect_channel(0, 0, left_factorize(t.id_4,  t.noint_10));
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, left_factorize(t.id_10, t.noint_10), 0, 0);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, left_factorize(t.id_4,  t.noint_10), 0, 0);
 
 	// TODO: factorize_lp (default for small sizes) is unstable under float, it fails half of the time, we should investigate
 	if(std::is_same<eT, float>::value) return;
@@ -170,7 +170,7 @@ TYPED_TEST_P(ChanTest, LeftFactorize) {
 		X1 = left_factorize(A, B),
 		Z1 = X1 * B;
 
-	expect_channel(m, n, X1);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X1, m, n);
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
 }
 

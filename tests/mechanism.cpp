@@ -62,44 +62,44 @@ TYPED_TEST_P(MechTest, Reals) {
 	cols(0) = cols(size-1) = 0;
 	Chan<eT> tc2 = mechanism::tight_constraints<eT>(cols, epsilon * d);
 
-	expect_channel(size, size, geom);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, size);
 	EXPECT_TRUE(is_private(geom, epsilon * d));
 	EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom, d));
 
-	expect_channel(size, size, expon);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, expon, size, size);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0.64197307180467134, smallest_epsilon(expon, d));
 
-	expect_channel(geom, tc );
-	expect_channel(geom, tc2);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, geom, tc);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, geom, tc2);
 
 	// fat
 	geom = mechanism::geometric<eT>(size, epsilon * step, 2*size);
 	expon = mechanism::exponential<eT>(size, epsilon * d, 2*size);
 
-	expect_channel(size, 2*size, geom);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, 2*size);
 	if(!std::is_same<eT, float>::value) { // not-enough precision
 		EXPECT_TRUE(is_private(geom, epsilon * d));
 		EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
 		EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom, d));
 	}
 
-	expect_channel(size, 2*size, expon);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, expon, size, 2*size);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 
 	// skinny
 	geom = mechanism::geometric<eT>(2*size, epsilon * step, size);
 	expon = mechanism::exponential<eT>(2*size, epsilon * d, size);
 
-	expect_channel(2*size, size, geom);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, 2*size, size);
 	if(!std::is_same<eT, float>::value) { // not-enough precision
 		EXPECT_TRUE(is_private(geom, epsilon * d));
 		EXPECT_FALSE(is_private(geom, (epsilon - eT(0.01)) * d));
 		EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(geom, d));
 	}
 
-	expect_channel(2*size, size, expon);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, expon, 2*size, size);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 
 	// geometric, different truncations
@@ -123,10 +123,10 @@ TYPED_TEST_P(MechTest, Reals) {
 	Chan<eT> D3 = mechanism::geometric(10, epsilon, 18, 5, 1 );	// directly by passing
 	Chan<eT> D4 = mechanism::geometric(10, epsilon, 6,  5, 7 );	// first_y / first_x
 
-	expect_channel(G1, D1);
-	expect_channel(G2, D2);
-	expect_channel(G3, D3);
-	expect_channel(G4, D4);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G1, D1);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G2, D2);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G3, D3);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G4, D4);
 }
 
 TYPED_TEST_P(MechTest, Discrete) {
@@ -141,7 +141,7 @@ TYPED_TEST_P(MechTest, Discrete) {
 	Chan<eT> expon = mechanism::exponential<eT>(size, 2 * epsilon * d);
 	Chan<eT> rr = mechanism::randomized_response<eT>(size, epsilon);
 
-	expect_channel(size, size, tc);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, tc, size, size);
 	EXPECT_TRUE(is_private(tc, epsilon * d));
 	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
@@ -167,7 +167,7 @@ TYPED_TEST_P(MechTest, Grid) {
 	Chan<eT> tc = mechanism::tight_constraints<eT>(size, epsilon * d);
 	Chan<eT> expon = mechanism::exponential<eT>(size, epsilon * d);
 
-	expect_channel(size, size, tc);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, tc, size, size);
 	EXPECT_TRUE(is_private(tc, epsilon * d));
 	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
@@ -178,11 +178,11 @@ TYPED_TEST_P(MechTest, Grid) {
 	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace, d), 0, eT(1e-3));
 
 	// same (just a bit better) for planar_geometric
-	expect_channel(size, size, geom);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, size);
 	EXPECT_TRUE(is_private(geom, (epsilon+eT(1e-5)) * d));
 	EXPECT_PRED_FORMAT4(equal4<eT>, epsilon, smallest_epsilon(geom, d), 0, eT(1e-6));
 
-	expect_channel(size, size, expon);
+	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, expon, size, size);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0.58945591528726249, smallest_epsilon(expon, d));
 }
