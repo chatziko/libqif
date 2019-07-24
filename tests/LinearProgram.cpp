@@ -11,6 +11,7 @@ class LinearProgramTest : public BaseTest<eT> {
 			#ifdef QIF_USE_ORTOOLS
 			auto solvers = { Solver::INTERNAL, Solver::GLPK, Solver::GLOP, Solver::CLP };
 			#else
+			std::cerr << "\nOR-tools not found, skipping GLOP and CLP tests\n\n";
 			auto solvers = { Solver::INTERNAL, Solver::GLPK };
 			#endif
 
