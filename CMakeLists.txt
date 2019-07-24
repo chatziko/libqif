@@ -30,8 +30,8 @@ target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)		# l
 
 # use ortools, if available
 #
-set(GFLAGS_USE_TARGET_NAMESPACE TRUE)
-find_package(ortools CONFIG)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/misc")			# get cmake modules from misc
+find_package(ortools)
 if(ortools_FOUND)
 	message(STATUS "Found ortools")
 	set(QIF_USE_ORTOOLS 1)							# this will be used in qif_bits/config.h
