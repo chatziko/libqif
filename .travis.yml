@@ -7,9 +7,6 @@ matrix:
     - os: osx
       osx_image: xcode9.4 # OS X 10.13
 language: cpp
-cache:
-  directories:
-  - or-tools
 script:
   # Output something every 10 minutes or Travis kills the job
   - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &

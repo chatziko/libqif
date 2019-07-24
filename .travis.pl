@@ -18,8 +18,6 @@ if($linux) {
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 7.800.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
 
-	run qq{sudo apt-get -y install pkg-config build-essential autoconf libtool zlib1g-dev lsb-release ninja-build}; # for ortools
-
 } else {
 	# on OSX we just install libqif via homebrew. This is useful to test by itself,
 	# and also installs all dependencies needed for the actual build
@@ -29,18 +27,14 @@ if($linux) {
 	run qq{brew tap chatziko/tap};
 	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
-
-	run qq{brew install ninja};	# for ortools
 }
 
 # install ortools
-rmdir "or-tools";					# if cache is empty travis will create an empty dir. We try to delete it.
-unless(-d "or-tools") {				# if not cached
-	run qq{git clone https://github.com/google/or-tools --depth 1 --branch=v7.2 && mkdir or-tools/build };
-	run qq{rm -rf or-tools/examples/data or-tools/.git};	# huge unneeded dirs, don't cache
-	run qq{cd or-tools/build && cmake -DBUILD_DEPS:BOOL=ON -GNinja ..};
-}
-run qq{cd or-tools/build && sudo cmake --build . --target install && sudo cp -r dependencies/install/* /usr/local};
+my $ortools_url = $linux
+	? 'https://github.com/google/or-tools/releases/download/v7.2/or-tools_ubuntu-16.04_v7.2.6977.tar.gz'
+	: 'https://github.com/google/or-tools/releases/download/v7.2/or-tools_MacOsX-10.14.5_v7.2.6977.tar.gz';
+run qq{wget -O - '$ortools_url' | tar -xzf -; mv or-tools* or-tools};
+run qq{sudo cp -r or-tools/lib or-tools/include /usr/local/};
 
 # build for each compiler
 my @cxx = $linux ? qw/g++-5 g++-6 g++-7 g++-8/ : qw/clang++/;
