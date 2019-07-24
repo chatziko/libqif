@@ -103,10 +103,17 @@ make samples
 
 If OR-Tools are installed in your system when libqif is compiled, they will
 be used by some libqif methods for linear optimization and network flow.
-cmake needs to be able to find OR-Tools for this to work: the only tested
-method is to
+The easiest way is to extract the
+[OR-Tools binary distribution](https://developers.google.com/optimization/install/cpp/),
+then copy the libraries and header files under `/usr/local`:
+```
+wget <binary-distribution-url>
+sudo cp -r <ortools-dir>/{lib,include} /usr/local/
+```
+
+Alternatively, you can
 [install OR-Tools from source via cmake](https://github.com/google/or-tools/blob/stable/cmake/README.md#building-or-tools-with-cmake).
-These instructions are dated, so here's a method that has been tested:
+The instructions in that link are dated, a method that has been tested is below:
 ```
 git clone https://github.com/google/or-tools --depth 1 --branch=v7.2
 mkdir or-tools/build && cd or-tools/build
