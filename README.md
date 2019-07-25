@@ -103,12 +103,12 @@ make samples
 
 If OR-Tools are installed in your system when libqif is compiled, they will
 be used by some libqif methods for linear optimization and network flow.
-The easiest way is to extract the
-[OR-Tools binary distribution](https://developers.google.com/optimization/install/cpp/),
-then copy the libraries and header files under `/usr/local`:
+The easiest way is to locate the `.tar.gz` file for your system in the
+[OR-Tools binary distributions](https://developers.google.com/optimization/install/cpp/#binary-distributions),
+then install it by simply copying the libraries and header files under `/usr/local` :
 ```
-wget <binary-distribution-url>
-sudo cp -r <ortools-dir>/{lib,include} /usr/local/
+wget <binary-distribution-url> | tar -xzf -
+sudo cp -r ortools*/{lib,include} /usr/local/
 ```
 
 Alternatively, you can
