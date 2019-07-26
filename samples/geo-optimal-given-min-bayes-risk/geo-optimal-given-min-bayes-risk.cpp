@@ -26,7 +26,9 @@ int main(int argc, char* argv[]) {
 	auto loss = cell_size * metric::compose(euclid, geo::cell_to_point(width));
 	double max_vuln = 1 - std::stod(argv[4]);
 
-	cout << "computing matrix\n";
+	lp::Defaults::msg_level = lp::MsgLevel::ALL;
+
+	cout << "computing optimal mechanism\n";
 
 	chan C = mechanism::optimal_exp_loss::given_max_bayes_vulnerability(pi, n, max_vuln, loss);
 
