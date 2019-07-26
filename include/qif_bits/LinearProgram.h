@@ -276,11 +276,14 @@ bool LinearProgram<eT>::solve() {
 			#endif
 		}
 	}
+	
+	if(msg_level != MsgLevel::OFF)
+		std::cerr << "Solving LP with solver: " << s << "\n";
 
 	return
 		s == Solver::GLPK ? glpk() :
 		s == Solver::INTERNAL ? internal_solver() :
-		ortools();
+		ortools();		// make sure that AUTO in ortools() is treated in the same way as here!
 }
 
 // internal solver, uses simplex() after cloning and converting to canonical form. Mostly useful for rats
@@ -457,11 +460,11 @@ bool LinearProgram<eT>::ortools() {
 	//
 	MPSolver::OptimizationProblemType ptype;
 	switch(solver) {
-		case Solver::AUTO:
 		case Solver::GLOP:
 			ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
 			break;
 
+		case Solver::AUTO:
 		case Solver::CLP:
 			ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
 			break;
