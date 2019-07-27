@@ -130,6 +130,16 @@ Row<uint> draw(const T& pi, uint n) {
 	return res;
 }
 
+template<typename eT = eT_def>
+inline
+bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
+	eT v = eT(1) / (int)pi.n_cols;
+	for(uint j = 0; j < pi.n_cols; j++)
+		if(!equal(v, pi(j), eT(0), mrd))
+			return false;
+
+	return true;
+}
 
 template<typename eT = eT_def>
 inline

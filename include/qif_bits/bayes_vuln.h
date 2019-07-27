@@ -15,10 +15,16 @@ template<typename eT>
 eT posterior(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
 
-	eT s = eT(0);
-	for(uint y = 0; y < C.n_cols; y++)
-		s += arma::max(trans(pi) % C.col(y));
-	return s;
+	if(probab::is_uniform(pi)) {
+		// common case that can be optimized
+		return arma::accu(arma::max(C, 0)) / (int)pi.n_cols;
+
+	} else {
+		eT s = eT(0);
+		for(uint y = 0; y < C.n_cols; y++)
+			s += arma::max(trans(pi) % C.col(y));
+		return s;
+	}
 }
 
 template<typename eT>
