@@ -11,8 +11,8 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	qif::rng::set_seed_random();		// RNG initialization
 
-	if(argc != 5) {
-		cout << "args should be: <width> <height> <cell_size> <min_bayes_risk>\n";
+	if(argc != 6) {
+		cout << "args should be: <width> <height> <cell_size> <min_bayes_risk> <max_loss>\n";
 		return -1;
 	}
 
@@ -25,12 +25,13 @@ int main(int argc, char* argv[]) {
 	auto euclid = metric::euclidean<double, point>();
 	auto loss = cell_size * metric::compose(euclid, geo::cell_to_point(width));
 	double max_vuln = 1 - std::stod(argv[4]);
+	double max_loss = std::stod(argv[5]);
 
 	lp::Defaults::msg_level = lp::MsgLevel::ALL;
 
 	cout << "computing optimal mechanism\n";
 
-	chan C = mechanism::optimal_exp_loss::given_max_bayes_vulnerability(pi, n, max_vuln, loss);
+	chan C = mechanism::optimal_exp_loss::given_max_bayes_vulnerability(pi, n, max_vuln, loss, max_loss);
 
 	cout << "done\n";
 

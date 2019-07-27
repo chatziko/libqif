@@ -237,7 +237,8 @@ Chan<eT> given_max_bayes_vulnerability(
 	const Prob<eT>& pi,
 	uint n_cols,
 	eT max_vuln,
-	Metric<eT, uint> loss
+	Metric<eT, uint> loss,
+	eT max_loss = infinity<eT>()	// C[x,y] is forced to 0 if loss(x,y) > max_loss
 ) {
 	uint M = pi.n_cols,
 		 N = n_cols;
@@ -245,13 +246,21 @@ Chan<eT> given_max_bayes_vulnerability(
 	// C: M x N   unknowns
 	// We have M x N variables
 	lp::LinearProgram<eT> lp;
-	auto vars = lp.make_vars(M, N, 0, 1);
+
+	uint zero_var = infinity<uint>();										// these vars are forced to 0
+	std::vector<std::vector<uint>> vars(M, std::vector<uint>(N, zero_var));	// MxN vector of vars
+
+	for(uint x = 0; x < M; x++)
+		for(uint y = 0; y < N; y++)
+			if(less_than_or_eq(loss(x, y), max_loss))
+				vars[x][y] = lp.make_var(0, 1);
 
 	// cost function: minimize sum_xy pi_x C_xy loss(x,y)
 	lp.maximize = false;
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			lp.set_obj_coeff(vars[x][y], pi(x) * loss(x, y));
+			if(vars[x][y] != zero_var)
+				lp.set_obj_coeff(vars[x][y], pi(x) * loss(x, y));
 
 	// Build equations for V(pi, C) = sum_y max_x pi_x C_x,y <= max_vuln
 	//
@@ -265,9 +274,11 @@ Chan<eT> given_max_bayes_vulnerability(
 	//
 	for(uint y = 0; y < N; y++) {
 		for(uint x = 0; x < M; x++) {
-			auto con = lp.make_con(-infinity<eT>(), 0);
-			lp.set_con_coeff(con, vuln_y[y], -1);
-			lp.set_con_coeff(con, vars[x][y], pi(x));
+			if(vars[x][y] != zero_var) {
+				auto con = lp.make_con(-infinity<eT>(), 0);
+				lp.set_con_coeff(con, vuln_y[y], -1);
+				lp.set_con_coeff(con, vars[x][y], pi(x));
+			}
 		}
 	}
 
@@ -285,7 +296,8 @@ Chan<eT> given_max_bayes_vulnerability(
 
 		// coeff 1 for variable C[x,y]
 		for(uint y = 0; y < N; y++)
-			lp.set_con_coeff(con, vars[x][y], 1);
+			if(vars[x][y] != zero_var)
+				lp.set_con_coeff(con, vars[x][y], 1);
 	}
 
 	// solve program
@@ -298,7 +310,7 @@ Chan<eT> given_max_bayes_vulnerability(
 	Chan<eT> C(M, N);
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
-			C(x, y) = lp.solution(vars[x][y]);
+			C(x, y) = vars[x][y] == zero_var ? eT(0) : lp.solution(vars[x][y]);
 
 	return C;
 }
