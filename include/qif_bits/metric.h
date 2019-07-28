@@ -310,6 +310,18 @@ total_variation() {
 
 template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
+euclidean() {
+	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
+
+	return [](const T& a, const T& b) -> R {
+		if(a.n_cols != b.n_cols) throw std::runtime_error("size mismatch");
+
+		return arma::norm(a - b, 2);
+	};
+}
+
+template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+Metric<R, T>
 mult_total_variation() {
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
