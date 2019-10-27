@@ -216,6 +216,167 @@ Prob<eT>& project_to_simplex(Prob<eT>& x) {
 	return x;
 }
 
+// Computes the probability distribution q that minimizes the max l1-distance from those in C.
+// The distribution is returned in q, the actual distances is the return value of the function.
+// in_conv_hull forces solution to be within the convex hull of C's rows
+//
+template<typename eT = eT_def>
+inline
+eT min_l1_enclosing_ball(const Chan<eT>& C, Prob<eT>& q, bool in_conv_hull = false) {
+	uint M = C.n_rows,
+		 N = C.n_cols;
+	eT inf = infinity<eT>();
+
+	// q: N variables
+	lp::LinearProgram<eT> lp;
+	auto vars = lp.make_vars(N, eT(0), eT(1));
+
+	// vars diff_vars[x,y] >= |C[x,y] - q[y]| for each x,y
+	//
+	auto diff_vars = lp.make_vars(M, N, 0, 2);
+
+	for(uint x = 0; x < M; x++) {
+		for(uint y = 0; y < N; y++) {
+			// diff_vars[x,y] >=   C[x,y] - q[y]
+			auto con = lp.make_con(C(x,y), inf);
+			lp.set_con_coeff(con, diff_vars[x][y], eT(1));
+			lp.set_con_coeff(con, vars[y], eT(1));
+
+			// diff_vars[x,y] >= - C[x,y] + q[y]
+			con = lp.make_con(-C(x,y), inf);
+			lp.set_con_coeff(con, diff_vars[x][y], eT(1));
+			lp.set_con_coeff(con, vars[y], eT(-1));
+		}
+	}
+
+	// We set z >= sum_y diff_vars[x,y] >= sum_y |C[x,y] - q[y]| for each x
+	//
+	auto z = lp.make_var(0, 2);
+
+	for(uint x = 0; x < M; x++) {
+		auto con = lp.make_con(0, inf);
+		lp.set_con_coeff(con, z, eT(1));
+
+		for(uint y = 0; y < N; y++)
+			lp.set_con_coeff(con, diff_vars[x][y], eT(-1));
+	}
+
+	// cost function: minimize z
+	//
+	lp.maximize = false;
+	lp.set_obj_coeff(z, eT(1));
+
+	// equalities for summing up to 1
+	//
+	auto con = lp.make_con(1, 1);
+	for(uint y = 0; y < N; y++)
+		lp.set_con_coeff(con, vars[y], 1);
+
+	// force solution to be within the convex hull of C
+	//
+	if(in_conv_hull) {
+		// convex coefficients, sum up to 1
+		auto coeff = lp.make_vars(M, eT(0), eT(1));
+
+		auto con = lp.make_con(1, 1);
+		for(uint x = 0; x < M; x++)
+			lp.set_con_coeff(con, coeff[x], 1);
+
+		// vars[y] = sum_x coeff[x] C[x,y]  for each y
+		for(uint y = 0; y < N; y++) {
+			auto con = lp.make_con(0, 0);
+			lp.set_con_coeff(con, vars[y], 1);
+
+			for(uint x = 0; x < M; x++)
+				lp.set_con_coeff(con, coeff[x], -C(x,y));
+		}
+	}
+
+	// solve program
+	//
+	if(!lp.solve())
+		throw std::runtime_error("min_l1_enclosing_ball: lp should be always solvable");
+
+	// reconstruct q from solution
+	//
+	q.set_size(N);
+	for(uint y = 0; y < N; y++)
+		q(y) = lp.solution(vars[y]);
+
+	return lp.objective();
+}
+
+// Computes the l1 enclosing ball by embeding C's rows in Rinf^d where d = 2^m (m is n_cols).
+// The embedding phi(x) in R^d of a vector x in R^m has one coordinate for every bitstring b in {0,1}^m.
+// The value of that coordinate is cdot(x, coeff) where coeff_i = (-1)^{b_i}.
+//
+template<typename eT = eT_def>
+inline
+eT min_l1_enclosing_ball_via_linf(const Chan<eT>& C, Prob<eT>& q) {
+	uint N = C.n_cols;
+	eT one(1);
+	eT inf = infinity<eT>();
+
+	// linear program
+	// q: N variables
+	lp::LinearProgram<eT> lp;
+	auto vars = lp.make_vars(N, eT(0), eT(1));
+
+	// Bor each bitstring b we add constraints
+	//   z >=   max_x{ phi(Cx)_b } - phi(q)_b
+	//   z >= - min_x{ phi(Cx)_b } + phi(q)_b
+	//
+	auto z = lp.make_var(-2, 2);
+
+	arma::Col<eT> coeff(N);			// we only keep the coeff vector (b is implicit)
+	coeff.fill(one);				// start with b = 00..0, coeff = (1,...,1)
+
+	for(uint i = 0; i < N; ) {
+		// with a single multiplication we get cdot(coeff, row) for all rows.
+		// we compute max-min for the constraints
+		auto trans = C * coeff;
+
+		auto con1 = lp.make_con( arma::max(trans), inf);
+		auto con2 = lp.make_con(-arma::min(trans), inf);
+
+		lp.set_con_coeff(con1, z, 1);
+		lp.set_con_coeff(con2, z, 1);
+
+		for(uint y = 0; y < N; y++) {
+			lp.set_con_coeff(con1, vars[y],  coeff(y));
+			lp.set_con_coeff(con2, vars[y], -coeff(y));
+		}
+
+		// compute the coeff for the next value of b
+		for(i = 0; i < C.n_cols && (coeff(i) *= -one) > eT(0); i++)
+			;
+	}
+
+	// cost function: minimize z
+	//
+	lp.maximize = false;
+	lp.set_obj_coeff(z, eT(1));
+
+	// equalities for summing up to 1
+	//
+	auto con = lp.make_con(1, 1);
+	for(uint y = 0; y < N; y++)
+		lp.set_con_coeff(con, vars[y], 1);
+
+	// solve program
+	//
+	if(!lp.solve())
+		throw std::runtime_error("min_l1_enclosing_ball_via_linf: lp should be always solvable");
+
+	// reconstruct q from solution
+	//
+	q.set_size(N);
+	for(uint y = 0; y < N; y++)
+		q(y) = lp.solution(vars[y]);
+
+	return lp.objective();
+}
+
 // Takes a probability pi on a grid of given width.
 // Returns a grid representation of that probability.
 //
