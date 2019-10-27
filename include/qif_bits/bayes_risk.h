@@ -90,30 +90,51 @@ eT mult_capacity_via_linf(const Chan<eT>& C) {
 	return one / (one - diam/eT(2));
 }
 
+// bound mult_capacity given by the max tv distance from row
+// For the lower bound to be valid, row needs to be a convex combination of the rows of C
+//
 template<typename eT>
-eT mult_capacity_bound1(const Chan<eT>& C) {
+std::pair<eT,eT> mult_capacity_bound1(const Chan<eT>& C, const Prob<eT>& row) {
 	auto tv = metric::total_variation<eT, Prob<eT>>();
 	eT tv_max(0);
 
-	uint x1 = C.n_rows/2;		// TODO: rand?
-	for(uint x2 = x1+1; x2 < C.n_rows; x2++) {
-		eT tv_cur = tv(C.row(x1), C.row(x2));
+	for(uint x = 0; x < C.n_rows; x++) {
+		eT tv_cur = tv(C.row(x), row);
 
 		if(less_than(tv_max, tv_cur)) {
 			tv_max = tv_cur;
-
-			if(equal(tv_max, eT(1)))
-				return infinity<eT>();
 		}
 	}
 
 	eT one(1);
-	eT bound(2 * tv_max);
-	return less_than(bound, one) ? one / (one - bound) : infinity<eT>();
+	eT d(2 * tv_max);
+	eT lower(one / (one - d/2));
+	eT upper(less_than(d, one) ? one / (one - d) : infinity<eT>());
+	return std::pair<eT,eT>(lower, upper);
+}
+
+// bound1 with the middle row
+template<typename eT>
+std::pair<eT,eT> mult_capacity_bound2(const Chan<eT>& C) {
+	Prob<eT> row = C.row(C.n_rows/2);
+	return mult_capacity_bound1(C, row);
+}
+
+// bound1 with the average of all rows
+template<typename eT>
+std::pair<eT,eT> mult_capacity_bound3(const Chan<eT>& C) {
+	Prob<eT> row = arma::mean(C, 0);
+	return mult_capacity_bound1(C, row);
+}
+
+// bound1 with a uniform row (lower bound might not be valid)
+template<typename eT>
+std::pair<eT,eT> mult_capacity_bound4(const Chan<eT>& C) {
+	return mult_capacity_bound1(C, probab::uniform<eT>(C.n_cols));
 }
 
 template<typename eT>
-eT mult_capacity_bound2(const Chan<eT>& C) {
+std::pair<eT,eT> mult_capacity_bound5(const Chan<eT>& C) {
 	auto euclid = metric::euclidean<eT, Prob<eT>>();
 	eT euclid_max(0);
 
@@ -128,8 +149,12 @@ eT mult_capacity_bound2(const Chan<eT>& C) {
 	}
 
 	eT one(1);
-	eT bound(euclid_max * std::sqrt(C.n_cols) / 2);
-	return less_than(bound, one) ? one / (one - bound) : infinity<eT>();
+	eT lbound(euclid_max / 2);
+	eT ubound(euclid_max * std::sqrt(C.n_cols) / 2);
+	return std::pair<eT,eT>(
+		one / (one - lbound),
+		less_than(ubound, one) ? one / (one - ubound) : infinity<eT>()
+	);
 }
 
 template<typename eT>
