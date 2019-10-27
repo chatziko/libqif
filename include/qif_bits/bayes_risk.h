@@ -172,5 +172,10 @@ eT posterior_bound_via_vuln_mult_cap(const Prob<eT>& pi, const Chan<eT>& C) {
 	return max(1 - bayes_vuln::prior<eT>(pi) * bayes_vuln::mult_capacity<eT>(C), eT(0));
 }
 
+template<typename eT = eT_def>
+inline
+eT optimal_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
+	return 1 - bayes_vuln::optimal_row(pi, C, row);
+}
 
 } // namespace bayes_risk

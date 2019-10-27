@@ -84,6 +84,63 @@ eT mult_capacity_bound_cap(const Chan<eT>& C, uint n) {
 	return cap<eT>(C.n_cols, n);
 }
 
+// Treating C's row-th row as variables, computes the row that minimizes
+// the channels posterior vulnerability. The row is updated inside C and the
+// optimal vulnerability is returned
+//
+template<typename eT = eT_def>
+inline
+eT optimal_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
+	uint N = C.n_cols;
+	eT inf = infinity<eT>();
+
+	// q: N variables
+	lp::LinearProgram<eT> lp;
+	auto vars = lp.make_vars(N, eT(0), eT(1));
+
+	// We set z_y >= pi[x] C[x,y]   for each x
+	// Since all rows but 'row' are fixed, this simply means
+	//   z_y >= max_{x != r} pi[x] C[x,y]  and
+	//   z_y >= pi[row] C[row,y]  and
+	//
+	C.row(row).fill(0);
+	arma::Row<eT> maxes = arma::max(C.each_col() % pi.t(), 0);
+
+	auto z = lp.make_vars(N, eT(0), eT(1));
+
+	for(uint y = 0; y < N; y++) {
+		auto con = lp.make_con(maxes(y), inf);
+		lp.set_con_coeff(con, z[y], eT(1));
+
+		con = lp.make_con(0, inf);
+		lp.set_con_coeff(con, z[y], eT(1));
+		lp.set_con_coeff(con, vars[y], -pi(row));
+	}
+
+	// cost function: minimize sum_y z_y
+	//
+	lp.maximize = false;
+	for(uint y = 0; y < N; y++)
+		lp.set_obj_coeff(z[y], eT(1));
+
+	// equalities for summing up to 1
+	//
+	auto con = lp.make_con(1, 1);
+	for(uint y = 0; y < N; y++)
+		lp.set_con_coeff(con, vars[y], 1);
+
+	// solve program
+	//
+	if(!lp.solve())
+		throw std::runtime_error("min_l1_enclosing_ball: lp should be always solvable");
+
+	// reconstruct q from solution
+	//
+	for(uint y = 0; y < N; y++)
+		C(row, y) = lp.solution(vars[y]);
+
+	return lp.objective();
+}
 
 
 } // namespace bayes_vuln
