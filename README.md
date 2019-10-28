@@ -42,11 +42,11 @@ int main() {
 
 Compile and run with:
 ```bash
-g++ test.cpp -std=c++11 -lqif -larmadillo -o test
+g++ test.cpp -std=c++17 -lqif -larmadillo -o test
 ./test
 
 # or with clang
-clang++ test.cpp -std=c++11 -lqif -larmadillo -o test
+clang++ test.cpp -std=c++17 -lqif -larmadillo -o test
 ```
 
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
@@ -63,7 +63,7 @@ Prerequisites
 * [GMP](https://gmplib.org/)
 * [GLPK](https://www.gnu.org/software/glpk/)
 * [GSL](http://www.gnu.org/software/gsl/)
-* A C++11 compliant compiler (eg g++ or clang)
+* A C++17 compliant compiler (eg g++ or clang)
 
 Optionally
 
