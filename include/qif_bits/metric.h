@@ -152,7 +152,7 @@ template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 euclidean() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
-		uint v1 = abs_diff(a.x, b.x),
+		auto v1 = abs_diff(a.x, b.x),
 			 v2 = abs_diff(a.y, b.y);
 		return std::sqrt(v1*v1 + v2*v2);
 	};
