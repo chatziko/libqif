@@ -13,7 +13,7 @@ sub run {
 if($linux) {
 	run qq{sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y};
 	run qq{sudo apt-get -qq update};
-	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-5 g++-6 g++-7 g++-8};
+	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-7 g++-8};
 
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 7.800.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
@@ -37,7 +37,7 @@ run qq{wget -O - '$ortools_url' | tar -xzf -; mv or-tools* or-tools};
 run qq{sudo cp -r or-tools/lib or-tools/include /usr/local/};
 
 # build for each compiler
-my @cxx = $linux ? qw/g++-5 g++-6 g++-7 g++-8/ : qw/clang++/;
+my @cxx = $linux ? qw/g++-7 g++-8/ : qw/clang++/;
 for(@cxx) {
 	run qq{mkdir -p build};
 	chdir 'build';
