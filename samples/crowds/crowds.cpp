@@ -71,9 +71,9 @@ void meleakage_by_p() {
 		Prob<T> pi = biased_prior(honest, p);
 
 		file << p << "   " 
-			<< (bayes::mult_leakage(pi, C1)) << "   "
-			<< (bayes::mult_leakage(pi, C2)) << "   "
-			<< (bayes::mult_leakage(pi, C3)) << "\n";
+			<< (bayes_vuln::mult_leakage(pi, C1)) << "   "
+			<< (bayes_vuln::mult_leakage(pi, C2)) << "   "
+			<< (bayes_vuln::mult_leakage(pi, C3)) << "\n";
 	}
 }
 
@@ -89,9 +89,9 @@ void meleakage_by_pf() {
 		Chan<T> C = crowds_matrix(honest, corrupted, pf);
 
 		file << pf << "   " 
-			<< (bayes::mult_leakage(pi1, C)) << "   "
-			<< (bayes::mult_leakage(pi2, C)) << "   "
-			<< (bayes::mult_leakage(pi3, C)) << "\n";
+			<< (bayes_vuln::mult_leakage(pi1, C)) << "   "
+			<< (bayes_vuln::mult_leakage(pi2, C)) << "   "
+			<< (bayes_vuln::mult_leakage(pi3, C)) << "\n";
 	}
 }
 
@@ -145,11 +145,11 @@ void repeated_runs() {
 
 	uint n = 1;
 	cout << "channel " << C.n_rows << " x " << C.n_cols << "\n";
-	cout << "capacity of single run " <<  bayes::mult_capacity(C) << "\n";
-//	cout << "real capacity for " << n << " runs: " << bayes::mult_capacity(channel::comp::repeated_independent(C, n)) << "\n";
-	cout << "comp bound for " << n << " runs: " << n * bayes::mult_capacity(C) << "\n";
-	cout << "cap_b bound for " << n << " runs: " << bayes::mult_capacity_bound_cap(C, n) << "\n";
-	cout << "limit bound for pstop " << pstop << ": " << bayes::mult_capacity(C) / pstop << "\n";
+	cout << "capacity of single run " <<  bayes_vuln::mult_capacity(C) << "\n";
+//	cout << "real capacity for " << n << " runs: " << bayes_vuln::mult_capacity(channel::comp::repeated_independent(C, n)) << "\n";
+	cout << "comp bound for " << n << " runs: " << n * bayes_vuln::mult_capacity(C) << "\n";
+	cout << "cap_b bound for " << n << " runs: " << bayes_vuln::mult_capacity_bound_cap(C, n) << "\n";
+	cout << "limit bound for pstop " << pstop << ": " << bayes_vuln::mult_capacity(C) / pstop << "\n";
 
 	Chan<T>
 		C1 = crowds_matrix(honest, corrupted, 0),
@@ -159,9 +159,9 @@ void repeated_runs() {
 	ofstream file;
 	file.open("crowds_data/repeated.txt");
 
-	T cap1 = bayes::mult_capacity(C1),
-	  cap2 = bayes::mult_capacity(C2),
-	  cap3 = bayes::mult_capacity(C3);
+	T cap1 = bayes_vuln::mult_capacity(C1),
+	  cap2 = bayes_vuln::mult_capacity(C2),
+	  cap3 = bayes_vuln::mult_capacity(C3);
 
 	for(T pstop(0); less_than_or_eq(pstop, T(1)); pstop += T(1)/1000) {
 
