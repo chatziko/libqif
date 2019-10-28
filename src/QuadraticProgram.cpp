@@ -1,7 +1,6 @@
 #include "qif"
 
-namespace qif {
-namespace qp {
+namespace qif::qp {
 
 
 Method    Defaults::method       = Method::ADDM;
@@ -22,4 +21,4 @@ std::ostream& operator<<(std::ostream& os, const Method& method) {
 	return os << s[static_cast<uint>(method)];
 }
 
-}}
+}

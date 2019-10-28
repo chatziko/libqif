@@ -7,8 +7,7 @@ extern "C" {
 #include "qif"
 
 
-namespace qif {
-namespace mechanism {
+namespace qif::mechanism {
 
 using std::max;
 using std::min;
@@ -58,5 +57,5 @@ double integrate_laplace(double epsilon, const arma::vec& a, const arma::vec& b,
 	return res;
 }
 
-}} // namespace qif::mechanism
+} // namespace qif::mechanism
 

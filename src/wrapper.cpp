@@ -1,7 +1,6 @@
 #include "qif"
 
-namespace qif {
-namespace wrapper {
+namespace qif::wrapper {
 
 
 // GLPK methods /////////////////////////////////////////////////////////////////
@@ -36,4 +35,4 @@ c_int osqp_cleanup(OSQPWorkspace *work)											{ return ::osqp_cleanup(work);
 csc* csc_matrix(c_int m, c_int n, c_int nzmax, c_float *x, c_int *i, c_int *p)	{ return ::csc_matrix(m, n, nzmax, x, i, p); }
 
 
-}}
+} // namespace qif::wrapper
