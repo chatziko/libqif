@@ -189,7 +189,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 
 		// metric::kantorovich runs kantorovich_fastemd for double and kantorovich_lp for the rest
 		// fastemd has worse precision, so we need to set a larger mrd
-		eT mrd = is_double && !use_lp ? 1e-5 : def_max_rel_diff<eT>();
+		eT mrd = is_double && !use_lp ? 1e-5 : def_mrd<eT>;
 
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.unif_4, t.unif_4));
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.dirac_4, t.dirac_4));

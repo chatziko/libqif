@@ -55,7 +55,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10), shannon::add_capacity(t.id_10, pi));
 	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, t.unif_10);
 
-	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_max_diff<eT>();		// the accuracy of 0 capacity is not great for floats
+	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_md<eT>;		// the accuracy of 0 capacity is not great for floats
 	EXPECT_PRED_FORMAT4(equal4<eT>, 0, shannon::add_capacity(t.noint_10), md, 0.0);
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0.19123813831431799, shannon::add_capacity(t.c1));

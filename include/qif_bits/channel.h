@@ -88,7 +88,7 @@ Chan<eT> deterministic(std::function<uint(uint)> map, uint n_rows, uint n_cols) 
 
 template<typename eT = eT_def>
 inline
-bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
+bool is_proper(const Chan<eT>& C, const eT& mrd = def_mrd<eT>) {
 	for(uint i = 0; i < C.n_rows; i++)
 		if(!probab::is_proper<eT>(C.row(i), mrd))
 			return false;
@@ -114,7 +114,7 @@ void check_prior_size(const Prob<eT>& pi, const Chan<eT>& C) {
 
 
 template<typename eT = eT_def>
-inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
 
@@ -476,15 +476,11 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 template<typename eT = eT_def>
 inline
 Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
-	// subgradient is usually facter for larger matrices, for sometimes for small ones it is _very_ slow
-	return A.n_elem < 1000
-		? factorize_lp(A, B, col_stoch)
-		: factorize_subgrad(A, B, col_stoch);
-}
-
-template<>
-inline
-rchan factorize(const rchan& A, const rchan& B, const bool col_stoch) {
+	if constexpr (!std::is_same<eT, rat>::value) {
+		// subgradient is usually facter for larger matrices, but sometimes for small ones it is _very_ slow
+		if (A.n_elem >= 1000)
+			return factorize_subgrad(A, B, col_stoch);
+	}
 	return factorize_lp(A, B, col_stoch);
 }
 

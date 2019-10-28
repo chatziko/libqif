@@ -1,7 +1,6 @@
 #include "qif"
 
-namespace qif {
-namespace lp {
+namespace qif::lp {
 
 
 bool     Defaults::presolve  = true;
@@ -30,4 +29,4 @@ std::ostream& operator<<(std::ostream& os, const MsgLevel& level) {
 	return os << s[static_cast<uint>(level)];
 }
 
-}}
+} // namespace qif::lp

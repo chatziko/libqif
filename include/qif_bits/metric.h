@@ -10,27 +10,22 @@ typedef eT_def R_def;
 // Returning false is safe if we cannot guarantee this chain, and is the default if chainable() is not defined.
 
 
-// Euclidean on arithmetic T except uint
-template<typename R = R_def, typename T, EnableIf<std::is_arithmetic<T>> = _, DisableIf<std::is_same<T, uint>> = _>
-Metric<R, T>
-euclidean() {
-	return [](const T& a, const T& b) -> R {
-		return abs_diff(a, b);
-	};
-}
-
-// on uint's (discrete space, particularly useful for measuring distances
-// between channel inputs), all non-consecutive elements are chainable
-//
-template<typename R = R_def, typename T, EnableIf<std::is_same<T, uint>> = _>
+// Euclidean on arithmetic T
+template<typename R = R_def, typename T, EnableIf<std::is_arithmetic<T>> = _>
 Metric<R, T>
 euclidean() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
 		return abs_diff(a, b);
 	};
-	d.chainable = [](const T& a, const T& b) -> bool {
-		return abs_diff(a, b) != 1;
-	};
+
+	// on uint's (discrete space, particularly useful for measuring distances
+	// between channel inputs), all non-consecutive elements are chainable
+	if constexpr (std::is_same<T, uint>::value) {
+		d.chainable = [](const T& a, const T& b) -> bool {
+			return abs_diff(a, b) != 1;
+		};
+	}
+
 	return d;
 }
 
@@ -142,7 +137,7 @@ Metric<R, T>
 threshold_inf(Metric<R, T> d, R thres) {
 	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
 		R res = d(a, b);
-		return less_than_or_eq(res, thres) ? res : inf;
+		return less_than_or_eq(res, thres) ? res : infinity<R>();
 	};
 	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
 		// a,b are chainable in d2 if they are chainable in d and below the threshold
@@ -151,57 +146,45 @@ threshold_inf(Metric<R, T> d, R thres) {
 	return d2;
 }
 
-// Euclidean distance on non-uint Points
+// Euclidean distance on Points
 //
-template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _, DisableIf<std::is_same<T, Point<uint>>> = _>
+template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
-euclidean() {
-	return [](const T& a, const T& b) -> R {
-		auto v1 = a.x - b.x,
-			 v2 = a.y - b.y;
-		return std::sqrt(v1*v1 + v2*v2);
-	};
-}
-
-// Euclidean distance on discrete (uint) cartesian Points. The only chainable points
-// are on the same line or diagonal, and at index difference more than one
-//
-template<typename R = R_def, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
-Metric<R, T	>
 euclidean() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
 		uint v1 = abs_diff(a.x, b.x),
 			 v2 = abs_diff(a.y, b.y);
 		return std::sqrt(v1*v1 + v2*v2);
 	};
-	d.chainable = [](const T& a, const T& b) -> bool {
-		uint v1 = abs_diff(a.x, b.x),
-			 v2 = abs_diff(a.y, b.y);
-		return (v1 == 0 || v2 == 0 || v1 == v2) && (v1 > 1 || v2 > 1);
-	};
+
+	// On discrete (uint) cartesian Points, the only chainable points
+	// are on the same line or diagonal, and at index difference more than one
+	if constexpr (std::is_same<T, Point<uint>>::value) {
+		d.chainable = [](const T& a, const T& b) -> bool {
+			uint v1 = abs_diff(a.x, b.x),
+				v2 = abs_diff(a.y, b.y);
+			return (v1 == 0 || v2 == 0 || v1 == v2) && (v1 > 1 || v2 > 1);
+		};
+	}
+
 	return d;
 }
 
-template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _, DisableIf<std::is_same<T, Point<uint>>> = _>
-Metric<R, T>
-manhattan() {
-	return [](const T& a, const T& b) -> R {
-		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
-	};
-}
-
-// Mahattan distance on discrete (uint) cartesian Points. All points are chainable except
-// those whose index differs by at most 1
-//
-template<typename R = R_def, typename T, EnableIf<std::is_same<T, Point<uint>>> = _>
+template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 manhattan() {
 	Metric<R, T> d = [](const T& a, const T& b) -> R {
 		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
 	};
-	d.chainable = [](const T& a, const T& b) -> bool {
-		return abs_diff(a.x, b.x) > 1 || abs_diff(a.y, b.y) > 1;
-	};
+
+	// On discrete (uint) cartesian Points, all points are chainable except
+	// those whose index differs by at most 1
+	if constexpr (std::is_same<T, Point<uint>>::value) {
+		d.chainable = [](const T& a, const T& b) -> bool {
+			return abs_diff(a.x, b.x) > 1 || abs_diff(a.y, b.y) > 1;
+		};
+	}
+
 	return d;
 }
 
@@ -296,9 +279,10 @@ grid(uint width, Metric<R, Point<uint>> d = metric::euclidean<R, Point<uint>>())
 
 //////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
 
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 total_variation() {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
@@ -322,7 +306,14 @@ euclidean() {
 
 template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
 Metric<R, T>
+manhatan() {
+	return 2 * total_variation<R, T>();
+}
+
+template<typename R = R_def, typename T>
+Metric<R, T>
 mult_total_variation() {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
@@ -351,9 +342,10 @@ mult_total_variation() {
 
 // the quasi metric that gives additive pi-capacity for 1-spanning Vg's
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 convex_separation_quasi() {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
@@ -374,7 +366,7 @@ convex_separation_quasi() {
 
 // the old symmetric variant, less useful
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 convex_separation() {
 	auto q = convex_separation_quasi<R, T>();
@@ -383,9 +375,10 @@ convex_separation() {
 
 // kantorovich through linear programming
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 kantorovich_lp(Metric<R, uint> d) {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [d](const T& a, const T& b) -> R {
@@ -444,9 +437,10 @@ kantorovich_lp(Metric<R, uint> d) {
 // 
 // (Note: an alternative algorithm: jorlin.scripts.mit.edu/docs/publications/26-faster strongly polynomial.pdf)
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 kantorovich_fastemd(Metric<R, uint> d) {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [d](const T& a, const T& b) -> R {
@@ -471,25 +465,27 @@ kantorovich_fastemd(Metric<R, uint> d) {
 
 //  kantorovich. use FastEMD for doubles, LP for all others
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 inline
 Metric<R, T>
 kantorovich(Metric<R, uint> d) {
-	return kantorovich_lp<R, T>(d);
-}
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
 
-template<>
-inline
-Metric<double, prob>
-kantorovich(Metric<double, uint> d) {
-	return kantorovich_fastemd<double, prob>(d);
+	if constexpr (std::is_same<T, prob>::value) {
+		return kantorovich_fastemd<double, prob>(d);
+
+	} else {
+		return kantorovich_lp<R, T>(d);
+	}
 }
 
 // multiplicative kantorovich through linear programming
 //
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+template<typename R = R_def, typename T>
 Metric<R, T>
 mult_kantorovich(Metric<R, uint> d) {
+	static_assert(is_Prob<T>::value, "only defined on probability distributions");
+
 	// we need to solve 2 linear programs, with the role of a, b exchanged. one_side solves one of them.
 	//
 	auto one_side = [d](const T& a, const T& b) -> R {

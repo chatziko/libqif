@@ -1,6 +1,5 @@
 
-namespace channel {
-namespace comp {
+namespace channel::comp {
 
 template<typename eT>
 inline
@@ -33,4 +32,4 @@ Chan<eT> repeated_independent(const Chan<eT>& C, uint n) {
 }
 
 
-}} // namespace channel::comp
+} // namespace channel::comp

@@ -18,8 +18,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 
-# use c++11
-set(CMAKE_CXX_STANDARD 11)											# easier method for setting c++11, also avoid cotire issue with ortools
+# use c++17
+set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17, also avoid cotire issue with ortools
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # build shared lib

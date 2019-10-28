@@ -12,71 +12,47 @@
 #define ARMA_SET_CERR(stream) arma::set_stream_err2(stream)
 #endif
 
+template<typename eT> const eT     def_md			= eT(0);
+template<>            const double def_md<double>	= 1e-7;
+template<>            const float  def_md<float>	= 1e-7;
 
-const double  inf = std::numeric_limits<double>::infinity();
-const float  finf = std::numeric_limits<float>::infinity();
-
-template<typename eT> inline eT     def_max_diff() { return eT(0); }
-template<>            inline double def_max_diff() { return 1e-7; }
-template<>            inline float  def_max_diff() { return 1e-7; }
-
-template<typename eT> inline eT     def_max_rel_diff() { return eT(0); }
-template<>            inline double def_max_rel_diff() { return 100 * std::numeric_limits<double>::epsilon(); }
-template<>            inline float  def_max_rel_diff() { return  10 * std::numeric_limits<float >::epsilon(); }
+template<typename eT> const eT     def_mrd			= eT(0);
+template<>            const double def_mrd<double>	= 100 * std::numeric_limits<double>::epsilon();
+template<>            const float  def_mrd<float>	=  10 * std::numeric_limits<float >::epsilon();
 
 
 template<typename eT>
-inline bool equal(const eT& x, const eT& y, const eT& = def_max_diff<eT>(), const eT& = def_max_rel_diff<eT>()) {
-	// default comparison using ==
-	return x == y;
-}
+inline bool equal(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
+	if constexpr (std::is_same<eT, double>::value || std::is_same<eT, float>::value) {
+		// mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
+		// positive numbers. Absolute error can be forced by passing max_rel_diff == 0.0. We also consider inf == inf.
+		// see: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+		//
+		if(x == y) return true;
 
-template<>
-inline bool equal(const rat& x, const rat& y, const rat&, const rat&) {
-	// for some weird reason, == doesn't work on rat
-	return cmp(x, y) == 0;
-}
+		eT diff = std::abs(x - y),
+			ax = std::abs(x),
+			ay = std::abs(y),
+			largest = (ay > ax ? ay : ax);
 
-// mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
-// positive numbers. Absolute error can be forced by passing max_rel_diff == 0.0. We also consider inf == inf.
-// see: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-//
-template<>
-inline bool equal(const double& x, const double& y, const double& md, const double& mrd) {
-	if(x == y) return true;
+		return largest == std::numeric_limits<eT>::infinity()
+			? false
+			: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
 
-	double diff = std::abs(x - y),
-		   ax = std::abs(x),
-		   ay = std::abs(y),
-		   largest = (ay > ax ? ay : ax);
-
-	return largest == inf
-		? false
-		: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
-}
-
-template<>
-inline bool equal(const float& x, const float& y, const float& md, const float& mrd) {
-	if(x == y) return true;
-
-	float diff = std::abs(x - y),
-		  ax = std::abs(x),
-		  ay = std::abs(y),
-		  largest = (ay > ax ? ay : ax);
-
-	return largest == finf
-		? false
-		: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
+	} else {
+		// default comparison using ==
+		return x == y;
+	}
 }
 
 
 template<typename eT>
-inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	return x < y || equal(x, y, md, mrd);
 }
 
 template<typename eT>
-inline bool less_than(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool less_than(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	// strictly less_than
 	return !less_than_or_eq(y, x, md, mrd);
 }
@@ -99,14 +75,15 @@ inline eT max(const eT& a, const eT& b) {
 
 template<typename eT>
 inline eT infinity() {
-	return std::numeric_limits<eT>::has_infinity
-		? std::numeric_limits<eT>::infinity()
-		: std::numeric_limits<eT>::max();
-}
+	if constexpr (std::is_same<eT, rat>::value) {
+		return rat(std::numeric_limits<long>::max(), 1);
 
-template<>
-inline rat infinity() {
-	return rat(std::numeric_limits<long>::max(), 1);
+	} else if constexpr (std::numeric_limits<eT>::has_infinity) {
+		return std::numeric_limits<eT>::infinity();
+
+	} else {
+		return std::numeric_limits<eT>::max();
+	}
 }
 
 
@@ -135,15 +112,13 @@ inline double log2(arma::uword a) {
 //
 template<typename eT>
 struct real_ops {
-	inline static eT log2(eT) { throw std::runtime_error("not supported on this datatype"); }
-};
-template<>
-struct real_ops<double> {
-	inline static double log2(double x) { return qif::log2(x); }
-};
-template<>
-struct real_ops<float> {
-	inline static float log2(float x) { return qif::log2(x); }
+	inline static eT log2(eT x) {
+		if constexpr (std::is_same<eT, float>::value || std::is_same<eT, double>::value) {
+			return qif::log2(x);
+		} else {
+			throw std::runtime_error("not supported on this datatype");
+		}
+	}
 };
 
 // precise sum using Kahan algorithm (https://en.wikipedia.org/wiki/Kahan_summation_algorithm)
@@ -189,45 +164,42 @@ class LargeAvg {
 // L-1 norm, with faster armadillo implementation for double/float
 template<typename T>
 inline typename T::elem_type norm1(const T& vec) {
-	return arma::norm(vec, 1);
-}
+	if constexpr (std::is_same<T, rprob>::value) {
+		rat sum(0);
+		for(auto e : vec)
+			sum += abs(e);
+		return sum;
 
-template<>
-inline rat norm1(const Row<rat>& vec) {
-	rat sum(0);
-	for(auto e : vec)
-		sum += abs(e);
-	return sum;
+	} else {
+		return arma::norm(vec, 1);
+	}
 }
 
 // exp with rat support, by converting to double
 template<typename eT>
 inline eT exp(eT x) {
-	return std::exp(x);
-}
-
-template<>
-inline rat exp(rat x) {
-	return rat(std::exp(x.get_d()));
+	if constexpr (std::is_same<eT, rat>::value) {
+		return rat(std::exp(x.get_d()));
+	} else {
+		return std::exp(x);
+	}
 }
 
 // pi with rat support, by converting to double
 template<typename eT>
 inline eT pi() {
-	return std::atan(1)*4;
-}
-
-template<>
-inline rat pi() {
-	return rat(std::atan(1)*4);
+	return eT(std::atan(1)*4);
 }
 
 // convert float/double/rat to double
 template<typename eT>
-inline double to_double(eT x) { return x; }
-
-template<>
-inline double to_double(rat x) { return x.get_d(); }
+inline double to_double(eT x) {
+	if constexpr (std::is_same<eT, rat>::value) {
+		return x.get_d();
+	} else {
+		return x;
+	}
+}
 
 
 // Facilitate populating spart matrices
