@@ -15,7 +15,7 @@ if($linux) {
 	run qq{sudo apt-get -qq update};
 	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-7 g++-8};
 
-	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 7.800.x --depth 1};
+	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 8.400.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
 
 } else {
