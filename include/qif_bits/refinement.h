@@ -1,6 +1,9 @@
 
 namespace refinement {
 
+// forward declaration
+template<typename eT> eT add_metric(const Prob<eT>&, const Chan<eT>&, const Chan<eT>&, Mat<eT>&);
+
 
 // true if A is refined by B (i.e. A's leakage is >= B's)
 //
@@ -18,6 +21,11 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 //   (i.e. a gain function such that A leaks strictly less than B for the uniform prior)
 // - also, the remapping channel R that minimizes the euclidean distance between AR and B is returned.
 //   When the function returns true, then AR = B holds.
+//
+// Note1: It should be possible to do the same thing by projecting wrt the manhattan norm (see Boyd 8.1.2).
+//        This can be done via LP so it will likely be faster
+// Note2: refined_by is equivalent to add_metric(uni, A, B) == 0, so this also gives an LP solution, but
+//        it turns out to be much slower than the projection method (although the latter is done via QP).
 //
 template<typename eT>
 bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {

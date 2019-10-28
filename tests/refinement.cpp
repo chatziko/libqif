@@ -11,40 +11,75 @@ TYPED_TEST_CASE_P(RefinementTestReals);		// tests that run only on double/float
 
 
 
-TYPED_TEST_P(RefinementTestReals, Refined_by_project) {
+TYPED_TEST_P(RefinementTestReals, Refined_by) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	arma::Mat<eT> G;
+	arma::Mat<eT> G1, G2;
 	Chan<eT> R;
 	Chan<eT> T = t.crand_10 * t.crand_10;
 
+	// Test all 3 versions. The one with 2 arguments is based on channel::factorize and is unstable for floats
+
 	// cases when B can leak more than A
 	//
-	EXPECT_FALSE(refinement::refined_by(t.crand_10, t.id_10, G));
-	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, t.crand_10) < g_vuln::posterior(G, t.unif_10, t.id_10));
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_FALSE(refinement::refined_by(t.crand_10, t.id_10));
+	}
+	EXPECT_FALSE(refinement::refined_by(t.crand_10, t.id_10, G1));
+	EXPECT_FALSE(refinement::refined_by(t.crand_10, t.id_10, G2, R));
+	EXPECT_FALSE(G1.empty());
+	EXPECT_FALSE(G2.empty());
+	EXPECT_TRUE(g_vuln::posterior(G1, t.unif_10, t.crand_10) < g_vuln::posterior(G1, t.unif_10, t.id_10));
+	EXPECT_TRUE(g_vuln::posterior(G2, t.unif_10, t.crand_10) < g_vuln::posterior(G2, t.unif_10, t.id_10));
 
-	EXPECT_FALSE(refinement::refined_by(t.noint_10, t.crand_10, G));
-	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, t.noint_10) < g_vuln::posterior(G, t.unif_10, t.crand_10));
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_FALSE(refinement::refined_by(t.noint_10, t.crand_10));
+	}
+	EXPECT_FALSE(refinement::refined_by(t.noint_10, t.crand_10, G1));
+	EXPECT_FALSE(refinement::refined_by(t.noint_10, t.crand_10, G2, R));
+	EXPECT_FALSE(G1.empty());
+	EXPECT_FALSE(G2.empty());
+	EXPECT_TRUE(g_vuln::posterior(G1, t.unif_10, t.noint_10) < g_vuln::posterior(G1, t.unif_10, t.crand_10));
+	EXPECT_TRUE(g_vuln::posterior(G2, t.unif_10, t.noint_10) < g_vuln::posterior(G2, t.unif_10, t.crand_10));
 
-	EXPECT_FALSE(refinement::refined_by(T, t.crand_10, G));
-	EXPECT_FALSE(G.empty());
-	EXPECT_TRUE(g_vuln::posterior(G, t.unif_10, T) < g_vuln::posterior(G, t.unif_10, t.crand_10));
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_FALSE(refinement::refined_by(T, t.crand_10));
+	}
+	EXPECT_FALSE(refinement::refined_by(T, t.crand_10, G1));
+	EXPECT_FALSE(refinement::refined_by(T, t.crand_10, G2, R));
+	EXPECT_FALSE(G1.empty());
+	EXPECT_FALSE(G2.empty());
+	EXPECT_TRUE(g_vuln::posterior(G1, t.unif_10, T) < g_vuln::posterior(G1, t.unif_10, t.crand_10));
+	EXPECT_TRUE(g_vuln::posterior(G2, t.unif_10, T) < g_vuln::posterior(G2, t.unif_10, t.crand_10));
 
 	// cases when B refines A (cannot leak more)
 	//
-	EXPECT_TRUE(refinement::refined_by(t.id_10, t.crand_10, G, R));
-	EXPECT_TRUE(G.empty());
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_TRUE(refinement::refined_by(t.id_10, t.crand_10));
+	}
+	EXPECT_TRUE(refinement::refined_by(t.id_10, t.crand_10, G1));
+	EXPECT_TRUE(refinement::refined_by(t.id_10, t.crand_10, G2, R));
+	EXPECT_TRUE(G1.empty());
+	EXPECT_TRUE(G2.empty());
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.id_10*R, t.crand_10, 1e-3, 0);
 
-	EXPECT_TRUE(refinement::refined_by(t.crand_10, t.noint_10, G, R));
-	EXPECT_TRUE(G.empty());
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, t.noint_10));
+	}
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, t.noint_10, G1));
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, t.noint_10, G2, R));
+	EXPECT_TRUE(G1.empty());
+	EXPECT_TRUE(G2.empty());
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.crand_10*R, t.noint_10, 1e-3, 0);
 
-	EXPECT_TRUE(refinement::refined_by(t.crand_10, T, G, R));
-	EXPECT_TRUE(G.empty());
+	if(!std::is_same<eT, float>::value) {
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, T));
+	}
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, T, G1));
+	EXPECT_TRUE(refinement::refined_by(t.crand_10, T, G2, R));
+	EXPECT_TRUE(G1.empty());
+	EXPECT_TRUE(G2.empty());
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, t.crand_10*R, T, 1e-3, 0);
 }
 
@@ -76,7 +111,7 @@ TYPED_TEST_P(RefinementTest, Add_metric) {
 // run the RefinementTest test-case for all types, and the RefinementTestReals only for double/float
 //
 REGISTER_TYPED_TEST_CASE_P(RefinementTest, Add_metric);
-REGISTER_TYPED_TEST_CASE_P(RefinementTestReals, Refined_by_project);
+REGISTER_TYPED_TEST_CASE_P(RefinementTestReals, Refined_by);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Refinement, RefinementTest, AllTypes);
 INSTANTIATE_TYPED_TEST_CASE_P(RefinementReals, RefinementTestReals, NativeTypes);
