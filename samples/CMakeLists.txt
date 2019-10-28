@@ -25,10 +25,15 @@ ENDMACRO()
 
 
 # dummy target, used only to generate a common precompiled header for all samples
-file(WRITE "${PROJECT_BINARY_DIR}/empty.cpp" "int main(){}")
-add_executable(samples_pch "${PROJECT_BINARY_DIR}/empty.cpp")
-set_target_properties(samples_pch PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "../include/precompiled.h")
-cotire(samples_pch)
+# Note: clang doesn't like the common precompiled header, it fails with
+#       error: PCH file was compiled for the target CPU 'x86-64' but the current translation unit is being compiled for target 'haswell'
+#
+if(NOT CMAKE_CXX_COMPILER MATCHES clang)
+	file(WRITE "${PROJECT_BINARY_DIR}/empty.cpp" "int main(){}")
+	add_executable(samples_pch "${PROJECT_BINARY_DIR}/empty.cpp")
+	set_target_properties(samples_pch PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "../include/precompiled.h")
+	cotire(samples_pch)
+endif()
 
 
 add_custom_target(samples)							# "samples" target, depends on all samples
@@ -47,8 +52,10 @@ foreach(DIR ${SUBDIRS})
 
 	# we manually add the dependency and the -include flag to the common precompiled header
 	cotire(${DEST})
-	add_dependencies("${DEST}_unity" samples_pch)
-	target_compile_options("${DEST}_unity" PRIVATE -include ${PROJECT_BINARY_DIR}/cotire/samples_pch_CXX_prefix.hxx)
+	if(NOT CMAKE_CXX_COMPILER MATCHES clang)
+		add_dependencies("${DEST}_unity" samples_pch)
+		target_compile_options("${DEST}_unity" PRIVATE -include ${PROJECT_BINARY_DIR}/cotire/samples_pch_CXX_prefix.hxx)
+	endif()
 
 	add_dependencies(samples "${DEST}_unity")
 endforeach()
