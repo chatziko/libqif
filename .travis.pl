@@ -42,7 +42,7 @@ for(@cxx) {
 	run qq{mkdir -p build};
 	chdir 'build';
 	run qq{cmake -DCMAKE_CXX_COMPILER=$_ -DCMAKE_BUILD_TYPE=Release ..};
-	run qq{make tests -j 2};
+	run qq{make allcode -j 2};
 	run qq{./tests/run};
 	chdir '..';
 	run qq{rm -rf build};
