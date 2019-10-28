@@ -510,18 +510,21 @@ inline void share_memory(Mat<eT>& A, Mat<eT>& B) {
 //
 template<typename eT = eT_def>
 eT sum_column_min(const Chan<eT>& C) {
-	// this doesn't work for rat, investigae
-	// return arma::accu(arma::min(C, 0));
+	if constexpr (!std::is_same<eT, rat>::value) {
+		// this doesn't work for rat, investigae
+		return arma::accu(arma::min(C, 0));
 
-	eT res(0);
-	for(uint y = 0; y < C.n_cols; y++) {
-		eT min(1);
-		for(uint x = 0; x < C.n_rows; x++)
-			if(C(x,y) < min)
-				min = C(x,y);
-		res += min;
+	} else {
+		eT res(0);
+		for(uint y = 0; y < C.n_cols; y++) {
+			eT min(1);
+			for(uint x = 0; x < C.n_rows; x++)
+				if(C(x,y) < min)
+					min = C(x,y);
+			res += min;
+		}
+		return res;
 	}
-	return res;
 }
 
 
