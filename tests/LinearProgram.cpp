@@ -37,8 +37,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 	LinearProgramTest<eT>& t = *this;
 
 	// the default acceptance range is too string for linear programs, we need a more permissive mrd
-	eT md =	def_max_diff<eT>();
-	eT mrd = def_max_rel_diff<float>();		// always use the mrd for floats
+	eT md =	def_md<eT>;
+	eT mrd = def_mrd<float>;		// always use the mrd for floats
 
 	for(auto comb : t.combs) {
 

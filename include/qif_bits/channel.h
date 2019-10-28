@@ -88,7 +88,7 @@ Chan<eT> deterministic(std::function<uint(uint)> map, uint n_rows, uint n_cols) 
 
 template<typename eT = eT_def>
 inline
-bool is_proper(const Chan<eT>& C, const eT& mrd = def_max_rel_diff<eT>()) {
+bool is_proper(const Chan<eT>& C, const eT& mrd = def_mrd<eT>) {
 	for(uint i = 0; i < C.n_rows; i++)
 		if(!probab::is_proper<eT>(C.row(i), mrd))
 			return false;
@@ -114,7 +114,7 @@ void check_prior_size(const Prob<eT>& pi, const Chan<eT>& C) {
 
 
 template<typename eT = eT_def>
-inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool equal(const Chan<eT>& A, const Chan<eT>& B, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	if(A.n_rows != B.n_rows || A.n_cols != B.n_cols)
 		return false;
 

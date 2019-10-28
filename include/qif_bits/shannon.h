@@ -45,7 +45,7 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 //Blahut-Arimoto Algorithm
 //
 template<typename eT>
-eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
+eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 	uint m = C.n_rows;
 	uint n = C.n_cols;
 
@@ -81,7 +81,7 @@ eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_max_diff<eT>(), eT 
 
 // same without getting back the prior
 template<typename eT>
-eT add_capacity(const Chan<eT>& C, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
+eT add_capacity(const Chan<eT>& C, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 	Prob<eT> Px;
 	return add_capacity<eT>(C, Px, md, mrd);
 }
@@ -92,7 +92,7 @@ eT add_capacity(const Chan<eT>& C, eT md = def_max_diff<eT>(), eT mrd = def_max_
 // Note that the algorithm really iterates on output distributions, not on channels.
 
 template<typename eT>
-Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
+Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
@@ -126,7 +126,7 @@ Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist,
 }
 
 template<typename eT>
-void min_distortion_fast(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_max_diff<eT>(), eT mrd = def_max_rel_diff<eT>()) {
+void min_distortion_fast(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;

@@ -132,7 +132,7 @@ Row<uint> draw(const T& pi, uint n) {
 
 template<typename eT = eT_def>
 inline
-bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
+bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
 	eT v = eT(1) / (int)pi.n_cols;
 	for(uint j = 0; j < pi.n_cols; j++)
 		if(!equal(v, pi(j), eT(0), mrd))
@@ -143,7 +143,7 @@ bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 
 template<typename eT = eT_def>
 inline
-bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
+bool is_proper(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
 	eT sum = 0;
 	for(uint j = 0; j < pi.n_cols; j++) {
 		// elements should be non-negative
@@ -155,7 +155,7 @@ bool is_proper(const Prob<eT>& pi, const eT& mrd = def_max_rel_diff<eT>()) {
 	}
 
 	// sum should be 1
-	if(!equal(sum, eT(1), def_max_diff<eT>(), mrd))
+	if(!equal(sum, eT(1), def_md<eT>, mrd))
 		return false;
 
 	return true;
@@ -169,7 +169,7 @@ void assert_proper(const Prob<eT>& pi) {
 }
 
 template<typename eT = eT_def>
-inline bool equal(const Prob<eT>& A, const Prob<eT>& B, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool equal(const Prob<eT>& A, const Prob<eT>& B, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	if(A.n_cols != B.n_cols)
 		return false;
 

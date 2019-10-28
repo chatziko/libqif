@@ -12,17 +12,17 @@
 #define ARMA_SET_CERR(stream) arma::set_stream_err2(stream)
 #endif
 
-template<typename eT> inline eT     def_max_diff() { return eT(0); }
-template<>            inline double def_max_diff() { return 1e-7; }
-template<>            inline float  def_max_diff() { return 1e-7; }
+template<typename eT> const eT     def_md			= eT(0);
+template<>            const double def_md<double>	= 1e-7;
+template<>            const float  def_md<float>	= 1e-7;
 
-template<typename eT> inline eT     def_max_rel_diff() { return eT(0); }
-template<>            inline double def_max_rel_diff() { return 100 * std::numeric_limits<double>::epsilon(); }
-template<>            inline float  def_max_rel_diff() { return  10 * std::numeric_limits<float >::epsilon(); }
+template<typename eT> const eT     def_mrd			= eT(0);
+template<>            const double def_mrd<double>	= 100 * std::numeric_limits<double>::epsilon();
+template<>            const float  def_mrd<float>	=  10 * std::numeric_limits<float >::epsilon();
 
 
 template<typename eT>
-inline bool equal(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool equal(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	if constexpr (std::is_same<eT, double>::value || std::is_same<eT, float>::value) {
 		// mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
 		// positive numbers. Absolute error can be forced by passing max_rel_diff == 0.0. We also consider inf == inf.
@@ -47,12 +47,12 @@ inline bool equal(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), c
 
 
 template<typename eT>
-inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool less_than_or_eq(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	return x < y || equal(x, y, md, mrd);
 }
 
 template<typename eT>
-inline bool less_than(const eT& x, const eT& y, const eT& md = def_max_diff<eT>(), const eT& mrd = def_max_rel_diff<eT>()) {
+inline bool less_than(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	// strictly less_than
 	return !less_than_or_eq(y, x, md, mrd);
 }
