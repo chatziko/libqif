@@ -476,15 +476,11 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 template<typename eT = eT_def>
 inline
 Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
-	// subgradient is usually facter for larger matrices, for sometimes for small ones it is _very_ slow
-	return A.n_elem < 1000
-		? factorize_lp(A, B, col_stoch)
-		: factorize_subgrad(A, B, col_stoch);
-}
-
-template<>
-inline
-rchan factorize(const rchan& A, const rchan& B, const bool col_stoch) {
+	if constexpr (!std::is_same<eT, rat>::value) {
+		// subgradient is usually facter for larger matrices, but sometimes for small ones it is _very_ slow
+		if (A.n_elem >= 1000)
+			return factorize_subgrad(A, B, col_stoch);
+	}
 	return factorize_lp(A, B, col_stoch);
 }
 

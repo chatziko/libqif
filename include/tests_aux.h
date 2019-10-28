@@ -16,19 +16,16 @@ using std::string;
 template<typename eT>
 inline
 string format_num(string s) {
-	return s;
-}
-template<>
-inline
-string format_num<rat>(string s) {
-	std::smatch m;
-	std::regex e("(\\d+)\\.(\\d+)");
+	if constexpr (std::is_same<eT, rat>::value) {
+		std::smatch m;
+		std::regex e("(\\d+)\\.(\\d+)");
 
-	while(std::regex_search(s, m, e)) {
-		string num = m[1];
-		string den = m[2];
-		string r = num + den + "/1" + string(den.length(), '0');		// turn 1.5 to 15/10
-		s = s.replace(m.position(), m.length(), r);
+		while(std::regex_search(s, m, e)) {
+			string num = m[1];
+			string den = m[2];
+			string r = num + den + "/1" + string(den.length(), '0');		// turn 1.5 to 15/10
+			s = s.replace(m.position(), m.length(), r);
+		}
 	}
 	return s;
 }
@@ -39,20 +36,17 @@ string format_num<rat>(string s) {
 template<typename eT>
 inline
 string format_rat(string s) {
-	std::smatch m;
-	std::regex e("(\\d+)/(\\d+)");
+	if constexpr (!std::is_same<eT, rat>::value) {
+		std::smatch m;
+		std::regex e("(\\d+)/(\\d+)");
 
-	while(std::regex_search(s, m, e)) {
-		string num = m[1];
-		string den = m[2];
-		string r = std::to_string(to_double(rat(std::stoi(num), std::stoi(den))));
-		s = s.replace(m.position(), m.length(), r);
+		while(std::regex_search(s, m, e)) {
+			string num = m[1];
+			string den = m[2];
+			string r = std::to_string(to_double(rat(std::stoi(num), std::stoi(den))));
+			s = s.replace(m.position(), m.length(), r);
+		}
 	}
-	return s;
-}
-template<>
-inline
-string format_rat<rat>(string s) {
 	return s;
 }
 
