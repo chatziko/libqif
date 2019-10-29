@@ -22,6 +22,11 @@ add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17, also avoid cotire issue with ortools
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
+IF(APPLE)
+	LINK_DIRECTORIES(/usr/local/lib)
+ENDIF()
+
 # build shared lib
 #
 file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
