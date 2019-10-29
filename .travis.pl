@@ -22,8 +22,11 @@ if($linux) {
 	# on OSX we just install libqif via homebrew. This is useful to test by itself,
 	# and also installs all dependencies needed for the actual build
 	#
+	$ENV{HOMEBREW_NO_INSTALL_CLEANUP} = 1;	# make homebrew
+	$ENV{HOMEBREW_NO_AUTO_UPDATE} = 1;		# faster
+
 	run qq{rm -f /usr/local/include/c++};	# brew install will fail if this exists
-	run qq{brew update};
+	# run qq{brew update};
 	run qq{brew tap chatziko/tap};
 	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
