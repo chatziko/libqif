@@ -4,7 +4,7 @@
 
 ## Install via Homebrew
 
-The easiest way to install libqif (especially on OSX) is via [Homebrew](http://brew.sh/):
+The easiest way to install libqif (especially on macOS) is via [Homebrew](http://brew.sh/):
 ```bash
 brew tap chatziko/tap
 brew install --HEAD libqif
@@ -51,6 +51,7 @@ clang++ test.cpp -std=c++17 -lqif -larmadillo -o test
 
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
+In macOS 10.4 you might also need `-L/usr/local/lib`.
 If the `rat` type is used you also need to compile with `-lgmp -lgmpxx`.
 If OR-Tools are used you also need to compile with `-lortools`.
 
