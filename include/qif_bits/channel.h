@@ -1,8 +1,6 @@
 
 namespace channel {
 
-template <typename eT> using ME = MatrixEntry<eT>;
-
 // normalizes all rows of C to create a channel
 //
 template<typename eT = eT_def>
