@@ -36,8 +36,6 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	uint Cc = B.n_cols;
 	uint Rr = A.n_cols;
 	uint Rc = B.n_cols;
-	uint n_vars = Cr*Cc + Rr*Rc;
-	uint n_cons = Cr*Cc + Rr*Rc + Rr;
 
 	// We want to find the point C=AR that is closest (in euclidean distance) to B.
 	// If it's B itself then B refines A, otherwise G=(B-C)^T is the gain function we want.
@@ -47,34 +45,25 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	// B.B is constant so we need to minimize C.C -2B.C
 	//
 	// We have 2 types of variables:
-	// - entries of C (Cr*Cc), constraint by C=AR (Cr*Cc)
-	//   var C_xz has index: x*Cc+z
-	// - entries of R (Rr*Rc), constraint to form a channel (Rr*Rc+Rr)
-	//   var R_yz has index: Cr*Cc + y*Rc+z
+	// - entries of C (Cr x Cc), constrained by C=AR
+	// - entries of R (Rr x Rc), constrained to form a channel
 
 	qp::QuadraticProgram<eT> qp;
-	qp.l.set_size(n_cons);
-	qp.u.set_size(n_cons);
-	qp.c.set_size(n_vars);
 
-	std::list<MatrixEntry<eT>> entries;		// for batch insert
+	auto C = qp.make_vars(Cr, Cc);
+	auto RR = qp.make_vars(Rr, Rc);			// RR to distringuish from param R
 
 	// constraints for C
-	uint cons_i = 0;
 	for(uint x = 0; x < Cr; x++) {
 		for(uint z = 0; z < Cc; z++) {
 			// We need to add the constraint: C_xz - sum_y A_xy R_yz = 0
-			// We add a line to A, in which C_xz has coeff 1, each R_yz has coeff - Axy, and the bounds are 0
-
-			qp.l(cons_i) = 0;	// lower bound
-			qp.u(cons_i) = 0;	// upper bound
-
-			entries.push_back(MatrixEntry<eT>(cons_i, x*Cc+z, 1));	// coeff of C_xz
+			// C_xz has coeff 1, each R_yz has coeff - Axy, and the bounds are 0
+			//
+			auto con = qp.make_con(0, 0);
+			qp.set_con_coeff(con, C[x][z], 1);	// coeff of C_xz
 
 			for(uint y = 0; y < Rr; y++)
-				entries.push_back(MatrixEntry<eT>(cons_i, Cr*Cc + y*Rc+z, -A(x,y)));	// coeff of R_yz
-
-			cons_i++;
+				qp.set_con_coeff(con, RR[y][z], -A(x,y));	// coeff of R_yz
 		}
 	}
 
@@ -82,41 +71,31 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	for(uint y = 0; y < Rr; y++) {
 		for(uint z = 0; z < Rc; z++) {
 			// We need to add the constraint: 0 <= R_yz <= 1
-			// We add a line to A, in which R_yz has coeff 1, and the bounds are 0,1
-			qp.l(cons_i) = 0;	// lower bound
-			qp.u(cons_i) = 1;	// upper bound
-			entries.push_back(MatrixEntry<eT>(cons_i, Cr*Cc + y*Rc+z, 1));
-
-			cons_i++;
+			// R_yz has coeff 1, and the bounds are 0,1
+			//
+			auto con = qp.make_con(0, 1);
+			qp.set_con_coeff(con, RR[y][z], 1);
 		}
 
 		// We need to add the constraint: sum_z R_yz = 1
-		// We add a line to A, in which each R_yz has coeff 1, and the bounds are both 1
-		qp.l(cons_i) = 1;	// lower bound
-		qp.u(cons_i) = 1;	// upper bound
+		// each R_yz has coeff 1, and the bounds are both 1
+		auto con = qp.make_con(1, 1);
 
 		for(uint z = 0; z < Rc; z++)
-			entries.push_back(MatrixEntry<eT>(cons_i, Cr*Cc + y*Rc+z, 1));
-
-		cons_i++;
+			qp.set_con_coeff(con, RR[y][z], 1);
 	}
-
-	assert(cons_i == n_cons);
-	fill_spmat(qp.A, n_cons, n_vars, entries);
 
 	// cost, quadratic part: C.C
 	// coeff 2 for the C variables (because of the 1/2 in the QP), 0 for the R variables
-	entries.clear();
-	for(uint i = 0; i < Cr*Cc; i++)
-		entries.push_back(MatrixEntry<eT>(i, i, 2));
-	fill_spmat(qp.P, n_vars, n_vars, entries);
+	for(uint x = 0; x < Cr; x++)
+		for(uint z = 0; z < Cc; z++)
+			qp.set_obj_coeff(C[x][z], C[x][z], 2);
 
 	// cost, linear part: -2BC
 	// coeffs -2B for the C variables, 0 for the R variables
-	qp.c.fill(0);
 	for(uint x = 0; x < Cr; x++)
 		for(uint z = 0; z < Cc; z++)
-			qp.c(x*Cc+z) = -2 * B(x,z);
+			qp.set_obj_coeff(C[x][z], -2 * B(x,z));
 
 	// precision of the solution (Kostas: not 100% sure here)
 	// if no value is set by the user, use 1e-5 instead of OSQP's defaults
@@ -134,12 +113,18 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	if(res) {
 		G.clear();
 	} else {
-		G = B.t() - arma::reshape(qp.x.head(Cc*Cr), Cc, Cr);
+		G.set_size(Cc, Cr);
+		for(uint x = 0; x < Cr; x++)
+			for(uint z = 0; z < Cc; z++)
+				G(z,x) = B(x,z) - qp.solution(C[x][z]);
 		G -= G.min();	// non-negative
 		G /= G.max();	// and in [0,1]
 	}
 
-	R = arma::reshape(qp.x.tail(Rc*Rr), Rc, Rr).t();
+	R.set_size(Rr, Rc);
+	for(uint y = 0; y < Rr; y++)
+		for(uint z = 0; z < Rc; z++)
+			R(y,z) = qp.solution(RR[y][z]);
 
 	return res;
 }
