@@ -200,14 +200,3 @@ inline double to_double(eT x) {
 		return x;
 	}
 }
-
-
-// Facilitate populating spart matrices
-//
-template<typename eT>
-class MatrixEntry {
-	public:
-		uint row, col;
-		eT val;
-		MatrixEntry(uint row, uint col, eT val) : row(row), col(col), val(val) {}
-};
