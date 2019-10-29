@@ -2,6 +2,8 @@ namespace qp {
 
 using std::string;
 
+template<typename eT> using ME = std::tuple<uint,uint,eT>;		// <row, col, val>
+
 enum class Status { OPTIMAL, INFEASIBLE, ERROR };
 enum class Method { ADDM };
 
@@ -69,10 +71,10 @@ class QuadraticProgram {
 		uint n_var = 0,							// number of variables
 			 n_con = 0;							// number of constraints
 
-		std::vector<c_float> obj_coeff_lin;			// coefficients for the objective function, linear part
-		std::list<MatrixEntry<eT>> obj_coeff_quad;	// coefficients for the objective function, quadratic part
-		std::list<MatrixEntry<eT>> con_coeff;		// coefficients for the constraints
-		std::vector<c_float> con_lb, con_ub;		// constraints lower/upper
+		std::vector<c_float> obj_coeff_lin;		// coefficients for the objective function, linear part
+		std::list<ME<eT>> obj_coeff_quad;		// coefficients for the objective function, quadratic part
+		std::list<ME<eT>> con_coeff;			// coefficients for the constraints
+		std::vector<c_float> con_lb, con_ub;	// constraints lower/upper
 
 		bool osqp();
 };
@@ -133,13 +135,13 @@ void QuadraticProgram<eT>::set_obj_coeff(Var var1, Var var2, eT coeff, bool add)
 
 	if(add) {
 		// SLOW
-		for(auto& me : obj_coeff_quad)
-			if(me.row == var1 && me.col == var2) {
-				me.val += coeff;
+		for(auto& [row, col, val] : obj_coeff_quad)
+			if(row == var1 && col == var2) {
+				val += coeff;
 				return;
 			}
 	}
-	obj_coeff_quad.push_back(MatrixEntry<eT>(var1, var2, coeff));
+	obj_coeff_quad.push_back(std::make_tuple(var1, var2, coeff));
 }
 
 template<typename eT>
@@ -150,13 +152,13 @@ void QuadraticProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 
 	if(add) {
 		// SLOW
-		for(auto& me : con_coeff)
-			if(me.row == con && me.col == var) {
-				me.val += coeff;
+		for(auto& [row, col, val] : con_coeff)
+			if(row == con && col == var) {
+				val += coeff;
 				return;
 			}
 	}
-	con_coeff.push_back(MatrixEntry<eT>(con, var, coeff));
+	con_coeff.push_back(std::make_tuple(con, var, coeff));
 }
 
 template<typename eT>
@@ -209,7 +211,7 @@ bool QuadraticProgram<eT>::solve() {
 }
 
 template<typename eT>
-csc* to_csc(uint n_rows, uint n_cols, const std::list<MatrixEntry<eT>>& entries) {
+csc* to_csc(uint n_rows, uint n_cols, const std::list<ME<eT>>& entries) {
 	// Compressed Sparse Column (CSC) format.
 	// https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)
 	// val:      array of non-zero values, in top-to-bottom, left-to-right order
@@ -224,20 +226,23 @@ csc* to_csc(uint n_rows, uint n_cols, const std::list<MatrixEntry<eT>>& entries)
 	c_int* col_ptr = (c_int*) malloc(sizeof(c_int) * n_cols + 1);
 
 	// put entries in a vector, to sort them to-to-bottom / left-to-right
-	std::vector<MatrixEntry<eT>> sorted(entries.begin(), entries.end());
-	std::sort(sorted.begin(), sorted.end(), [](MatrixEntry<eT>& a, MatrixEntry<eT>& b) -> bool {
-		return (a.col < b.col) || (a.col == b.col && a.row < b.row);
+	std::vector<ME<eT>> sorted(entries.begin(), entries.end());
+	std::sort(sorted.begin(), sorted.end(), [](auto& a, auto& b) -> bool {
+		auto& [arow, acol, aval] = a;
+		auto& [brow, bcol, bval] = b;
+		(void)aval; (void)bval; // silence
+		return (acol < bcol) || (acol == bcol && arow < brow);
 	}); 
 
 	uint cur_col = 0;
 	uint cnt = 0;		// next to update
-	for(auto& e : sorted) {
+	for(auto& [row, col, value] : sorted) {
 		// first time we see a column, update col_ptr
-		for(; cur_col <= e.col; cur_col++)	// possibly update previous empty columns
+		for(; cur_col <= col; cur_col++)	// possibly update previous empty columns
 			col_ptr[cur_col] = cnt;
 
-		val[cnt] = e.val;
-		row_ind[cnt] = e.row;
+		val[cnt] = value;
+		row_ind[cnt] = row;
 		cnt++;
 	}
 	for(; cur_col <= n_cols; cur_col++)
