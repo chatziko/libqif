@@ -47,13 +47,15 @@ run qq{wget -O - '$ortools_url' | tar -xzf -; mv or-tools* or-tools};
 run qq{sudo cp -r or-tools/lib or-tools/include /usr/local/};
 
 # build for each compiler
+$ENV{CLICOLOR_FORCE} = 1;
+
 my @cxx = $linux ? qw/g++-7 g++-8 g++-9 clang++/ : qw/clang++/;
 for(@cxx) {
 	run qq{mkdir -p build};
 	chdir 'build';
 	run qq{cmake -DCMAKE_CXX_COMPILER=$_ -DCMAKE_BUILD_TYPE=Release ..};
 	run qq{make allcode -j 2};
-	run qq{./tests/run};
+	run qq{./tests/run --gtest_color=yes};
 	chdir '..';
 	run qq{rm -rf build};
 }
