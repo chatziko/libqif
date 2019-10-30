@@ -23,7 +23,7 @@ class LinearProgramTest : public BaseTest<eT> {
 				if(solver == Solver::INTERNAL && (presolve || method != Method::SIMPLEX_PRIMAL)               ) continue; // internal solver: only simplex_primal/no presolve
 				if(this->is_rat               && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
 
-				combs.push_back(std::make_tuple(method, solver, presolve));
+				combs.push_back(std::tuple(method, solver, presolve));
 			}}}
 		}
 		std::vector<std::tuple<Method,Solver,bool>> combs;

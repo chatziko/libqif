@@ -209,7 +209,7 @@ void LinearProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 				return;
 			}
 	}
-	con_coeff.push_back(std::make_tuple(con, var, coeff));
+	con_coeff.push_back(std::tuple(con, var, coeff));
 }
 
 
@@ -583,7 +583,7 @@ void LinearProgram<eT>::to_canonical_form() {
 			auto xnew = make_var(0, inf);
 
 			// recover x* as x - xnew
-			var_transform.push_back(std::make_tuple(xnew, 1, 0));
+			var_transform.push_back(std::tuple(xnew, 1, 0));
 
 			// c*x* becomes c(x-xnew), so we need to update the obj
 			set_obj_coeff(xnew, -obj_coeff[x]);
@@ -595,7 +595,7 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		} else if(lb == -inf) {
 			// upper bounded variable, we set x = ub - x* (x* = ub - x)
-			var_transform.push_back(std::make_tuple(-1, -1, ub));
+			var_transform.push_back(std::tuple(-1, -1, ub));
 
 			obj_coeff[x] *= -1;
 
@@ -613,7 +613,7 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		} else { // lb != inf
 			// lower or doubly bounded variable, we set x = x* - lb  (x* = x + lb)
-			var_transform.push_back(std::make_tuple(-1, 1, lb));
+			var_transform.push_back(std::tuple(-1, 1, lb));
 
 			for(auto& [row, col, val] : con_coeff)
 				// a <= c x* <= b becomes a <= c(x+lb) <= b, so we need to subtract c*lb from lower/upper bound

@@ -141,7 +141,7 @@ void QuadraticProgram<eT>::set_obj_coeff(Var var1, Var var2, eT coeff, bool add)
 				return;
 			}
 	}
-	obj_coeff_quad.push_back(std::make_tuple(var1, var2, coeff));
+	obj_coeff_quad.push_back(std::tuple(var1, var2, coeff));
 }
 
 template<typename eT>
@@ -158,7 +158,7 @@ void QuadraticProgram<eT>::set_con_coeff(Con con, Var var, eT coeff, bool add) {
 				return;
 			}
 	}
-	con_coeff.push_back(std::make_tuple(con, var, coeff));
+	con_coeff.push_back(std::tuple(con, var, coeff));
 }
 
 template<typename eT>
