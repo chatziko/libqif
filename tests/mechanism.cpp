@@ -6,7 +6,7 @@ using namespace mechanism;
 template <typename eT>
 class MechTest : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(MechTest);
+TYPED_TEST_SUITE_P(MechTest);
 
 
 TYPED_TEST_P(MechTest, Is_private) {
@@ -189,7 +189,7 @@ TYPED_TEST_P(MechTest, Grid) {
 
 
 
-REGISTER_TYPED_TEST_CASE_P(MechTest, Is_private, Smallest_epsilon, Reals, Discrete, Grid);
+REGISTER_TYPED_TEST_SUITE_P(MechTest, Is_private, Smallest_epsilon, Reals, Discrete, Grid);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Mech, MechTest, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Mech, MechTest, NativeTypes);
 

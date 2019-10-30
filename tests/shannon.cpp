@@ -4,7 +4,7 @@
 template <typename T>
 class ShannonTest : public BaseTest<T> {};
 
-TYPED_TEST_CASE_P(ShannonTest);
+TYPED_TEST_SUITE_P(ShannonTest);
 
 
 
@@ -81,7 +81,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 
 // run the ChanTest test-case for double, float
 //
-REGISTER_TYPED_TEST_CASE_P(ShannonTest, Entropy, Cond_entropy, Capacity);
+REGISTER_TYPED_TEST_SUITE_P(ShannonTest, Entropy, Cond_entropy, Capacity);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Shannon, ShannonTest, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Shannon, ShannonTest, NativeTypes);
 

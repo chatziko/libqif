@@ -6,8 +6,8 @@ class RefinementTest : public BaseTest<eT> {};
 template <typename eT>
 class RefinementTestReals : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(RefinementTest);
-TYPED_TEST_CASE_P(RefinementTestReals);		// tests that run only on double/float
+TYPED_TEST_SUITE_P(RefinementTest);
+TYPED_TEST_SUITE_P(RefinementTestReals);		// tests that run only on double/float
 
 
 
@@ -110,8 +110,8 @@ TYPED_TEST_P(RefinementTest, Add_metric) {
 
 // run the RefinementTest test-case for all types, and the RefinementTestReals only for double/float
 //
-REGISTER_TYPED_TEST_CASE_P(RefinementTest, Add_metric);
-REGISTER_TYPED_TEST_CASE_P(RefinementTestReals, Refined_by);
+REGISTER_TYPED_TEST_SUITE_P(RefinementTest, Add_metric);
+REGISTER_TYPED_TEST_SUITE_P(RefinementTestReals, Refined_by);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Refinement, RefinementTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(RefinementReals, RefinementTestReals, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Refinement, RefinementTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(RefinementReals, RefinementTestReals, NativeTypes);

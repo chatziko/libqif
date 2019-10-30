@@ -7,8 +7,8 @@ class MetricTest : public BaseTest<eT> {};
 template <typename eT>
 class MetricTestReals : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(MetricTest);
-TYPED_TEST_CASE_P(MetricTestReals);		// tests that run only on double/float
+TYPED_TEST_SUITE_P(MetricTest);
+TYPED_TEST_SUITE_P(MetricTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(MetricTest, Euclidean_uint) {
@@ -272,9 +272,9 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 
 // run the MetricTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(MetricTest, Euclidean_uint, Scale, Threshold, Discrete, Manhattan_point, Total_variation, Convex_separation, Kantorovich);
-REGISTER_TYPED_TEST_CASE_P(MetricTestReals, Euclidean_point, Grid_point, Multiplicative_distance, Mult_kantorovich);
+REGISTER_TYPED_TEST_SUITE_P(MetricTest, Euclidean_uint, Scale, Threshold, Discrete, Manhattan_point, Total_variation, Convex_separation, Kantorovich);
+REGISTER_TYPED_TEST_SUITE_P(MetricTestReals, Euclidean_point, Grid_point, Multiplicative_distance, Mult_kantorovich);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Metric, MetricTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(Metric, MetricTestReals, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Metric, MetricTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Metric, MetricTestReals, NativeTypes);
 

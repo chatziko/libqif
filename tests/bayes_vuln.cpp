@@ -6,8 +6,8 @@ class BayesTest : public BaseTest<eT> {};
 template <typename eT>
 class BayesTestReals : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(BayesTest);
-TYPED_TEST_CASE_P(BayesTestReals);		// tests that run only on double/float
+TYPED_TEST_SUITE_P(BayesTest);
+TYPED_TEST_SUITE_P(BayesTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(BayesTest, Vulnerability) {
@@ -79,9 +79,9 @@ TYPED_TEST_P(BayesTestReals, Mult_capacity_bound_cap) {
 
 // run the BayesTest test-case for all types, and the BayesTestReals only for double/float
 //
-REGISTER_TYPED_TEST_CASE_P(BayesTest, Vulnerability, Post_vulnerability, Mult_capacity);
-REGISTER_TYPED_TEST_CASE_P(BayesTestReals, Min_entropy_leakage, Mult_capacity_bound_cap);
+REGISTER_TYPED_TEST_SUITE_P(BayesTest, Vulnerability, Post_vulnerability, Mult_capacity);
+REGISTER_TYPED_TEST_SUITE_P(BayesTestReals, Min_entropy_leakage, Mult_capacity_bound_cap);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Bayes, BayesTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(BayesReals, BayesTestReals, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Bayes, BayesTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(BayesReals, BayesTestReals, NativeTypes);
 

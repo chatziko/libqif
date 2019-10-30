@@ -6,8 +6,8 @@ class BayesRiskTest : public BaseTest<eT> {};
 template <typename eT>
 class BayesRiskTestReals : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(BayesRiskTest);
-TYPED_TEST_CASE_P(BayesRiskTestReals);		// tests that run only on double/float
+TYPED_TEST_SUITE_P(BayesRiskTest);
+TYPED_TEST_SUITE_P(BayesRiskTestReals);		// tests that run only on double/float
 
 
 TYPED_TEST_P(BayesRiskTest, Vulnerability) {
@@ -60,7 +60,7 @@ TYPED_TEST_P(BayesRiskTest, Mult_capacity) {
 
 // run the BayesRiskTest test-case for all types
 //
-REGISTER_TYPED_TEST_CASE_P(BayesRiskTest, Vulnerability, Post_vulnerability, Mult_capacity);
+REGISTER_TYPED_TEST_SUITE_P(BayesRiskTest, Vulnerability, Post_vulnerability, Mult_capacity);
 
-INSTANTIATE_TYPED_TEST_CASE_P(BayesRisk, BayesRiskTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(BayesRisk, BayesRiskTest, AllTypes);
 

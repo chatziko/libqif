@@ -33,8 +33,8 @@ class ChanTest : public BaseTest<T> {};
 template <typename T>
 class ChanTestReals : public BaseTest<T> {};
 
-TYPED_TEST_CASE_P(ChanTest);
-TYPED_TEST_CASE_P(ChanTestReals);
+TYPED_TEST_SUITE_P(ChanTest);
+TYPED_TEST_SUITE_P(ChanTestReals);
 
 
 TYPED_TEST_P(ChanTest, Construct) {
@@ -201,9 +201,9 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 
 // run ChanTest for all types, ChanTestReals only for native types
 //
-REGISTER_TYPED_TEST_CASE_P(ChanTest, Construct, Identity, Randu, Factorize, LeftFactorize, BayesianUpdate);
-REGISTER_TYPED_TEST_CASE_P(ChanTestReals, FactorizeSubgrad);
+REGISTER_TYPED_TEST_SUITE_P(ChanTest, Construct, Identity, Randu, Factorize, LeftFactorize, BayesianUpdate);
+REGISTER_TYPED_TEST_SUITE_P(ChanTestReals, FactorizeSubgrad);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTest, AllTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(Chan, ChanTestReals, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Chan, ChanTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Chan, ChanTestReals, NativeTypes);
 

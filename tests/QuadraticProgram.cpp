@@ -6,7 +6,7 @@ using namespace qif::qp;
 template <typename eT>
 class QuadraticProgramTest : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(QuadraticProgramTest);
+TYPED_TEST_SUITE_P(QuadraticProgramTest);
 
 
 TYPED_TEST_P(QuadraticProgramTest, Optimal) {
@@ -48,7 +48,7 @@ TYPED_TEST_P(QuadraticProgramTest, Infeasible) {
 }
 
 
-REGISTER_TYPED_TEST_CASE_P(QuadraticProgramTest, Optimal, Infeasible);
+REGISTER_TYPED_TEST_SUITE_P(QuadraticProgramTest, Optimal, Infeasible);
 
-INSTANTIATE_TYPED_TEST_CASE_P(QuadraticProgram, QuadraticProgramTest, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(QuadraticProgram, QuadraticProgramTest, NativeTypes);
 

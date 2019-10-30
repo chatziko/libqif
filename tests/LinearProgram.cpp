@@ -29,7 +29,7 @@ class LinearProgramTest : public BaseTest<eT> {
 		std::vector<std::tuple<Method,Solver,bool>> combs;
 };
 
-TYPED_TEST_CASE_P(LinearProgramTest);
+TYPED_TEST_SUITE_P(LinearProgramTest);
 
 
 TYPED_TEST_P(LinearProgramTest, Optimal) {
@@ -193,7 +193,7 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 }
 
 
-REGISTER_TYPED_TEST_CASE_P(LinearProgramTest, Optimal, Infeasible, Unbounded);
+REGISTER_TYPED_TEST_SUITE_P(LinearProgramTest, Optimal, Infeasible, Unbounded);
 
-INSTANTIATE_TYPED_TEST_CASE_P(LinearProgram, LinearProgramTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(LinearProgram, LinearProgramTest, AllTypes);
 

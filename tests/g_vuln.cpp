@@ -4,7 +4,7 @@
 template <typename eT>
 class GainTest : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(GainTest);
+TYPED_TEST_SUITE_P(GainTest);
 
 
 // TODO: test more gain functions. Currently these tests are copies from bayes_vuln.cpp and test only the id gain function
@@ -61,7 +61,7 @@ TYPED_TEST_P(GainTest, Add_capacity) {
 
 // run the GainTest test-case for all types
 //
-REGISTER_TYPED_TEST_CASE_P(GainTest, Vulnerability, Post_vulnerability, Add_capacity);
+REGISTER_TYPED_TEST_SUITE_P(GainTest, Vulnerability, Post_vulnerability, Add_capacity);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Gain, GainTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Gain, GainTest, AllTypes);
 

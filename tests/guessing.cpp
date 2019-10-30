@@ -4,7 +4,7 @@
 template <typename eT>
 class GuessingTest : public BaseTest<eT> {};
 
-TYPED_TEST_CASE_P(GuessingTest);
+TYPED_TEST_SUITE_P(GuessingTest);
 
 
 TYPED_TEST_P(GuessingTest, Vulnerability) {
@@ -43,7 +43,7 @@ TYPED_TEST_P(GuessingTest, Post_entropy) {
 
 // run the GuessingTest test-case for all types
 //
-REGISTER_TYPED_TEST_CASE_P(GuessingTest, Vulnerability, Post_entropy);
+REGISTER_TYPED_TEST_SUITE_P(GuessingTest, Vulnerability, Post_entropy);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Guessing, GuessingTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Guessing, GuessingTest, AllTypes);
 

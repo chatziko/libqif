@@ -31,7 +31,7 @@ using namespace probab;
 template <typename T>
 class ProbTest : public BaseTest<T> {};
 
-TYPED_TEST_CASE_P(ProbTest);
+TYPED_TEST_SUITE_P(ProbTest);
 
 
 TYPED_TEST_P(ProbTest, Construct) {
@@ -90,7 +90,7 @@ TYPED_TEST_P(ProbTest, Dirac) {
 
 // run the ProbTest test-case for double, float, urat
 //
-REGISTER_TYPED_TEST_CASE_P(ProbTest, Construct, Uniform, Randu, Dirac);
+REGISTER_TYPED_TEST_SUITE_P(ProbTest, Construct, Uniform, Randu, Dirac);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Prob, ProbTest, AllTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Prob, ProbTest, AllTypes);
 
