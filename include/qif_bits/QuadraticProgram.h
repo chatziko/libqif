@@ -136,10 +136,8 @@ void QuadraticProgram<eT>::set_obj_coeff(Var var1, Var var2, eT coeff, bool add)
 		return;
 
 	// maintain upper-triangular
-	if(var1 > var2) {
+	if(var1 > var2)
 		std::swap(var1, var2);
-		add = true;
-	}
 
 	auto key = std::pair(var2, var1);		// <col, row>
 	if(add && obj_coeff_quad.count(key))
