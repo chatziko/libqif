@@ -1,13 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 cmake_policy(VERSION 3.1)												# avoid MACOSX_RPATH warning
-if(POLICY CMP0058)
-	cmake_policy(SET CMP0058 NEW)										# void cotire warning under ninja
-endif()
 
 project(libqif)
-
-include(misc/cotire.cmake)												# for unity builds and precompiled headers
-set (COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
 
 # default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)
@@ -18,20 +12,32 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 
+# use unity builds by default for all targets EXCEPT osqp above (which breaks under unity builds)
+#
+if(NOT CMAKE_UNITY_BUILD AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+	set(CMAKE_UNITY_BUILD ON)
+	# set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
+endif()
+
 # use c++17
-set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17, also avoid cotire issue with ortools
+set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
-IF(APPLE)
+if(APPLE)
 	LINK_DIRECTORIES(/usr/local/lib)
-ENDIF()
+endif()
 
 # build shared lib
 #
-file(GLOB LIB_SOURCES src/*.cpp)										# get all src/*.cpp files in LIB_SOURCES
-add_library(qif SHARED EXCLUDE_FROM_ALL ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)		# libraries to link
+file(GLOB LIB_SOURCES src/*.cpp)											# get all src/*.cpp files in LIB_SOURCES
+add_library(qif SHARED ${LIB_SOURCES})										# libqif, depends on all src/*.cpp files
+target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)	# libraries to link
+
+# enable precompiled headers in cmake >= 3.16.0
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+	target_precompile_headers(qif PRIVATE include/precompiled.h)
+endif()
 
 # use ortools, if available
 #
@@ -44,21 +50,16 @@ if(ortools_FOUND)
 endif()
 
 # compiler options
+# NOTE: -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as PUBLIC, so that they
+#       are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
 #
-target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native>)
-target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG>)
+target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC)
+target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
 
 # includes and config file
 configure_file(include/qif_bits/config.h include/qif_bits/config.h)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include" include)
-
-# apply cotire
-#
-set_target_properties(qif PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "include/precompiled.h")
-cotire(qif)
-add_dependencies(qif_unity qif_pch)										# cotire seems to add the -include <precompiled> flag in the _unity build, but not a dependency to the _pch target that builds <precompiled>
-set_target_properties(qif_unity PROPERTIES EXCLUDE_FROM_ALL FALSE)		# 'all' builds qif_unity
 
 # other targets
 #
@@ -103,7 +104,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/ DESTINATION "include")
 # install OSQP's includes under qif_bits/osqp
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/osqp/include/ DESTINATION "include/qif_bits/osqp")
 
-install(TARGETS qif_unity
+install(TARGETS qif
 	ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 	LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 

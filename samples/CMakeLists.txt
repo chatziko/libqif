@@ -4,7 +4,14 @@ project(libqif)
 
 # use backward.cpp of pretty stacktraces
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
+	# never use unity build for backward.cpp, it breaks
+	set(BACKUP_CMAKE_UNITY_BUILD ${CMAKE_UNITY_BUILD})
+	set(CMAKE_UNITY_BUILD OFF)
+
 	add_subdirectory(../external/backward-cpp backward-cpp)
+
+	set(CMAKE_UNITY_BUILD ${BACKUP_CMAKE_UNITY_BUILD})
+
 else()
 	# backward.cpp not present, add dummy commands to avoid errors
 	set(BACKWARD_ENABLE "")
@@ -23,19 +30,6 @@ MACRO(SUBDIRLIST result curdir)
 	SET(${result} ${dirlist})
 ENDMACRO()
 
-
-# dummy target, used only to generate a common precompiled header for all samples
-# Note: clang doesn't like the common precompiled header, it fails with
-#       error: PCH file was compiled for the target CPU 'x86-64' but the current translation unit is being compiled for target 'haswell'
-#
-if(NOT CMAKE_CXX_COMPILER MATCHES clang)
-	file(WRITE "${PROJECT_BINARY_DIR}/empty.cpp" "int main(){}")
-	add_executable(samples_pch "${PROJECT_BINARY_DIR}/empty.cpp")
-	set_target_properties(samples_pch PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "../include/precompiled.h")
-	cotire(samples_pch)
-endif()
-
-
 add_custom_target(samples)							# "samples" target, depends on all samples
 
 SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
@@ -47,15 +41,13 @@ foreach(DIR ${SUBDIRS})
 	set(DEST ${DIR})
 
 	add_executable(${DEST} ${SOURCES} ${BACKWARD_ENABLE})
-	target_link_libraries(${DEST} qif pthread)									# link sample against libqif
-	add_backward(${DEST})												# add stuff required by backward-cpp
+	target_link_libraries(${DEST} qif pthread)						# link sample against libqif
+	add_backward(${DEST})											# add stuff required by backward-cpp
 
-	# we manually add the dependency and the -include flag to the common precompiled header
-	cotire(${DEST})
-	if(NOT CMAKE_CXX_COMPILER MATCHES clang)
-		add_dependencies("${DEST}_unity" samples_pch)
-		target_compile_options("${DEST}_unity" PRIVATE -include ${PROJECT_BINARY_DIR}/cotire/samples_pch_CXX_prefix.hxx)
+	# enable precompiled headers in cmake >= 3.16.0
+	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+		target_precompile_headers(${DEST} REUSE_FROM qif)
 	endif()
 
-	add_dependencies(samples "${DEST}_unity")
+	add_dependencies(samples ${DEST})
 endforeach()
