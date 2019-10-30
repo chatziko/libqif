@@ -6,13 +6,19 @@ my $linux = $ENV{TRAVIS_OS_NAME} eq 'linux';
 sub run {
 	my $cmd = shift;
 	print "\n$cmd\n";
-	system $cmd		and warn("command failed: $cmd\n\n"), exit 1;
+
+	my $realcmd = `which ts`
+		? qq{bash -o pipefail -c "$cmd 2>&1 | ts %H:%M:%S"}
+		: $cmd;
+
+	system $realcmd		and warn("command failed: $cmd\n\n"), exit 1;
 }
 
 # install dependencies
 if($linux) {
 	run qq{sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y};
 	run qq{sudo apt-get -qq update};
+	run qq{sudo apt-get install -y moreutils}; # for ts
 	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-7 g++-8 g++-9 clang};
 
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 8.400.x --depth 1};
@@ -27,6 +33,7 @@ if($linux) {
 
 	run qq{rm -f /usr/local/include/c++};	# brew install will fail if this exists
 	# run qq{brew update};
+	run qq{brew install moreutils};
 	run qq{brew tap chatziko/tap};
 	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
