@@ -41,7 +41,7 @@ foreach(DIR ${SUBDIRS})
 	set(DEST ${DIR})
 
 	add_executable(${DEST} ${SOURCES} ${BACKWARD_ENABLE})
-	target_link_libraries(${DEST} qif pthread)						# link sample against libqif
+	target_link_libraries(${DEST} qif)								# link sample against libqif
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
 	# enable precompiled headers in cmake >= 3.16.0

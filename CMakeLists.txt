@@ -53,7 +53,7 @@ endif()
 # NOTE: -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as PUBLIC, so that they
 #       are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
 #
-target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC)
+target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
 target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
 
 # includes and config file
