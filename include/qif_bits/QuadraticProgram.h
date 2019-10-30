@@ -135,6 +135,12 @@ void QuadraticProgram<eT>::set_obj_coeff(Var var1, Var var2, eT coeff, bool add)
 	if(equal<eT>(coeff, eT(0)))
 		return;
 
+	// maintain upper-triangular
+	if(var1 > var2) {
+		std::swap(var1, var2);
+		add = true;
+	}
+
 	auto key = std::pair(var2, var1);		// <col, row>
 	if(add && obj_coeff_quad.count(key))
 		obj_coeff_quad[key] += coeff;
@@ -272,7 +278,8 @@ bool QuadraticProgram<eT>::osqp() {
 	if(osqp_eps_rel >= 0.0) settings->eps_rel = osqp_eps_rel;
 
 	// solve
-	OSQPWorkspace* work = wrapper::osqp_setup(data, settings);
+	OSQPWorkspace* work;
+	wrapper::osqp_setup(&work, data, settings);
 	wrapper::osqp_solve(work);
 	// std::cout << "DONE\n";
 

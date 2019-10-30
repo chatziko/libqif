@@ -28,11 +28,11 @@ int glp_free_env(void)																			{ return ::glp_free_env(); }
 
 // OSQP methods /////////////////////////////////////////////////////////////////
 
-void osqp_set_default_settings(OSQPSettings *settings)							{ return ::osqp_set_default_settings(settings); }
-OSQPWorkspace* osqp_setup(const OSQPData *data, OSQPSettings *settings)			{ return ::osqp_setup(data, settings); }
-c_int osqp_solve(OSQPWorkspace *work)											{ return ::osqp_solve(work); }
-c_int osqp_cleanup(OSQPWorkspace *work)											{ return ::osqp_cleanup(work); }
-csc* csc_matrix(c_int m, c_int n, c_int nzmax, c_float *x, c_int *i, c_int *p)	{ return ::csc_matrix(m, n, nzmax, x, i, p); }
+void osqp_set_default_settings(OSQPSettings *settings)									{ return ::osqp_set_default_settings(settings); }
+c_int osqp_setup(OSQPWorkspace **work, const OSQPData *data, OSQPSettings *settings)	{ return ::osqp_setup(work, data, settings); }
+c_int osqp_solve(OSQPWorkspace *work)													{ return ::osqp_solve(work); }
+c_int osqp_cleanup(OSQPWorkspace *work)													{ return ::osqp_cleanup(work); }
+csc* csc_matrix(c_int m, c_int n, c_int nzmax, c_float *x, c_int *i, c_int *p)			{ return ::csc_matrix(m, n, nzmax, x, i, p); }
 
 
 } // namespace qif::wrapper

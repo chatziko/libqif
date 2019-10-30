@@ -32,7 +32,7 @@ int glp_free_env(void);
 // OSQP methods /////////////////////////////////////////////////////////////////
 
 void osqp_set_default_settings(OSQPSettings *settings);
-OSQPWorkspace* osqp_setup(const OSQPData *data, OSQPSettings *settings);
+c_int osqp_setup(OSQPWorkspace **work, const OSQPData *data, OSQPSettings *settings);
 c_int osqp_solve(OSQPWorkspace *work);
 c_int osqp_cleanup(OSQPWorkspace *work);
 csc* csc_matrix(c_int m, c_int n, c_int nzmax, c_float *x, c_int *i, c_int *p);
