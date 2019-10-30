@@ -17,9 +17,16 @@ sub run {
 # install dependencies
 if($linux) {
 	run qq{sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y};
+
+	# for latest cmake release candidate
+	run qq{sudo rm -rf /usr/local/cmake*};		# remove travis' default cmake
+	run qq{wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -};
+	run qq{sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial-rc main'};
+
 	run qq{sudo apt-get -qq update};
 	run qq{sudo apt-get install -y moreutils}; # for ts
 	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-7 g++-8 g++-9 clang};
+	run qq{cmake --version};
 
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 8.400.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
