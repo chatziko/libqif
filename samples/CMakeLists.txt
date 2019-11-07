@@ -2,15 +2,25 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
+include(../misc/Common.cmake)
+
+# if the samples are compiled alone (not within a library build), add an interface qif target
+# that has the same options as the normal qif target and links to the system-wide qif.
+if(NOT TARGET qif)
+	find_library(SYSTEM_QIF NAME qif PATHS ${CMAKE_FIND_ROOT_PATH})
+
+	add_library(qif INTERFACE)
+	target_link_libraries(qif INTERFACE ${SYSTEM_QIF} glpk gmp gmpxx gsl gslcblas armadillo $<$<BOOL:${QIF_USE_ORTOOLS}>:ortools::ortools>)	# libraries to link
+
+	target_compile_options(qif INTERFACE -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
+	target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
+endif()
+
 # use backward.cpp of pretty stacktraces
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
-	# never use unity build for backward.cpp, it breaks
-	set(BACKUP_CMAKE_UNITY_BUILD ${CMAKE_UNITY_BUILD})
-	set(CMAKE_UNITY_BUILD OFF)
-
+	set(CMAKE_UNITY_BUILD OFF)									# never use unity build for backward.cpp, it breaks
 	add_subdirectory(../external/backward-cpp backward-cpp)
-
-	set(CMAKE_UNITY_BUILD ${BACKUP_CMAKE_UNITY_BUILD})
+	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
 else()
 	# backward.cpp not present, add dummy commands to avoid errors
@@ -45,7 +55,7 @@ foreach(DIR ${SUBDIRS})
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
 	# enable precompiled headers in cmake >= 3.16.0
-	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+	if(NOT SYSTEM_QIF AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
 		target_precompile_headers(${DEST} REUSE_FROM qif)
 	endif()
 

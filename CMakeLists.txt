@@ -3,50 +3,22 @@ cmake_policy(VERSION 3.1)												# avoid MACOSX_RPATH warning
 
 project(libqif)
 
-# default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
-if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release)
-endif()
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+include(misc/Common.cmake)
 
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
+set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
-
-# use unity builds by default for all targets EXCEPT osqp above (which breaks under unity builds)
-#
-if(NOT CMAKE_UNITY_BUILD AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-	set(CMAKE_UNITY_BUILD ON)
-	# set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
-endif()
-
-# use c++17
-set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
-if(APPLE)
-	LINK_DIRECTORIES(/usr/local/lib)
-endif()
+set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
 # build shared lib
 #
 file(GLOB LIB_SOURCES src/*.cpp)											# get all src/*.cpp files in LIB_SOURCES
 add_library(qif SHARED ${LIB_SOURCES})										# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic)	# libraries to link
+target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic $<$<BOOL:${QIF_USE_ORTOOLS}>:ortools::ortools>)	# libraries to link
 
 # enable precompiled headers in cmake >= 3.16.0
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
 	target_precompile_headers(qif PRIVATE include/precompiled.h)
-endif()
-
-# use ortools, if available
-#
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/misc")			# get cmake modules from misc
-find_package(ortools)
-if(ortools_FOUND)
-	message(STATUS "Found ortools")
-	set(QIF_USE_ORTOOLS 1)							# this will be used in qif_bits/config.h
-	target_link_libraries(qif ortools::ortools)
 endif()
 
 # compiler options
