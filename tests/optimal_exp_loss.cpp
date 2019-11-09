@@ -22,7 +22,7 @@ TYPED_TEST_P(MechOptTest, OptimalUtility) {
 	auto d = step * metric::euclidean<eT, uint>();
 	auto bin_loss = metric::discrete<eT, uint>();
 
-	Chan<eT> geom = mechanism::geometric<eT>(size, epsilon * step);
+	Chan<eT> geom = mechanism::d_priv::geometric<eT>(size, epsilon * step);
 	Chan<eT> opt = under_d_privacy<eT>(t.unif_10, size, epsilon * d, bin_loss);
 	Chan<eT> dist_opt = under_d_privacy<eT>(t.unif_10, size, epsilon * d, bin_loss, "dist");
 	Chan<eT> dist_opt2 = under_d_privacy<eT>(t.unif_10, size, epsilon * d, bin_loss, "dist_strict");

@@ -1,4 +1,9 @@
 
+// forward declaration
+namespace mechanism::d_priv {
+	template<typename eT> Mat<eT> distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d);
+}
+
 namespace measure::shannon {
 
 // H(X) = - sum_x pi[x] log2(pi[x])
@@ -96,7 +101,7 @@ Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist,
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
-	Mat<eT> C = mechanism::distance_matrix(n_rows, n_cols, dist);
+	Mat<eT> C = mechanism::d_priv::distance_matrix(n_rows, n_cols, dist);
 
 	// uint cnt = 1;
 	while(true) {
