@@ -40,7 +40,7 @@ void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 
 	// generate mechanism
 	prob out = probab::uniform(width_out * width_out);
-	chan C = shannon::min_distortion(pi, out, eps/2 * d_inout, 1e-5, 1e-5);
+	chan C = mechanism::shannon::min_distortion(pi, out, eps/2 * d_inout, 1e-5, 1e-5);
 
 	file2 << C;
 

@@ -79,6 +79,7 @@ namespace qif {
 	#include "qif_bits/mechanism/optimal_exp_loss.h"
 	#include "qif_bits/mechanism/planar_laplace.h"
 	#include "qif_bits/mechanism/planar_geometric.h"
+	#include "qif_bits/mechanism/shannon.h"
 
 	#include "qif_bits/refinement.h"
 	#include "qif_bits/utility.h"
