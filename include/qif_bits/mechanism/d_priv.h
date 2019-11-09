@@ -196,7 +196,7 @@ namespace aux {
 	// auxiliary, hidden from the outside
 
 	template<typename eT>
-	Chan<eT> opt_exp_loss_all(
+	Chan<eT> min_loss_given_d_all(
 		const Prob<eT>& pi,
 		uint n_cols,
 		Metric<eT, uint> d_priv,
@@ -260,7 +260,7 @@ namespace aux {
 	// Distance-besed variables, one for every pair (d,y)
 	//
 	template<typename eT>
-	Chan<eT> opt_exp_loss_dist(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
+	Chan<eT> min_loss_given_d_dist(Prob<eT> pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 
 		uint M = pi.n_cols,
 			N = n_cols;
@@ -343,7 +343,7 @@ namespace aux {
 	// This is the first version, that had variables X_d instead of X_d,y
 	//
 	template<typename eT>
-	Chan<eT> opt_exp_loss_dist_strict(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
+	Chan<eT> min_loss_given_d_dist_strict(const Prob<eT>& pi, uint n_cols, Metric<eT, uint> d_priv, Metric<eT, uint> loss) {
 
 		uint M = pi.n_cols,
 			N = n_cols;
@@ -423,10 +423,10 @@ namespace aux {
 
 } // aux
 
-// Returns the mechanism satisfying eps*d privacy and having the best expected loss utility wrt pi and loss
+// Returns the mechanism having the min expected loss (utility) wrt pi and loss, given the d_priv constraint
 //
 template<typename eT>
-Chan<eT> opt_exp_loss(
+Chan<eT> min_loss_given_d(
 	const Prob<eT>& pi,
 	uint n_cols,
 	Metric<eT, uint> d_priv,
@@ -435,11 +435,11 @@ Chan<eT> opt_exp_loss(
 	eT inf = eT(std::log(1e200))	// ignore large distances to avoid numerical instability. infinity<eT>() could be used to disable
 ) {
 	if(vars == "all")
-		return aux::opt_exp_loss_all(pi, n_cols, d_priv, loss, inf);
+		return aux::min_loss_given_d_all        (pi, n_cols, d_priv, loss, inf);
 	else if(vars == "dist")
-		return aux::opt_exp_loss_dist(pi, n_cols, d_priv, loss);
+		return aux::min_loss_given_d_dist       (pi, n_cols, d_priv, loss);
 	else if(vars == "dist_strict")
-		return aux::opt_exp_loss_dist_strict(pi, n_cols, d_priv, loss);
+		return aux::min_loss_given_d_dist_strict(pi, n_cols, d_priv, loss);
 	else
 		throw std::runtime_error("invalid vars: " + vars);
 }

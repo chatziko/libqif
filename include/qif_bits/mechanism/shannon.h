@@ -1,16 +1,17 @@
 
 namespace mechanism::shannon {
 
-// Variant of the Arimoto-Blahut algorithm that returns a channel C that has the best mutual information among those with the same
-// distortion as C (see Cover and Thomas, Sectin 13.8). The exact distorion of C can be controlled by a parameter lambda _embeded_ in dist.
+// Variant of the Arimoto-Blahut algorithm that returns a channel C that has the max posterior entropy (i.e. min mutual information)
+// among those with at most the same expected loss (aka distortion) as C (the channel we return). See Cover and Thomas, Sectin 13.8.
+// The exact distorion of C can be controlled by scaling "loss" by a parameter lambda (here we assume lambda to be already embbeded in loss)
 // Note that the algorithm really iterates on output distributions, not on channels.
 
 template<typename eT>
-Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
+Chan<eT> max_entropy_given_same_loss(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> loss, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
-	Mat<eT> C = mechanism::d_priv::distance_matrix(n_rows, n_cols, dist);
+	Mat<eT> C = mechanism::d_priv::distance_matrix(n_rows, n_cols, loss);
 
 	// uint cnt = 1;
 	while(true) {
@@ -39,8 +40,9 @@ Chan<eT> min_distortion(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist,
 	}
 }
 
+// TODO: clean this up. is it really faster? does it work?
 template<typename eT>
-void min_distortion_fast(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
+void max_entropy_for_same_loss_fast(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> loss, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
@@ -58,9 +60,9 @@ void min_distortion_fast(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> dist
 			temp.fill(0);
 			uint z = 0;
 			for(uint y = (x > window ? x-window : 0); y < n_cols && y <= x + window; y++) {
-				temp(z++) = out(y) * qif::exp(-dist(x,y));
+				temp(z++) = out(y) * qif::exp(-loss(x,y));
 				// if(cnt == 1)
-				// 	std::cout << x << ", " << y << ", " << out(y) << ", " << dist(x,y) << ", " << exp(-dist(x,y))  << "\n";
+				// 	std::cout << x << ", " << y << ", " << out(y) << ", " << loss(x,y) << ", " << exp(-loss(x,y))  << "\n";
 			}
 			// if(cnt == 1) std::cout << temp << "\n";
 			temp /= arma::accu(temp);

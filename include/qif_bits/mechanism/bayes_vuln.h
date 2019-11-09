@@ -3,11 +3,11 @@
 
 namespace mechanism::bayes_vuln {
 
-// Returns the mechanism satisfying V(pi,C) <= max_vuln and having the smallest expected loss (wrt pi, loss)
-// Same as mechanism::g_vuln::opt_exp_loss for the identity gain function, but faster to construct the LP.
+// Returns the mechanism having the smallest expected loss (wrt pi, loss) given the V(pi,C) <= max_vuln constraint.
+// Same as mechanism::g_vuln::min_loss_given_max_vuln for the identity gain function, but faster to construct the LP.
 //
 template<typename eT>
-Chan<eT> opt_exp_loss(
+Chan<eT> min_loss_given_max_vuln(
 	const Prob<eT>& pi,
 	uint n_cols,
 	eT max_vuln,
@@ -95,7 +95,7 @@ Chan<eT> opt_exp_loss(
 //
 template<typename eT = eT_def>
 inline
-eT opt_vuln_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
+eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
 	uint N = C.n_cols;
 	eT inf = infinity<eT>();
 

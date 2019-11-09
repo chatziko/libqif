@@ -1,10 +1,10 @@
 
 namespace mechanism::g_vuln {
 
-// Returns the mechanism satisfying Vg(pi,C) <= max_vuln and having the smallest expected loss (wrt pi, loss)
+// Returns the mechanism having the smallest expected loss (wrt pi, loss) given the Vg(pi,C) <= max_vuln constraint
 //
 template<typename eT>
-Chan<eT> opt_exp_loss(
+Chan<eT> min_loss_given_max_vuln(
 	const Prob<eT>& pi,
 	uint n_cols,
 	uint n_guesses,
