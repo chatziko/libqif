@@ -1,5 +1,5 @@
 
-namespace shannon {
+namespace measure::shannon {
 
 // H(X) = - sum_x pi[x] log2(pi[x])
 //

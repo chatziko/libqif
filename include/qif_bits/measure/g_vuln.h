@@ -1,5 +1,5 @@
 
-namespace g_vuln {
+namespace measure::g_vuln {
 
 //		void * compare_over_prior(chan& other_channel);
 //		void * compare_over_gain(chan& other_channel,Prob<eT>& prior);

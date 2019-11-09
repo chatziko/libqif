@@ -6,6 +6,7 @@ using std::cout;
 
 #include "qif"
 using namespace qif;
+using namespace qif::measure;
 
 
 void print_mech(std::string name, chan& C, double eps, prob& pi, Metric<double, uint> d, Metric<double, uint> loss) {

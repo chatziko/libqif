@@ -3,6 +3,7 @@
 #include <iostream>
 #include "getopt.h"
 using namespace qif;
+using namespace qif::measure;
 using namespace std;
 
 

@@ -73,12 +73,12 @@ namespace qif {
 	#include "qif_bits/planar_geometric.h"
 	#include "qif_bits/refinement.h"
 
-	#include "qif_bits/shannon.h"
-	#include "qif_bits/bayes_vuln.h"
-	#include "qif_bits/bayes_risk.h"
-	#include "qif_bits/g_vuln.h"
-	#include "qif_bits/l_uncert.h"
-	#include "qif_bits/guessing.h"
+	#include "qif_bits/measure/shannon.h"
+	#include "qif_bits/measure/bayes_vuln.h"
+	#include "qif_bits/measure/bayes_risk.h"
+	#include "qif_bits/measure/g_vuln.h"
+	#include "qif_bits/measure/l_uncert.h"
+	#include "qif_bits/measure/guessing.h"
 
 	#include "qif_bits/utility.h"
 	#include "qif_bits/games.h"

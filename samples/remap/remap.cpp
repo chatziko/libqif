@@ -7,6 +7,7 @@ using std::cerr;
 
 #include "qif"
 using namespace qif;
+using namespace qif::measure;
 
 
 int main(int argc, char** argv) {

@@ -1,5 +1,5 @@
 
-namespace l_uncert {
+namespace measure::l_uncert {
 
 template<typename eT>
 eT prior(const Mat<eT>& L, const Prob<eT>& pi) {

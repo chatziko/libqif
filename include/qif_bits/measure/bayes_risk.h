@@ -1,5 +1,5 @@
 
-namespace bayes_risk {
+namespace measure::bayes_risk {
 
 template<typename eT>
 eT prior(const Prob<eT>& pi) {

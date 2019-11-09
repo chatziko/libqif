@@ -1,11 +1,12 @@
 #include "tests_aux.h"
 
+using namespace measure;
+
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename T>
 class ShannonTest : public BaseTest<T> {};
 
 TYPED_TEST_SUITE_P(ShannonTest);
-
 
 
 TYPED_TEST_P(ShannonTest, Entropy) {

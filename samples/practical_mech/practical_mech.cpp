@@ -8,6 +8,7 @@ using std::string;
 
 #include "qif"
 using namespace qif;
+using namespace qif::measure;
 
 typedef std::map<string, prob> probdict;
 

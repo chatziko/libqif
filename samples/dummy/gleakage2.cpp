@@ -3,6 +3,7 @@
 #include "qif"
 
 using namespace qif;
+using namespace qif::measure;
 
 void gleakage2() {
 	std::cout << "Using LIBQIF Library Example" << std::endl;

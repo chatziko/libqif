@@ -1,5 +1,7 @@
 #include "tests_aux.h"
 
+using namespace measure;
+
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
 class RefinementTest : public BaseTest<eT> {};

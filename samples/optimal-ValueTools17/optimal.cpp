@@ -5,6 +5,7 @@ using std::vector;
 using std::string;
 
 using namespace qif;
+using namespace qif::measure;
 
 
 void compute_optimal(string method) {

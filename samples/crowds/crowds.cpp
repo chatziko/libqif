@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 using namespace qif;
+using namespace qif::measure;
 using namespace std;
 
 uint honest;

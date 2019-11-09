@@ -1,5 +1,5 @@
 
-namespace guessing {
+namespace measure::guessing {
 
 template<typename eT>
 eT prior(const Prob<eT>& pi) {

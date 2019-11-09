@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace bayes_vuln {
+namespace measure::bayes_vuln {
 
 template<typename eT>
 eT prior(const Prob<eT>& pi) {

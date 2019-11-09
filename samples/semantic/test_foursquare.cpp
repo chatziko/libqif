@@ -1,6 +1,7 @@
 #include "qif"
 #include <math.h>       /* log */
 using namespace qif;
+using namespace qif::measure;
 
 using std::cout;
 using std::string;
