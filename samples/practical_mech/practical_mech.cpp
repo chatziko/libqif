@@ -158,7 +158,7 @@ void compare_noisy_remaps() {
 //		std::cout << "\n\n----------------------------\neps: ln("
 //			<< alpha << ")/0.1 = " << eps << "\n";
 
-//		chan opt_c = mechanism::optimal_utility<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
+//		chan opt_c = mechanism::d_priv::opt_exp_loss<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
 //		chan opt = scale_geo_mechanism(opt_c, width_c, factor);
 //		print_mech("optimal", opt, pi_global, priors, Loss);
 //		opt.clear();
@@ -214,7 +214,7 @@ int coarse() {
 		std::cout << "\n\n----------------------------\neps: ln("
 			<< alpha << ")/0.1 = " << eps << "\n";
 
-		chan opt = mechanism::optimal_exp_loss::under_d_privacy<double>(pi_global, n_outputs, eps * dx, loss);
+		chan opt = mechanism::d_priv::opt_exp_loss<double>(pi_global, n_outputs, eps * dx, loss);
 		if(opt.is_empty())
 			continue;
 		std::cout << alpha << ", c[0,0]: " << opt(0,0) << "\n";
