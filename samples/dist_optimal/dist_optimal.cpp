@@ -57,13 +57,13 @@ int main() {
 //	prob pi = load_prior("/home/vagabond/Desktop/ehab_priors/p1.pr");
 
 
-	chan opt = mechanism::optimal_utility(pi, n_outputs, eps * dx, loss);
+	chan opt = mechanism::optimal_exp_loss::under_d_privacy(pi, n_outputs, eps * dx, loss);
 	print_mech("optimal", opt, eps, pi, dx, loss);
 
-	chan dist_opt = mechanism::dist_optimal_utility(pi, n_outputs, eps * dx, loss);
+	chan dist_opt = mechanism::optimal_exp_loss::under_d_privacy(pi, n_outputs, eps * dx, loss, "dist");
 	print_mech("dist-optimal", dist_opt, eps, pi, dx, loss);
 
-	chan dist_opt_strict = mechanism::dist_optimal_utility_strict(pi, n_outputs, eps * dx, loss);
+	chan dist_opt_strict = mechanism::optimal_exp_loss::under_d_privacy(pi, n_outputs, eps * dx, loss, "dist_strict");
 	print_mech("dist-optimal-strict", dist_opt_strict, eps, pi, dx, loss);
 
 	chan laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);

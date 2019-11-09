@@ -213,7 +213,7 @@ int coarse() {
 		std::cout << "\n\n----------------------------\neps: ln("
 			<< alpha << ")/0.1 = " << eps << "\n";
 
-		chan opt = mechanism::optimal_utility<double>(pi_global, n_outputs, eps * dx, loss);
+		chan opt = mechanism::optimal_exp_loss::under_d_privacy<double>(pi_global, n_outputs, eps * dx, loss);
 		if(opt.is_empty())
 			continue;
 		std::cout << alpha << ", c[0,0]: " << opt(0,0) << "\n";

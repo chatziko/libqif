@@ -49,7 +49,7 @@ void compute_optimal(string method) {
 	prob pi = probab::uniform<double>(n_inputs);		// uniform prior
 	chan C = method == "geometric"
 		? mechanism::planar_geometric_grid<double>(width, width, unit, eps)
-		: mechanism::optimal_utility(pi, n_outputs, eps * dx, d_loss);
+		: mechanism::optimal_exp_loss::under_d_privacy(pi, n_outputs, eps * dx, d_loss);
 
 	cout << "size: " << C.n_rows << "\n";
 	cout << "proper: " << channel::is_proper(C) << "\n";

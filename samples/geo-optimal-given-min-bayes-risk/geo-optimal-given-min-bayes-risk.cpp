@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
 	cout << "computing optimal mechanism\n";
 
-	chan C = mechanism::optimal_exp_loss::given_max_bayes_vulnerability(pi, n, max_vuln, loss, max_loss);
+	chan C = mechanism::optimal_exp_loss::under_max_bayes_vuln(pi, n, max_vuln, loss, max_loss);
 
 	cout << "done\n";
 
