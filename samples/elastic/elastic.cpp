@@ -20,7 +20,7 @@ double utility_to_epsilon(string dataset, string util_metric) {
 
 	double eps = util_metric == "euclidean"
 		? 2.0 / utility
-		: mechanism::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
+		: mechanism::geo::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
 
 	cout << "utility for " << dataset << "/" << util_metric << ": " << utility << ", eps: " << eps << "\n";
 
@@ -128,7 +128,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	chan laplace;
 	if(!laplace.load("temp/laplace-"+std::to_string(eps)+".bin")) {
 
-		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
+		laplace = mechanism::geo::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
 		laplace.save("temp/laplace-"+std::to_string(eps)+".bin");
 	}
 	uint n = laplace.n_rows;

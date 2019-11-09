@@ -7,7 +7,7 @@ extern "C" {
 #include "qif"
 
 
-namespace qif::mechanism {
+namespace qif::mechanism::geo {
 
 using std::max;
 using std::min;

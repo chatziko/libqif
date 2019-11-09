@@ -67,6 +67,6 @@ int main() {
 	chan dist_opt_strict = mechanism::optimal_exp_loss::under_d_privacy(pi, n_outputs, eps * dx, loss, "dist_strict");
 	print_mech("dist-optimal-strict", dist_opt_strict, eps, pi, dx, loss);
 
-	chan laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);
+	chan laplace = mechanism::geo::planar_laplace_grid<double>(width, height, cell_size, eps);
 	print_mech("laplace", laplace, eps, pi, dx, loss);
 }

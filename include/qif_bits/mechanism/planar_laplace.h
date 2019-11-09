@@ -1,4 +1,4 @@
-namespace mechanism {
+namespace mechanism::geo {
 
 using std::cerr;
 using std::max;

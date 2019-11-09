@@ -163,8 +163,8 @@ TYPED_TEST_P(MechTest, Grid) {
 
 	auto d = step * metric::grid<eT>(width);
 
-	Chan<eT> laplace = mechanism::planar_laplace_grid<eT>(width, height, step, epsilon);
-	Chan<eT> geom = mechanism::planar_geometric_grid<eT>(width, height, step, epsilon);
+	Chan<eT> laplace = mechanism::geo::planar_laplace_grid<eT>(width, height, step, epsilon);
+	Chan<eT> geom = mechanism::geo::planar_geometric_grid<eT>(width, height, step, epsilon);
 	Chan<eT> tc = mechanism::d_priv::tight_constraints<eT>(size, epsilon * d);
 	Chan<eT> expon = mechanism::d_priv::exponential<eT>(size, epsilon * d);
 

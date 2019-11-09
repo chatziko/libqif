@@ -1,7 +1,8 @@
-namespace mechanism {
+namespace mechanism::geo {
 
 using std::cerr;
 using std::max;
+using ::qif::geo::GridWalk;
 
 
 double inverse_cumulative_gamma(double epsilon, double p);
@@ -20,7 +21,7 @@ _planar_geometric_coeff(eT cell_size, eT eps) {
 	auto d = eps * metric::euclidean<double, Point<eT>>();
 
 	eT coeff_cur(0);
-	for(Point<eT> p : geo::GridWalk<eT>(cell_size)) {
+	for(Point<eT> p : GridWalk<eT>(cell_size)) {
 		eT prob = exp<eT>(-d(p, zero));
 		sum.add(prob);
 
@@ -44,7 +45,7 @@ planar_geometric_draw(eT cell_size, eT eps) {
 	uint cnt = 0;
 	Point<eT> zero(0,0);
 
-	for(Point<eT> z : geo::GridWalk<eT>(cell_size)) {
+	for(Point<eT> z : GridWalk<eT>(cell_size)) {
 		eT prob = coeff * exp<eT>(-eps * euclid(z, zero));
 		accu.add(prob);
 
@@ -70,7 +71,7 @@ planar_geometric_draw(eT cell_size, eT eps, uint n) {
 	arma::uvec order = arma::sort_index(ps);
 
 	// single grid walk for all samples
-	geo::GridWalk<eT> gw(cell_size);
+	GridWalk<eT> gw(cell_size);
 	auto gw_it = gw.begin();
 
 	LargeSum<eT> accu;
