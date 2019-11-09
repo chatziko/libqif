@@ -5,47 +5,12 @@ using namespace measure::d_priv;
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
-class MechTest : public BaseTest<eT> {};
+class MechDPrivTest : public BaseTest<eT> {};
 
-TYPED_TEST_SUITE_P(MechTest);
+TYPED_TEST_SUITE_P(MechDPrivTest);
 
 
-TYPED_TEST_P(MechTest, Is_private) {
-	typedef TypeParam eT;
-	BaseTest<eT>& t = *this;
-
-	Chan<eT> C;
-	auto d = metric::euclidean<eT, uint>();
-
-	C = t.noint_10;
-	EXPECT_TRUE(is_private(C, eT(0)*d));
-
-	C = t.id_10;
-	EXPECT_FALSE(is_private(C, eT(10000)*d));
-
-	C = t.c1;
-	EXPECT_TRUE (is_private(C, std::log(eT(7.0)/2)*d));
-	EXPECT_FALSE(is_private(C, std::log(eT(6.9)/2)*d));
-}
-
-TYPED_TEST_P(MechTest, Smallest_epsilon) {
-	typedef TypeParam eT;
-	BaseTest<eT>& t = *this;
-
-	Chan<eT> C;
-	auto d = metric::euclidean<eT, uint>();
-
-	C = t.noint_10;
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), smallest_epsilon(C, d));
-
-	C = t.id_10;
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), smallest_epsilon(C, d));
-
-	C = t.c1;
-	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(7.0/2), smallest_epsilon(C, d));
-}
-
-TYPED_TEST_P(MechTest, Reals) {
+TYPED_TEST_P(MechDPrivTest, Reals) {
 	typedef TypeParam eT;
 
 	uint size = 10;
@@ -54,14 +19,14 @@ TYPED_TEST_P(MechTest, Reals) {
 
 	auto d = step * metric::euclidean<eT, uint>();
 
-	Chan<eT> geom = mechanism::d_priv::geometric<eT>(size, epsilon * step);
-	Chan<eT> expon = mechanism::d_priv::exponential<eT>(size, epsilon * d);
-	Chan<eT> tc = mechanism::d_priv::tight_constraints<eT>(size, epsilon * d);
+	Chan<eT> geom = geometric<eT>(size, epsilon * step);
+	Chan<eT> expon = exponential<eT>(size, epsilon * d);
+	Chan<eT> tc = tight_constraints<eT>(size, epsilon * d);
 
 	// tight constraints with first/last and middle coeffs forced to be equal
 	arma::uvec cols(size, arma::fill::ones);
 	cols(0) = cols(size-1) = 0;
-	Chan<eT> tc2 = mechanism::d_priv::tight_constraints<eT>(cols, epsilon * d);
+	Chan<eT> tc2 = tight_constraints<eT>(cols, epsilon * d);
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, size);
 	EXPECT_TRUE(is_private(geom, epsilon * d));
@@ -76,8 +41,8 @@ TYPED_TEST_P(MechTest, Reals) {
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, geom, tc2);
 
 	// fat
-	geom = mechanism::d_priv::geometric<eT>(size, epsilon * step, 2*size);
-	expon = mechanism::d_priv::exponential<eT>(size, epsilon * d, 2*size);
+	geom = geometric<eT>(size, epsilon * step, 2*size);
+	expon = exponential<eT>(size, epsilon * d, 2*size);
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, 2*size);
 	if(!std::is_same<eT, float>::value) { // not-enough precision
@@ -90,8 +55,8 @@ TYPED_TEST_P(MechTest, Reals) {
 	EXPECT_TRUE(is_private(expon, epsilon * d));
 
 	// skinny
-	geom = mechanism::d_priv::geometric<eT>(2*size, epsilon * step, size);
-	expon = mechanism::d_priv::exponential<eT>(2*size, epsilon * d, size);
+	geom = geometric<eT>(2*size, epsilon * step, size);
+	expon = exponential<eT>(2*size, epsilon * d, size);
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, 2*size, size);
 	if(!std::is_same<eT, float>::value) { // not-enough precision
@@ -107,7 +72,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	// We create 4 channels with secrets 5..14 and obs 0..9 / 10..19 / 1..18 / 7..12
 	// We first create by remapping a 0..19 x 0..19 channel, then create directly and compare
 	//
-	Chan<eT> G0 = mechanism::d_priv::geometric(20, epsilon);		// the 0..19 x 0..19 to remap
+	Chan<eT> G0 = geometric(20, epsilon);		// the 0..19 x 0..19 to remap
 
 	Chan<eT> T1 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(         x      ,  9u); }, 20, 20);	// 0..9
 	Chan<eT> T2 = G0 * channel::deterministic<eT>([=](uint x) -> uint { return std::min(std::max(x, 10u), 19u); }, 20, 20);	// 10..19
@@ -119,10 +84,10 @@ TYPED_TEST_P(MechTest, Reals) {
 	Chan<eT> G3 = T3.submat(5, 1,  14, 18);		// and the columns to
 	Chan<eT> G4 = T4.submat(5, 7,  14, 12);		// 0..9 / 10..19 / 1..18 / 7..12
 
-	Chan<eT> D1 = mechanism::d_priv::geometric(10, epsilon, 10, 5, 0 );	// same channels
-	Chan<eT> D2 = mechanism::d_priv::geometric(10, epsilon, 10, 5, 10);	// created
-	Chan<eT> D3 = mechanism::d_priv::geometric(10, epsilon, 18, 5, 1 );	// directly by passing
-	Chan<eT> D4 = mechanism::d_priv::geometric(10, epsilon, 6,  5, 7 );	// first_y / first_x
+	Chan<eT> D1 = geometric(10, epsilon, 10, 5, 0 );	// same channels
+	Chan<eT> D2 = geometric(10, epsilon, 10, 5, 10);	// created
+	Chan<eT> D3 = geometric(10, epsilon, 18, 5, 1 );	// directly by passing
+	Chan<eT> D4 = geometric(10, epsilon, 6,  5, 7 );	// first_y / first_x
 
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G1, D1);
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G2, D2);
@@ -130,7 +95,7 @@ TYPED_TEST_P(MechTest, Reals) {
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, G4, D4);
 }
 
-TYPED_TEST_P(MechTest, Discrete) {
+TYPED_TEST_P(MechDPrivTest, Discrete) {
 	typedef TypeParam eT;
 
 	uint size = 5;
@@ -138,9 +103,9 @@ TYPED_TEST_P(MechTest, Discrete) {
 
 	auto d = metric::discrete<eT, uint>();
 
-	Chan<eT> tc = mechanism::d_priv::tight_constraints<eT>(size, epsilon * d);
-	Chan<eT> expon = mechanism::d_priv::exponential<eT>(size, 2 * epsilon * d);
-	Chan<eT> rr = mechanism::d_priv::randomized_response<eT>(size, epsilon);
+	Chan<eT> tc = tight_constraints<eT>(size, epsilon * d);
+	Chan<eT> expon = exponential<eT>(size, 2 * epsilon * d);
+	Chan<eT> rr = randomized_response<eT>(size, epsilon);
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, tc, size, size);
 	EXPECT_TRUE(is_private(tc, epsilon * d));
@@ -152,7 +117,7 @@ TYPED_TEST_P(MechTest, Discrete) {
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, expon, rr);
 }
 
-TYPED_TEST_P(MechTest, Grid) {
+TYPED_TEST_P(MechDPrivTest, Grid) {
 	typedef TypeParam eT;
 
 	uint width = 3,
@@ -163,25 +128,13 @@ TYPED_TEST_P(MechTest, Grid) {
 
 	auto d = step * metric::grid<eT>(width);
 
-	Chan<eT> laplace = mechanism::geo::planar_laplace_grid<eT>(width, height, step, epsilon);
-	Chan<eT> geom = mechanism::geo::planar_geometric_grid<eT>(width, height, step, epsilon);
-	Chan<eT> tc = mechanism::d_priv::tight_constraints<eT>(size, epsilon * d);
-	Chan<eT> expon = mechanism::d_priv::exponential<eT>(size, epsilon * d);
+	Chan<eT> tc = tight_constraints<eT>(size, epsilon * d);
+	Chan<eT> expon = exponential<eT>(size, epsilon * d);
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, tc, size, size);
 	EXPECT_TRUE(is_private(tc, epsilon * d));
 	EXPECT_FALSE(is_private(tc, (epsilon - eT(0.01)) * d));
 	EXPECT_PRED_FORMAT2(equal2<eT>, epsilon, smallest_epsilon(tc, d));
-
-	// for the planar laplace, the accuracy that we get through numeric integration is not that great
-	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace, eT(1e-3));
-	EXPECT_TRUE(is_private(laplace, epsilon * d));
-	EXPECT_PRED_FORMAT4(equal4<eT>, 0.8844, smallest_epsilon(laplace, d), 0, eT(1e-3));
-
-	// same (just a bit better) for planar_geometric
-	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, geom, size, size);
-	EXPECT_TRUE(is_private(geom, (epsilon+eT(1e-5)) * d));
-	EXPECT_PRED_FORMAT4(equal4<eT>, epsilon, smallest_epsilon(geom, d), 0, eT(1e-6));
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, expon, size, size);
 	EXPECT_TRUE(is_private(expon, epsilon * d));
@@ -190,7 +143,7 @@ TYPED_TEST_P(MechTest, Grid) {
 
 
 
-REGISTER_TYPED_TEST_SUITE_P(MechTest, Is_private, Smallest_epsilon, Reals, Discrete, Grid);
+REGISTER_TYPED_TEST_SUITE_P(MechDPrivTest, Reals, Discrete, Grid);
 
-INSTANTIATE_TYPED_TEST_SUITE_P(Mech, MechTest, NativeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(Mech, MechDPrivTest, NativeTypes);
 

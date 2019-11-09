@@ -5,7 +5,7 @@ project(libqif)
 
 add_subdirectory(../external/googletest googletest)					# build googletest in dir 'googletest'
 
-file(GLOB TEST_SOURCES *.cpp)										# get all *.cpp files in TEST_SOURCES
+file(GLOB_RECURSE TEST_SOURCES *.cpp)								# get all *.cpp files in TEST_SOURCES
 
 add_executable(run ${TEST_SOURCES})
 target_link_libraries(run qif gtest)								# crete 'run' executable, link against libqif and googletest
