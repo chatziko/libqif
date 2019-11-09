@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 
 	// compute remap and print
 	//
-	chan R = channel::deterministic<double>(l_uncert::strategy(L, pi, C), L.n_rows);
+	chan R = channel::deterministic<double>(l_risk::strategy(L, pi, C), L.n_rows);
 	chan CR = C * R;
 
 	cout.setf(std::ios::fixed);

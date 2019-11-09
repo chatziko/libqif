@@ -104,7 +104,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l_uncert::strategy(L, prior_global, elastic);
+	auto strategy = l_risk::strategy(L, prior_global, elastic);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/elastic-" + areadataset + "-" + priv_metric);
@@ -144,7 +144,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l_uncert::strategy(L, prior_global, laplace);
+	auto strategy = l_risk::strategy(L, prior_global, laplace);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/laplace-" + areadataset + "-" + priv_metric);

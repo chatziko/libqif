@@ -78,7 +78,7 @@ void print_mech(string name, const chan& C, const prob& pi_global, mat& priors, 
 	cout << ": " << arma::mean(errors) << ", " << arma::median(errors);
 	cout << "\n";
 
-	chan R = channel::deterministic<double>(l_uncert::strategy(Loss, pi_global, C), Loss.n_rows);
+	chan R = channel::deterministic<double>(l_risk::strategy(Loss, pi_global, C), Loss.n_rows);
 	chan CR = C * R;
 
 	cout << name << " with remap";
@@ -102,7 +102,7 @@ void print_mech2(string name, const chan& C, const probdict& globals, mat& prior
 
 		chan M = g.second.is_empty()
 			? C
-			: C * channel::deterministic<double>(l_uncert::strategy(Loss, g.second, C), Loss.n_rows);
+			: C * channel::deterministic<double>(l_risk::strategy(Loss, g.second, C), Loss.n_rows);
 
 		for(uint i = 0; i < priors.n_rows; i++) {
 			prob pi = priors.row(i);
@@ -150,7 +150,7 @@ void compare_noisy_remaps() {
 	auto dx_c = metric::grid(width_c, geo_d_c);	// distance on grid from distance on points
 	auto loss   = dx;
 	auto loss_c = dx_c;
-	mat Loss = l_uncert::metric_to_mat(loss, n_inputs);
+	mat Loss = l_risk::metric_to_mat(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;
@@ -206,7 +206,7 @@ int coarse() {
 
 	auto dx   = metric::grid(width,   geo_d  );	// distance on grid from distance on points
 	auto loss   = dx;
-	mat Loss = l_uncert::metric_to_mat(loss, n_inputs);
+	mat Loss = l_risk::metric_to_mat(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;

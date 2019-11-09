@@ -14,7 +14,7 @@ void print_mech(std::string name, chan& C, double eps, prob& pi, Metric<double, 
 //	cout << C;
 	cout << "eps deviation: " << (measure::d_priv::smallest_epsilon(C, d) - eps) << "\n";
 	cout << "proper: " << channel::is_proper(C) << "\n";
-	cout << "util with remap : " << l_uncert::posterior(loss, pi, C) << "\n";
+	cout << "util with remap : " << l_risk::posterior(loss, pi, C) << "\n";
 	cout << "util without remap : " << utility::expected_distance(loss, pi, C) << "\n";
 }
 
