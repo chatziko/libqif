@@ -70,5 +70,24 @@ eT add_capacity(const Prob<eT>& pi, const Chan<eT>& C, bool one_spanning_g = fal
 	return g_vuln::add_capacity(pi, C, one_spanning_g);
 }
 
+// Convert a loss function to a gain function by complementing wrt its max value
+//
+template<typename eT>
+Metric<eT,uint> loss_to_gain(
+	uint n_secrets,
+	uint n_guesses,
+	Metric<eT, uint> loss
+) {
+	eT ceiling(0);
+
+	for(uint w = 0; w < n_guesses; w++)
+		for(uint x = 0; x < n_secrets; x++)
+			if(eT l = loss(w,x); less_than(ceiling, l))
+				ceiling = l;
+
+	return [=](uint w, uint x) -> auto {
+		return ceiling - loss(w, x);
+	};
+}
 
 } // namespace measure::l_risk

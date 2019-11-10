@@ -77,7 +77,9 @@ namespace qif {
 
 	#include "qif_bits/mechanism/d_priv.h"
 	#include "qif_bits/mechanism/g_vuln.h"
+	#include "qif_bits/mechanism/l_risk.h"
 	#include "qif_bits/mechanism/bayes_vuln.h"
+	#include "qif_bits/mechanism/bayes_risk.h"
 	#include "qif_bits/mechanism/planar_laplace.h"
 	#include "qif_bits/mechanism/planar_geometric.h"
 	#include "qif_bits/mechanism/shannon.h"
