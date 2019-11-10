@@ -146,6 +146,11 @@ eT posterior_bound2(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 ////////////////// Gain function manipulation //////////////////////////
 
 
+template<typename eT>
+const Metric<eT,uint> g_id = [](uint w, uint x) -> eT {
+	return x == w ? eT(1) : eT(0);
+};
+
 // Adding g1+g2 produces a g such that Vg = Vg1 + Vg2
 //
 template<typename eT>

@@ -3,8 +3,10 @@
 
 namespace mechanism::bayes_vuln {
 
-// Returns the mechanism having the smallest expected loss (wrt pi, loss) given the V(pi,C) <= max_vuln constraint.
-// Same as mechanism::g_vuln::min_loss_given_max_vuln for the identity gain function, but faster to construct the LP.
+using measure::g_vuln::g_id;
+
+// Returns the mechanism having the smallest E[loss] given the V(pi,C) <= max_vuln constraint.
+// Just calls g_vuln::min_loss_given_max_vuln for the identity gain function.
 //
 template<typename eT>
 Chan<eT> min_loss_given_max_vuln(
@@ -12,81 +14,27 @@ Chan<eT> min_loss_given_max_vuln(
 	uint n_cols,
 	eT max_vuln,
 	Metric<eT, uint> loss,
-	eT max_loss = infinity<eT>()	// C[x,y] is forced to 0 if loss(x,y) > max_loss
+	eT hard_max_loss = infinity<eT>()	// C[x,y] is forced to 0 if loss(x,y) > hard_max_loss
 ) {
-	uint M = pi.n_cols,
-		 N = n_cols;
-
-	// C: M x N   unknowns
-	// We have M x N variables
-	lp::LinearProgram<eT> lp;
-
-	uint zero_var = infinity<uint>();										// these vars are forced to 0
-	std::vector<std::vector<uint>> vars(M, std::vector<uint>(N, zero_var));	// MxN vector of vars
-
-	for(uint x = 0; x < M; x++)
-		for(uint y = 0; y < N; y++)
-			if(less_than_or_eq(loss(x, y), max_loss))
-				vars[x][y] = lp.make_var(0, 1);
-
-	// cost function: minimize sum_xy pi_x C_xy loss(x,y)
-	lp.maximize = false;
-	for(uint x = 0; x < M; x++)
-		for(uint y = 0; y < N; y++)
-			if(vars[x][y] != zero_var)
-				lp.set_obj_coeff(vars[x][y], pi(x) * loss(x, y));
-
-	// Build equations for V(pi, C) = sum_y max_x pi_x C_x,y <= max_vuln
+	// Just use the correspondig g_vuln function with g_id. It is optimized to take advantage of a "sparce" g.
 	//
-	// For this we use auxiliary variables:
-	//    vuln_y = max_x pi_x C_x,y <= max_vuln
+	return g_vuln::min_loss_given_max_vuln(pi, n_cols, pi.n_elem, max_vuln, g_id<eT>, loss, hard_max_loss);
+}
+
+// Returns the mechanism having the smallest Bayes vulnerabiliy given the E[loss] <= max_loss constraint.
+// Same as mechanism::g_vuln::min_vuln_given_max_loss for the identity gain function, but faster to construct the LP.
+//
+template<typename eT>
+Chan<eT> min_vuln_given_max_loss(
+	const Prob<eT>& pi,
+	uint n_cols,
+	eT max_loss,
+	Metric<eT, uint> loss,
+	eT hard_max_loss = infinity<eT>()	// C[x,y] is forced to 0 if loss(x,y) > hard_max_loss
+) {
+	// Just use the correspondig g_vuln function with g_id. It is optimized to take advantage of a "sparce" g.
 	//
-	auto vuln_y = lp.make_vars(n_cols);
-
-	// For each variable to really represent the max_x ..., we need to set constraints:
-	//    vuln_y >= pi_x C_x,y     for each y,x
-	//
-	for(uint y = 0; y < N; y++) {
-		for(uint x = 0; x < M; x++) {
-			if(vars[x][y] != zero_var) {
-				auto con = lp.make_con(-infinity<eT>(), 0);
-				lp.set_con_coeff(con, vuln_y[y], -1);
-				lp.set_con_coeff(con, vars[x][y], pi(x));
-			}
-		}
-	}
-
-	// finally, the actual vulnerability constraint:
-	//    sum_y vuln_y <= max_vuln
-	//
-	auto max_vuln_con = lp.make_con(-infinity<eT>(), max_vuln);
-	for(uint y = 0; y < N; y++)
-		lp.set_con_coeff(max_vuln_con, vuln_y[y], 1);
-
-	// equalities for summing up to 1
-	//
-	for(uint x = 0; x < M; x++) {
-		auto con = lp.make_con(1, 1);
-
-		// coeff 1 for variable C[x,y]
-		for(uint y = 0; y < N; y++)
-			if(vars[x][y] != zero_var)
-				lp.set_con_coeff(con, vars[x][y], 1);
-	}
-
-	// solve program
-	//
-	if(!lp.solve())
-		return Chan<eT>();
-
-	// reconstrict channel from solution
-	//
-	Chan<eT> C(M, N);
-	for(uint x = 0; x < M; x++)
-		for(uint y = 0; y < N; y++)
-			C(x, y) = vars[x][y] == zero_var ? eT(0) : lp.solution(vars[x][y]);
-
-	return C;
+	return g_vuln::min_vuln_given_max_loss(pi, n_cols, pi.n_elem, max_loss, g_id<eT>, loss, hard_max_loss);
 }
 
 // Treating C's row-th row as variables, computes the row that minimizes
