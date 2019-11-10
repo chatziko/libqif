@@ -10,6 +10,7 @@
 #include <set>
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <iterator>		// needed by
 #include <type_traits>	// range.hpp
 
