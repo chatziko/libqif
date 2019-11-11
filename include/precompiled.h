@@ -13,6 +13,8 @@
 #include <list>
 #include <map>
 #include <unordered_map>
+#include <tuple>
+#include <utility>
 #include <iterator>		// needed by
 #include <type_traits>	// range.hpp
 
