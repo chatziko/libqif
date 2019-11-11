@@ -7,6 +7,8 @@
 #include <armadillo>
 #include <vector>
 #include <cassert>
+#define _USE_MATH_DEFINES	// for PI
+#include <cmath>
 #include <set>
 #include <list>
 #include <map>

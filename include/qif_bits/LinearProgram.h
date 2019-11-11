@@ -22,9 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// for some reason this needs to be included here, not enough to do it in "qif"
-#include <cassert>
-
 namespace lp {
 
 using std::string;

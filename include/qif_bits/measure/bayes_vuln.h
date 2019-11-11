@@ -1,7 +1,3 @@
-#define _USE_MATH_DEFINES
-
-#include <cmath>
-
 namespace measure::bayes_vuln {
 
 template<typename eT>
