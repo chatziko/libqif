@@ -15,8 +15,8 @@ class LinearProgramTest : public BaseTest<eT> {
 			auto solvers = { Solver::INTERNAL, Solver::GLPK };
 			#endif
 
-			for(Method method : { Method::SIMPLEX_PRIMAL, Method::SIMPLEX_DUAL, Method::INTERIOR }) {
-			for(Solver solver : solvers) {
+			for(string method : { Method::SIMPLEX_PRIMAL, Method::SIMPLEX_DUAL, Method::INTERIOR }) {
+			for(string solver : solvers) {
 			for(bool presolve : { false, true }) {
 				// some combinations are not valid
 				if(method == Method::INTERIOR && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
@@ -26,7 +26,7 @@ class LinearProgramTest : public BaseTest<eT> {
 				combs.push_back(std::tuple(method, solver, presolve));
 			}}}
 		}
-		std::vector<std::tuple<Method,Solver,bool>> combs;
+		std::vector<std::tuple<string,string,bool>> combs;
 };
 
 TYPED_TEST_SUITE_P(LinearProgramTest);
@@ -137,7 +137,7 @@ TYPED_TEST_P(LinearProgramTest, Infeasible) {
 		LinearProgram<eT> lp;
 		std::tie(lp.method, lp.solver, lp.presolve) = comb;
 
-		Status status = lp.method == Method::INTERIOR
+		string status = lp.method == Method::INTERIOR
 				? Status::INFEASIBLE_OR_UNBOUNDED	// sometimes we just know that the problem is infeasible OR unbounded
 				: Status::INFEASIBLE;
 
@@ -175,7 +175,7 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 		// EXTRA conditions only for unbounded
 		if(lp.solver == Solver::GLOP || lp.solver == Solver::CLP) continue; // OR-tools/DUAL seems unstable with unbounded problems (TODO: investigae)
 
-		Status status = lp.solver != Solver::GLPK || (lp.method == Method::SIMPLEX_PRIMAL && !lp.presolve)
+		auto status = lp.solver != Solver::GLPK || (lp.method == Method::SIMPLEX_PRIMAL && !lp.presolve)
 				? Status::UNBOUNDED
 				: Status::INFEASIBLE_OR_UNBOUNDED;	// sometimes we just know that the problem is infeasible OR unbounded
 

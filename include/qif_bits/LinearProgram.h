@@ -31,23 +31,19 @@ using std::string;
 // (this is for uniformity with QuadraticProgram, not really needed here)
 template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 
-enum class Status { OPTIMAL, INFEASIBLE, UNBOUNDED, INFEASIBLE_OR_UNBOUNDED, ERROR };
-enum class Method { AUTO, SIMPLEX_PRIMAL, SIMPLEX_DUAL, INTERIOR };		// AUTO: whatever is best
-enum class Solver { AUTO, INTERNAL, GLPK, GLOP, CLP, GUROBI, CPLEX };	// for the each application
-enum class MsgLevel { OFF, ERR, ON, ALL };
-
-std::ostream& operator<<(std::ostream& os, const Status& status);
-std::ostream& operator<<(std::ostream& os, const Method& method);
-std::ostream& operator<<(std::ostream& os, const Solver& solver);
-std::ostream& operator<<(std::ostream& os, const MsgLevel& level);
+// emulate enums with strings, it's easier
+namespace Status { const auto OPTIMAL = "OPTIMAL", INFEASIBLE = "INFEASIBLE", UNBOUNDED = "UNBOUNDED", INFEASIBLE_OR_UNBOUNDED = "INFEASIBLE_OR_UNBOUNDED", ERROR = "ERROR"; }
+namespace Method { const auto AUTO = "AUTO", SIMPLEX_PRIMAL = "SIMPLEX_PRIMAL", SIMPLEX_DUAL = "SIMPLEX_DUAL", INTERIOR = "INTERIOR"; }					// AUTO: whatever is best
+namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
+namespace MsgLevel { const auto OFF = "OFF", ERR = "ERR", ON = "ON", ALL = "ALL"; }
 
 
 class Defaults {
 	public:
 		static bool presolve;
-		static MsgLevel msg_level;
-		static Method method;
-		static Solver solver;
+		static string msg_level;
+		static string method;
+		static string solver;
 };
 
 // Solve the linear program
@@ -66,11 +62,11 @@ class LinearProgram {
 
 	public:
 		bool maximize = true;
-		Method method = Defaults::method;
-		Solver solver = Defaults::solver;
+		string method = Defaults::method;
+		string solver = Defaults::solver;
 		bool presolve = Defaults::presolve;
-		Status status;
-		MsgLevel msg_level = Defaults::msg_level;
+		string status;
+		string msg_level = Defaults::msg_level;
 
 		bool solve();
 		string to_mps();
@@ -376,8 +372,8 @@ bool LinearProgram<eT>::glpk() {
 
 	wrapper::glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
 
-	const int glp_msg_levs[] = { GLP_MSG_OFF, GLP_MSG_ERR, GLP_MSG_ON, GLP_MSG_ALL };
-	const int msg_lev = glp_msg_levs[static_cast<uint>(msg_level)];
+	std::map<string,int> glp_msg_levs = { { MsgLevel::OFF, GLP_MSG_OFF }, { MsgLevel::ERR, GLP_MSG_ERR }, { MsgLevel::ON, GLP_MSG_ON }, { MsgLevel::ALL, GLP_MSG_ALL } };
+	const int msg_lev = glp_msg_levs[msg_level];
 
 	// solve
 	const bool is_interior = method == Method::INTERIOR;
@@ -456,35 +452,31 @@ bool LinearProgram<eT>::ortools() {
 	// probably set -DUSE_<SOLVER> when compiling (not tested).
 	//
 	MPSolver::OptimizationProblemType ptype;
-	switch(solver) {
-		case Solver::GLOP:
-			ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
-			break;
+	if(solver ==  Solver::GLOP) {
+		ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
 
-		case Solver::AUTO:
-		case Solver::CLP:
-			ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
-			break;
+	} else if(solver ==  Solver::AUTO || solver == Solver::CLP) {
+		ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
 
-		case Solver::GUROBI:
-			#ifdef USE_GUROBI
-			ptype = MPSolver::GUROBI_LINEAR_PROGRAMMING;
-			break;
-			#else
-			throw std::runtime_error("GUROBI not enabled, please compile ortools with GUROBI and use -DUSE_GUROBI");
-			#endif
+	} else if(solver == Solver::GUROBI) {
+		#ifdef USE_GUROBI
+		ptype = MPSolver::GUROBI_LINEAR_PROGRAMMING;
+		break;
+		#else
+		throw std::runtime_error("GUROBI not enabled, please compile ortools with GUROBI and use -DUSE_GUROBI");
+		#endif
 
-		case Solver::CPLEX:
-			#ifdef USE_CPLEX
-			ptype = MPSolver::CP:EX_LINEAR_PROGRAMMING;
-			break;
-			#else
-			throw std::runtime_error("CPLEX not enabled, please compile ortools with GUROBI and use -DUSE_CPLEX");
-			#endif
+	} else if(solver == Solver::CPLEX) {
+		#ifdef USE_CPLEX
+		ptype = MPSolver::CP:EX_LINEAR_PROGRAMMING;
+		break;
+		#else
+		throw std::runtime_error("CPLEX not enabled, please compile ortools with GUROBI and use -DUSE_CPLEX");
+		#endif
 
-		default:
-			// GLPK/INTERNAL are handled by other methods
-			throw std::runtime_error("shouldn't arrive here");
+	} else {
+		// GLPK/INTERNAL are handled by other methods
+		throw std::runtime_error("shouldn't arrive here");
 	}
 	MPSolver orsolver("libqif", ptype);
 
