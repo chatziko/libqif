@@ -7,7 +7,7 @@ using namespace std;
 
 int usage() {
 	cout
-		<< "Usage: geo-optimal <goal> <width> <height> <cell_size> <constraint> <hard_max_loss> [<prior_file>|uniform|random]\n\n"
+		<< "Usage: geo-optimal <goal> <width> <height> <cell_size> <constraint> <hard_max_loss> <prior> <solver>\n\n"
 		<< "goal:          one of\n"
 		<< "                 min_loss_given_min_bayesrisk\n"
 		<< "                 min_loss_given_min_georisk\n"
@@ -18,14 +18,15 @@ int usage() {
 		<< "cell_size:     length of each cell\n"
 		<< "constraint:    the bayesrisk, georisk or loss constraint, depending on the goal\n"
 		<< "hard_max_loss: C_xy is forced to 0 when loss(x,y) > hard_max_loss (can greatly reduce the problem size)\n"
-		<< "prior_file:    file with a single line containing the prior. 'uniform' or 'random' prior can also be used\n";
+		<< "prior:         file with a single line containing the prior | uniform | random\n"
+		<< "solver:        CLP | GLOP | GLPK\n";
 	return -1;
 }
 
 int main(int argc, char* argv[]) {
 	qif::rng::set_seed_random();		// RNG initialization
 
-	if(argc != 8) return usage();
+	if(argc != 9) return usage();
 
 	string goal = argv[1];
 	uint width = std::stoi(argv[2]);
@@ -39,6 +40,7 @@ int main(int argc, char* argv[]) {
 	double constraint = std::stod(argv[5]);
 	double hard_max_loss = std::stod(argv[6]);
 	string pi_file = argv[7];
+	string solver = argv[8];
 
 	prob pi;
 	if(pi_file == "uniform")
@@ -59,6 +61,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	lp::Defaults::msg_level = lp::MsgLevel::ALL;
+	lp::Defaults::solver = solver;
 
 	cout << "computing optimal mechanism\n";
 
@@ -82,9 +85,10 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	C.save("C", arma::raw_ascii);
+	// C.save("C", arma::raw_ascii);
 
 	cout << "Channel size: " << C.n_rows << "x" << C.n_cols << "\n";
+	return 0;
 	cout << "BayesRisk: " << bayes_risk::posterior(pi, C) << "\n";
 	cout << "GeoRisk: " << l_risk::posterior(loss, pi, C) << "\n";
 	cout << "Exp Util Loss: " << utility::expected_distance(loss, pi, C) << "\n";
