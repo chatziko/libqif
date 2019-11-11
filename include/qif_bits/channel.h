@@ -526,8 +526,8 @@ std::pair<Prob<eT>,Chan<eT>> to_binary(const Prob<eT>& pi, const Chan<eT>& C, ui
 	pibin(0) = pi(x);
 	pibin(1) = 1-pi(x);
 
-	Prob<eT> picond = pi;			// pi, conditioned on the event "not x"
-	if(!equal(pibin(1), eT(0))) {	// if "not x" never happens we keep picond = pi. This will give Cbin.row(0) = Cbin.row(1)
+	Prob<eT> picond = pi;					// pi, conditioned on the event "not x"
+	if(!qif::equal<eT>(pibin(1), eT(0))) {	// if "not x" never happens we keep picond = pi. This will give Cbin.row(0) = Cbin.row(1)
 		picond(x) = 0;
 		probab::normalize(picond);
 	}
