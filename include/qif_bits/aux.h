@@ -165,11 +165,7 @@ class LargeAvg {
 template<typename T>
 inline typename T::elem_type norm1(const T& vec) {
 	if constexpr (std::is_same<T, rprob>::value) {
-		rat sum(0);
-		for(auto e : vec)
-			sum += abs(e);
-		return sum;
-
+		return arma::accu(arma::abs(vec));
 	} else {
 		return arma::norm(vec, 1);
 	}
