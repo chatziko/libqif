@@ -277,19 +277,33 @@ grid(uint width, Metric<R, Point<uint>> d = metric::euclidean<R, Point<uint>>())
 }
 
 
-//////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
+//////////////////////// METRICS ON R^n ////////////////////////
 
 template<typename R = R_def, typename T>
 Metric<R, T>
-total_variation() {
-	static_assert(is_Prob<T>::value, "only defined on probability distributions");
+l1() {
+	static_assert(arma::is_Row<T>::value, "only defined on row vectors");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
 		if(a.n_cols != b.n_cols) throw std::runtime_error("size mismatch");
 
-		return arma::accu(arma::abs(a - b)) / 2;
+		if constexpr (std::is_same<R, rat>::value) {
+			return arma::accu(arma::abs(a - b));
+		} else {
+			return arma::norm(a - b, 1);		// probably faster, but doesn't work for rats
+		}
 	};
+}
+
+
+//////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
+
+template<typename R = R_def, typename T>
+Metric<R, T>
+total_variation() {
+	R half = R(1)/2;
+	return scale(l1<R,T>(), half);
 }
 
 template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
@@ -589,6 +603,7 @@ lipschitz_constant(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const 
 
 } // namespace metric
 
+// operator *, should be in the same namespace as Metric<R,T>
 template<typename R = metric::R_def, typename T>
 Metric<R, T>
 operator*(R coeff, const Metric<R, T>& d) {

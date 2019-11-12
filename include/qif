@@ -71,6 +71,7 @@ namespace qif {
 	#include "qif_bits/channel.h"
 	#include "qif_bits/channel_comp.h"
 	#include "qif_bits/metric.h"
+	#include "qif_bits/metric_opt.h"
 
 	#include "qif_bits/measure/shannon.h"
 	#include "qif_bits/measure/bayes_vuln.h"
