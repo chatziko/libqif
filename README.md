@@ -13,13 +13,21 @@ brew test --HEAD libqif
 
 To upgrade to the latest version:
 ```bash
-brew reinstall --HEAD libqif
+brew reinstall libqif
 ```
 
-__On Linux__: the method above is available via [Linuxbrew](http://linuxbrew.sh/). Make sure you have ```csh``` installed (needed only for the installation). Also, Linuxbrew installs everything under ```$HOME/.linuxbrew```, so you need to either configure your system to use libraries from there, or symlink eveything under ```/usr/local```:
+__On Linux__: Homebrew is also available [on linux](http://linuxbrew.sh/).
+You need to use some compiler supporting c++17, eg
+```
+brew install -cc=gcc-9 --HEAD libqif
+```
+It installs everything under ```/home/linuxbrew/.linuxbrew```, so you need
+to either configure your system to use libraries from there, or symlink
+eveything under ```/usr/local```:
+
 ```bash
-sudo ln -s $HOME/.linuxbrew/include/qif* /usr/local/include/
-sudo ln -s $HOME/.linuxbrew/lib64/libqif* /usr/local/lib/
+sudo ln -s /home/linuxbrew/.linuxbrew/include/qif* /usr/local/include/
+sudo ln -s /home/linuxbrew/.linuxbrew/lib/libqif* /usr/local/lib/
 sudo ldconfig
 ```
 
