@@ -46,7 +46,8 @@ if($linux) {
 	# run qq{brew update};
 	run qq{brew install moreutils};
 	run qq{brew tap chatziko/tap};
-	run qq{brew install -v --HEAD libqif};
+	run qq{brew unlink protobuf; true};		# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
+	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
 }
 
