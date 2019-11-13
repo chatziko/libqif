@@ -31,6 +31,10 @@ if($linux) {
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 8.400.x --depth 1};
 	run qq{cd armadillo-code && ./configure && sudo make install};
 
+	# install ortools
+	run qq{wget -O - 'https://github.com/google/or-tools/releases/download/v7.2/or-tools_ubuntu-16.04_v7.2.6977.tar.gz' | tar -xzf -; mv or-tools* or-tools};
+	run qq{sudo cp -r or-tools/lib or-tools/include /usr/local/};
+
 } else {
 	# on OSX we just install libqif via homebrew. This is useful to test by itself,
 	# and also installs all dependencies needed for the actual build
@@ -45,13 +49,6 @@ if($linux) {
 	run qq{brew install --HEAD libqif};
 	run qq{brew test --HEAD libqif};
 }
-
-# install ortools
-my $ortools_url = $linux
-	? 'https://github.com/google/or-tools/releases/download/v7.2/or-tools_ubuntu-16.04_v7.2.6977.tar.gz'
-	: 'https://github.com/google/or-tools/releases/download/v7.2/or-tools_MacOsX-10.14.5_v7.2.6977.tar.gz';
-run qq{wget -O - '$ortools_url' | tar -xzf -; mv or-tools* or-tools};
-run qq{sudo cp -r or-tools/lib or-tools/include /usr/local/};
 
 # build for each compiler
 $ENV{CLICOLOR_FORCE} = 1;
