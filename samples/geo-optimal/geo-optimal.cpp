@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	// C.save("C", arma::raw_ascii);
+	C.save("C", arma::raw_ascii);
 
 	cout << "Channel size: " << C.n_rows << "x" << C.n_cols << "\n";
 	return 0;
