@@ -267,7 +267,7 @@ bool LinearProgram<eT>::solve() {
 		} else {
 			#ifdef QIF_USE_ORTOOLS
 			s = Solver::CLP;
-			#elif QIF_USE_GLPK
+			#elif defined(QIF_USE_GLPK)
 			s = Solver::GLPK;
 			#else
 			s = Solver::INTERNAL;
