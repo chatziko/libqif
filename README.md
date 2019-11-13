@@ -36,7 +36,7 @@ int main() {
     std::cout
         << "Bayes vulnerability of \n"
         << C << " under " << pi << " is "
-        << bayes_vuln::posterior(pi, C) << "\n";
+        << measure::bayes_vuln::posterior(pi, C) << "\n";
 }
 ```
 
@@ -62,13 +62,13 @@ Prerequisites
 * [CMake](http://www.cmake.org/)
 * [Armadillo](http://arma.sourceforge.net/)
 * [GMP](https://gmplib.org/)
-* [GLPK](https://www.gnu.org/software/glpk/)
 * [GSL](http://www.gnu.org/software/gsl/)
 * A C++17 compliant compiler (eg g++ or clang)
 
 Optionally
 
-* [OR-Tools](https://developers.google.com/optimization/)
+* [OR-Tools](https://developers.google.com/optimization/) (recommended)
+* [GLPK](https://www.gnu.org/software/glpk/)
 
 On Ubuntu, these can be installed with:
 ```bash
@@ -102,8 +102,10 @@ make samples
 
 #### Use OR-Tools
 
-If OR-Tools are installed in your system when libqif is compiled, they will
-be used by some libqif methods for linear optimization and network flow.
+Several libqif methods can use OR-Tools for linear optimization and network flow.
+When installing via Homebrew, OR-Tools are installed automatically.
+
+When installing manually, you should install OR-Tools before compiling libif.
 The easiest way is to locate the `.tar.gz` file for your system in the
 [OR-Tools binary distributions](https://developers.google.com/optimization/install/cpp/#binary-distributions),
 then install it by simply copying the libraries and header files under `/usr/local` :

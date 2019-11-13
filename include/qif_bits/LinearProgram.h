@@ -259,12 +259,18 @@ bool LinearProgram<eT>::solve() {
 		if(is_rat) {
 			s = Solver::INTERNAL;
 		} else if(method == Method::INTERIOR) {
+			#ifdef QIF_USE_GLPK
 			s = Solver::GLPK;
+			#else
+			s = Solver::INTERNAL;
+			#endif
 		} else {
 			#ifdef QIF_USE_ORTOOLS
 			s = Solver::CLP;
-			#else
+			#elif QIF_USE_GLPK
 			s = Solver::GLPK;
+			#else
+			s = Solver::INTERNAL;
 			#endif
 		}
 	}
@@ -304,6 +310,10 @@ template<typename eT>
 bool LinearProgram<eT>::glpk() {
 	if(is_rat)
 		std::cout << "\nWARNING: using GLPK with rat. This will convert to double so it's not exact.\n\n";
+
+#ifndef QIF_USE_GLPK
+	throw std::runtime_error("glpk not available");
+#else
 
 	// create problem
 	glp_prob *lp = wrapper::glp_create_prob();
@@ -434,6 +444,8 @@ bool LinearProgram<eT>::glpk() {
 	wrapper::glp_free_env();
 
 	return status == Status::OPTIMAL;
+
+#endif // QIF_USE_GLPK
 }
 
 template<typename eT>

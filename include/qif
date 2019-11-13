@@ -34,6 +34,11 @@
 #include <ortools/linear_solver/linear_solver.pb.h>
 #endif
 
+// GLPK
+#ifdef QIF_USE_GLPK
+#include <glpk.h>
+#endif
+
 // OSQP
 // Note: in the source include dir, qif_bits/osqp is a symlink to external/osqp/include.
 // When installed, osqp's includes are copied to qif_bits/osqp

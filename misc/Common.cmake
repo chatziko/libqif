@@ -25,6 +25,9 @@ if(APPLE)
 	LINK_DIRECTORIES(/usr/local/lib)
 endif()
 
+# which libraries to link
+set(QIF_LIBS gmp gmpxx gsl gslcblas armadillo)
+
 # use ortools, if available
 #
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")	# get cmake modules from misc
@@ -32,4 +35,13 @@ find_package(ortools)
 if(ortools_FOUND)
 	message(STATUS "Found ortools")
 	set(QIF_USE_ORTOOLS 1)									# this will be used in qif_bits/config.h
+	list(APPEND QIF_LIBS ortools)							# add ortools to the list of linked libs
+endif()
+
+# use glpk, if available
+find_library(LIB_GLPK NAME glpk PATH_SUFFIXES lib/)
+if(NOT ${LIB_GLPK} STREQUAL "LIB_GLPK-NOTFOUND")
+	message(STATUS "Found glpk")
+	set(QIF_USE_GLPK 1)										# this will be used in qif_bits/config.h
+	list(APPEND QIF_LIBS ${LIB_GLPK})						# add glpk to the list of linked libs
 endif()

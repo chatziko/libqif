@@ -12,6 +12,6 @@
 .DS_Store
 
 samples/scribble
-build/
+build*/
 .vscode
 .vstags

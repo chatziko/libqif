@@ -7,10 +7,10 @@ include(../misc/Common.cmake)
 # if the samples are compiled alone (not within a library build), add an interface qif target
 # that has the same options as the normal qif target and links to the system-wide qif.
 if(NOT TARGET qif)
-	find_library(SYSTEM_QIF NAME qif PATHS ${CMAKE_FIND_ROOT_PATH})
+	find_library(SYSTEM_QIF NAME qif PATH_SUFFIXES lib/)
 
 	add_library(qif INTERFACE)
-	target_link_libraries(qif INTERFACE ${SYSTEM_QIF} glpk gmp gmpxx gsl gslcblas armadillo $<$<BOOL:${QIF_USE_ORTOOLS}>:ortools::ortools>)	# libraries to link
+	target_link_libraries(qif INTERFACE ${SYSTEM_QIF} ${QIF_LIBS})	# libraries to link
 
 	target_compile_options(qif INTERFACE -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
 	target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)

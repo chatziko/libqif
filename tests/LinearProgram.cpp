@@ -8,11 +8,17 @@ class LinearProgramTest : public BaseTest<eT> {
 	public:
 		void SetUp() override {
 			// construct method/solver/presolve combinations to test
+			std::list<string> solvers = { Solver::INTERNAL };
 			#ifdef QIF_USE_ORTOOLS
-			auto solvers = { Solver::INTERNAL, Solver::GLPK, Solver::GLOP, Solver::CLP };
+				solvers.push_back(Solver::GLOP);
+				solvers.push_back(Solver::CLP);
 			#else
-			std::cerr << "\nOR-tools not found, skipping GLOP and CLP tests\n\n";
-			auto solvers = { Solver::INTERNAL, Solver::GLPK };
+				std::cerr << "\nOR-tools not found, skipping GLOP and CLP tests\n\n";
+			#endif
+			#ifdef QIF_USE_GLPK
+				solvers.push_back(Solver::GLPK);
+			#else
+				std::cerr << "\nGLPK not found, skipping GLPK tests\n\n";
 			#endif
 
 			for(string method : { Method::SIMPLEX_PRIMAL, Method::SIMPLEX_DUAL, Method::INTERIOR }) {

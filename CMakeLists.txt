@@ -12,9 +12,9 @@ set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
 # build shared lib
 #
-file(GLOB LIB_SOURCES src/*.cpp)											# get all src/*.cpp files in LIB_SOURCES
-add_library(qif SHARED ${LIB_SOURCES})										# libqif, depends on all src/*.cpp files
-target_link_libraries(qif glpk gmp gmpxx gsl gslcblas armadillo osqpstatic $<$<BOOL:${QIF_USE_ORTOOLS}>:ortools::ortools>)	# libraries to link
+file(GLOB LIB_SOURCES src/*.cpp)						# get all src/*.cpp files in LIB_SOURCES
+add_library(qif SHARED ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
+target_link_libraries(qif osqpstatic ${QIF_LIBS})		# libraries to link (QIF_LIBS is set in Common.cmake)
 
 # enable precompiled headers in cmake >= 3.16.0
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 

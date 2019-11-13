@@ -5,6 +5,7 @@ namespace qif::wrapper {
 
 // GLPK methods /////////////////////////////////////////////////////////////////
 
+#ifdef QIF_USE_GLPK
 glp_prob *glp_create_prob(void)																	{ return ::glp_create_prob(); }
 int glp_add_rows(glp_prob *P, int nrs)															{ return ::glp_add_rows(P, nrs); }
 int glp_add_cols(glp_prob *P, int ncs)															{ return ::glp_add_cols(P, ncs); }
@@ -24,6 +25,7 @@ int glp_ipt_status(glp_prob *P)																	{ return ::glp_ipt_status(P); }
 double glp_ipt_col_prim(glp_prob *P, int j)														{ return ::glp_ipt_col_prim(P, j); }
 void glp_delete_prob(glp_prob *P)																{ return ::glp_delete_prob(P); }
 int glp_free_env(void)																			{ return ::glp_free_env(); }
+#endif
 
 
 // OSQP methods /////////////////////////////////////////////////////////////////

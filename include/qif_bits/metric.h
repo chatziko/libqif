@@ -429,8 +429,9 @@ kantorovich_lp(Metric<R, uint> d) {
 		}
 
 		// for floats, set the default solver to GLPK, CLP failed tests (numerical instability?)
-		if(std::is_same<R,float>::value && lp.solver == lp::Solver::AUTO)
-			lp.solver = lp::Solver::GLPK;
+		// Kostas 19/11/12: seems ok now?
+		// if(std::is_same<R,float>::value && lp.solver == lp::Solver::AUTO)
+		// 	lp.solver = lp::Solver::GLPK;
 
 		if(!lp.solve())
 			throw std::runtime_error(std::string("Kantorovich program failed: ") +

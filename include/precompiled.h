@@ -18,7 +18,6 @@
 #include <iterator>		// needed by
 #include <type_traits>	// range.hpp
 
-#include <glpk.h>
 #include <gmpxx.h>		// for rats
 
 extern "C" {
@@ -30,5 +29,9 @@ extern "C" {
 #include <ortools/linear_solver/linear_solver.h>
 #include <ortools/linear_solver/linear_solver.pb.h>
 #endif
+
+#ifdef QIF_USE_GLPK
+#include <glpk.h>
+#endif QIF_USE_GLPK
 
 #endif
