@@ -88,7 +88,6 @@ int main(int argc, char* argv[]) {
 	C.save("C", arma::raw_ascii);
 
 	cout << "Channel size: " << C.n_rows << "x" << C.n_cols << "\n";
-	return 0;
 	cout << "BayesRisk: " << bayes_risk::posterior(pi, C) << "\n";
 	cout << "GeoRisk: " << l_risk::posterior(loss, pi, C) << "\n";
 	cout << "Exp Util Loss: " << utility::expected_distance(loss, pi, C) << "\n";
