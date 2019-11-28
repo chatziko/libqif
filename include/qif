@@ -88,7 +88,6 @@ namespace qif {
 	#include "qif_bits/measure/bayes_risk.h"
 	#include "qif_bits/measure/g_vuln.h"
 	#include "qif_bits/measure/l_risk.h"
-	#include "qif_bits/measure/two_block_vuln.h"
 	#include "qif_bits/measure/guessing.h"
 	#include "qif_bits/measure/d_priv.h"
 
