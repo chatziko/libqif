@@ -85,7 +85,7 @@ eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
 	// solve program
 	//
 	if(!lp.solve())
-		throw std::runtime_error("min_l1_enclosing_ball: lp should be always solvable");
+		throw std::runtime_error("min_vuln_for_row: lp should be always solvable");
 
 	// reconstruct q from solution
 	//
