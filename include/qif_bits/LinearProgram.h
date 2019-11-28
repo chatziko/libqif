@@ -266,7 +266,7 @@ bool LinearProgram<eT>::solve() {
 			#endif
 		} else {
 			#ifdef QIF_USE_ORTOOLS
-			s = Solver::CLP;
+			s = Solver::GLOP;
 			#elif defined(QIF_USE_GLPK)
 			s = Solver::GLPK;
 			#else
@@ -464,10 +464,10 @@ bool LinearProgram<eT>::ortools() {
 	// probably set -DUSE_<SOLVER> when compiling (not tested).
 	//
 	MPSolver::OptimizationProblemType ptype;
-	if(solver ==  Solver::GLOP) {
+	if(solver ==  Solver::AUTO || solver ==  Solver::GLOP) {
 		ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
 
-	} else if(solver ==  Solver::AUTO || solver == Solver::CLP) {
+	} else if(solver == Solver::CLP) {
 		ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
 
 	} else if(solver == Solver::GUROBI) {
