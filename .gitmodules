@@ -7,3 +7,6 @@
 [submodule "external/osqp"]
 	path = external/osqp
 	url = https://github.com/oxfordcontrol/osqp
+[submodule "external/miniball"]
+	path = external/miniball
+	url = https://github.com/hbf/miniball.git

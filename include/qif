@@ -47,6 +47,11 @@
 #include "qif_bits/osqp/osqp.h"
 #pragma GCC diagnostic pop
 
+// miniball
+// Note: in the source include dir, qif_bits/miniball is a symlink to external/miniball/cpp/main.
+// When installed, miniball's includes are copied to qif_bits/miniball
+#include "qif_bits/miniball/Seb.h"
+
 namespace fastemd {
 	// ignore warnings in FastEMD code
 	#pragma GCC diagnostic push
@@ -83,6 +88,7 @@ namespace qif {
 	#include "qif_bits/measure/bayes_risk.h"
 	#include "qif_bits/measure/g_vuln.h"
 	#include "qif_bits/measure/l_risk.h"
+	#include "qif_bits/measure/two_block_vuln.h"
 	#include "qif_bits/measure/guessing.h"
 	#include "qif_bits/measure/d_priv.h"
 

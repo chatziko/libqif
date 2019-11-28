@@ -64,4 +64,33 @@ std::tuple<eT,uint,uint> l1_diameter(const Chan<eT>& C, std::string method = "di
 	return std::tuple(diam, res_x1, res_x2);
 }
 
+// Computes the (unique) vector q that minimizes the max l2-distance from the rows of C.
+// The vector is returned in q, the radius is the return value of the function.
+//
+template<typename eT = eT_def>
+inline
+eT min_l2_enclosing_ball(const Chan<eT>& C, Prob<eT>& q) {
+	uint M = C.n_rows,
+		 N = C.n_cols;
+
+	// miniball doc says to always use double
+	typedef Seb::Point<double> Point;
+	typedef Seb::Smallest_enclosing_ball<double> Miniball;
+
+	// prepare vectors
+	std::vector<Point> S;
+	for(uint x = 0; x < M; x++)
+		S.push_back(Point(  N, arma::conv_to<std::vector<double>>::from(C.row(x)).begin() ));
+
+	// solve
+	Miniball mb(N, S);
+
+	auto center_it = mb.center_begin();
+	q.set_size(N);
+	for(uint y = 0; y < N; y++)
+		q(y) = center_it[y];
+
+	return mb.radius();
+}
+
 } // namespace metric::opt
