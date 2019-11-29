@@ -22,7 +22,8 @@ template<typename eT = eT_def>
 inline
 Chan<eT> identity(uint n) {
 	Chan<eT> C(n, n);
-	return identity(C);
+	identity(C);
+	return C;		// separate return to allow move semantics!
 }
 
 
@@ -38,7 +39,8 @@ template<typename eT = eT_def>
 inline
 Chan<eT> no_interference(uint n, uint cols = 1) {
 	Chan<eT> C(n, cols);
-	return no_interference(C);
+	no_interference(C);
+	return C;		// separate return to allow move semantics!
 }
 
 
@@ -55,14 +57,16 @@ template<typename eT = eT_def>
 inline
 Chan<eT> randu(uint n) {
 	Chan<eT> C(n, n);
-	return randu(C);
+	randu(C);
+	return C;		// separate return to allow move semantics!
 }
 
 template<typename eT = eT_def>
 inline
 Chan<eT> randu(uint n, uint m) {
 	Chan<eT> C(n, m);
-	return randu(C);
+	randu(C);
+	return C;		// separate return to allow move semantics!
 }
 
 template<typename eT = eT_def>

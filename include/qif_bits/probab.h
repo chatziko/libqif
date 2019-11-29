@@ -12,7 +12,8 @@ Prob<eT>& uniform(Prob<eT>& pi) {
 template<typename eT = eT_def>
 inline Prob<eT> uniform(uint n) {
 	Prob<eT> pi(n);
-	return uniform(pi);
+	uniform(pi);
+	return pi;		// separate return to allow move semantics!
 }
 
 
@@ -28,7 +29,8 @@ template<typename eT = eT_def>
 inline
 Prob<eT> dirac(uint n, uint i = 0) {
 	Prob<eT> pi(n);
-	return dirac(pi, i);
+	dirac(pi, i);
+	return pi;		// separate return to allow move semantics!
 }
 
 
@@ -70,7 +72,8 @@ template<typename eT = eT_def>
 inline
 Prob<eT> randu(uint n) {
 	Prob<eT> pi(n);
-	return randu(pi);
+	randu(pi);
+	return pi;		// separate return to allow move semantics!
 }
 
 template<typename eT = eT_def>
