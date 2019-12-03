@@ -43,13 +43,10 @@ typedef Row<rat>  rrowvec;
 // R: result type, what we measure distances in
 // T: metric space type, what elements we measure the distance of
 template<typename R, typename T>
-class Metric : public std::function<R(const T&, const T&)> {
-	public:
-	std::function<bool(const T&, const T&)> chainable =
-		[](const T&, const T&) -> bool { return false; };		// safe default, see metric.h
+using Metric = std::function<R(const T&, const T&)>;
 
-	using std::function<R(const T&, const T&)>::function;
-};
+template<typename T>
+using Chainable = std::function<bool(const T&, const T&)>;
 
 // Point
 template<typename eT>

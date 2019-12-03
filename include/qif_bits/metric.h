@@ -8,25 +8,37 @@ typedef eT_def R_def;
 // chainable(a, b) should true only if there is a "tight chain" between a, b, i.e. there
 // is a chain a = e_1, ..., e_n = b such that d(a, b) = sum_i d(e_i, e_i+1).
 // Returning false is safe if we cannot guarantee this chain, and is the default if chainable() is not defined.
+//
+// In the past Metric was a subclass of std::function with a .chainable field. This
+// complicates things, and we're not using chainable much, so now the few functions that
+// use it receive a separate 'chainable' function.
+// never_chainable is a safe default that returns always false
+//
+template<typename T>
+const Chainable<T> never_chainable = [](const T&, const T&) -> bool { return false; };
 
 
 // Euclidean on arithmetic T
 template<typename R = R_def, typename T, EnableIf<std::is_arithmetic<T>> = _>
 Metric<R, T>
 euclidean() {
-	Metric<R, T> d = [](const T& a, const T& b) -> R {
+	return [](const T& a, const T& b) -> R {
 		return abs_diff(a, b);
 	};
-
+}
+// chainable functon for the euclidean metric
+template<typename T, EnableIf<std::is_arithmetic<T>> = _>
+Chainable<T>
+euclidean_chain() {
 	// on uint's (discrete space, particularly useful for measuring distances
 	// between channel inputs), all non-consecutive elements are chainable
 	if constexpr (std::is_same<T, uint>::value) {
-		d.chainable = [](const T& a, const T& b) -> bool {
+		return [](const T& a, const T& b) -> bool {
 			return abs_diff(a, b) != 1;
 		};
+	} else {
+		return never_chainable<T>;
 	}
-
-	return d;
 }
 
 template<typename R = R_def, typename T>
@@ -48,14 +60,12 @@ mult_reals() {
 template<typename R = R_def, typename T>
 Metric<R, T>
 scale(Metric<R, T> d, R coeff) {
-	Metric<R, T> d2 = [d, coeff](const T& a, const T& b) -> R {
+	return [d, coeff](const T& a, const T& b) -> R {
 		// separate treatment of 0 allows to scale by infinity and still get d(x,x) == 0
 		R r = d(a, b);
 		if(r != R(0)) r *= coeff;
 		return r;
 	};
-	d2.chainable = d.chainable;
-	return d2;
 }
 
 // min of two metrics (technically not a metric)
@@ -63,12 +73,11 @@ scale(Metric<R, T> d, R coeff) {
 template<typename R = R_def, typename T>
 Metric<R, T>
 min(Metric<R, T> d1, Metric<R, T> d2) {
-	Metric<R, T> d = [d1, d2](const T& a, const T& b) -> R {
+	return [d1, d2](const T& a, const T& b) -> R {
 		R r1 = d1(a, b);
 		R r2 = d2(a, b);
 		return less_than(r1, r2) ? r1 : r2;
 	};
-	return d;
 }
 
 // max of two metrics (always a metric)
@@ -89,13 +98,9 @@ max(Metric<R, T> d1, Metric<R, T> d2) {
 template<typename R = R_def, typename T>
 Metric<R, T>
 mirror(Metric<R, T> d) {
-	Metric<R, T> d2 = [d](const T& a, const T& b) -> R {
+	return [d](const T& a, const T& b) -> R {
 		return d(b, a);
 	};
-	d2.chainable = [d](const T& a, const T& b) -> bool {
-		return d.chainable(b, a);
-	};
-	return d2;
 }
 
 // min( d(a,b), thres ) (always a metric)
@@ -103,15 +108,10 @@ mirror(Metric<R, T> d) {
 template<typename R = R_def, typename T>
 Metric<R, T>
 threshold(Metric<R, T> d, R thres) {
-	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+	return [d, thres](const T& a, const T& b) -> R {
 		R r = d(a, b);
 		return less_than(r, thres) ? r : thres;
 	};
-	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
-		// a,b are chainable in d2 if they are chainable in d and below the threshold
-		return d.chainable(a, b) && less_than(d(a, b), thres);
-	};
-	return d2;
 }
 
 // 0 if below threshold t, 1 otherwise (technically not a metric)
@@ -120,14 +120,9 @@ threshold(Metric<R, T> d, R thres) {
 template<typename R = R_def, typename T>
 Metric<R, T>
 threshold_bin(Metric<R, T> d, R thres) {
-	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+	return [d, thres](const T& a, const T& b) -> R {
 		return less_than(d(a, b), thres) ? 0 : 1;
 	};
-	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
-		// a,b are chainable in d2 if they are chainable in d and below the threshold
-		return d.chainable(a, b) && less_than(d(a, b), thres);
-	};
-	return d2;
 }
 
 // inf if above threshold t, same as d otherwise (technically not a metric)
@@ -135,15 +130,10 @@ threshold_bin(Metric<R, T> d, R thres) {
 template<typename R = R_def, typename T>
 Metric<R, T>
 threshold_inf(Metric<R, T> d, R thres) {
-	Metric<R, T> d2 = [d, thres](const T& a, const T& b) -> R {
+	return [d, thres](const T& a, const T& b) -> R {
 		R res = d(a, b);
 		return less_than_or_eq(res, thres) ? res : infinity<R>();
 	};
-	d2.chainable = [d, thres](const T& a, const T& b) -> bool {
-		// a,b are chainable in d2 if they are chainable in d and below the threshold
-		return d.chainable(a, b) && less_than_or_eq(d(a, b), thres);
-	};
-	return d2;
 }
 
 // Euclidean distance on Points
@@ -151,41 +141,47 @@ threshold_inf(Metric<R, T> d, R thres) {
 template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 euclidean() {
-	Metric<R, T> d = [](const T& a, const T& b) -> R {
+	return [](const T& a, const T& b) -> R {
 		auto v1 = abs_diff(a.x, b.x),
 			 v2 = abs_diff(a.y, b.y);
 		return std::sqrt(v1*v1 + v2*v2);
 	};
-
+}
+template<typename T, EnableIf<is_Point<T>> = _>
+Chainable<T>
+euclidean_chain() {
 	// On discrete (uint) cartesian Points, the only chainable points
 	// are on the same line or diagonal, and at index difference more than one
 	if constexpr (std::is_same<T, Point<uint>>::value) {
-		d.chainable = [](const T& a, const T& b) -> bool {
+		return [](const T& a, const T& b) -> bool {
 			uint v1 = abs_diff(a.x, b.x),
 				v2 = abs_diff(a.y, b.y);
 			return (v1 == 0 || v2 == 0 || v1 == v2) && (v1 > 1 || v2 > 1);
 		};
+	} else {
+		return never_chainable<T>;
 	}
-
-	return d;
 }
 
 template<typename R = R_def, typename T, EnableIf<is_Point<T>> = _>
 Metric<R, T>
 manhattan() {
-	Metric<R, T> d = [](const T& a, const T& b) -> R {
+	return [](const T& a, const T& b) -> R {
 		return abs_diff(a.x, b.x) + abs_diff(a.y, b.y);
 	};
-
+}
+template<typename T, EnableIf<is_Point<T>> = _>
+Chainable<T>
+manhattan_chain() {
 	// On discrete (uint) cartesian Points, all points are chainable except
 	// those whose index differs by at most 1
 	if constexpr (std::is_same<T, Point<uint>>::value) {
-		d.chainable = [](const T& a, const T& b) -> bool {
+		return [](const T& a, const T& b) -> bool {
 			return abs_diff(a.x, b.x) > 1 || abs_diff(a.y, b.y) > 1;
 		};
+	} else {
+		return never_chainable<T>;
 	}
-
-	return d;
 }
 
 template<typename R = R_def>
@@ -215,49 +211,33 @@ to_distance_matrix(Metric<R, uint> d, uint size) {
 template<typename R = R_def, typename T1, typename T2>
 Metric<R, T1>
 compose(Metric<R,T2> d, std::function<T2(T1)> f) {
-	Metric<R, T1> d2 = [=](const T1& a, const T1& b) -> R {
+	return [=](const T1& a, const T1& b) -> R {
 		return d( f(a), f(b) );
 	};
-	d2.chainable = [=](const T1& a, const T1& b) -> bool {
-		return d.chainable( f(a), f(b) );		// maybe not always correct?
-	};
-	return d2;
 }
 // same but f takes a reference
 template<typename R = R_def, typename T1, typename T2>
 Metric<R, T1>
 compose(Metric<R,T2> d, std::function<T2(const T1&)> f) {
-	Metric<R, T1> d2 = [=](const T1& a, const T1& b) -> R {
+	return [=](const T1& a, const T1& b) -> R {
 		return d( f(a), f(b) );
 	};
-	d2.chainable = [=](const T1& a, const T1& b) -> bool{
-		return d.chainable( f(a), f(b) );		// maybe not always correct?
-	};
-	return d2;
 }
 // same with two functions f1,f2
 template<typename R = R_def, typename T1, typename T2>
 Metric<R, T1>
 compose(Metric<R,T2> d, std::function<T2(T1)> f1, std::function<T2(T1)> f2) {
-	Metric<R, T1> d2 = [=](const T1& a, const T1& b) -> R {
+	return [=](const T1& a, const T1& b) -> R {
 		return d( f1(a), f2(b) );
 	};
-	d2.chainable = [=](const T1& a, const T1& b) -> bool {
-		return d.chainable( f1(a), f2(b) );		// maybe not always correct?
-	};
-	return d2;
 }
 // same but f takes a reference
 template<typename R = R_def, typename T1, typename T2>
 Metric<R, T1>
 compose(Metric<R,T2> d, std::function<T2(const T1&)> f1, std::function<T2(const T1&)> f2) {
-	Metric<R, T1> d2 = [=](const T1& a, const T1& b) -> R {
+	return [=](const T1& a, const T1& b) -> R {
 		return d( f1(a), f2(b) );
 	};
-	d2.chainable = [=](const T1& a, const T1& b) -> bool{
-		return d.chainable( f1(a), f2(b) );		// maybe not always correct?
-	};
-	return d2;
 }
 
 
@@ -568,13 +548,13 @@ mult_kantorovich(Metric<R, uint> d) {
 
 template<typename R = R_def, typename A, typename B, typename D>
 bool
-is_lipschitz(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain) {
+is_lipschitz(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain, Chainable<A> da_chain = never_chainable<A>) {
 
 	for(auto a1 = domain.begin(); a1 != domain.end(); a1++) {
 		auto a2 = a1;
 		for(++a2; a2 != domain.end(); a2++) {
 			// chainable elements are redundant to check
-			if(da.chainable(*a1, *a2)) continue;
+			if(da_chain(*a1, *a2)) continue;
 
 			if(!less_than_or_eq(db(f(*a1), f(*a2)), da(*a1, *a2)))
 				return false;
@@ -585,14 +565,14 @@ is_lipschitz(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& dom
 
 template<typename R = R_def, typename A, typename B, typename D>
 R
-lipschitz_constant(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain) {
+lipschitz_constant(std::function<B(A)> f, Metric<R,A> da, Metric<R,B> db, const D& domain, Chainable<A> da_chain = never_chainable<A>) {
 
 	R res(0);
 	for(auto a1 = domain.begin(); a1 != domain.end(); a1++) {
 		auto a2 = a1;
 		for(++a2; a2 != domain.end(); a2++) {
 			// chainable elements are redundant to check
-			if(da.chainable(*a1, *a2)) continue;
+			if(da_chain(*a1, *a2)) continue;
 
 			R ratio = db(f(*a1), f(*a2)) / da(*a1, *a2);
 			if(less_than(res, ratio))

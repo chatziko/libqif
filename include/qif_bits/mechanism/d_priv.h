@@ -201,6 +201,7 @@ namespace aux {
 		uint n_cols,
 		Metric<eT, uint> d_priv,
 		Metric<eT, uint> loss,
+		Chainable<uint> d_priv_ch = metric::never_chainable<uint>,	// which inputs are chainable
 		eT inf = eT(std::log(1e200))	// ignore large distances to avoid numerical instability. infinity<eT>() could be used to disable
 	) {
 		uint M = pi.n_cols,
@@ -221,8 +222,8 @@ namespace aux {
 		//
 		for(uint x1 = 0; x1 < M; x1++) {
 		for(uint x2 = 0; x2 < M; x2++) {
-			if(x1 == x2 || d_priv.chainable(x1, x2)) continue;			// constraints for chainable inputs are redundant
-			if(!less_than(d_priv(x1, x2), inf)) continue;				// inf distance, i.e. no constraint
+			if(x1 == x2 || d_priv_ch(x1, x2)) continue;			// constraints for chainable inputs are redundant
+			if(!less_than(d_priv(x1, x2), inf)) continue;		// inf distance, i.e. no constraint
 
 			for(uint y = 0; y < N; y++) {
 				auto con = lp.make_con(-infinity<eT>(), 0);
@@ -432,10 +433,11 @@ Chan<eT> min_loss_given_d(
 	Metric<eT, uint> d_priv,
 	Metric<eT, uint> loss,
 	std::string vars = "all",		// Which probabilities are variables: all | dist | dist_strict
+	Chainable<uint> d_priv_ch = metric::never_chainable<uint>,	// which inputs are chainable
 	eT inf = eT(std::log(1e200))	// ignore large distances to avoid numerical instability. infinity<eT>() could be used to disable
 ) {
 	if(vars == "all")
-		return aux::min_loss_given_d_all        (pi, n_cols, d_priv, loss, inf);
+		return aux::min_loss_given_d_all        (pi, n_cols, d_priv, loss, d_priv_ch, inf);
 	else if(vars == "dist")
 		return aux::min_loss_given_d_dist       (pi, n_cols, d_priv, loss);
 	else if(vars == "dist_strict")

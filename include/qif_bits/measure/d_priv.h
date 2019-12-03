@@ -30,7 +30,7 @@ eT d_vulnerability(Metric<eT, uint> d, const Prob<eT>& pi) {
 	for(uint i = 0; i < pi.n_cols; i++) {
 		for(uint j = i+1; j < pi.n_cols; j++) {
 			// chainable elements are redundant to check
-			if(d.chainable(i, j)) continue;
+			// if(d.chainable(i, j)) continue;
 
 			eT ratio = std::abs(std::log(pi(i)) - std::log(pi(j))) / d(i, j);
 			if(less_than(res, ratio))

@@ -15,14 +15,15 @@ TYPED_TEST_P(MetricTest, Euclidean_uint) {
 	typedef TypeParam eT;
 
 	auto euclid = metric::euclidean<eT, uint>();
+	auto chainable = metric::euclidean_chain<uint>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5), euclid(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5), euclid(5, 0));
 
-	EXPECT_FALSE(euclid.chainable(0, 1));
-	EXPECT_FALSE(euclid.chainable(5, 6));
-	EXPECT_TRUE(euclid.chainable(0, 5));
+	EXPECT_FALSE(chainable(0, 1));
+	EXPECT_FALSE(chainable(5, 6));
+	EXPECT_TRUE(chainable(0, 5));
 }
 
 TYPED_TEST_P(MetricTest, Discrete) {
@@ -33,8 +34,6 @@ TYPED_TEST_P(MetricTest, Discrete) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), disc(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), disc(0, 2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), disc(5, 0));
-	EXPECT_FALSE(disc.chainable(0, 1));
-	EXPECT_FALSE(disc.chainable(0, 2));
 }
 
 TYPED_TEST_P(MetricTest, Scale) {
@@ -46,15 +45,10 @@ TYPED_TEST_P(MetricTest, Scale) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), scaled_euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(50), scaled_euclid(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(50), scaled_euclid(5, 0));
-	EXPECT_FALSE(scaled_euclid.chainable(0, 1));
-	EXPECT_FALSE(scaled_euclid.chainable(5, 6));
-	EXPECT_TRUE(scaled_euclid.chainable(0, 5));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), scaled_disc(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(10), scaled_disc(0, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(10), scaled_disc(5, 0));
-	EXPECT_FALSE(scaled_disc.chainable(0, 1));
-	EXPECT_FALSE(scaled_disc.chainable(0, 2));
 }
 
 TYPED_TEST_P(MetricTest, Threshold) {
@@ -65,9 +59,6 @@ TYPED_TEST_P(MetricTest, Threshold) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(3, 3));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), thres_euclid(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), thres_euclid(0, 10));
-	EXPECT_FALSE(thres_euclid.chainable(0, 1));
-	EXPECT_TRUE(thres_euclid.chainable(0, 2));
-	EXPECT_FALSE(thres_euclid.chainable(0, 10));
 }
 
 TYPED_TEST_P(MetricTestReals, Euclidean_point) {
@@ -75,13 +66,14 @@ TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 	typedef Point<eT> P;
 
 	auto euclid = metric::euclidean<eT, P>();
+	auto euclid_chain = metric::euclidean_chain<P>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), euclid(P(2, 3), P(1, 1)));
 
-	EXPECT_FALSE(euclid.chainable(P(0, 0), P(1, 1)));
-	EXPECT_FALSE(euclid.chainable(P(2, 3), P(1, 1)));
+	EXPECT_FALSE(euclid_chain(P(0, 0), P(1, 1)));
+	EXPECT_FALSE(euclid_chain(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTest, Manhattan_point) {
@@ -89,40 +81,47 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 	typedef Point<eT> P;
 
 	auto manh = metric::manhattan<eT, P>();
+	auto manh_chain = metric::manhattan_chain<P>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), manh(P(1, 1), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), manh(P(0, 0), P(1, 1)));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), manh(P(2, 3), P(1, 1)));
 
-	EXPECT_FALSE(manh.chainable(P(0, 0), P(1, 1)));
-	EXPECT_FALSE(manh.chainable(P(2, 3), P(1, 1)));
+	EXPECT_FALSE(manh_chain(P(0, 0), P(1, 1)));
+	EXPECT_FALSE(manh_chain(P(2, 3), P(1, 1)));
 }
 
 TYPED_TEST_P(MetricTestReals, Grid_point) {
 	typedef TypeParam eT;
+	typedef Point<uint> P;
 
-	auto grid_euclid = metric::grid<eT>(4);
-	auto grid_manh   = metric::grid<eT>(4, metric::manhattan<eT, Point<uint>>());
+	auto ctp = geo::cell_to_point<uint>(4);
+
+	auto grid_euclid = metric::compose(metric::euclidean<eT, P>(), ctp);
+	auto grid_manh   = metric::compose(metric::manhattan<eT, P>(),  ctp);
+
+	auto grid_euclid_chain = metric::compose(metric::euclidean_chain<P>(), ctp);
+	auto grid_manh_chain   = metric::compose(metric::manhattan_chain<P>(), ctp);
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            grid_euclid(5, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), grid_euclid(0, 5));		// cell  5 is (1,1)
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), grid_euclid(11, 5));		// cell 11 is (2,3)
 
-	EXPECT_FALSE (grid_euclid.chainable(0, 5));								// cell  5 is (1,1)
-	EXPECT_FALSE (grid_euclid.chainable(11, 5));								// cell 11 is (2,3)
-	EXPECT_TRUE(grid_euclid.chainable(0, 2));								// cell  2 is (0,2)
-	EXPECT_TRUE(grid_euclid.chainable(0, 10));								// cell 10 is (2,2)
-	EXPECT_TRUE(grid_euclid.chainable(0, 8));								// cell  8 is (2,0)
+	EXPECT_FALSE(grid_euclid_chain(0, 5));								// cell  5 is (1,1)
+	EXPECT_FALSE(grid_euclid_chain(11, 5));								// cell 11 is (2,3)
+	EXPECT_TRUE(grid_euclid_chain(0, 2));								// cell  2 is (0,2)
+	EXPECT_TRUE(grid_euclid_chain(0, 10));								// cell 10 is (2,2)
+	EXPECT_TRUE(grid_euclid_chain(0, 8));								// cell  8 is (2,0)
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), grid_manh(5, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), grid_manh(0, 5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), grid_manh(11, 5));
 
-	EXPECT_FALSE (grid_manh.chainable(0, 5));									// cell  5 is (1,1)
-	EXPECT_TRUE(grid_manh.chainable(11, 5));									// cell 11 is (2,3)
-	EXPECT_TRUE(grid_manh.chainable(0, 2));									// cell  2 is (0,2)
-	EXPECT_TRUE(grid_manh.chainable(0, 10));									// cell 10 is (2,2)
-	EXPECT_TRUE(grid_manh.chainable(0, 8));									// cell  8 is (2,0)
+	EXPECT_FALSE(grid_manh_chain(0, 5));								// cell  5 is (1,1)
+	EXPECT_TRUE(grid_manh_chain(11, 5));								// cell 11 is (2,3)
+	EXPECT_TRUE(grid_manh_chain(0, 2));									// cell  2 is (0,2)
+	EXPECT_TRUE(grid_manh_chain(0, 10));								// cell 10 is (2,2)
+	EXPECT_TRUE(grid_manh_chain(0, 8));									// cell  8 is (2,0)
 }
 
 TYPED_TEST_P(MetricTest, Total_variation) {
