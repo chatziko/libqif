@@ -28,8 +28,7 @@ void compute_optimal(string method) {
 	auto d_loss = d_grid;								// loss metric = euclidean
 	auto dx = d_grid;									// privacy metric
 
-	// this disables the removal of constraints that are reduntant due to transitivity
-	dx.chainable = [](const uint&, const uint&) -> bool { return false; };
+	// Note: we're _not_ using a 'chainable' function for d_grid to remove constraints that are reduntant due to transitivity
 
 	if(method == "kostas") {
 		// use more relexed dx and update eps
