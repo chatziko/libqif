@@ -60,8 +60,8 @@ clang++ test.cpp -std=c++17 -lqif -larmadillo -o test
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
 In macOS 10.4 you might also need `-L/usr/local/lib`.
-If the `rat` type is used you also need to compile with `-lgmp -lgmpxx`.
-If OR-Tools are used you also need to compile with `-lortools`.
+If the `rat` type is used you also need to link with `-lgmp -lmp++`.
+If OR-Tools are used you also need to link with `-lortools`.
 
 ## Build libqif from source
 

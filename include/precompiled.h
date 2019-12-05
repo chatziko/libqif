@@ -18,7 +18,7 @@
 #include <iterator>		// needed by
 #include <type_traits>	// range.hpp
 
-#include <gmpxx.h>		// for rats
+#include <mp++/mp++.hpp>	// for rats
 
 extern "C" {
 	#include <gsl/gsl_sf.h>				// gsl_sf_lambert_Wm1

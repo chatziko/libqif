@@ -68,12 +68,12 @@ TYPED_TEST_P(MetricTestReals, Euclidean_point) {
 	auto euclid = metric::euclidean<eT, P>();
 	auto euclid_chain = metric::euclidean_chain<P>();
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            euclid(P(1, 1), P(1, 1)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), euclid(P(0, 0), P(1, 1)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), euclid(P(2, 3), P(1, 1)));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),            euclid(P(eT(1), eT(1)), P(eT(1), eT(1))));
+	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(2)), euclid(P(eT(0), eT(0)), P(eT(1), eT(1))));
+	EXPECT_PRED_FORMAT2(equal2<eT>, std::sqrt(eT(5)), euclid(P(eT(2), eT(3)), P(eT(1), eT(1))));
 
-	EXPECT_FALSE(euclid_chain(P(0, 0), P(1, 1)));
-	EXPECT_FALSE(euclid_chain(P(2, 3), P(1, 1)));
+	EXPECT_FALSE(euclid_chain(P(eT(0), eT(0)), P(eT(1), eT(1))));
+	EXPECT_FALSE(euclid_chain(P(eT(2), eT(3)), P(eT(1), eT(1))));
 }
 
 TYPED_TEST_P(MetricTest, Manhattan_point) {
@@ -83,12 +83,12 @@ TYPED_TEST_P(MetricTest, Manhattan_point) {
 	auto manh = metric::manhattan<eT, P>();
 	auto manh_chain = metric::manhattan_chain<P>();
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), manh(P(1, 1), P(1, 1)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), manh(P(0, 0), P(1, 1)));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), manh(P(2, 3), P(1, 1)));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), manh(P(eT(1), eT(1)), P(eT(1), eT(1))));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2), manh(P(eT(0), eT(0)), P(eT(1), eT(1))));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3), manh(P(eT(2), eT(3)), P(eT(1), eT(1))));
 
-	EXPECT_FALSE(manh_chain(P(0, 0), P(1, 1)));
-	EXPECT_FALSE(manh_chain(P(2, 3), P(1, 1)));
+	EXPECT_FALSE(manh_chain(P(eT(0), eT(0)), P(eT(1), eT(1))));
+	EXPECT_FALSE(manh_chain(P(eT(2), eT(3)), P(eT(1), eT(1))));
 }
 
 TYPED_TEST_P(MetricTestReals, Grid_point) {
@@ -188,7 +188,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 
 		// metric::kantorovich runs kantorovich_fastemd for double and kantorovich_lp for the rest
 		// fastemd has worse precision, so we need to set a larger mrd
-		eT mrd = is_double && !use_lp ? 1e-5 : def_mrd<eT>;
+		eT mrd = is_double && !use_lp ? eT(1e-5) : def_mrd<eT>;
 
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.unif_4, t.unif_4));
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.dirac_4, t.dirac_4));
@@ -205,7 +205,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 		for(uint i = 0; i < 3; i++) {
 			// distance of dirac dists is the same as the distance between the corresponding elements
 			EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_cur_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
-			EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_cur_euclid(t.dirac_4, probab::dirac<eT>(4, i)), 0, mrd);
+			EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_cur_euclid(t.dirac_4, probab::dirac<eT>(4, i)), eT(0), mrd);
 		}
 
 		// kantorovich over the discrete metric = total variation
@@ -219,7 +219,7 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 			for(uint i = 0; i < 10; i++) {
 				auto p1 = probab::randu<eT>(10),
 					p2 = probab::randu<eT>(10);
-				EXPECT_PRED_FORMAT4(equal4<eT>, tv(p1, p2), kant_cur_disc(p1, p2), 0, mrd);
+				EXPECT_PRED_FORMAT4(equal4<eT>, tv(p1, p2), kant_cur_disc(p1, p2), eT(0), mrd);
 			}
 		}
 	}
@@ -229,8 +229,8 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 		for(uint i = 0; i < 10; i++) {
 			auto p1 = probab::randu<eT>(10),
 				 p2 = probab::randu<eT>(10);
-			EXPECT_PRED_FORMAT4(equal4<eT>, kant_disc  (p1, p2), kant_lp_disc  (p1, p2), 0, 1e-5);
-			EXPECT_PRED_FORMAT4(equal4<eT>, kant_euclid(p1, p2), kant_lp_euclid(p1, p2), 0, 1e-4);
+			EXPECT_PRED_FORMAT4(equal4<eT>, kant_disc  (p1, p2), kant_lp_disc  (p1, p2), eT(0), eT(1e-5));
+			EXPECT_PRED_FORMAT4(equal4<eT>, kant_euclid(p1, p2), kant_lp_euclid(p1, p2), eT(0), eT(1e-4));
 		}
 	}
 }

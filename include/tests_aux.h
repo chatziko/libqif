@@ -59,7 +59,7 @@ typedef ::testing::Types<rat> RatTypes;
 template <typename eT>
 class BaseTest : public ::testing::Test {
 	public:
-		const bool is_rat = std::is_same<eT, __gmp_expr<mpq_t, mpq_t>>::value; // workarout weird g++ bug with aliases
+		const bool is_rat = std::is_same<eT,rat>::value;
 
 		const Prob<eT>
 			unif_2   = probab::uniform<eT>(2),

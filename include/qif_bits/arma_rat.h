@@ -1,106 +1,88 @@
 using qif::rat;
 using qif::uint;
 
-// armadillo internal voodoo to make it play well with rat
-//
+
 namespace arma {
-	// make armadillo support mpq_class as element type
-	template<>
-	struct is_supported_elem_type<mpq_class> {
-		static const bool value = true;
-	};
 
-	// pretend that rat is a real type. Thus might cause issues...
-	// needed for specializing op_dot::direct_dot below
-	template<> struct arma_real_only<rat> {
-		typedef rat result;
-	};
+// register rational<1> as a real type.
+template<>
+struct arma_real_only<rat> {
+	typedef rat result;
+};
 
-	// armadillo's memory::acquire/release uses malloc/free for speed, which overrides the constructor
-	// and causes segfaults when used with rat. We override it to use C++'s new/delete
-	//
-	template<>
-	inline
-	arma_malloc
-	rat*
-	memory::acquire<rat>(const uword n_elem) {
-//		std::cout << "ACQUIRE\n";
-		arma_debug_check(
-			( size_t(n_elem) > (std::numeric_limits<size_t>::max() / sizeof(rat)) ),
-			"arma::memory::acquire(): requested size is too large"
-		);
-		return ( new(std::nothrow) rat[n_elem] );
-	}
-
-	template<>
-	arma_inline
-	void
-	memory::release<rat>(rat* mem) {
-//		std::cout << "RELEASE\n";
-		delete [] mem;
-	}
-
-	template<>
-	arma_inline
-	void
-	memory::release<const rat>(const rat* mem) {
-//		std::cout << "CONST RELEASE\n";
-		delete [] mem;
-	}
-
-	// armadillo uses memcpy to copy memory, can't do that with rat
-	//
-	template<>
-	arma_hot
-	arma_inline
-	void
-	arrayops::copy<rat>(rat* dest, const rat* src, const uword n_elem) {
-		for(uint i = 0; i < n_elem; i++)
-			dest[i] = src[i];
-	}
-
-	// use direct_dot_arma (generic dot product implementation) for direct_dot<rat>
-	//
-	template<>
-	arma_hot
-	inline
-	typename arma_real_only<rat>::result
-	op_dot::direct_dot<rat>(const uword n_elem, const rat* const A, const rat* const B) {
-		return op_dot::direct_dot_arma<rat>(n_elem, A, B);
-	}
-
-	// for abs
-	//
-	template<>
-	arma_inline
-	typename arma_real_only<rat>::result
-	eop_aux::arma_abs<rat>(const rat x) {
-		return x < rat(0) ? -x : x;
-	}
-
-	// in clang the cxx98 rng is used, and randn fails for rats
-	// recent armadillo renamed ARMA_USE_CXX11_RNG to ARMA_USE_EXTERN_CXX11_RNG
-	#if !defined(ARMA_RNG_ALT) && !defined(ARMA_USE_CXX11_RNG) && !defined(ARMA_USE_EXTERN_CXX11_RNG)
-	template<>
-	inline
-	void
-	arma_rng_cxx98::randn_dual_val(rat&, rat&) {
-		throw std::runtime_error("randn not implemented for rat");
-	}
-	#endif
-
-	// for parsing rats from strings 
-	//
-	#if ARMA_VERSION_MAJOR > 8 || (ARMA_VERSION_MAJOR == 8 && ARMA_VERSION_MINOR >= 400)
-	template<>
-	inline
-	bool
-	diskio::convert_token(rat& val, const std::string& token) {
-		std::istringstream iss(token);
-		iss >> val;
-		val.canonicalize();
-		return true;
-	}
-	#endif
+// use direct_dot_arma (generic dot product implementation) for direct_dot<rat>
+//
+template<>
+arma_hot inline rat op_dot::direct_dot<rat>(const uword n_elem, const rat* const A, const rat* const B) {
+	return op_dot::direct_dot_arma<rat>(n_elem, A, B);
 }
+
+// for abs
+//
+template<>
+arma_inline rat eop_aux::arma_abs<rat>(const rat x) {
+	return mppp::abs(x);
+}
+
+// ------------------------------------------------
+
+// register as supported
+template<>
+struct is_supported_elem_type<rat> {
+	static const bool value = true;
+};
+
+// armadillo's memory::acquire/release uses malloc/free for speed, which ignores the constructor
+// We override it to use C++'s new/delete.
+//
+template<>
+inline
+arma_malloc
+rat*
+memory::acquire<rat>(const uword n_elem) {
+	arma_debug_check(
+		( size_t(n_elem) > (std::numeric_limits<size_t>::max() / sizeof(rat)) ),
+		"arma::memory::acquire(): requested size is too large"
+	);
+	return ( new(std::nothrow) rat[n_elem] );
+}
+
+template<>
+arma_inline
+void
+memory::release<rat>(rat* mem) {
+	delete [] mem;
+}
+
+template<>
+arma_inline
+void
+memory::release<const rat>(const rat* mem) {
+	delete [] mem;
+}
+
+// armadillo uses memcpy to copy memory, we can't do that so we manually copy
+//
+template<>
+arma_hot
+arma_inline
+void
+arrayops::copy<rat>(rat* dest, const rat* src, const uword n_elem) {
+	for(uint i = 0; i < n_elem; i++)
+		dest[i] = src[i];
+}
+
+// conversion from strings 
+//
+#if ARMA_VERSION_MAJOR > 8 || (ARMA_VERSION_MAJOR == 8 && ARMA_VERSION_MINOR >= 400)
+template<>
+inline
+bool
+diskio::convert_token(rat& val, const std::string& token) {
+	val = token;
+	return true;
+}
+#endif
+
+} // namespace arma
 

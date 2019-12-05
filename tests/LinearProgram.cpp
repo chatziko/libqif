@@ -43,8 +43,8 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 	LinearProgramTest<eT>& t = *this;
 
 	// the default acceptance range is too string for linear programs, we need a more permissive mrd
-	eT md =	def_md<eT>;
-	eT mrd = def_mrd<float>;		// always use the mrd for floats
+	eT md(def_md<eT>);
+	eT mrd(def_mrd<float>);		// always use the mrd for floats
 
 	for(auto comb : t.combs) {
 
@@ -100,9 +100,9 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 
 		lp.clear();
 		lp.maximize = false;
-		auto v = lp.make_var(-5, infinity<eT>());
-		lp.make_con(0, 0);		// glpk needs at least one constraint, add dummy one
-		lp.set_obj_coeff(v, 1);
+		auto v = lp.make_var(eT(-5), infinity<eT>());
+		lp.make_con(eT(0), eT(0));		// glpk needs at least one constraint, add dummy one
+		lp.set_obj_coeff(v, eT(1));
 
 		EXPECT_TRUE(lp.solve());
 		EXPECT_EQ(Status::OPTIMAL, lp.status);

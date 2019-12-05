@@ -181,7 +181,7 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 	// we first sort cols in lexicographic order. Then move the outer probability
 	// of equal columns, and finally delete cols of zero probability
 	//
-	auto sorted = arma::linspace<arma::urowvec>(0, inners.n_cols-1, inners.n_cols);
+	auto sorted = arma::linspace<arma::urowvec>(eT(0), inners.n_cols-1, inners.n_cols);
     std::sort(sorted.begin(), sorted.end(), [&inners](uint a, uint b) {
 		return compare_columns(inners, a, b) == -1;		// a < b
     });
@@ -191,7 +191,7 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 		uint col = sorted(i);
 		if(compare_columns(inners, first, col) == 0) {
 			outer(first) += outer(col);
-			outer(col) = 0;
+			outer(col) = eT(0);
 		} else
 			first = col;
 	}
@@ -238,7 +238,14 @@ uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT ma
 		// out_cur[i] == 0 implies out[i] == 0. Since we want to have out[i]/out_cur[i] = 0
 		// in such cases, we change change out_cur[i] to 1 to avoid NaNs.
 		arma::Row<eT> out_cur = pi * C;
-		out_cur.elem( find(out_cur < almost_zero) ).ones();
+
+		if constexpr (std::is_same<eT, rat>::value) {
+			// for rat we need to do it in two steps
+			arma::Row<arma::uword> indices = out_cur < almost_zero;
+			out_cur.elem( find(indices) ).ones();
+		} else {
+			out_cur.elem( find(out_cur < almost_zero) ).ones();
+		}
 
 		Prob<eT> new_pi = pi % trans(C * trans(out / out_cur));
 
@@ -272,7 +279,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 	// Build equations for A = B X
 	// We have R x N variables
 	lp::LinearProgram<eT> lp;
-	auto vars = lp.make_vars(R, N, 0, 1);
+	auto vars = lp.make_vars(R, N, eT(0), eT(1));
 
 	// For each element m,n of A we have an equation A[i,j] = dot(B[i,:], X[: j])
 	//
@@ -290,7 +297,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 	//
 	if(col_stoch) {
 		for(uint n = 0; n < N; n++) {
-			auto con = lp.make_con(1, 1);
+			auto con = lp.make_con(eT(1), eT(1));
 
 			// coeff 1 for variable X[r,n]
 			for(uint r = 0; r < R; r++)
@@ -299,7 +306,7 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 
 	} else {
 		for(uint r = 0; r < R; r++) {
-			auto con = lp.make_con(1, 1);
+			auto con = lp.make_con(eT(1), eT(1));
 
 			// coeff 1 for variable X[r,n]
 			for(uint n = 0; n < N; n++)

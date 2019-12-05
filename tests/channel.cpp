@@ -41,7 +41,7 @@ TYPED_TEST_P(ChanTest, Construct) {
 	typedef TypeParam eT;
 
 	const char* s = "1 0 0; 0 1 0";
-	Chan<eT> C = { {1, 0, 0}, {0, 1, 0} };
+	Chan<eT> C = { {eT(1), eT(0), eT(0)}, {eT(0), eT(1), eT(0)} };
 
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>(s),              C); // char*
 	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>(std::string(s)), C); // std::string
@@ -49,7 +49,7 @@ TYPED_TEST_P(ChanTest, Construct) {
 
 	// malformed channel
 	//
-	const char* s2 = "1 2; 3 0.5";
+	const char* s2 = "1 2; 3 0";
 	Chan<eT> C2(s2);
 
 	EXPECT_ANY_THROW( assert_proper(Chan<eT>(s2));              ); // char*
@@ -171,7 +171,7 @@ TYPED_TEST_P(ChanTest, LeftFactorize) {
 		Z1 = X1 * B;
 
 	EXPECT_PRED_FORMAT3(chan_is_proper_size3<eT>, X1, m, n);
-	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, 1e-4, 0);		// default is subgrad method, with tolerance 1e-4
+	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, eT(1e-4), eT(0));		// default is subgrad method, with tolerance 1e-4
 }
 
 TYPED_TEST_P(ChanTest, BayesianUpdate) {

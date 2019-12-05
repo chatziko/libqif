@@ -15,7 +15,7 @@ TYPED_TEST_P(GuessingTest, Vulnerability) {
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(15)/10, guessing::prior(t.unif_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::prior(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),     guessing::prior(t.dirac_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(12)/10, guessing::prior(t.pi1));
 }
 
@@ -23,16 +23,16 @@ TYPED_TEST_P(GuessingTest, Post_entropy) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.dirac_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.pi1, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.pi1, t.id_2));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.dirac_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        guessing::posterior(t.pi2, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    guessing::posterior(t.pi2, t.id_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(55)/10, guessing::posterior(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         guessing::posterior(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),     guessing::posterior(t.dirac_10, t.noint_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, guessing::prior(t.pi2), guessing::posterior(t.pi2, t.noint_10));
 

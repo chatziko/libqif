@@ -10,7 +10,7 @@ template <typename Condition> using EnableIf  = Invoke<std::enable_if<  Conditio
 template <typename Condition> using DisableIf = Invoke<std::enable_if< !Condition::value, enabled >>;
 
 typedef uint32_t uint;
-typedef mpq_class rat;
+typedef mppp::rational<1> rat;
 
 // default eT type, allow overriding before including qif
 #ifndef QIF_DEFAULT_ET

@@ -175,7 +175,7 @@ inline typename T::elem_type norm1(const T& vec) {
 template<typename eT>
 inline eT exp(eT x) {
 	if constexpr (std::is_same<eT, rat>::value) {
-		return rat(std::exp(x.get_d()));
+		return rat(std::exp((double)x));
 	} else {
 		return std::exp(x);
 	}
@@ -190,9 +190,5 @@ inline eT pi() {
 // convert float/double/rat to double
 template<typename eT>
 inline double to_double(eT x) {
-	if constexpr (std::is_same<eT, rat>::value) {
-		return x.get_d();
-	} else {
-		return x;
-	}
+	return (double)x;
 }

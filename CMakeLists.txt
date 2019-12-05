@@ -10,6 +10,9 @@ set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks
 add_subdirectory(external/osqp osqp EXCLUDE_FROM_ALL)
 set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
+# build mp++ in dir 'mppp'
+add_subdirectory(external/mppp mppp EXCLUDE_FROM_ALL)
+
 # build shared lib
 #
 file(GLOB LIB_SOURCES src/*.cpp)						# get all src/*.cpp files in LIB_SOURCES
@@ -74,13 +77,17 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
 	PATTERN "_*" EXCLUDE)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/ DESTINATION "include")
 
+# install mp++'s includes, they have to be globally installed cause mp++ uses #include<...>
+#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/mppp/include/ DESTINATION "include")
+#install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mppp/include/ DESTINATION "include")
+
 # install OSQP's includes under qif_bits/osqp
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/osqp/include/ DESTINATION "include/qif_bits/osqp")
 
 # install miniball's includes under qif_bits/miniball
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/miniball/cpp/main/ DESTINATION "include/qif_bits/miniball")
 
-install(TARGETS qif
+install(TARGETS qif mp++
 	ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 	LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
