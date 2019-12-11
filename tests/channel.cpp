@@ -179,22 +179,21 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 	BaseTest<eT>& t = *this;
 
 	// the identity channel should produce the real prior in 2 iterations
-	Prob<eT> pi;
-	EXPECT_EQ(2u, bayesian_update<eT>(t.id_10, t.prand_10 * t.id_10, pi));
-	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, t.prand_10);
+	auto [pi1, iter1] = iterative_bayesian_update<eT>(t.id_10, t.prand_10 * t.id_10);
+	EXPECT_EQ(2u, iter1);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi1, t.prand_10);
 
 	// a non interfering channel should produce the uniform prior in 1 iteration
-	pi.clear();
-	EXPECT_EQ(1u, bayesian_update<eT>(t.noint_10, t.prand_10 * t.noint_10, pi));
-	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, t.unif_10);
+	auto [pi2, iter2] = iterative_bayesian_update<eT>(t.noint_10, t.prand_10 * t.noint_10);
+	EXPECT_EQ(1u, iter2);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi2, t.unif_10);
 
 	if(std::is_same<eT, double>::value) {
 		// the geometric should produce the real prior in many iterations (and with limited accuracy)
 		// Note: for rat this is slow (probably has to do with the huge denominators in the random elements)
-		pi.clear();
 		auto C = mechanism::d_priv::geometric<eT>(10);
-		bayesian_update<eT>(C, t.prand_10 * C, pi, eT(1e-8));
-		EXPECT_PRED_FORMAT4(prob_equal4<eT>, pi, t.prand_10, eT(0), eT(1e-4));
+		auto pi3 = iterative_bayesian_update<eT>(C, t.prand_10 * C, {}, eT(1e-8)).first;
+		EXPECT_PRED_FORMAT4(prob_equal4<eT>, pi3, t.prand_10, eT(0), eT(1e-4));
 	}
 }
 

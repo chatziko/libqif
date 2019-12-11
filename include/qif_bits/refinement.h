@@ -257,9 +257,8 @@ eT add_metric_bound(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B) {
 	if(A.n_rows != B.n_rows)
 		throw std::runtime_error("invalid sizes");
 
-	Mat<eT> innersA, innersB;
-	auto outerA = channel::hyper(A, pi, innersA);
-	auto outerB = channel::hyper(B, pi, innersB);
+	auto [outerA, innersA] = channel::hyper(A, pi);
+	auto [outerB, innersB] = channel::hyper(B, pi);
 
 	// We need the distributions outerA, outerB to refer to the same 'space' of inners.
 	// So we put the inners together in the same matrix, and add zeroes on the right/left
