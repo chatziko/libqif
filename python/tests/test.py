@@ -1,4 +1,4 @@
-from qif import channel, probab
+from qif import channel, probab, metric
 import numpy as np
 from fractions import Fraction
 import sys
@@ -24,6 +24,7 @@ q = Fraction(1,4)
 A = [[0,1,2],[3,4,5],[6,7,8.]];
 
 pi = probab.randu(4);
+pi2 = probab.randu(4);
 pir = probab.uniform(4, dtype=rat)
 dirac = probab.dirac(4, 1);
 diracr = probab.dirac(4, 3, rat);
@@ -31,12 +32,18 @@ Ad = np.array([pi, pi, pi, pi])
 Ar = np.array([[q,q,q,q], [q,q,2*q,0*q]]);
 
 
+kant = metric.kantorovich(metric.discrete(np.dtype("uint")))
+tv = metric.total_variation()
+print(kant(pi, pi2))
+print(tv(pi, pi2))
 
-print(pi);
-print(pir);
-print(dirac);
-print(probab.is_uniform(pi))
-print(probab.is_uniform(pir))
+
+
+# print(pi);
+# print(pir);
+# print(dirac);
+# print(probab.is_uniform(pi))
+# print(probab.is_uniform(pir))
 sys.exit()
 
 C = np.array(A)

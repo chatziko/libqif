@@ -16,6 +16,7 @@ constexpr auto overload = pybind11::overload_cast<Args...>;	// for selecting mem
 
 template<char kind> struct dtype_only {};				// for constraining argument to a single dtype
 using dtype_d = dtype_only<'f'>;
+using dtype_u = dtype_only<'u'>;
 using dtype_r = dtype_only<'O'>;
 
 const auto float64 = pybind11::dtype("float64");

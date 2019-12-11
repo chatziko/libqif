@@ -7,6 +7,7 @@ enum class enabled { _ };
 constexpr auto _ = enabled::_;
 template <typename T> using Invoke = typename T::type;
 template <typename Condition> using EnableIf  = Invoke<std::enable_if<  Condition::value, enabled >>;
+template <typename Cond1, typename Cond2> using EnableIf2 = Invoke<std::enable_if< Cond1::value || Cond2::value, enabled >>;
 template <typename Condition> using DisableIf = Invoke<std::enable_if< !Condition::value, enabled >>;
 
 typedef uint32_t uint;
