@@ -1,7 +1,9 @@
-from qif import channel
+from qif import channel, probab
 import numpy as np
 from fractions import Fraction
 import sys
+
+rat = np.dtype("object")
 
 print("running tests")
 
@@ -21,19 +23,20 @@ q = Fraction(1,4)
 
 A = [[0,1,2],[3,4,5],[6,7,8.]];
 
-pi = np.array([.25,.25,.25,.25])
-pir = np.array([q,q,q,q])
+pi = probab.randu(4);
+pir = probab.uniform(4, dtype=rat)
+dirac = probab.dirac(4, 1);
+diracr = probab.dirac(4, 3, rat);
 Ad = np.array([pi, pi, pi, pi])
 Ar = np.array([[q,q,q,q], [q,q,2*q,0*q]]);
 
 
-d = channel.draw(Ar, pir, 5);
-print(d)
-print(type(d[0,0]));
-# print(channel.draw(Ar, pir)[0]);
 
-
-# print(channel.identity(4))
+print(pi);
+print(pir);
+print(dirac);
+print(probab.is_uniform(pi))
+print(probab.is_uniform(pir))
 sys.exit()
 
 C = np.array(A)

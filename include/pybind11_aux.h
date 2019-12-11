@@ -83,7 +83,7 @@ public:
 			}
 		}
 
-		std::cout << "load double, covert " << convert << ", no_copy: " << no_copy << "\n";
+		// std::cout << "load double, covert " << convert << ", no_copy: " << no_copy << "\n";
 		if(!no_copy) {
 			// We need to copy/convert, fail if this is the no-convert pass
 			if (!convert) return false;
@@ -91,7 +91,7 @@ public:
 			array = Array::ensure(src);
 			if (!array || array.ndim() != ndim)
 				return false;
-			std::cout << "array->mat with copy  " << array.data() << "\n";
+			// std::cout << "array->mat with copy  " << array.data() << "\n";
 
 			loader_life_support::add_patient(array);
 		}
