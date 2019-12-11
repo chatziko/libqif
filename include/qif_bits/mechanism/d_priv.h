@@ -24,7 +24,7 @@ distance_matrix(uint n_rows, uint n_cols, Metric<eT, uint> d) {
 //
 template<typename eT>
 Chan<eT>
-geometric(uint n_rows, eT epsilon = 1.0, uint n_cols = 0, int first_x = 0, int first_y = 0) {
+geometric(uint n_rows, eT epsilon = eT(1), uint n_cols = 0, int first_x = 0, int first_y = 0) {
 	if(n_cols == 0) n_cols = n_rows;
 	if(n_cols < 2)      throw std::runtime_error("n_cols should be at least 2");
 

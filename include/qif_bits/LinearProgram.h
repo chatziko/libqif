@@ -56,9 +56,7 @@ class LinearProgram {
 	typedef uint Var;
 	typedef uint Con;
 
-	// workaround a bug in g++ 4.9 (jessie), std::is_same<A,B> fails when A,B
-	// are aliases,  so we use __gmp_expr<mpq_t, mpq_t> instead of rat
-	const bool is_rat = std::is_same<eT, __gmp_expr<mpq_t, mpq_t>>::value;
+	const bool is_rat = std::is_same<eT, rat>::value;
 
 	public:
 		bool maximize = true;
@@ -133,7 +131,7 @@ Col<eT> LinearProgram<eT>::original_solution() {
 		// A tuple (var, coeff, add) for v means that the original value of v is:  v*coeff + add - var
 		auto& [v2, coeff, add] = var_transform[v];
 
-		res(v) = sol(v) * coeff + add - (v2 >= 0 ? sol(v2) : 0);
+		res(v) = sol(v) * coeff + add - (v2 >= 0 ? sol(v2) : eT(0));
 	}
 
 	return res;
@@ -144,7 +142,7 @@ inline
 typename LinearProgram<eT>::Var LinearProgram<eT>::make_var(eT lb, eT ub) {
 	var_lb.push_back(lb);
 	var_ub.push_back(ub);
-	obj_coeff.push_back(0);
+	obj_coeff.push_back(eT(0));
 	return n_var++;
 }
 
@@ -581,10 +579,10 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		if(lb == -inf && ub == inf) {
 			// An unbounded variable becomes two variables x* = x - xnew
-			auto xnew = make_var(0, inf);
+			auto xnew = make_var(eT(0), inf);
 
 			// recover x* as x - xnew
-			var_transform.push_back(std::tuple(xnew, 1, 0));
+			var_transform.push_back(std::tuple(xnew, eT(1), eT(0)));
 
 			// c*x* becomes c(x-xnew), so we need to update the obj
 			set_obj_coeff(xnew, -obj_coeff[x]);
@@ -598,7 +596,7 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		} else if(lb == -inf) {
 			// upper bounded variable, we set x = ub - x* (x* = ub - x)
-			var_transform.push_back(std::tuple(-1, -1, ub));
+			var_transform.push_back(std::tuple(-1, eT(-1), ub));
 
 			obj_coeff[x] *= -1;
 
@@ -617,7 +615,7 @@ void LinearProgram<eT>::to_canonical_form() {
 
 		} else { // lb != inf
 			// lower or doubly bounded variable, we set x = x* - lb  (x* = x + lb)
-			var_transform.push_back(std::tuple(-1, 1, lb));
+			var_transform.push_back(std::tuple(-1, eT(1), lb));
 
 			for(auto& [key, val] : con_coeff) {
 				auto& [col, row] = key;
@@ -633,7 +631,7 @@ void LinearProgram<eT>::to_canonical_form() {
 			// if an upper bound x* <= ub exists, it bocomes x+lb <= ub so we add a new constraint x <= ub - lb
 			if(ub != inf) {
 				uint con = make_con(-inf, ub - lb);
-				set_con_coeff(con, x, 1);
+				set_con_coeff(con, x, eT(1));
 			}
 		}
 	}
@@ -665,15 +663,15 @@ void LinearProgram<eT>::to_canonical_form() {
 			// upper bound, add slack newx to make equal
 			con_lb[c] = ub;
 
-			uint xnew = make_var(0, inf);
-			set_con_coeff(c, xnew, 1);
+			uint xnew = make_var(eT(0), inf);
+			set_con_coeff(c, xnew, eT(1));
 
 		} else if(ub == inf) {
 			// lower bound, subtract slack newx to make equal
 			con_ub[c] = lb;
 
-			uint xnew = make_var(0, inf);
-			set_con_coeff(c, xnew, -1);
+			uint xnew = make_var(eT(0), inf);
+			set_con_coeff(c, xnew, eT(-1));
 		}
 	}
 

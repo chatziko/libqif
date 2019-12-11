@@ -10,3 +10,6 @@
 [submodule "external/miniball"]
 	path = external/miniball
 	url = https://github.com/hbf/miniball.git
+[submodule "external/mppp"]
+	path = external/mppp
+	url = https://github.com/bluescarni/mppp

@@ -43,7 +43,7 @@ if($linux) {
 	$ENV{HOMEBREW_NO_AUTO_UPDATE} = 1;		# faster
 
 	run qq{rm -f /usr/local/include/c++};	# brew install will fail if this exists
-	# run qq{brew update};
+	run qq{brew update};					# need recent cmake
 	run qq{brew install moreutils};
 	run qq{brew tap chatziko/tap};
 	run qq{brew unlink protobuf; true};		# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools

@@ -209,7 +209,7 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 		for(uint w = 0; w < M+N; w++) {
 			if(y == w) continue;
 
-			auto con = lp.make_con(0, infinity<eT>());
+			auto con = lp.make_con(eT(0), infinity<eT>());
 
 			for(uint x = 0; x < K; x++) {
 				lp.set_con_coeff(con, vars[y][x],   pi(x) * AB(x,y));
@@ -221,7 +221,7 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 	// sum_x pi_x A_x,y g(y,x)  >=  0       for all 0 <= y < M
 	//
 	for(uint y = 0; y < M; y++) {
-		auto con = lp.make_con(0, infinity<eT>());
+		auto con = lp.make_con(eT(0), infinity<eT>());
 
 		for(uint x = 0; x < K; x++)
 			lp.set_con_coeff(con, vars[y][x], pi(x) * AB(x,y));
@@ -233,7 +233,7 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 
 	// reconstrict gain function
 	G.set_size(M+N+1, K);
-	G.row(M+N).fill(0);
+	G.row(M+N).fill(eT(0));
 
 	for(uint w = 0; w < M+N; w++)
 		for(uint x = 0; x < K; x++)

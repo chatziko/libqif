@@ -147,7 +147,7 @@ bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
 template<typename eT = eT_def>
 inline
 bool is_proper(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
-	eT sum = 0;
+	eT sum(0);
 	for(uint j = 0; j < pi.n_cols; j++) {
 		// elements should be non-negative
 		const eT& elem = pi.at(j);

@@ -23,7 +23,7 @@ template<typename R = R_def, typename T, EnableIf<std::is_arithmetic<T>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
-		return abs_diff(a, b);
+		return R(abs_diff(a, b));
 	};
 }
 // chainable functon for the euclidean metric
@@ -121,7 +121,7 @@ template<typename R = R_def, typename T>
 Metric<R, T>
 threshold_bin(Metric<R, T> d, R thres) {
 	return [d, thres](const T& a, const T& b) -> R {
-		return less_than(d(a, b), thres) ? 0 : 1;
+		return less_than(d(a, b), thres) ? R(0) : R(1);
 	};
 }
 
@@ -387,7 +387,7 @@ kantorovich_lp(Metric<R, uint> d) {
 		lp::LinearProgram<R> lp;
 		lp.maximize = false;
 		uint n = a.n_cols;
-		auto vars = lp.make_vars(n, n, 0, infinity<R>());
+		auto vars = lp.make_vars(n, n, R(0), infinity<R>());
 
 		// minimize  sum_ij x_ij d(i,j)
 		for(uint i = 0; i < n; i++)
@@ -398,14 +398,14 @@ kantorovich_lp(Metric<R, uint> d) {
 		for(uint i = 0; i < n; i++) {
 			auto con = lp.make_con(a[i], a[i]);
 			for(uint j = 0; j < n; j++)
-				lp.set_con_coeff(con, vars[i][j], 1);
+				lp.set_con_coeff(con, vars[i][j], R(1));
 		}
 
 		//           sum_i x_ij = b[j]     forall j
 		for(uint j = 0; j < n; j++) {
 			auto con = lp.make_con(b[j], b[j]);
 			for(uint i = 0; i < n; i++)
-				lp.set_con_coeff(con, vars[i][j], 1);
+				lp.set_con_coeff(con, vars[i][j], R(1));
 		}
 
 		// for floats, set the default solver to GLPK, CLP failed tests (numerical instability?)

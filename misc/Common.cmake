@@ -26,7 +26,7 @@ if(APPLE)
 endif()
 
 # which libraries to link
-set(QIF_LIBS gmp gmpxx gsl gslcblas armadillo)
+set(QIF_LIBS gmp mp++ gsl gslcblas armadillo)
 
 # use ortools, if available
 #

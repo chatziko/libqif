@@ -18,7 +18,7 @@ TYPED_TEST_P(BayesTest, Vulnerability) {
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5)/10, bayes_vuln::prior(t.unif_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, bayes_vuln::prior(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::prior(t.dirac_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(8)/10, bayes_vuln::prior(t.pi1));
 }
 
@@ -26,16 +26,16 @@ TYPED_TEST_P(BayesTest, Post_vulnerability) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.dirac_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.pi1, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.unif_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.pi1, t.id_2));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.dirac_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.pi2, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.unif_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.pi2, t.id_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, bayes_vuln::posterior(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,        bayes_vuln::posterior(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_10, t.noint_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_vuln::prior(t.pi2), bayes_vuln::posterior(t.pi2, t.noint_10));
 
@@ -49,9 +49,9 @@ TYPED_TEST_P(BayesTest, Mult_capacity) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 2,         bayes_vuln::mult_capacity(t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 10,        bayes_vuln::mult_capacity(t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1,         bayes_vuln::mult_capacity(t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2),     bayes_vuln::mult_capacity(t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(10),    bayes_vuln::mult_capacity(t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),     bayes_vuln::mult_capacity(t.noint_10));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(15)/10, bayes_vuln::mult_capacity(t.c1));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_vuln::mult_leakage(t.unif_10, t.crand_10), bayes_vuln::mult_capacity(t.crand_10)); // max_mult_leakage is given for uniform prior
