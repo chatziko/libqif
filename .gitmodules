@@ -13,3 +13,6 @@
 [submodule "external/mppp"]
 	path = external/mppp
 	url = https://github.com/bluescarni/mppp
+[submodule "external/pybind11"]
+	path = external/pybind11
+	url = https://github.com/pybind/pybind11.git
