@@ -43,7 +43,7 @@ add_subdirectory(python EXCLUDE_FROM_ALL)								# build python bindings
 
 add_subdirectory(misc/doxygen EXCLUDE_FROM_ALL)							# build doc
 
-add_custom_target(allcode DEPENDS samples)								# 'all' builds just the library, 'allcode' builds also tests and samples
+add_custom_target(allcode DEPENDS samples python)						# 'all' builds just the library, 'allcode' builds also tests, samples and python bindings
 
 # tests, only if external/googletest is checked out
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/CMakeLists.txt")
