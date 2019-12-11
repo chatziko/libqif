@@ -1,8 +1,7 @@
-using qif::rat;
-using qif::uint;
-
 
 namespace arma {
+
+using qif::rat;
 
 // register rational<1> as a real type.
 template<>
@@ -86,3 +85,14 @@ diskio::convert_token(rat& val, const std::string& token) {
 
 } // namespace arma
 
+
+namespace arma::priv {
+
+// Max positive number, set to a "sufficiently high" value
+//
+template<>
+arma_inline rat most_pos<rat>(rat*) {
+	return qif::infinity<rat>();
+}
+
+} // namespace arma::priv
