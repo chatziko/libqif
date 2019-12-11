@@ -77,8 +77,8 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION "include"
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/ DESTINATION "include")
 
 # install mp++'s includes, they have to be globally installed cause mp++ uses #include<...>
-#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/mppp/include/ DESTINATION "include")
-#install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mppp/include/ DESTINATION "include")
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/mppp/include/ DESTINATION "include")
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mppp/include/ DESTINATION "include")
 
 # install OSQP's includes under qif_bits/osqp
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/osqp/include/ DESTINATION "include/qif_bits/osqp")
