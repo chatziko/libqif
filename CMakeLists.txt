@@ -39,6 +39,8 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/include" include)
 #
 add_subdirectory(samples EXCLUDE_FROM_ALL)								# build samples
 
+add_subdirectory(python EXCLUDE_FROM_ALL)								# build python bindings
+
 add_subdirectory(misc/doxygen EXCLUDE_FROM_ALL)							# build doc
 
 add_custom_target(allcode DEPENDS samples)								# 'all' builds just the library, 'allcode' builds also tests and samples
