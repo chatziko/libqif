@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
-include(misc/Common.cmake)
+include(python/cmake/Common.cmake)						# common cmake config (this is in python dir simply to make the python dist self-contained)
 
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks

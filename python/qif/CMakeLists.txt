@@ -11,7 +11,7 @@ foreach(FILE ${SOURCES})
 	target_link_libraries(${BASE} PRIVATE qif)
 
 	# enable precompiled headers in cmake >= 3.16.0, EXCEPT on linux/clang
-	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+	if(NOT SYSTEM_QIF AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
 		target_precompile_headers(${BASE} REUSE_FROM qif)
 	endif()
 

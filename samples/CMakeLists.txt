@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
-include(../misc/Common.cmake)
+include(../python/cmake/Common.cmake)
 
 # if the samples are compiled alone (not within a library build), add an interface qif target
 # that has the same options as the normal qif target and links to the system-wide qif.
