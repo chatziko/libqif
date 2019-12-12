@@ -8,6 +8,7 @@ namespace wrapper {
 
 // GLPK methods /////////////////////////////////////////////////////////////////
 
+#ifdef QIF_USE_GLPK
 glp_prob *glp_create_prob(void);
 int glp_add_rows(glp_prob *P, int nrs);
 int glp_add_cols(glp_prob *P, int ncs);
@@ -27,6 +28,7 @@ int glp_ipt_status(glp_prob *P);
 double glp_ipt_col_prim(glp_prob *P, int j);
 void glp_delete_prob(glp_prob *P);
 int glp_free_env(void);
+#endif
 
 
 // OSQP methods /////////////////////////////////////////////////////////////////
