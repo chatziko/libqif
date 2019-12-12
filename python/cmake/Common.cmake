@@ -26,7 +26,11 @@ if(APPLE)
 endif()
 
 # which libraries to link
-set(QIF_LIBS gmp mp++ gsl gslcblas armadillo)
+# dl and rt are needed in manylinux
+set(QIF_LIBS gmp mp++ gsl gslcblas armadillo ${CMAKE_DL_LIBS})
+if(UNIX AND NOT APPLE)
+	list(APPEND QIF_LIBS rt)	# get cmake modules from misc
+endif()
 
 # use ortools, if available
 #
