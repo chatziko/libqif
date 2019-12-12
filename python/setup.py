@@ -57,10 +57,14 @@ class CMakeBuild(build_ext):
 		subprocess.check_call(['cmake', '--build', '.', '-t', os.path.basename(ext.name)] + build_args, cwd=self.build_temp)
 
 
+# if the current commit matches a vN.N.N tag, use that as the version
+tag = subprocess.check_output('git describe --tags --exact-match; exit 0', stderr=subprocess.DEVNULL, shell=True).decode("utf-8")
+m = re.match(r"v([\d.]+)", tag)
+version = m.group(1) if m else '0.0.1'
 
 setup(
 	name='qif',
-	version='0.1.1',
+	version=version,
 	author='Kostas Chatzikokolakis  ',
 	author_email='kostas@chatzi.org',
 	url='https://github.com/chatziko/libqif',
