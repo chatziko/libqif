@@ -1,11 +1,10 @@
 name: build-pypi
-on:
-  push:
-    tags:
-      - v*
+on: [push]
 
 jobs:
-  build:
+  # Ubuntu ########################################################
+  ubuntu:
+    if: false
     runs-on: ubuntu-latest
     steps:
     - name: Checkout git repository
@@ -18,7 +17,7 @@ jobs:
 
 
     - name: Publish distribution to Test PyPI
-      if: contains(github.event.ref, '-test')
+      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.test_pypi_password }}
@@ -27,8 +26,63 @@ jobs:
 
     - name: Publish distribution to PyPI
       # not sure how to use "not"
-      if: contains(github.event.ref, '-test') == false
+      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.pypi_password }}
         packages_dir: python/dist
+
+
+  # MacOS ##########################################################
+  macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout git repository
+      uses: actions/checkout@v1
+      with:
+        submodules: recursive
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.5'
+
+    - name: Install dependencies & build source dist
+      run: bash .github/workflows/macos-build-sdist.sh
+
+    # Build wheel for every python version
+    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+
+
+    - name: Delocate wheels
+      run: |
+        pip install --upgrade delocate
+        delocate-wheel -v python/dist/*.whl
+
+
+    - name: Publish distribution to Test PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
+      run: pip install twine && twine upload -u __token__ python/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
+        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+
+    - name: Publish distribution to PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
+      run: pip install twine && twine upload -u __token__ python/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.pypi_password }}
