@@ -19,8 +19,3 @@ mkdir build
 cd build
 cmake ..
 make install -j 2
-
-# build source dist
-cd ../python
-
-python setup.py sdist

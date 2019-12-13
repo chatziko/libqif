@@ -15,22 +15,18 @@ jobs:
     - name: Build manylinux pypi dist
       uses: ./.github/actions/build-pypi-manylinux
 
-
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.test_pypi_password }}
-        repository_url: https://test.pypi.org/legacy/
-        packages_dir: python/dist
+      run: pip3 install twine && twine upload -u __token__ python/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
+        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
 
     - name: Publish distribution to PyPI
-      # not sure how to use "not"
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.pypi_password }}
-        packages_dir: python/dist
+      run: pip3 install twine && twine upload -u __token__ python/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.pypi_password }}
 
 
   # MacOS ##########################################################
@@ -42,30 +38,33 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install dependencies & build qif
+      run: bash .github/workflows/macos-build-qif.sh
+
+    # Build wheel for every python version
     - uses: actions/setup-python@v1
       with:
         python-version: '3.5'
-
-    - name: Install dependencies & build source dist
-      run: bash .github/workflows/macos-build-sdist.sh
-
-    # Build wheel for every python version
-    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+    - name: Build python 3.5 wheel
+      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.6'
-    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+    - name: Build python 3.6 wheel
+      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.7'
-    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+    - name: Build python 3.7 wheel
+      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+    - name: Build python 3.8 wheel
+      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
 
 
     - name: Delocate wheels

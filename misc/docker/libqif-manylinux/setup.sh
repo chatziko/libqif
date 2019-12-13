@@ -44,8 +44,5 @@ cp or-tools*/lib/*.a /usr/local/lib
 cp /opt/_internal/cpython-3.6.9/lib/python3.6/site-packages/ortools/.libs/* /usr/local/lib
 ldconfig
 
-# twine
-/opt/python/cp36-cp36m/bin/pip install twine
-
 # cleanup
 rm -rf /tmp/*
