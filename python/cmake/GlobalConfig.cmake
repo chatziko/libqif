@@ -22,7 +22,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
 if(APPLE)
-	LINK_DIRECTORIES(/usr/local/lib)
+	link_directories(/usr/local/lib)
+	include_directories(/usr/local/include)
 endif()
 
 # Macros
