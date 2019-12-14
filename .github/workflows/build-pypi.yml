@@ -16,14 +16,14 @@ jobs:
 
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      run: pip3 install setuptools twine && twine upload -u __token__ python/dist/*
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && twine upload -u __token__ python/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
         TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
 
     - name: Publish distribution to PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: pip3 install setuptools twine && twine upload -u __token__ python/dist/*
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && twine upload -u __token__ python/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.pypi_password }}
 
@@ -69,6 +69,9 @@ jobs:
     - name: Delocate wheels
       run: |
         pip install --upgrade delocate
+        # workaround delocate issue https://github.com/matthew-brett/delocate/issues/62
+        ln -s /usr/local/lib \@loader_path
+        ln -s /usr/local/lib \$ORIGIN
         delocate-wheel -v python/dist/*.whl
 
 
