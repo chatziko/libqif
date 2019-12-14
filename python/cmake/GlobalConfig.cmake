@@ -26,6 +26,9 @@ if(APPLE)
 	include_directories(/usr/local/include)
 endif()
 
+# without this the installed library has empty rpath, which confuses delocate
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
 # Macros
 MACRO(SUBDIRLIST result curdir)
 	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)

@@ -38,9 +38,6 @@ endif()
 
 # installation
 #
-# without this the installed library has empty rpath, which confuses delocate
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
 if(NOT INSTALL_LIB_DIR) # Allow for the "lib" directory to be specified on the command line
 	set(INSTALL_LIB_DIR "lib")
 	if(UNIX AND NOT APPLE)	 # I don't know how Mac OS handles 64 bit systems
