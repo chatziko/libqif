@@ -7,11 +7,18 @@ include(../python/cmake/QifConfig.cmake)
 
 add_subdirectory(pybind11)
 
-include_directories(include)
+# build qif python module
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/qif/*.cpp)
+pybind11_add_module(qif_module qif.cpp ${SOURCES})
 
-add_custom_target(python)	# target that build all python bindings
+set_target_properties(qif_module PROPERTIES OUTPUT_NAME "qif")
+target_link_libraries(qif_module PRIVATE qif)
+target_include_directories(qif_module PRIVATE include)
 
-add_subdirectory(qif)
+# enable precompiled headers in cmake >= 3.16.0, EXCEPT on linux/clang
+if(NOT SYSTEM_QIF AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+	target_precompile_headers(qif_module REUSE_FROM qif)
+endif()
 
 # run test script
 add_custom_target(python_test DEPENDS python)

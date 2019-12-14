@@ -6,13 +6,7 @@ using namespace py::literals;
 using namespace qif;
 
 
-
-PYBIND11_MODULE(channel, m) {
-	// TODO: move centrally?
-	arma::arma_rng::set_seed_random();
-
-	// Init mp++'s pybind11 integration
-	mppp_pybind11::init();
+void init_channel_module(py::module m) {
 
 	m.def("normalize",      overload<const  chan&>(channel::normalize<double>), "C"_a);
 	m.def("normalize",      overload<const rchan&>(channel::normalize<rat>   ), "C"_a);
@@ -66,10 +60,4 @@ PYBIND11_MODULE(channel, m) {
 	m.def("draw",     		overload<const  chan&, const  prob&, uint>(channel::draw<double>), "C"_a, "pi"_a, "n_samples"_a);
 	m.def("draw",     		overload<const rchan&, const rprob&, uint>(channel::draw<rat>),    "C"_a, "pi"_a, "n_samples"_a);
 
-
-	#ifdef QIF_VERSION
-		m.attr("__version__") = QIF_VERSION;
-	#else
-		m.attr("__version__") = "dev";
-	#endif
 }

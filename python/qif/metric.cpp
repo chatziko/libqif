@@ -6,13 +6,7 @@ using namespace py::literals;
 using namespace qif;
 
 
-
-PYBIND11_MODULE(metric, m) {
-	// TODO: move centrally?
-	arma::arma_rng::set_seed_random();
-
-	// Init mp++'s pybind11 integration
-	mppp_pybind11::init();
+void init_metric_module(py::module m) {
 
 	m.def("euclidean",		[](dtype_d) { return metric::euclidean<double,double>(); }, "dtype"_a = float64);
 	m.def("euclidean",		[](dtype_u) { return metric::euclidean<double,uint>  (); }, "dtype"_a);
@@ -51,10 +45,4 @@ PYBIND11_MODULE(metric, m) {
 	m.def("kantorovich",			metric::kantorovich<double,prob>);
 	m.def("mult_kantorovich",		metric::mult_kantorovich<double,prob>);
 
-
-	#ifdef QIF_VERSION
-		m.attr("__version__") = QIF_VERSION;
-	#else
-		m.attr("__version__") = "dev";
-	#endif
 }

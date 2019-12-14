@@ -6,13 +6,7 @@ using namespace py::literals;
 using namespace qif;
 
 
-
-PYBIND11_MODULE(probab, m) {
-	// TODO: move centrally?
-	arma::arma_rng::set_seed_random();
-
-	// Init mp++'s pybind11 integration
-	mppp_pybind11::init();
+void init_probab_module(py::module m) {
 
 	m.def("uniform",		[](uint n, dtype_d) { return probab::uniform<double>(n); }, "n_elem"_a, "dtype"_a = float64);
 	m.def("uniform",		[](uint n, dtype_r) { return probab::uniform<rat>   (n); }, "n_elem"_a, "dtype"_a);
@@ -50,9 +44,4 @@ PYBIND11_MODULE(probab, m) {
 	m.def("from_grid",  	probab::from_grid<double>, "grid"_a);
 	m.def("from_grid",  	probab::from_grid<rat>,    "grid"_a);
 
-	#ifdef QIF_VERSION
-		m.attr("__version__") = QIF_VERSION;
-	#else
-		m.attr("__version__") = "dev";
-	#endif
 }
