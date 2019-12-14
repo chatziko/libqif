@@ -7,7 +7,16 @@ cmake --version
 
 rm -f /usr/local/include/c++	# brew install will fail if this exists
 
-brew install gsl gmp armadillo
+brew install gsl gmp
+
+# armadillo (manual install to use Accelerate, homebrew version uses openblas)
+pushd /tmp
+wget -nv http://sourceforge.net/projects/arma/files/armadillo-9.800.3.tar.xz
+tar -xf armadillo*.tar.xz
+cd armadillo-9.800.3
+./configure
+make install
+popd
 
 # or-tools
 (brew unlink protobuf; true)	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
