@@ -8,7 +8,7 @@ if(${BUILD_QIF})
 	file(GLOB LIB_SOURCES src/*.cpp)							# get all src/*.cpp files in LIB_SOURCES
 	add_library(qif SHARED ${LIB_SOURCES})						# libqif, depends on all src/*.cpp files
 
-	include_directories("${CMAKE_CURRENT_BINARY_DIR}/include" include)
+	target_include_directories(qif PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" include)
 
 	# enable precompiled headers in cmake >= 3.16.0
 	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
@@ -26,7 +26,7 @@ endif()
 #
 # PRIVATE, only needed for qif itself
 if(${BUILD_QIF})
-	target_link_libraries(qif PRIVATE osqpstatic gsl gslcblas)
+	target_link_libraries(qif PRIVATE osqpstatic gsl gslcblas mp++)		# mp++ is not really needed, we only list it to get its include_directories
 endif()
 
 # INTERFACE, needed for targets _using_ qif
