@@ -2,19 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(libqif)
 
-include(cmake/Common.cmake)
-
-# if the bindings are compiled alone (not within a library build), add an interface qif target
-# that has the same options as the normal qif target and links to the system-wide qif.
-if(NOT TARGET qif)
-	find_library(SYSTEM_QIF NAME qif PATH_SUFFIXES lib/)
-
-	add_library(qif INTERFACE)
-	target_link_libraries(qif INTERFACE ${SYSTEM_QIF} ${QIF_LIBS})	# libraries to link
-
-	target_compile_options(qif INTERFACE -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
-	target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
-endif()
+include(../python/cmake/GlobalConfig.cmake)
+include(../python/cmake/QifConfig.cmake)
 
 add_subdirectory(pybind11)
 

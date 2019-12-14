@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
-include(python/cmake/Common.cmake)						# common cmake config (this is in python dir simply to make the python dist self-contained)
+include(python/cmake/GlobalConfig.cmake)				# global cmake config (this is in python dir simply to make the python dist self-contained)
 
 # build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
 set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks
@@ -14,26 +14,11 @@ add_subdirectory(external/mppp mppp EXCLUDE_FROM_ALL)
 
 # build shared lib
 #
-file(GLOB LIB_SOURCES src/*.cpp)						# get all src/*.cpp files in LIB_SOURCES
-add_library(qif SHARED ${LIB_SOURCES})					# libqif, depends on all src/*.cpp files
-target_link_libraries(qif osqpstatic ${QIF_LIBS})		# libraries to link (QIF_LIBS is set in Common.cmake)
+set(BUILD_QIF true)
+include(python/cmake/QifConfig.cmake)
 
-# enable precompiled headers in cmake >= 3.16.0
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-	target_precompile_headers(qif PRIVATE include/precompiled.h)
-endif()
-
-# compiler options
-# NOTE: -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as PUBLIC, so that they
-#       are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
-#
-target_compile_options(qif PUBLIC -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
-target_compile_definitions(qif PUBLIC $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
-
-# includes and config file
+# config file
 configure_file(include/qif_bits/config.h include/qif_bits/config.h)
-
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/include" include)
 
 # other targets
 #
