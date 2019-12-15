@@ -14,6 +14,13 @@ jobs:
     - name: Build manylinux pypi dist
       uses: ./.github/actions/build-pypi-manylinux
 
+
+    - name: Upload wheels as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: wheels-ubuntu
+        path: python_lib/dist
+
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
       run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
@@ -74,6 +81,12 @@ jobs:
         ln -s /usr/local/lib \$ORIGIN
         delocate-wheel -v python_lib/dist/*.whl
 
+
+    - name: Upload wheels as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: wheels-macos
+        path: python_lib/dist
 
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
