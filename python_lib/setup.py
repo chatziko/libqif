@@ -62,6 +62,11 @@ tag = subprocess.check_output('git describe --tags --exact-match; exit 0', stder
 m = re.match(r"v([\d.]+)", tag)
 version = m.group(1) if m else '0.0.1'
 
+# read the contents of your README file
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, '../README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
 	name='qif',
 	version=version,
@@ -69,7 +74,8 @@ setup(
 	author_email='kostas@chatzi.org',
 	url='https://github.com/chatziko/libqif',
 	description='Quantitative Information Flow library',
-	long_description='Quantitative Information Flow library',
+	long_description=long_description,
+    long_description_content_type='text/markdown',
 	packages=['.'],
 	install_requires=[
 		'numpy',
