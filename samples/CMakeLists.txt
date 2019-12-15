@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 2.6)
+include_guard(GLOBAL)
+cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
-include(../python/cmake/GlobalConfig.cmake)
-include(../python/cmake/QifConfig.cmake)
+include(../misc/cmake/GlobalConfig.cmake)
+
+# If this dir is the root, we need to include qif (if not qif is already loaded, and add_subdirectory will do nothing)
+add_subdirectory(../lib lib)
 
 # use backward.cpp of pretty stacktraces
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
@@ -33,7 +36,7 @@ foreach(DIR ${SUBDIRS})
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
 	# enable precompiled headers in cmake >= 3.16.0
-	if(NOT SYSTEM_QIF AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
 		target_precompile_headers(${DEST} REUSE_FROM qif)
 	endif()
 

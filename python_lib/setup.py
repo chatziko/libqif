@@ -70,12 +70,12 @@ setup(
 	url='https://github.com/chatziko/libqif',
 	description='Quantitative Information Flow library',
 	long_description='Quantitative Information Flow library',
-	packages=['qif'],
+	packages=['.'],
 	install_requires=[
 		'numpy',
 	],
 	ext_modules=[CMakeExtension('qif_module')],
 	cmdclass=dict(build_ext=CMakeBuild),
 	zip_safe=False,
-	test_suite='tests/test.py',
+	# test_suite='tests/test.py',
 )

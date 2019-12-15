@@ -7,14 +7,11 @@ set -e
 mkdir build
 cd build
 cmake ..
-make install
+make install -j 2
 
 
 # build python
-cd ../python
-
-# source dist
-/opt/python/cp36-cp36m/bin/python setup.py sdist
+cd ../python_lib
 
 # binary dists for each python version
 for pyver in /opt/python/cp3{5,6,7,8}*

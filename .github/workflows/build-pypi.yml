@@ -16,14 +16,14 @@ jobs:
 
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python/dist/*
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
         TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
 
     - name: Publish distribution to PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python/dist/*
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.pypi_password }}
 
@@ -45,25 +45,25 @@ jobs:
       with:
         python-version: '3.5'
     - name: Build python 3.5 wheel
-      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+      run: cd python_lib && rm -rf build && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.6'
     - name: Build python 3.6 wheel
-      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+      run: cd python_lib && rm -rf build && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.7'
     - name: Build python 3.7 wheel
-      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+      run: cd python_lib && rm -rf build && pip install wheel && python setup.py bdist_wheel
 
     - uses: actions/setup-python@v1
       with:
         python-version: '3.8'
     - name: Build python 3.8 wheel
-      run: cd python && rm -rf build && python && pip install wheel && python setup.py bdist_wheel
+      run: cd python_lib && rm -rf build && pip install wheel && python setup.py bdist_wheel
 
 
     - name: Delocate wheels
@@ -72,18 +72,18 @@ jobs:
         # workaround delocate issue https://github.com/matthew-brett/delocate/issues/62
         ln -s /usr/local/lib \@loader_path
         ln -s /usr/local/lib \$ORIGIN
-        delocate-wheel -v python/dist/*.whl
+        delocate-wheel -v python_lib/dist/*.whl
 
 
     - name: Publish distribution to Test PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      run: pip install twine && twine upload -u __token__ python/dist/*
+      run: pip install twine && twine upload -u __token__ python_lib/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
         TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
 
     - name: Publish distribution to PyPI
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: pip install twine && twine upload -u __token__ python/dist/*
+      run: pip install twine && twine upload -u __token__ python_lib/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.pypi_password }}
