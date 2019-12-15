@@ -6,31 +6,57 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
+#include <pybind11/operators.h>
 #include <armadillo>
 #include <mp++/mp++.hpp>
 #include <mp++/extra/pybind11.hpp>
+#include <qif>
 
 
 template<typename... Args>
 constexpr auto overload = pybind11::overload_cast<Args...>;	// for selecting member of overloaded function
 
-template<char kind> struct dtype_only {};				// for constraining argument to a single dtype
-using dtype_d = dtype_only<'f'>;
-using dtype_u = dtype_only<'u'>;
-using dtype_r = dtype_only<'O'>;
+extern pybind11::handle double_c, uint_c, rat_c, point_c;
 
-const auto float64 = pybind11::dtype("float64");
+struct double_c_t {};		// a type that only accepts double_c
+struct uint_c_t {};
+struct rat_c_t {};
+struct point_c_t {};
+
+const pybind11::object def_double_c = pybind11::cast(1);
 
 
 namespace pybind11::detail {
 
-template <char kind> struct type_caster<dtype_only<kind>> {
+template <> struct type_caster<double_c_t> {
 public:
-	PYBIND11_TYPE_CASTER(dtype_only<kind>, _("dtype_only"));
-
+	PYBIND11_TYPE_CASTER(double_c_t, _("class[double]"));
 	bool load(handle src, bool) {
-		auto dt = reinterpret_borrow<dtype>(src);
-		return dt && dt.kind() == kind;
+		return src.is(double_c) || src.is(def_double_c);
+	}
+	static handle cast(double_c_t, return_value_policy, handle) {
+		return def_double_c;
+	}
+};
+template <> struct type_caster<uint_c_t> {
+public:
+	PYBIND11_TYPE_CASTER(uint_c_t, _("class[uint]"));
+	bool load(handle src, bool) {
+		return src.is(uint_c);
+	}
+};
+template <> struct type_caster<rat_c_t> {
+public:
+	PYBIND11_TYPE_CASTER(rat_c_t, _("class[fraction]"));
+	bool load(handle src, bool) {
+		return src.is(rat_c);
+	}
+};
+template <> struct type_caster<point_c_t> {
+public:
+	PYBIND11_TYPE_CASTER(point_c_t, _("class[point]"));
+	bool load(handle src, bool) {
+		return src.is(point_c);
 	}
 };
 
@@ -41,7 +67,7 @@ class type_caster<
 	Type,
 	typename std::enable_if_t<
 		arma::is_Mat<Type>::value &&		// Mat | Row | Col
-		!std::is_same<typename Type::elem_type,mppp::rational<1>>::value
+		!std::is_same<typename Type::elem_type,qif::rat>::value
 	>
 > {
 
@@ -161,10 +187,10 @@ class type_caster<
 	Type,
 	typename std::enable_if_t<
 		arma::is_Mat<Type>::value &&		// Mat | Row | Col
-		std::is_same<typename Type::elem_type,mppp::rational<1>>::value
+		std::is_same<typename Type::elem_type,qif::rat>::value
 	>
 > {
-	using rat = mppp::rational<1>;
+	using rat = qif::rat;
 
 	PYBIND11_TYPE_CASTER(Type, []{
 		if constexpr (std::is_same<Type, arma::Row<rat>>::value)

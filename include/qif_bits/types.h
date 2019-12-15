@@ -58,6 +58,7 @@ struct Point {
 
 	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
 	Point<eT> operator+(const Point<eT>& rhs) const { return Point<eT>(this->x + rhs.x, this->y + rhs.y); }
+    std::string to_string() const { return "(" + std::to_string(x) + ", " + std::to_string(y) + ")"; }
 
 	static inline Point<eT> from_polar(eT radius, eT angle) { return Point<eT>(radius * cos(angle), radius * sin(angle)); }
 };
