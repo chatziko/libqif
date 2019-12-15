@@ -11,6 +11,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Docker login
+      run: docker login docker.pkg.github.com --username chatziko --password "${GH_PACKAGES_PASSWORD}"
+      env:
+        GH_PACKAGES_PASSWORD: ${{ secrets.gh_packages_password }}
+
     - name: Build manylinux pypi dist
       uses: ./.github/actions/build-pypi-manylinux
 
