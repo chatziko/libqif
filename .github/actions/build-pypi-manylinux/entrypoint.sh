@@ -6,7 +6,7 @@ set -e
 # build qif
 mkdir build
 cd build
-cmake ..
+cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# python needed just for the config, cause default is python2
 make install -j 2
 
 
