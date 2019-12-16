@@ -76,7 +76,7 @@ setup(
 	description='Quantitative Information Flow library',
 	long_description=long_description,
     long_description_content_type='text/markdown',
-	packages=['.'],
+	# packages=[''],
 	install_requires=[
 		'numpy',
 	],
