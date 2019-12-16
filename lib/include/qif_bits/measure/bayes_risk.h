@@ -31,19 +31,17 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 // (still not 100% sure whether this is true)
 //
 template<typename eT>
-eT mult_capacity(const Chan<eT>& C, uint& res_x1, uint& res_x2, std::string method = "direct") {
+std::pair<eT,Prob<eT>> mult_capacity(const Chan<eT>& C, std::string method = "direct") {
 	auto [diam, x1, x2] = metric::opt::l1_diameter(C, method);
-	res_x1 = x1;
-	res_x2 = x2;
-	return equal(diam, eT(2))
+
+	eT cap = equal(diam, eT(2))
 		? infinity<eT>()
 		: eT(1) / (eT(1) - diam/2);
-}
 
-template<typename eT>
-eT mult_capacity(const Chan<eT>& C, std::string method = "direct") {
-	uint x1, x2;
-	return mult_capacity<eT>(C, x1, x2, method);
+	Prob<eT> pi(C.n_rows, arma::fill::zeros);
+	pi(x1) = pi(x2) = eT(1)/2;
+
+	return { cap, pi };
 }
 
 // bound mult_capacity given by the max tv distance from row

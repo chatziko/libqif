@@ -45,12 +45,12 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 //Blahut-Arimoto Algorithm
 //
 template<typename eT>
-eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
+std::pair<eT,Prob<eT>> add_capacity(const Chan<eT>& C, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 	uint m = C.n_rows;
 	uint n = C.n_cols;
 
 	Prob<eT> F(m), Py(m);
-	Px = probab::uniform<eT>(m);
+	Prob<eT> Px = probab::uniform<eT>(m);
 
 	while(1) {
 		// Py = output dist
@@ -72,18 +72,11 @@ eT add_capacity(const Chan<eT>& C, Prob<eT>& Px, eT md = def_md<eT>, eT mrd = de
 		eT IU = qif::log2(max(F));
 
 		if(equal(IU, IL, md, mrd))
-			return IL;
+			return { IL, Px };
 
 		// update Px
 		Px %= F / d;		// % is element-wise mult
 	}
-}
-
-// same without getting back the prior
-template<typename eT>
-eT add_capacity(const Chan<eT>& C, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
-	Prob<eT> Px;
-	return add_capacity<eT>(C, Px, md, mrd);
 }
 
 } // measure::shannon

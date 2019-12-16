@@ -46,20 +46,18 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	Prob<eT> pi;
+	auto [cap1, pi1] = shannon::add_capacity(t.id_2);
+	EXPECT_PRED_FORMAT2(equal2<eT>, 1, cap1);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi1, t.unif_2);
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1, shannon::add_capacity(t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 1, shannon::add_capacity(t.id_2, pi));
-	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, t.unif_2);
-
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10), shannon::add_capacity(t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10), shannon::add_capacity(t.id_10, pi));
-	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, t.unif_10);
+	auto [cap2, pi2] = shannon::add_capacity(t.id_10);
+	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10), cap2);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi2, t.unif_10);
 
 	eT md =	std::is_same<eT, float>::value ? 1e-6 : def_md<eT>;		// the accuracy of 0 capacity is not great for floats
-	EXPECT_PRED_FORMAT4(equal4<eT>, 0, shannon::add_capacity(t.noint_10), md, 0.0);
+	EXPECT_PRED_FORMAT4(equal4<eT>, 0, shannon::add_capacity(t.noint_10).first, md, 0.0);
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0.19123813831431799, shannon::add_capacity(t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0.19123813831431799, shannon::add_capacity(t.c1).first);
 
 	// symmetric
 	Chan<eT> C(
@@ -68,7 +66,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		".2 .5 .3;"
 	);
 	double cap = qif::log2(C.n_cols) - shannon::prior<eT>(C.row(0));
-	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C));
+	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C).first);
 
 	// weakly symmetric
 	C = Chan<eT>(
@@ -76,7 +74,7 @@ TYPED_TEST_P(ShannonTest, Capacity) {
 		"0.333333333 0.5         0.166666667;"
 	);
 	cap = qif::log2(C.n_cols) - shannon::prior<eT>(C.row(0));
-	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C));
+	EXPECT_PRED_FORMAT2(equal2<eT>, cap, shannon::add_capacity(C).first);
 }
 
 

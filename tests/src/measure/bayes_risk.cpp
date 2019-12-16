@@ -51,12 +51,12 @@ TYPED_TEST_P(BayesRiskTest, Mult_capacity) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), bayes_risk::mult_capacity(t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), bayes_risk::mult_capacity(t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),          bayes_risk::mult_capacity(t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2),          bayes_risk::mult_capacity(t.c1));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), bayes_risk::mult_capacity(t.id_2).first);
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), bayes_risk::mult_capacity(t.id_10).first);
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),          bayes_risk::mult_capacity(t.noint_10).first);
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2),          bayes_risk::mult_capacity(t.c1).first);
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_risk::mult_leakage(t.unif_2, t.crand_2), bayes_risk::mult_capacity(t.crand_2)); // max_mult_leakage is given for 2-secret uniform prior
+	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_risk::mult_leakage(t.unif_2, t.crand_2), bayes_risk::mult_capacity(t.crand_2).first); // max_mult_leakage is given for 2-secret uniform prior
 }
 
 
