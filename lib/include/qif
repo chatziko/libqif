@@ -75,7 +75,6 @@ namespace qif {
 	#include "qif_bits/rng.h"
 	#include "qif_bits/LinearProgram.h"
 	#include "qif_bits/QuadraticProgram.h"
-	#include "qif_bits/Graph.h"
 	#include "qif_bits/geo.h"
 
 	#include "qif_bits/probab.h"
