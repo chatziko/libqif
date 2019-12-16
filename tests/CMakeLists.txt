@@ -1,21 +1,24 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
+add_custom_target(tests)												# for 'make tests'
 
-add_subdirectory(../external/googletest googletest)					# build googletest in dir 'googletest'
+if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is checked out
 
-file(GLOB_RECURSE TEST_SOURCES *.cpp)								# get all *.cpp files in TEST_SOURCES
+	add_subdirectory(../external/googletest googletest)					# build googletest in dir 'googletest'
 
-add_executable(run ${TEST_SOURCES})
-target_link_libraries(run qif gtest)								# crete 'run' executable, link against libqif and googletest
+	file(GLOB_RECURSE TEST_SOURCES *.cpp)								# get all *.cpp files in TEST_SOURCES
 
-# enable precompiled headers in cmake >= 3.16.0
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-	target_precompile_headers(run REUSE_FROM qif)
+	add_executable(run ${TEST_SOURCES})									# create 'run' executable
+	target_link_libraries(run qif gtest)								# link against libqif and googletest
+	target_include_directories(run PRIVATE include)
+
+	# enable precompiled headers in cmake >= 3.16.0
+	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+		target_precompile_headers(run REUSE_FROM qif)
+	endif()
+
+	add_dependencies(tests run)
+
 endif()
-
-
-# for 'make tests'
-add_custom_target(tests)
-add_dependencies(tests run)

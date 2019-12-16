@@ -1,0 +1,102 @@
+name: build-pypi
+on: [push]
+
+jobs:
+  # Ubuntu ########################################################
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout git repository
+      uses: actions/checkout@v1
+      with:
+        submodules: recursive
+
+    - name: Docker login
+      run: docker login docker.pkg.github.com --username chatziko --password "${GH_PACKAGES_PASSWORD}"
+      env:
+        GH_PACKAGES_PASSWORD: ${{ secrets.gh_packages_password }}
+
+    - name: Build manylinux pypi dist
+      uses: ./.github/actions/build-pypi-manylinux
+
+
+    - name: Upload wheels as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: wheels-ubuntu
+        path: python_lib/dist
+
+    - name: Publish distribution to Test PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
+        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+
+    - name: Publish distribution to PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
+      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.pypi_password }}
+
+
+  # MacOS ##########################################################
+  macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout git repository
+      uses: actions/checkout@v1
+      with:
+        submodules: recursive
+
+    - name: Install dependencies & build qif
+      run: bash .github/workflows/macos-build-qif.sh
+
+    # Build wheel for every python version
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.5'
+    - name: Build python 3.5 wheel
+      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+    - name: Build python 3.6 wheel
+      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+    - name: Build python 3.7 wheel
+      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+    - name: Build python 3.8 wheel
+      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+
+
+    - name: Delocate wheels
+      run: perl .github/workflows/delocate.pl python_lib/dist/*.whl
+
+
+    - name: Upload wheels as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: wheels-macos
+        path: python_lib/dist
+
+    - name: Publish distribution to Test PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
+      run: pip install twine && twine upload -u __token__ python_lib/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
+        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+
+    - name: Publish distribution to PyPI
+      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
+      run: pip install twine && twine upload -u __token__ python_lib/dist/*
+      env:
+        TWINE_PASSWORD: ${{ secrets.pypi_password }}

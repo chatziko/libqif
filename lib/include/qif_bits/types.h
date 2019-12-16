@@ -7,6 +7,7 @@ enum class enabled { _ };
 constexpr auto _ = enabled::_;
 template <typename T> using Invoke = typename T::type;
 template <typename Condition> using EnableIf  = Invoke<std::enable_if<  Condition::value, enabled >>;
+template <typename Cond1, typename Cond2> using EnableIf2 = Invoke<std::enable_if< Cond1::value || Cond2::value, enabled >>;
 template <typename Condition> using DisableIf = Invoke<std::enable_if< !Condition::value, enabled >>;
 
 typedef uint32_t uint;
@@ -57,6 +58,7 @@ struct Point {
 
 	bool operator==(const Point<eT>& rhs) const { return equal(this->x, rhs.x) && equal(this->y, rhs.y); }
 	Point<eT> operator+(const Point<eT>& rhs) const { return Point<eT>(this->x + rhs.x, this->y + rhs.y); }
+    std::string to_string() const { return "(" + std::to_string(x) + ", " + std::to_string(y) + ")"; }
 
 	static inline Point<eT> from_polar(eT radius, eT angle) { return Point<eT>(radius * cos(angle), radius * sin(angle)); }
 };

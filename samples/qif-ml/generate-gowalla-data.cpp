@@ -45,7 +45,7 @@ void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 	file2 << C;
 
 	// draw
-	arma::Mat<uint> drawn = channel::draw(pi, C, samples);
+	arma::Mat<uint> drawn = channel::draw(C, pi, samples);
 	LargeAvg<double> mean;
 
 	for(uint i = 0; i < samples; i++) {

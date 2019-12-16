@@ -19,7 +19,7 @@ const Chainable<T> never_chainable = [](const T&, const T&) -> bool { return fal
 
 
 // Euclidean on arithmetic T
-template<typename R = R_def, typename T, EnableIf<std::is_arithmetic<T>> = _>
+template<typename R = R_def, typename T, EnableIf2<std::is_arithmetic<T>, std::is_same<T,rat>> = _>
 Metric<R, T>
 euclidean() {
 	return [](const T& a, const T& b) -> R {
@@ -27,7 +27,7 @@ euclidean() {
 	};
 }
 // chainable functon for the euclidean metric
-template<typename T, EnableIf<std::is_arithmetic<T>> = _>
+template<typename T, EnableIf2<std::is_arithmetic<T>, std::is_same<T,rat>> = _>
 Chainable<T>
 euclidean_chain() {
 	// on uint's (discrete space, particularly useful for measuring distances
@@ -276,19 +276,10 @@ l1() {
 	};
 }
 
-
-//////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
-
 template<typename R = R_def, typename T>
 Metric<R, T>
-total_variation() {
-	R half = R(1)/2;
-	return scale(l1<R,T>(), half);
-}
-
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
-Metric<R, T>
-euclidean() {
+l2() {
+	static_assert(arma::is_Row<T>::value, "only defined on row vectors");
 	static_assert(std::is_same<R, typename T::elem_type>::value, "result and prob element type should be the same");
 
 	return [](const T& a, const T& b) -> R {
@@ -298,10 +289,14 @@ euclidean() {
 	};
 }
 
-template<typename R = R_def, typename T, EnableIf<is_Prob<T>> = _>
+
+//////////////////////// METRICS ON PROBABILITY DISTRIBUTIONS ////////////////////////
+
+template<typename R = R_def, typename T>
 Metric<R, T>
-manhatan() {
-	return 2 * total_variation<R, T>();
+total_variation() {
+	R half = R(1)/2;
+	return scale(l1<R,T>(), half);
 }
 
 template<typename R = R_def, typename T>

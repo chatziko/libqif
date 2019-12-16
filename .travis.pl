@@ -26,6 +26,7 @@ if($linux) {
 	run qq{sudo apt-get -qq update};
 	run qq{sudo apt-get install -y moreutils}; # for ts
 	run qq{sudo apt-get install -y libgmp-dev libglpk-dev libgsl0-dev cmake g++-7 g++-8 g++-9 clang};
+	run qq{pyenv global 3.7};
 	run qq{cmake --version};
 
 	run qq{git clone https://gitlab.com/conradsnicta/armadillo-code.git -b 8.400.x --depth 1};

@@ -5,17 +5,23 @@ namespace channel {
 //
 template<typename eT = eT_def>
 inline
-Chan<eT>& normalize(Mat<eT>& C) {
+void normalize(Mat<eT>& C) {
 	C.each_col() /= arma::sum(C, 1);
-	return C;
 }
 
 template<typename eT = eT_def>
 inline
-Chan<eT>& identity(Chan<eT>& C) {
+Chan<eT> normalize(const Mat<eT>& C) {
+	Chan<eT> CC(C);
+	normalize(CC);		// will call the in-place overload
+	return CC;
+}
+
+template<typename eT = eT_def>
+inline
+void identity(Chan<eT>& C) {
 	if(!C.is_square()) throw std::runtime_error("not square");
 	C.eye();
-	return C;
 }
 
 template<typename eT = eT_def>
@@ -29,10 +35,9 @@ Chan<eT> identity(uint n) {
 
 template<typename eT = eT_def>
 inline
-Chan<eT>& no_interference(Chan<eT>& C) {
+void no_interference(Chan<eT>& C) {
 	C.zeros();
 	C.col(0).fill(eT(1));
-	return C;
 }
 
 template<typename eT = eT_def>
@@ -46,24 +51,15 @@ Chan<eT> no_interference(uint n, uint cols = 1) {
 
 template<typename eT = eT_def>
 inline
-Chan<eT>& randu(Chan<eT>& C) {
+void randu(Chan<eT>& C) {
 	for(uint i = 0; i < C.n_rows; i++)
 		C.row(i) = probab::randu<eT>(C.n_cols);
-
-	return C;
 }
 
 template<typename eT = eT_def>
 inline
-Chan<eT> randu(uint n) {
-	Chan<eT> C(n, n);
-	randu(C);
-	return C;		// separate return to allow move semantics!
-}
-
-template<typename eT = eT_def>
-inline
-Chan<eT> randu(uint n, uint m) {
+Chan<eT> randu(uint n, uint m = 0) {
+	if(m == 0) m = n;
 	Chan<eT> C(n, m);
 	randu(C);
 	return C;		// separate return to allow move semantics!
@@ -170,9 +166,9 @@ Mat<eT> posteriors(const Chan<eT>& C, const Prob<eT>& pi = {}) {
 //
 template<typename eT = eT_def>
 inline
-Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
+std::pair<Prob<eT>,Mat<eT>> hyper(const Chan<eT>& C, const Prob<eT>& pi) {
 	Prob<eT> outer = pi * C;
-	inners = C;
+	Mat<eT> inners = C;
 
 	inners.each_col() %= pi.t();	// creates the joint
 	inners.each_row() /= outer;		// normalizes each column into the posterior
@@ -181,7 +177,7 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 	// we first sort cols in lexicographic order. Then move the outer probability
 	// of equal columns, and finally delete cols of zero probability
 	//
-	auto sorted = arma::linspace<arma::urowvec>(eT(0), inners.n_cols-1, inners.n_cols);
+	auto sorted = arma::linspace<arma::urowvec>(0, inners.n_cols-1, inners.n_cols);
     std::sort(sorted.begin(), sorted.end(), [&inners](uint a, uint b) {
 		return compare_columns(inners, a, b) == -1;		// a < b
     });
@@ -203,7 +199,7 @@ Prob<eT> hyper(const Chan<eT>& C, const Prob<eT>& pi, Mat<eT>& inners) {
 			outer.shed_col(i);
 		}
 
-	return outer;
+	return { outer, inners };
 }
 
 
@@ -213,8 +209,7 @@ template<typename eT = eT_def>
 inline
 Chan<eT> reduced(const Chan<eT>& C) {
 	// compute via a hyper constructed on a uniform prior
-	Chan<eT> R;
-	prob outer = channel::hyper(C, probab::uniform<eT>(C.n_rows), R);
+	auto [outer, R] = channel::hyper(C, probab::uniform<eT>(C.n_rows));
 	R.each_row() %= outer;
 	normalize(R);
 	return R;
@@ -225,11 +220,10 @@ Chan<eT> reduced(const Chan<eT>& C) {
 //
 template<typename eT = eT_def>
 inline
-uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT max_diff = eT(1e-6), uint max_reps = 0) {
+std::pair<Prob<eT>, uint> iterative_bayesian_update(const Chan<eT>& C, const Prob<eT>& out, const Prob<eT>& start = {}, eT max_diff = eT(1e-6), uint max_reps = 0) {
 	eT almost_zero(1e-6);
 
-	if(pi.is_empty())
-		pi = probab::uniform<eT>(C.n_rows);
+	Prob<eT> pi = start.is_empty() ? probab::uniform<eT>(C.n_rows) : start;
 
 	if(C.n_rows != pi.n_cols || C.n_cols != out.n_cols)
 		throw std::runtime_error("invalid sizes");
@@ -254,7 +248,7 @@ uint bayesian_update(const Chan<eT>& C, const Prob<eT>& out, Prob<eT>& pi, eT ma
 		pi = new_pi;
 
 		if(diff <= max_diff || count == max_reps)
-			return count;
+			return { pi, count };
 	}
 }
 
@@ -511,21 +505,7 @@ Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_sto
 //
 template<typename eT = eT_def>
 eT sum_column_min(const Chan<eT>& C) {
-	if constexpr (!std::is_same<eT, rat>::value) {
-		// this doesn't work for rat, investigae
-		return arma::accu(arma::min(C, 0));
-
-	} else {
-		eT res(0);
-		for(uint y = 0; y < C.n_cols; y++) {
-			eT min(1);
-			for(uint x = 0; x < C.n_rows; x++)
-				if(C(x,y) < min)
-					min = C(x,y);
-			res += min;
-		}
-		return res;
-	}
+	return arma::accu(arma::min(C, 0));
 }
 
 // Transform (pi,C) to "binary" (pibin, Cbin), modeling a system with secrets "x" and "not x",
@@ -553,7 +533,7 @@ std::pair<Prob<eT>,Chan<eT>> to_binary(const Prob<eT>& pi, const Chan<eT>& C, ui
 // draw an input, then an output
 template<typename eT = eT_def>
 inline
-arma::Row<uint> draw(const Prob<eT>& pi, const Chan<eT>& C) {
+std::pair<uint,uint> draw(const Chan<eT>& C, const Prob<eT>& pi) {
 	uint x = probab::draw<eT>(pi);
 	uint y = probab::draw<eT>(C.row(x));
 	return { x, y };
@@ -562,7 +542,7 @@ arma::Row<uint> draw(const Prob<eT>& pi, const Chan<eT>& C) {
 // efficient batch sampling via the joint distribution
 template<typename eT = eT_def>
 inline
-Mat<uint> draw(const Prob<eT>& pi, const Chan<eT>& C, uint n) {
+Mat<uint> draw(const Chan<eT>& C, const Prob<eT>& pi, uint n) {
 	// build the joint	
 	Mat<eT> J = C;
 	J.each_col() %= pi.t();

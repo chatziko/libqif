@@ -3,10 +3,9 @@ namespace probab {
 
 template<typename eT = eT_def>
 inline
-Prob<eT>& uniform(Prob<eT>& pi) {
+void uniform(Prob<eT>& pi) {
 	// cast to uint cause rat is confused when dividing by const uint
 	pi.fill( eT(1) / uint(pi.n_cols) );
-	return pi;
 }
 
 template<typename eT = eT_def>
@@ -19,10 +18,9 @@ inline Prob<eT> uniform(uint n) {
 
 template<typename eT = eT_def>
 inline
-Prob<eT>& dirac(Prob<eT>& pi, uint i = 0) {
+void dirac(Prob<eT>& pi, uint i = 0) {
 	pi.zeros();
 	pi.at(i) = eT(1);
-	return pi;
 }
 
 template<typename eT = eT_def>
@@ -79,6 +77,13 @@ Prob<eT> randu(uint n) {
 template<typename eT = eT_def>
 inline void normalize(Prob<eT>& pi) {
 	pi /= arma::accu(pi);
+}
+
+template<typename eT = eT_def>
+Prob<eT> normalize(const Prob<eT>& pi) {
+	Prob<eT> res = pi;
+	normalize(res);
+	return res;
 }
 
 
@@ -217,6 +222,14 @@ Prob<eT>& project_to_simplex(Prob<eT>& x) {
 	}
 
 	return x;
+}
+
+template<typename eT = eT_def>
+inline
+Prob<eT> project_to_simplex(const Prob<eT>& x) {
+	Prob<eT> res = x;
+	project_to_simplex(res);
+	return res;
 }
 
 // Computes the probability distribution q that minimizes the max l1-distance from those in C.

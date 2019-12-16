@@ -1,20 +1,12 @@
-cmake_minimum_required(VERSION 2.6)
+include_guard(GLOBAL)
+cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
-include(../misc/Common.cmake)
+include(../misc/cmake/GlobalConfig.cmake)
 
-# if the samples are compiled alone (not within a library build), add an interface qif target
-# that has the same options as the normal qif target and links to the system-wide qif.
-if(NOT TARGET qif)
-	find_library(SYSTEM_QIF NAME qif PATH_SUFFIXES lib/)
-
-	add_library(qif INTERFACE)
-	target_link_libraries(qif INTERFACE ${SYSTEM_QIF} ${QIF_LIBS})	# libraries to link
-
-	target_compile_options(qif INTERFACE -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
-	target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
-endif()
+# If this dir is the root, we need to include qif (if not qif is already loaded, and add_subdirectory will do nothing)
+add_subdirectory(../lib lib)
 
 # use backward.cpp of pretty stacktraces
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
@@ -28,17 +20,6 @@ else()
 	macro(add_backward target)
 	endmacro()
 endif()
-
-MACRO(SUBDIRLIST result curdir)
-	FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-	SET(dirlist "")
-	FOREACH(child ${children})
-		IF(IS_DIRECTORY ${curdir}/${child})
-			LIST(APPEND dirlist ${child})
-		ENDIF()
-	ENDFOREACH()
-	SET(${result} ${dirlist})
-ENDMACRO()
 
 add_custom_target(samples)							# "samples" target, depends on all samples
 
@@ -55,7 +36,7 @@ foreach(DIR ${SUBDIRS})
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
 	# enable precompiled headers in cmake >= 3.16.0
-	if(NOT SYSTEM_QIF AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
 		target_precompile_headers(${DEST} REUSE_FROM qif)
 	endif()
 
