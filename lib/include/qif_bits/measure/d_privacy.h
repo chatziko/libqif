@@ -23,8 +23,10 @@ eT smallest_epsilon(const Chan<eT>& C, Metric<eT, uint> d) {
 	);
 }
 
+// This is the "d-vulnerability" function, who's max-case capacity coincides with the smallest epsilon of d-privacy
+//
 template<typename eT>
-eT d_vulnerability(Metric<eT, uint> d, const Prob<eT>& pi) {
+eT prior(const Prob<eT>& pi, Metric<eT, uint> d) {
 
 	eT res(0);
 	for(uint i = 0; i < pi.n_cols; i++) {
