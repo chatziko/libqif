@@ -79,12 +79,7 @@ jobs:
 
 
     - name: Delocate wheels
-      run: |
-        pip install --upgrade delocate
-        # workaround delocate issue https://github.com/matthew-brett/delocate/issues/62
-        ln -s /usr/local/lib \@loader_path
-        ln -s /usr/local/lib \$ORIGIN
-        delocate-wheel -v python_lib/dist/*.whl
+      run: perl .github/workflows/delocate.pl python_lib/dist/*.whl
 
 
     - name: Upload wheels as artifacts
