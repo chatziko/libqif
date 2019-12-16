@@ -11,7 +11,7 @@ Chan<eT> max_entropy_given_same_loss(const Prob<eT>& pi, Prob<eT>& out, Metric<e
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
-	Mat<eT> C = mechanism::d_priv::distance_matrix(n_rows, n_cols, loss);
+	Mat<eT> C = mechanism::d_privacy::distance_matrix(n_rows, n_cols, loss);
 
 	// uint cnt = 1;
 	while(true) {

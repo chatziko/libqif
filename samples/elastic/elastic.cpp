@@ -86,7 +86,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 		Metric<double, uint> d = metric::from_distance_matrix(dist);
 
 
-		elastic = mechanism::d_priv::exponential(dist.n_rows, d);
+		elastic = mechanism::d_privacy::exponential(dist.n_rows, d);
 		elastic.save("temp/elastic-"+area+".bin");
 
 		dist.reset();

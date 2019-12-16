@@ -171,7 +171,7 @@ bool priv_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 		[&](uint x) -> Prob<eT> { return A.row(x); }
 	);
 
-	return measure::d_priv::is_private(B, d_A);
+	return measure::d_privacy::is_private(B, d_A);
 }
 
 

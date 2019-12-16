@@ -1,5 +1,5 @@
 
-namespace mechanism::d_priv {
+namespace mechanism::d_privacy {
 
 // build a matrix D where Dij = exp(-d(i,j))
 // used in the construction of most mechanisms below
@@ -446,4 +446,4 @@ Chan<eT> min_loss_given_d(
 		throw std::runtime_error("invalid vars: " + vars);
 }
 
-} // namespace mechanism::d_priv
+} // namespace mechanism::d_privacy

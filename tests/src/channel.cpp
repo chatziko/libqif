@@ -191,7 +191,7 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 	if(std::is_same<eT, double>::value) {
 		// the geometric should produce the real prior in many iterations (and with limited accuracy)
 		// Note: for rat this is slow (probably has to do with the huge denominators in the random elements)
-		auto C = mechanism::d_priv::geometric<eT>(10);
+		auto C = mechanism::d_privacy::geometric<eT>(10);
 		auto pi3 = iterative_bayesian_update<eT>(C, t.prand_10 * C, {}, eT(1e-8)).first;
 		EXPECT_PRED_FORMAT4(prob_equal4<eT>, pi3, t.prand_10, eT(0), eT(1e-4));
 	}

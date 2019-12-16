@@ -1,5 +1,5 @@
 
-namespace measure::d_priv {
+namespace measure::d_privacy {
 
 template<typename eT>
 bool is_private(const Chan<eT>& C, Metric<eT, uint> d) {
@@ -40,4 +40,4 @@ eT d_vulnerability(Metric<eT, uint> d, const Prob<eT>& pi) {
 	return res;
 }
 
-} // namespace measure::d_priv
+} // namespace measure::d_privacy

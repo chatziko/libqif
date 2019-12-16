@@ -1,7 +1,7 @@
 #include "tests_aux.h"
 
-using namespace mechanism::d_priv;
-using namespace measure::d_priv;
+using namespace mechanism::d_privacy;
+using namespace measure::d_privacy;
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>

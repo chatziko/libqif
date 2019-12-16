@@ -158,13 +158,13 @@ void compare_noisy_remaps() {
 //		std::cout << "\n\n----------------------------\neps: ln("
 //			<< alpha << ")/0.1 = " << eps << "\n";
 
-//		chan opt_c = mechanism::d_priv::min_loss_given_d<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
+//		chan opt_c = mechanism::d_privacy::min_loss_given_d<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
 //		chan opt = scale_geo_mechanism(opt_c, width_c, factor);
 //		print_mech("optimal", opt, pi_global, priors, Loss);
 //		opt.clear();
 //		opt_c.clear();
 
-//		chan tight = mechanism::d_priv::tight_constraints(n_inputs, eps * dx);
+//		chan tight = mechanism::d_privacy::tight_constraints(n_inputs, eps * dx);
 //		print_mech2(std::to_string(alpha)+"-tight", tight, pi_global, pi_global_n, priors, Loss);
 //		tight.clear();
 
@@ -214,7 +214,7 @@ int coarse() {
 		std::cout << "\n\n----------------------------\neps: ln("
 			<< alpha << ")/0.1 = " << eps << "\n";
 
-		chan opt = mechanism::d_priv::min_loss_given_d<double>(pi_global, n_outputs, eps * dx, loss);
+		chan opt = mechanism::d_privacy::min_loss_given_d<double>(pi_global, n_outputs, eps * dx, loss);
 		if(opt.is_empty())
 			continue;
 		std::cout << alpha << ", c[0,0]: " << opt(0,0) << "\n";
@@ -222,19 +222,19 @@ int coarse() {
 		print_mech("optimal", opt, pi_global, priors, Loss);
 		opt.clear();
 
-		chan tight = mechanism::d_priv::tight_constraints(n_inputs, eps * dx);
+		chan tight = mechanism::d_privacy::tight_constraints(n_inputs, eps * dx);
 		print_mech("tight", tight, pi_global, priors, Loss);
 		tight.clear();
 
 		chan laplace = mechanism::geo::planar_laplace_grid<double>(width, height, cell_size, eps);
-		cout << "laplace smallest eps " << measure::d_priv::smallest_epsilon(laplace, dx) << "\n";
+		cout << "laplace smallest eps " << measure::d_privacy::smallest_epsilon(laplace, dx) << "\n";
 		print_mech("laplace", laplace, pi_global, priors, Loss);
 		std::cout << laplace;
 		laplace.clear();
 
 		chan geom = mechanism::geo::planar_geometric_grid<double>(width, height, cell_size, eps);
 		print_mech("geometric", geom, pi_global, priors, Loss);
-		cout << "geom smallest eps " << measure::d_priv::smallest_epsilon(geom, dx) << "\n";
+		cout << "geom smallest eps " << measure::d_privacy::smallest_epsilon(geom, dx) << "\n";
 		std::cout << geom;
 		geom.clear();
 	}
