@@ -27,6 +27,12 @@ eT prior(const Mat<eT>& G, const Prob<eT>& pi) {
 	return arma::max(G * trans(pi));
 }
 
+// metric-loss version, guesses are assumed to be the inputs
+template<typename eT>
+eT prior(const Metric<eT, uint>& g, const Prob<eT>& pi) {
+	return prior(metric::to_distance_matrix(g, pi.n_cols), pi);
+}
+
 // sum_y max_w sum_x pi[x] C[x, y] G[w, x]
 //
 template<typename eT>
@@ -41,13 +47,28 @@ eT posterior(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 }
 
 template<typename eT>
+eT posterior(const Metric<eT, uint>& g, const Prob<eT>& pi, const Chan<eT>& C) {
+	return posterior(metric::to_distance_matrix(g, pi.n_cols), pi, C);
+}
+
+template<typename eT>
 eT add_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	return posterior(G, pi, C) - prior(G, pi);
 }
 
 template<typename eT>
+eT add_leakage(const Metric<eT, uint>& g, const Prob<eT>& pi, const Chan<eT>& C) {
+	return add_leakage(metric::to_distance_matrix(g, pi.n_cols), pi, C);
+}
+
+template<typename eT>
 eT mult_leakage(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	return posterior(G, pi, C) / prior(G, pi);
+}
+
+template<typename eT>
+eT mult_leakage(const Metric<eT, uint>& g, const Prob<eT>& pi, const Chan<eT>& C) {
+	return mult_leakage(metric::to_distance_matrix(g, pi.n_cols), pi, C);
 }
 
 template<typename eT>
@@ -60,6 +81,11 @@ arma::ucolvec strategy(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) 
 		(G * (trans(pi) % C.col(y))).max( strategy.at(y) );
 
 	return strategy;
+}
+
+template<typename eT>
+arma::ucolvec strategy(const Metric<eT, uint>& g, const Prob<eT>& pi, const Chan<eT>& C) {
+	return strategy(metric::to_distance_matrix(g, pi.n_cols), pi, C);
 }
 
 
@@ -151,6 +177,11 @@ const Metric<eT,uint> g_id = [](uint w, uint x) -> eT {
 	return x == w ? eT(1) : eT(0);
 };
 
+template<typename eT>
+Mat<eT> G_id(uint n) {
+	return arma::eye<arma::Mat<eT>>(n, n);
+}
+
 // Adding g1+g2 produces a g such that Vg = Vg1 + Vg2
 //
 template<typename eT>
@@ -158,7 +189,7 @@ Mat<eT> g_add(const Mat<eT>& G1, const Mat<eT>& G2) {
 	check_g_size(G1, G2);
 
 	Mat<eT> G(G1.n_rows * G2.n_rows, G1.n_cols);
-	G.fill(0);
+	G.fill(eT(0));
 
 	for(uint i = 0; i < G1.n_rows; i++)
 		for(uint j = 0; j < G2.n_rows; j++)
@@ -169,18 +200,20 @@ Mat<eT> g_add(const Mat<eT>& G1, const Mat<eT>& G2) {
 
 // g such that Vg(pi) = Vg'(pi,C)
 //
+// 20191216: Is this really independend of pi? It seems to work only for uniform!
+//
 template<typename eT>
 Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
 	if(G.n_cols != C.n_rows)
 		throw std::runtime_error("invalid G size");
 
 	Mat<eT> Gres(1, G.n_cols);
-	Gres.fill(0);
+	Gres.fill(eT(0));
 
 	for(uint y = 0; y < C.n_cols; y++) {
 		Mat<eT> Gtemp = G;
 		Gtemp.each_row() %= arma::trans(C.col(y));
-		Gres = add(Gres, Gtemp);
+		Gres = g_add(Gres, Gtemp);
 	}
 
 	return Gres;

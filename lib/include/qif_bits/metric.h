@@ -194,13 +194,15 @@ from_distance_matrix(Mat<R>& M) {
 
 template<typename R = R_def>
 Mat<R>
-to_distance_matrix(Metric<R, uint> d, uint size) {
+to_distance_matrix(Metric<R, uint> d, uint n_rows, uint n_cols = 0) {
 
-	Mat<R> Dist(size, size);
+	if(n_cols == 0)
+		n_cols = n_rows;
+	Mat<R> Dist(n_rows, n_cols);
 
-	for(uint i = 0; i < size; i++)
-		for(uint j = 0; j <= i; j++)
-			Dist(i, j) = Dist(j, i) = d(i, j);
+	for(uint i = 0; i < n_rows; i++)
+		for(uint j = 0; j < n_cols; j++)
+			Dist(i, j) = d(i, j);		// don't assume symmetry
 
 	return Dist;
 }
