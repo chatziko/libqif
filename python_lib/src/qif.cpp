@@ -9,6 +9,7 @@ using namespace qif;
 void init_channel_module(py::module);
 void init_probab_module(py::module);
 void init_metric_module(py::module);
+void init_measure_module(py::module);
 
 
 py::handle double_c, uint_c, rat_c, point_c;
@@ -29,9 +30,10 @@ PYBIND11_MODULE(qif, m) {
         .def(py::self + py::self)
         .def("__repr__", &point::to_string);
 
-	m.attr("double") = pybind11::module::import("numpy").attr("float64");
-	m.attr("uint")   = pybind11::module::import("numpy").attr("uint64");
-	m.attr("rat")    = pybind11::module::import("fractions").attr("Fraction");
+	auto np = py::module::import("numpy");
+	m.attr("double") = np.attr("float64");
+	m.attr("uint")   = np.attr("uint64");
+	m.attr("rat")    = py::module::import("fractions").attr("Fraction");
 
 	// global class references
 	double_c = m.attr("double");
@@ -43,4 +45,9 @@ PYBIND11_MODULE(qif, m) {
 	init_channel_module(m.def_submodule("channel", ""));
 	init_probab_module (m.def_submodule("probab", ""));
 	init_metric_module (m.def_submodule("metric", ""));
+	init_measure_module(m.def_submodule("measure", ""));
+
+	// numpy formatter, so that rats are nicely displayed
+	std::function fmt = [](py::object x) { return py::str(x); };
+	np.attr("set_printoptions")("formatter"_a = py::dict("object"_a = fmt));
 }
