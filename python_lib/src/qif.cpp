@@ -48,6 +48,6 @@ PYBIND11_MODULE(qif, m) {
 	init_measure_module(m.def_submodule("measure", ""));
 
 	// numpy formatter, so that rats are nicely displayed
-	std::function fmt = [](py::object x) { return py::str(x); };
+	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };
 	np.attr("set_printoptions")("formatter"_a = py::dict("object"_a = fmt));
 }
