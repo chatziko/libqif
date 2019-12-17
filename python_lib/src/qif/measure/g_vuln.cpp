@@ -49,4 +49,9 @@ void init_g_vuln_module(py::module m) {
 	m.def("g_from_posterior",	g_vuln::g_from_posterior<double>, "G"_a, "C"_a);
 	m.def("g_from_posterior",	g_vuln::g_from_posterior<rat>,    "G"_a, "C"_a);
 
+	m.def("g_to_bayes",			overload<chan,                      const  prob&>(g_vuln::g_to_bayes<double>), "G"_a, "pi"_a);
+	m.def("g_to_bayes",			overload<const Metric<double,uint>&,const  prob&>(g_vuln::g_to_bayes<double>), "g"_a, "pi"_a);
+	m.def("g_to_bayes",			overload<rchan,                     const rprob&>(g_vuln::g_to_bayes<rat>   ), "G"_a, "pi"_a);
+	m.def("g_to_bayes",			overload<const Metric<rat,uint>&,   const rprob&>(g_vuln::g_to_bayes<rat>   ), "g"_a, "pi"_a);
+
 }

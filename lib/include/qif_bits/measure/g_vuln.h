@@ -219,4 +219,30 @@ Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
 	return Gres;
 }
 
+template<typename eT>
+std::tuple<eT,Prob<eT>,Chan<eT>> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
+	check_g_size(G, pi);
+	if(arma::any(arma::find(G < eT(0))))
+		throw std::runtime_error("G must be non-negative");
+
+	// compute k
+	G.each_row() %= pi;
+	eT k = arma::accu(arma::abs(G));
+
+	// compute rho
+	Prob<eT> rho2 = arma::trans( G * arma::ones<arma::Col<eT>>(G.n_cols) );
+	Prob<eT> rho = rho2 / k;
+
+	// compute R (within G)
+	rho2.replace(eT(0), eT(1));		// if rho2(w) = 0 then the whole R_{w,-} row must be 0. So the value of rho2(w)
+	G.each_col() /= rho2;			// won't affect G / rho2, we set it to 1 to avoid division by 0 errors
+
+	return { k, rho, G };
+}
+
+template<typename eT>
+std::tuple<eT,Prob<eT>,Chan<eT>> g_to_bayes(const Metric<eT, uint>& g, const Prob<eT>& pi) {
+	return g_to_bayes(metric::to_distance_matrix(g, pi.n_cols), pi);
+}
+
 } // namespace g_vuln
