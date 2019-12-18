@@ -56,7 +56,7 @@ void compute_optimal(string method) {
 	cout << "util : " << l_risk::posterior(d_loss, pi, C) << "\n";	// expected d_loss between x and y
 
 	// apply optimal remap (probably does nothing for uniform priors)
-	mat Loss = l_risk::metric_to_mat(d_loss, n_inputs);
+	mat Loss = metric::to_distance_matrix(d_loss, n_inputs);
 	chan Remap = channel::deterministic<double>(l_risk::strategy(Loss, pi, C), Loss.n_rows);	// compute remap
 	cout << "util after remap : " << l_risk::posterior(d_loss, pi, (chan)(C*Remap)) << "\n";
 }
