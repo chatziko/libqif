@@ -4,22 +4,10 @@ cmake_minimum_required(VERSION 3.13)
 project(libqif)
 
 include(../misc/cmake/GlobalConfig.cmake)
+include(../misc/cmake/BackwardCpp.cmake)
 
 # If this dir is the root, we need to include qif (if not qif is already loaded, and add_subdirectory will do nothing)
 add_subdirectory(../lib lib)
-
-# use backward.cpp of pretty stacktraces
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/backward-cpp/CMakeLists.txt")
-	set(CMAKE_UNITY_BUILD OFF)									# never use unity build for backward.cpp, it breaks
-	add_subdirectory(../external/backward-cpp backward-cpp)
-	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
-
-else()
-	# backward.cpp not present, add dummy commands to avoid errors
-	set(BACKWARD_ENABLE "")
-	macro(add_backward target)
-	endmacro()
-endif()
 
 add_custom_target(samples)							# "samples" target, depends on all samples
 

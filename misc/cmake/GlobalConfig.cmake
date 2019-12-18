@@ -40,7 +40,7 @@ endif()
 # find glpk
 find_library(LIB_GLPK NAME glpk PATH_SUFFIXES lib/)
 if(NOT ${LIB_GLPK} STREQUAL "LIB_GLPK-NOTFOUND")
-	message(STATUS "Found glpk")
+	message(STATUS "Found glpk: ${LIB_GLPK}")
 	set(QIF_USE_GLPK 1)										# this will be used in qif_bits/config.h
 endif()
 
