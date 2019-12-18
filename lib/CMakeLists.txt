@@ -50,6 +50,10 @@ endif()
 if(${QIF_USE_GLPK})
 	target_link_libraries(qif INTERFACE ${LIB_GLPK})
 endif()
+if(UNIX AND NOT APPLE)
+	# dl and rt are needed in manylinux
+	target_link_libraries(qif INTERFACE ${CMAKE_DL_LIBS} rt)
+endif()
 
 # compiler options
 #
