@@ -40,10 +40,12 @@ eT posterior(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	check_g_size(G, pi);
 	channel::check_prior_size(pi, C);
 
-	eT s = eT(0);
-	for(uint y = 0; y < C.n_cols; y++)
-		s += arma::max(G * (trans(pi) % C.col(y)));
-	return s;
+	// Use the joint formulation: Vg[pi, C] = sum_y max_w (GJ)_{w,y}
+	//
+	if(probab::is_uniform(pi))		// common case that can be optimized
+		return arma::accu(arma::max( G * C )) / (int)pi.n_cols;
+	else
+		return arma::accu(arma::max( G * (C.each_col() % pi) ));
 }
 
 template<typename eT>

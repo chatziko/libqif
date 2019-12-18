@@ -10,17 +10,13 @@ eT prior(const Prob<eT>& pi) {
 template<typename eT>
 eT posterior(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
-
-	if(probab::is_uniform(pi)) {
-		// common case that can be optimized
-		return arma::accu(arma::max(C, 0)) / (int)pi.n_cols;
-
-	} else {
-		eT s = eT(0);
-		for(uint y = 0; y < C.n_cols; y++)
-			s += arma::max(trans(pi) % C.col(y));
-		return s;
-	}
+		
+	// Use the joint formulation: V[pi, C] = sum_y max_w J_{w,y}
+	//
+	if(probab::is_uniform(pi))		// common case that can be optimized
+		return arma::accu(arma::max(C)) / (int)pi.n_cols;
+	else
+		return arma::accu(arma::max(C.each_col() % pi));
 }
 
 template<typename eT>
