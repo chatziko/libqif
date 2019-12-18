@@ -45,7 +45,7 @@ eT posterior(const Mat<eT>& G, const Prob<eT>& pi, const Chan<eT>& C) {
 	if(probab::is_uniform(pi))		// common case that can be optimized
 		return arma::accu(arma::max( G * C )) / (int)pi.n_cols;
 	else
-		return arma::accu(arma::max( G * (C.each_col() % pi) ));
+		return arma::accu(arma::max( G * (C.each_col() % trans(pi)) ));
 }
 
 template<typename eT>
