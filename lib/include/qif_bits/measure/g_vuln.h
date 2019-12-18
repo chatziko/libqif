@@ -230,7 +230,16 @@ std::tuple<Prob<eT>,Chan<eT>,eT,eT> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
 	// compute b (leave 0 if there is no negative element)
 	arma::Row<eT> mins = arma::min(G);
 	eT b(0);
-	if(arma::any(mins < eT(0))) {
+	
+	// TODO: the use of tmp for rat can be removed in armadillo 9.9
+	bool have_neg;
+	if constexpr (std::is_same<eT, rat>::value) {
+		arma::uvec tmp = mins < eT(0);
+		have_neg = arma::any(tmp);
+	} else {
+		have_neg = arma::any(mins < eT(0));
+	}
+	if(have_neg) {
 		G.each_row() -= mins;
 		b = arma::cdot(pi, mins);		// from gain function algebra
 	}
@@ -244,7 +253,14 @@ std::tuple<Prob<eT>,Chan<eT>,eT,eT> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
 	Prob<eT> rho = rho2 / a;
 
 	// compute R (within G)
-	arma::uvec zeros = arma::find(rho2 == eT(0));		// rho(w) = 0 iff the whole row R_{w,-} is 0. We need to solve 2 "problems":
+	arma::uvec zeros;									// rho(w) = 0 iff the whole row R_{w,-} is 0. We need to solve 2 "problems":
+	// TODO: the use of tmp for rat can be removed in armadillo 9.9
+	if constexpr (std::is_same<eT, rat>::value) {
+		arma::umat tmp = rho2 == eT(0);
+		zeros = arma::find(tmp);
+	} else {
+		zeros = arma::find(rho2 == eT(0));
+	}
 	rho2(zeros).fill(eT(1));							// 1. We arbitrarily set them to 1 ...
 	G.each_col() /= rho2;								//    to avoid division by 0 here. The value doesn't matter since R_{w,-} is 0
 	G.submat(zeros, arma::uvec({0})).fill(eT(1));		// 2. The returned R needs to be a channel matrix, so we cannot have 0 rows. We just set the first column of such rows to 1
