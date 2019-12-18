@@ -22,7 +22,7 @@ make install
 popd
 
 # or-tools
-(brew unlink protobuf; true)	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
+brew unlink protobuf || true	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
 brew tap chatziko/tap
 brew install --HEAD or-tools
 
