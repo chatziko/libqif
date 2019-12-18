@@ -150,7 +150,7 @@ void compare_noisy_remaps() {
 	auto dx_c = metric::grid(width_c, geo_d_c);	// distance on grid from distance on points
 	auto loss   = dx;
 	auto loss_c = dx_c;
-	mat Loss = l_risk::metric_to_mat(loss, n_inputs);
+	mat Loss = metric::to_distance_matrix(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;
@@ -206,7 +206,7 @@ int coarse() {
 
 	auto dx   = metric::grid(width,   geo_d  );	// distance on grid from distance on points
 	auto loss   = dx;
-	mat Loss = l_risk::metric_to_mat(loss, n_inputs);
+	mat Loss = metric::to_distance_matrix(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;
