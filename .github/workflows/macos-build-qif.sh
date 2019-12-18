@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# stop on any error
+set -e
+
 export HOMEBREW_NO_INSTALL_CLEANUP=1	# make homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1		# faster
 
@@ -27,4 +30,6 @@ brew install --HEAD or-tools
 mkdir build
 cd build
 cmake ..
+make qif tests samples -j 2
+./tests/run
 make install -j 2
