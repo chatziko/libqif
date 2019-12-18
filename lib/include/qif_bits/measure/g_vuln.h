@@ -221,29 +221,39 @@ Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
 	return Gres;
 }
 
+// Returns a tuple (rho, R, a, b) such that Vg(pi, C) = a * V(rho, R*C) + b for all C
+//
 template<typename eT>
-std::tuple<eT,Prob<eT>,Chan<eT>> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
+std::tuple<Prob<eT>,Chan<eT>,eT,eT> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
 	check_g_size(G, pi);
-	if(arma::any(arma::find(G < eT(0))))
-		throw std::runtime_error("G must be non-negative");
 
-	// compute k
+	// compute b (leave 0 if there is no negative element)
+	arma::Row<eT> mins = arma::min(G);
+	eT b(0);
+	if(arma::any(mins < eT(0))) {
+		G.each_row() -= mins;
+		b = arma::cdot(pi, mins);		// from gain function algebra
+	}
+
+	// compute a
 	G.each_row() %= pi;
-	eT k = arma::accu(arma::abs(G));
+	eT a = arma::accu(arma::abs(G));
 
 	// compute rho
 	Prob<eT> rho2 = arma::trans( G * arma::ones<arma::Col<eT>>(G.n_cols) );
-	Prob<eT> rho = rho2 / k;
+	Prob<eT> rho = rho2 / a;
 
 	// compute R (within G)
-	rho2.replace(eT(0), eT(1));		// if rho2(w) = 0 then the whole R_{w,-} row must be 0. So the value of rho2(w)
-	G.each_col() /= rho2;			// won't affect G / rho2, we set it to 1 to avoid division by 0 errors
+	arma::uvec zeros = arma::find(rho2 == eT(0));		// rho(w) = 0 iff the whole row R_{w,-} is 0. We need to solve 2 "problems":
+	rho2(zeros).fill(eT(1));							// 1. We arbitrarily set them to 1 ...
+	G.each_col() /= rho2;								//    to avoid division by 0 here. The value doesn't matter since R_{w,-} is 0
+	G.submat(zeros, arma::uvec({0})).fill(eT(1));		// 2. The returned R needs to be a channel matrix, so we cannot have 0 rows. We just set the first column of such rows to 1
 
-	return { k, rho, G };
+	return { rho, G, a, b };
 }
 
 template<typename eT>
-std::tuple<eT,Prob<eT>,Chan<eT>> g_to_bayes(const Metric<eT, uint>& g, const Prob<eT>& pi) {
+std::tuple<Prob<eT>,Chan<eT>,eT,eT> g_to_bayes(const Metric<eT, uint>& g, const Prob<eT>& pi) {
 	return g_to_bayes(metric::to_distance_matrix(g, pi.n_cols), pi);
 }
 
