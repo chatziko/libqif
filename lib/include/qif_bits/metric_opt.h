@@ -8,7 +8,7 @@ namespace metric::opt {
 template<typename eT = eT_def>
 std::tuple<eT,uint,uint> l1_diameter(const Chan<eT>& C, std::string method = "direct") {
 	eT diam(0);
-	uint res_x1, res_x2;
+	uint res_x1 = 0, res_x2 = 0;
 
 	if(method == "direct") {
 		auto l1 = qif::metric::l1<eT, Prob<eT>>();
