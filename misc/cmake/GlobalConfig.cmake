@@ -1,7 +1,6 @@
 include_guard(GLOBAL)
 
 # Global config, included in all (potentially) top-level CMakeLists: qif / samples / python
-option(PORTABLE "Build portable binaries")
 
 # default type is Release, change with cmake -DCMAKE_BUILD_TYPE=
 if(NOT CMAKE_BUILD_TYPE)

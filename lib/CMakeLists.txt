@@ -59,9 +59,9 @@ endif()
 #
 # * -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as INTERFACE, so that they
 #    are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
-# * we build for march=native by default, or sandybridge if PORTABLE=ON
+# * we build for march=haswell by default, can be changed with -DMARCH=...
 #
-target_compile_options(qif INTERFACE -Wall -Wextra -pedantic -march=$<IF:$<BOOL:${PORTABLE}>,sandybridge,native> -fPIC -pthread)
+target_compile_options(qif INTERFACE -Wall -Wextra -pedantic -march=$<IF:$<BOOL:${MARCH}>,${MARCH},haswell> -fPIC -pthread)
 target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
 
 if("${BUILD_QIF}")
