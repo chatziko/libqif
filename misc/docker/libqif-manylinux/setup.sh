@@ -3,7 +3,7 @@
 # stop on any error
 set -e
 
-yum install -y wget openblas-devel lapack-devel dsl-devel gsl-devel xz
+yum install -y wget dsl-devel gsl-devel xz
 
 
 # cmake
@@ -15,12 +15,19 @@ wget -nv https://github.com/Kitware/CMake/releases/download/v3.16.1/cmake-3.16.1
 tar -xf cmake-3.16.1-Linux-x86_64.tar.gz
 cp -r cmake*/* /usr/local
 
+# openblas
+wget -nv https://github.com/xianyi/OpenBLAS/archive/v0.3.7.zip
+unzip v0.3.7
+cd OpenBLAS-0.3.7
+make TARGET=SANDYBRIDGE
+make install
+
 # gmp
 cd /tmp
 wget -nv https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz
 tar -xf gmp*.tar.xz
 cd gmp-6.1.2
-./configure
+./configure --build=sandybridge-pc-linux-gnu
 make install
 
 # armadillo
