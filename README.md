@@ -18,13 +18,13 @@ pip install qif
 from qif import *
 
 C = channel.randu(5)
-pi = probab.uniform(3)
+pi = probab.uniform(5)
 
-print(C)
-print(pi)
+print("Channel:\n", C)
+print("Prior:\n", pi)
 
 print("Bayes vulnerability", measure.bayes_vuln.posterior(pi, C))
-print("Bayes capacity", measure.bayes_vuln.capacity(C))
+print("Bayes mult-capacity", measure.bayes_vuln.mult_capacity(C))
 ```
 
 ## Documentation
