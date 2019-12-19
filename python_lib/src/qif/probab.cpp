@@ -8,14 +8,14 @@ using namespace qif;
 
 void init_probab_module(py::module m) {
 
-	m.def("uniform",		[](uint n, double_c_t) { return probab::uniform<double>(n); }, "n_elem"_a, "type"_a = double_c_t());
-	m.def("uniform",		[](uint n, rat_c_t   ) { return probab::uniform<rat>   (n); }, "n_elem"_a, "type"_a);
+	m.def("uniform",		[](uint n, double_c_t) { return probab::uniform<double>(n); }, "n_elem"_a, "type"_a = def_type);
+	m.def("uniform",		[](uint n, rat_c_t   ) { return probab::uniform<rat>   (n); }, "n_elem"_a, "type"_a = def_type);
 
-	m.def("dirac",			[](uint n, uint x, double_c_t) { return probab::dirac<double>(n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = double_c_t());
-	m.def("dirac",			[](uint n, uint x, rat_c_t   ) { return probab::dirac<rat>   (n, x); }, "n_elem"_a, "x"_a = 0, "type"_a);
+	m.def("dirac",			[](uint n, uint x, double_c_t) { return probab::dirac<double>(n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type);
+	m.def("dirac",			[](uint n, uint x, rat_c_t   ) { return probab::dirac<rat>   (n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type);
 
-	m.def("randu",			[](uint n, double_c_t) { return probab::randu<double>(n); }, "n_elem"_a, "type"_a = double_c_t());
-	m.def("randu",			[](uint n, rat_c_t   ) { return probab::randu<rat>   (n); }, "n_elem"_a, "type"_a);
+	m.def("randu",			[](uint n, double_c_t) { return probab::randu<double>(n); }, "n_elem"_a, "type"_a = def_type);
+	m.def("randu",			[](uint n, rat_c_t   ) { return probab::randu<rat>   (n); }, "n_elem"_a, "type"_a = def_type);
 
 	m.def("normalize",      overload<const  prob&>(probab::normalize<double>), "pi"_a);
 	m.def("normalize",      overload<const rprob&>(probab::normalize<rat>   ), "pi"_a);

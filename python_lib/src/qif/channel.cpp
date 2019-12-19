@@ -11,17 +11,17 @@ void init_channel_module(py::module m) {
 	m.def("normalize",      overload<const  chan&>(channel::normalize<double>), "C"_a);
 	m.def("normalize",      overload<const rchan&>(channel::normalize<rat>   ), "C"_a);
 
-	m.def("identity",		[](uint n, double_c_t) { return channel::identity<double>(n); }, "n_rows"_a, "type"_a = double_c_t());
-	m.def("identity",		[](uint n, rat_c_t   ) { return channel::identity<rat>   (n); }, "n_rows"_a, "type"_a);
+	m.def("identity",		[](uint n, double_c_t) { return channel::identity<double>(n); }, "n_rows"_a, "type"_a = def_type);
+	m.def("identity",		[](uint n, rat_c_t   ) { return channel::identity<rat>   (n); }, "n_rows"_a, "type"_a = def_type);
 
-	m.def("no_interference",[](uint n, uint m, double_c_t) { return channel::no_interference<double>(n, m); }, "n_rows"_a, "n_cols"_a = 1, "type"_a = double_c_t());
-	m.def("no_interference",[](uint n, uint m, rat_c_t   ) { return channel::no_interference<rat>   (n, m); }, "n_rows"_a, "n_cols"_a = 1, "type"_a);
+	m.def("no_interference",[](uint n, uint m, double_c_t) { return channel::no_interference<double>(n, m); }, "n_rows"_a, "n_cols"_a = 1, "type"_a = def_type);
+	m.def("no_interference",[](uint n, uint m, rat_c_t   ) { return channel::no_interference<rat>   (n, m); }, "n_rows"_a, "n_cols"_a = 1, "type"_a = def_type);
 
-	m.def("randu",			[](uint n, uint m, double_c_t) { return channel::randu<double>(n, m); }, "n_rows"_a, "n_cols"_a = 0, "type"_a = double_c_t());
-	m.def("randu",			[](uint n, uint m, rat_c_t   ) { return channel::randu<rat>   (n, m); }, "n_rows"_a, "n_cols"_a = 0, "type"_a);
+	m.def("randu",			[](uint n, uint m, double_c_t) { return channel::randu<double>(n, m); }, "n_rows"_a, "n_cols"_a = 0, "type"_a = def_type);
+	m.def("randu",			[](uint n, uint m, rat_c_t   ) { return channel::randu<rat>   (n, m); }, "n_rows"_a, "n_cols"_a = 0, "type"_a = def_type);
 
-	m.def("deterministic",	[](std::function<uint(uint)> f, uint n, uint m, double_c_t) { return channel::deterministic<double>(f, n, m); }, "map"_a, "n_rows"_a, "n_cols"_a, "type"_a = double_c_t());
-	m.def("deterministic",	[](std::function<uint(uint)> f, uint n, uint m, rat_c_t   ) { return channel::deterministic<rat   >(f, n, m); }, "map"_a, "n_rows"_a, "n_cols"_a, "type"_a);
+	m.def("deterministic",	[](std::function<uint(uint)> f, uint n, uint m, double_c_t) { return channel::deterministic<double>(f, n, m); }, "map"_a, "n_rows"_a, "n_cols"_a, "type"_a = def_type);
+	m.def("deterministic",	[](std::function<uint(uint)> f, uint n, uint m, rat_c_t   ) { return channel::deterministic<rat   >(f, n, m); }, "map"_a, "n_rows"_a, "n_cols"_a, "type"_a = def_type);
 
 	m.def("is_proper",      channel::is_proper<double>, "C"_a, "mrd"_a = def_mrd<double>);
 	m.def("is_proper",      channel::is_proper<rat>,    "C"_a, "mrd"_a = rat(0));

@@ -12,7 +12,7 @@ void init_metric_module(py::module);
 void init_measure_module(py::module);
 
 
-py::handle double_c, uint_c, rat_c, point_c;
+py::handle def_c, double_c, uint_c, rat_c, point_c;
 
 
 PYBIND11_MODULE(qif, m) {
@@ -40,6 +40,9 @@ PYBIND11_MODULE(qif, m) {
 	uint_c   = m.attr("uint");
 	rat_c    = m.attr("rat");
 	point_c  = m.attr("point");
+	def_c    = double_c;
+
+	m.def("set_default_type", [](py::object t) { def_c = t; });
 
 	// initialize modules
 	init_channel_module(m.def_submodule("channel", ""));

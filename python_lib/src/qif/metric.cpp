@@ -8,19 +8,19 @@ using namespace qif;
 
 void init_metric_module(py::module m) {
 
-	m.def("euclidean",		[](double_c_t) { return metric::euclidean<double,double>(); }, "type"_a = double_c_t());
-	m.def("euclidean",		[](uint_c_t  ) { return metric::euclidean<double,uint>  (); }, "type"_a);
-	m.def("euclidean",		[](rat_c_t   ) { return metric::euclidean<rat,rat>      (); }, "type"_a);
-	m.def("euclidean",		[](point_c_t ) { return metric::euclidean<double,point> (); }, "type"_a);
+	m.def("euclidean",		[](double_c_t) { return metric::euclidean<double,double>(); }, "type"_a = def_type);
+	m.def("euclidean",		[](uint_c_t  ) { return metric::euclidean<double,uint>  (); }, "type"_a = def_type);
+	m.def("euclidean",		[](rat_c_t   ) { return metric::euclidean<rat,rat>      (); }, "type"_a = def_type);
+	m.def("euclidean",		[](point_c_t ) { return metric::euclidean<double,point> (); }, "type"_a = def_type);
 
-	m.def("euclidean_chain",[](double_c_t) { return metric::euclidean_chain<double>(); }, "type"_a = double_c_t());
-	m.def("euclidean_chain",[](uint_c_t  ) { return metric::euclidean_chain<uint>  (); }, "type"_a);
-	m.def("euclidean_chain",[](rat_c_t   ) { return metric::euclidean_chain<rat>   (); }, "type"_a);
+	m.def("euclidean_chain",[](double_c_t) { return metric::euclidean_chain<double>(); }, "type"_a = def_type);
+	m.def("euclidean_chain",[](uint_c_t  ) { return metric::euclidean_chain<uint>  (); }, "type"_a = def_type);
+	m.def("euclidean_chain",[](rat_c_t   ) { return metric::euclidean_chain<rat>   (); }, "type"_a = def_type);
 
-	m.def("discrete",		[](double_c_t) { return metric::discrete<double,double>(); }, "type"_a = double_c_t());
+	m.def("discrete",		[](double_c_t) { return metric::discrete<double,double>(); }, "type"_a = def_type);
 	m.def("discrete",		[](uint_c_t  ) { return metric::discrete<double,uint>  (); });
 
-	m.def("mult_reals",		[](double_c_t) { return metric::mult_reals<double,double>(); }, "type"_a = double_c_t());
+	m.def("mult_reals",		[](double_c_t) { return metric::mult_reals<double,double>(); }, "type"_a = def_type);
 
 	// TODO: Maybe do metric manipulation at the python level to treat all types together
 	m.def("scale",  				metric::scale<double,double>);
