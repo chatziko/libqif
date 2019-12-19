@@ -1,6 +1,6 @@
 # libqif
 
-[![Build Status](https://travis-ci.org/chatziko/libqif.svg?branch=master)](https://travis-ci.org/chatziko/libqif)
+[![Build Status](https://github.com/chatziko/libqif/workflows/build-pypi/badge.svg)](https://github.com/chatziko/libqif/actions)
 
 ## Install via Homebrew
 
