@@ -18,7 +18,7 @@ void init_metric_module(py::module m) {
 	m.def("euclidean_chain",[](rat_c_t   ) { return metric::euclidean_chain<rat>   (); }, "type"_a = def_type);
 
 	m.def("discrete",		[](double_c_t) { return metric::discrete<double,double>(); }, "type"_a = def_type);
-	m.def("discrete",		[](uint_c_t  ) { return metric::discrete<double,uint>  (); });
+	m.def("discrete",		[](uint_c_t  ) { return metric::discrete<double,uint>  (); }, "type"_a = def_type);
 
 	m.def("mult_reals",		[](double_c_t) { return metric::mult_reals<double,double>(); }, "type"_a = def_type);
 
