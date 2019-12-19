@@ -3,7 +3,7 @@
 # stop on any error
 set -e
 
-yum install -y wget lapack-devel dsl-devel gsl-devel xz
+yum install -y wget dsl-devel gsl-devel xz
 
 
 # cmake
@@ -21,6 +21,8 @@ unzip v0.3.7
 cd OpenBLAS-0.3.7
 make TARGET=SANDYBRIDGE
 make install PREFIX=/usr/local
+ln -s /usr/local/lib/libopenblas.so /usr/local/lib/liblapack.so		# openblas actually contains a lapack
+ln -s /usr/local/lib/libopenblas.a /usr/local/lib/liblapack.a		# implementation, we just need symlinks to find it
 
 # gmp
 cd /tmp
