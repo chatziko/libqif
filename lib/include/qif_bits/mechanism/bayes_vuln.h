@@ -64,7 +64,7 @@ std::pair<eT,Prob<eT>> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>
 		auto con = lp.make_con(maxes(y), inf);
 		lp.set_con_coeff(con, z[y], eT(1));
 
-		con = lp.make_con(0, inf);
+		con = lp.make_con(eT(0), inf);
 		lp.set_con_coeff(con, z[y], eT(1));
 		lp.set_con_coeff(con, vars[y], -p);
 	}
@@ -77,9 +77,9 @@ std::pair<eT,Prob<eT>> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>
 
 	// equalities for summing up to 1
 	//
-	auto con = lp.make_con(1, 1);
+	auto con = lp.make_con(eT(1), eT(1));
 	for(uint y = 0; y < N; y++)
-		lp.set_con_coeff(con, vars[y], 1);
+		lp.set_con_coeff(con, vars[y], eT(1));
 
 	// solve program
 	//

@@ -27,7 +27,7 @@ Chan<eT> min_loss_given_max_vuln(
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
 			if(less_than_or_eq(loss(x, y), hard_max_loss))
-				vars[x].push_back(std::pair(y, lp.make_var(0, 1)));
+				vars[x].push_back(std::pair(y, lp.make_var(eT(0), eT(1))));
 
 	// cost function: minimize sum_xy pi_x C_xy loss(x,y)
 	lp.maximize = false;
@@ -47,7 +47,7 @@ Chan<eT> min_loss_given_max_vuln(
 	//
 	auto max_vuln_con = lp.make_con(-infinity<eT>(), max_vuln);
 	for(uint y = 0; y < N; y++)
-		lp.set_con_coeff(max_vuln_con, vuln_y[y], 1);
+		lp.set_con_coeff(max_vuln_con, vuln_y[y], eT(1));
 
 	// For each variable to really represent the max_w ..., we need to set constraints:
 	//    vuln_y >= sum_x pi_x C_x,y g(w,x)     for each y,w
@@ -68,8 +68,8 @@ Chan<eT> min_loss_given_max_vuln(
 			for(auto& [y, var] : vars[x]) {
 				auto& con = cons[y];
 				if(!con) {									// 0 always means "new in the map", because "max_vuln_con" above has already taken the 0 constrain index
-					con = lp.make_con(-infinity<eT>(), 0);
-					lp.set_con_coeff(con, vuln_y[y], -1);
+					con = lp.make_con(-infinity<eT>(), eT(0));
+					lp.set_con_coeff(con, vuln_y[y], eT(-1));
 				}
 				lp.set_con_coeff(con, var, g);
 			}
@@ -79,12 +79,12 @@ Chan<eT> min_loss_given_max_vuln(
 	// equalities for summing up to 1
 	//
 	for(uint x = 0; x < M; x++) {
-		auto con = lp.make_con(1, 1);
+		auto con = lp.make_con(eT(1), eT(1));
 
 		// coeff 1 for variable C[x,y]
 		for(auto& [y, var] : vars[x]) {
 			(void)y; // avoid unused warning
-			lp.set_con_coeff(con, var, 1);
+			lp.set_con_coeff(con, var, eT(1));
 		}
 	}
 
@@ -127,7 +127,7 @@ Chan<eT> min_vuln_given_max_loss(
 	for(uint x = 0; x < M; x++)
 		for(uint y = 0; y < N; y++)
 			if(less_than_or_eq(loss(x, y), hard_max_loss))
-				vars[x].push_back(std::pair(y, lp.make_var(0, 1)));
+				vars[x].push_back(std::pair(y, lp.make_var(eT(0), eT(1))));
 
 	// loss constraint: sum_xy pi_x C_xy loss(x,y) <= max_loss
 	auto max_loss_con = lp.make_con(-infinity<eT>(), max_loss);
@@ -144,7 +144,7 @@ Chan<eT> min_vuln_given_max_loss(
 
 	lp.maximize = false;
 	for(uint y = 0; y < N; y++)
-		lp.set_obj_coeff(vuln_y[y], 1);
+		lp.set_obj_coeff(vuln_y[y], eT(1));
 
 	// For each aux variable to really represent the max_w ..., we need to set constraints:
 	//    vuln_y >= sum_x pi_x C_x,y g(w,x)     for each y,w
@@ -165,8 +165,8 @@ Chan<eT> min_vuln_given_max_loss(
 			for(auto& [y, var] : vars[x]) {
 				auto& con = cons[y];
 				if(!con) {									// 0 always means "new in the map", because "max_loss_con" above has already taken the 0 constrain index
-					con = lp.make_con(-infinity<eT>(), 0);
-					lp.set_con_coeff(con, vuln_y[y], -1);
+					con = lp.make_con(-infinity<eT>(), eT(0));
+					lp.set_con_coeff(con, vuln_y[y], eT(-1));
 				}
 				lp.set_con_coeff(con, var, g);
 			}
@@ -176,12 +176,12 @@ Chan<eT> min_vuln_given_max_loss(
 	// equalities for summing up to 1
 	//
 	for(uint x = 0; x < M; x++) {
-		auto con = lp.make_con(1, 1);
+		auto con = lp.make_con(eT(1), eT(1));
 
 		// coeff 1 for variable C[x,y]
 		for(auto& [y, var] : vars[x]) {
 			(void)y; // avoid unused warning
-			lp.set_con_coeff(con, var, 1);
+			lp.set_con_coeff(con, var, eT(1));
 		}
 	}
 
