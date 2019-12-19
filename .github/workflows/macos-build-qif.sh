@@ -31,6 +31,5 @@ mkdir build
 cd build
 cmake ..
 make qif tests samples -j 2
-# TODO: investigate: Segmentation fault: 11  ./tests/run 
-./tests/run || true
+./tests/run
 make install -j 2
