@@ -37,13 +37,13 @@ Chan<eT> min_vuln_given_max_loss(
 	return g_vuln::min_vuln_given_max_loss(pi, n_cols, pi.n_elem, max_loss, g_id<eT>, loss, hard_max_loss);
 }
 
-// Treating C's row-th row as variables, computes the row that minimizes
-// the channel's posterior vulnerability. The row is updated inside C and the
-// optimal vulnerability is returned
+// Computes the row that, when added to C (to obtain C'), it minimizes the
+// posterior vulnerability of C'. p is the prior probability of the new row.
+// The optimal vulnerability and the row itself are returned.
 //
 template<typename eT = eT_def>
 inline
-eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
+std::pair<eT,Prob<eT>> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>& C) {
 	uint N = C.n_cols;
 	eT inf = infinity<eT>();
 
@@ -51,12 +51,11 @@ eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
 	lp::LinearProgram<eT> lp;
 	auto vars = lp.make_vars(N, eT(0), eT(1));
 
-	// We set z_y >= pi[x] C[x,y]   for each x
-	// Since all rows but 'row' are fixed, this simply means
-	//   z_y >= max_{x != r} pi[x] C[x,y]  and
-	//   z_y >= pi[row] C[row,y]  and
+	// We set z_y >= pi[x] C'[x,y]   for each x (including 'new')
+	// Since all rows but the new one are fixed, this simply means
+	//   z_y >= max_{x} pi[x] C[x,y]  and
+	//   z_y >= p row[y]  and
 	//
-	C.row(row).fill(0);
 	arma::Row<eT> maxes = arma::max(C.each_col() % pi.t(), 0);
 
 	auto z = lp.make_vars(N, eT(0), eT(1));
@@ -67,7 +66,7 @@ eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
 
 		con = lp.make_con(0, inf);
 		lp.set_con_coeff(con, z[y], eT(1));
-		lp.set_con_coeff(con, vars[y], -pi(row));
+		lp.set_con_coeff(con, vars[y], -p);
 	}
 
 	// cost function: minimize sum_y z_y
@@ -89,10 +88,11 @@ eT min_vuln_for_row(const Prob<eT>& pi, Chan<eT>& C, uint row) {
 
 	// reconstruct q from solution
 	//
+	Prob<eT> row(N);
 	for(uint y = 0; y < N; y++)
-		C(row, y) = lp.solution(vars[y]);
+		row(y) = lp.solution(vars[y]);
 
-	return lp.objective();
+	return { lp.objective(), row };
 }
 
 
