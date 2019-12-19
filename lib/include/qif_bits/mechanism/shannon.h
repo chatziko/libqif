@@ -7,7 +7,7 @@ namespace mechanism::shannon {
 // Note that the algorithm really iterates on output distributions, not on channels.
 
 template<typename eT>
-Chan<eT> max_entropy_given_same_loss(const Prob<eT>& pi, Prob<eT>& out, Metric<eT,uint> loss, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
+Chan<eT> max_entropy_given_same_loss(const Prob<eT>& pi, Prob<eT> out, Metric<eT,uint> loss, eT md = def_md<eT>, eT mrd = def_mrd<eT>) {
 
 	uint n_rows = pi.n_elem;
 	uint n_cols = out.n_elem;
