@@ -33,7 +33,10 @@ brew install --HEAD or-tools
 # build qif
 mkdir build
 cd build
-cmake -DPORTABLE=ON ..
+cmake -DMARCH=x86-64 ..			# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
 make qif tests samples -j 2
 ./tests/run
+
+rm -rf *
+cmake ..						# then compile again with the default march
 make install -j 2

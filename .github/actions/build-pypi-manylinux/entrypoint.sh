@@ -5,12 +5,15 @@ set -e
 
 cat /proc/cpuinfo
 
-# build qif
+# build qif, -DPYTHON_EXECUTABLE needed just for the config, cause default is python2
 mkdir build
 cd build
-cmake -DPORTABLE=ON -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# python needed just for the config, cause default is python2
+cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
 make qif tests samples -j 2
 ./tests/run
+
+rm -rf *
+cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..						# then compile again with the default march
 make install -j 2
 
 
