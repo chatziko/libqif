@@ -3,6 +3,8 @@
 # stop on any error
 set -e
 
+cat /proc/cpuinfo
+
 # build qif
 mkdir build
 cd build

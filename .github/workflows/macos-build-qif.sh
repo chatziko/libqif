@@ -3,6 +3,8 @@
 # stop on any error
 set -e
 
+sysctl -a | grep machdep.cpu			# cpu info
+
 export HOMEBREW_NO_INSTALL_CLEANUP=1	# make homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1		# faster
 
