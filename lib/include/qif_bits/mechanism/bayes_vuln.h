@@ -37,13 +37,13 @@ Chan<eT> min_vuln_given_max_loss(
 	return g_vuln::min_vuln_given_max_loss(pi, n_cols, pi.n_elem, max_loss, g_id<eT>, loss, hard_max_loss);
 }
 
-// Computes the row that, when added to C (to obtain C'), it minimizes the
+// Returns the row that, when added to C (to obtain C'), it minimizes the
 // posterior vulnerability of C'. p is the prior probability of the new row.
 // The optimal vulnerability and the row itself are returned.
 //
 template<typename eT = eT_def>
 inline
-std::pair<eT,Prob<eT>> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>& C) {
+Prob<eT> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>& C) {
 	uint N = C.n_cols;
 	eT inf = infinity<eT>();
 
@@ -92,7 +92,7 @@ std::pair<eT,Prob<eT>> min_vuln_for_row(const Prob<eT>& pi, eT p, const Chan<eT>
 	for(uint y = 0; y < N; y++)
 		row(y) = lp.solution(vars[y]);
 
-	return { lp.objective(), row };
+	return row;
 }
 
 

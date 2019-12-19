@@ -29,4 +29,14 @@ Chan<eT> max_risk_given_max_loss(
 	return bayes_vuln::min_vuln_given_max_loss(pi, n_cols, max_loss, loss, hard_max_loss);
 }
 
+template<typename eT = eT_def>
+inline
+Prob<eT> max_risk_for_row(
+	const Prob<eT>& pi,
+	eT p,
+	const Chan<eT>& C
+) {
+	return bayes_vuln::min_vuln_for_row(pi, p, C);
+}
+
 } // namespace mechanism::bayes_risk
