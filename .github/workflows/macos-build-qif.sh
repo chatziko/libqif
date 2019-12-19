@@ -10,6 +10,8 @@ cmake --version
 
 rm -f /usr/local/include/c++	# brew install will fail if this exists
 
+brew update						# for recent cmake
+brew reinstall cmake
 brew install gsl gmp
 
 # armadillo (manual install to use Accelerate, homebrew version uses openblas)
