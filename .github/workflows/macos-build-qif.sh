@@ -29,7 +29,7 @@ brew install --HEAD or-tools
 # build qif
 mkdir build
 cd build
-cmake ..
+cmake -DPORTABLE=ON ..
 make qif tests samples -j 2
 ./tests/run
 make install -j 2

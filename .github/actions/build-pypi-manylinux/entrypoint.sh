@@ -6,7 +6,7 @@ set -e
 # build qif
 mkdir build
 cd build
-cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# python needed just for the config, cause default is python2
+cmake -DPORTABLE=ON -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# python needed just for the config, cause default is python2
 make qif tests samples -j 2
 ./tests/run
 make install -j 2
