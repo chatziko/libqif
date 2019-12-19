@@ -57,18 +57,17 @@ endif()
 
 # compiler options
 #
-# NOTE: -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as INTERFACE, so that they
-#       are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
+# * -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as INTERFACE, so that they
+#    are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
+# * we build for march=native by default, or haswell if PORTABLE=ON
 #
-target_compile_options(qif INTERFACE -Wall -Wextra -pedantic  $<$<CONFIG:Release>:-march=native> -fPIC -pthread)
+target_compile_options(qif INTERFACE -Wall -Wextra -pedantic -march=$<IF:$<BOOL:${PORTABLE}>,haswell,native> -fPIC -pthread)
 target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
 
 if("${BUILD_QIF}")
 	# if we're building qif, copy to PRIVATE so that they are used also for qif itself
-	get_target_property(TMP1 qif INTERFACE_COMPILE_DEFINITIONS)
-	get_target_property(TMP2 qif INTERFACE_COMPILE_OPTIONS)
-	target_compile_definitions(qif PRIVATE ${TMP1})
-	target_compile_options    (qif PRIVATE ${TMP2})
+	target_compile_options    (qif PRIVATE $<TARGET_PROPERTY:qif,INTERFACE_COMPILE_OPTIONS>)
+	target_compile_definitions(qif PRIVATE $<TARGET_PROPERTY:qif,INTERFACE_COMPILE_DEFINITIONS>)
 endif()
 
 # config file
