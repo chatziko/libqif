@@ -39,7 +39,7 @@ endif()
 #
 # PRIVATE, only needed for qif itself
 if("${BUILD_QIF}")
-	target_link_libraries(qif PRIVATE osqpstatic gsl gslcblas mp++)		# mp++ is not really needed, we only list it to get its include_directories
+	target_link_libraries(qif PRIVATE osqpstatic gsl mp++)		# mp++ is not really needed, we only list it to get its include_directories
 endif()
 
 # INTERFACE, needed for targets _using_ qif
