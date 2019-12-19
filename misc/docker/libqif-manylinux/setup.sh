@@ -3,7 +3,7 @@
 # stop on any error
 set -e
 
-yum install -y wget dsl-devel gsl-devel xz
+yum install -y wget lapack-devel dsl-devel gsl-devel xz
 
 
 # cmake
@@ -20,7 +20,7 @@ wget -nv https://github.com/xianyi/OpenBLAS/archive/v0.3.7.zip
 unzip v0.3.7
 cd OpenBLAS-0.3.7
 make TARGET=SANDYBRIDGE
-make install
+make install PREFIX=/usr/local
 
 # gmp
 cd /tmp
