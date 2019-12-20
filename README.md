@@ -1,6 +1,7 @@
-# libqif
+[![Build Status](https://github.com/chatziko/libqif/workflows/build/badge.svg)](https://github.com/chatziko/libqif/actions)
+[![PyPI version](https://badge.fury.io/py/qif.svg)](https://badge.fury.io/py/qif)
 
-[![Build Status](https://github.com/chatziko/libqif/workflows/build-pypi/badge.svg)](https://github.com/chatziko/libqif/actions)
+# libqif
 
 ## Install
 
