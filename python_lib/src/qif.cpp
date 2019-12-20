@@ -18,7 +18,12 @@ py::handle def_c, double_c, uint_c, rat_c, point_c;
 
 
 PYBIND11_MODULE(qif, m) {
-	arma::arma_rng::set_seed_random();
+
+	auto np = py::module::import("numpy");
+
+	// use np.random.randint to get a seed
+	uint seed = np.attr("random").attr("randint")(std::numeric_limits<uint>::max()).cast<uint>();		
+	arma::arma_rng::set_seed(seed);
 
 	// Init mp++'s pybind11 integration
 	mppp_pybind11::init();
@@ -33,7 +38,6 @@ PYBIND11_MODULE(qif, m) {
         .def(py::self + py::self)
         .def("__repr__", &point::to_string);
 
-	auto np = py::module::import("numpy");
 	m.attr("double") = np.attr("float64");
 	m.attr("uint")   = np.attr("uint64");
 	m.attr("rat")    = py::module::import("fractions").attr("Fraction");
