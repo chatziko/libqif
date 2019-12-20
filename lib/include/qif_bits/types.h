@@ -61,6 +61,7 @@ struct Point {
     std::string to_string() const { return "(" + std::to_string(x) + ", " + std::to_string(y) + ")"; }
 
 	static inline Point<eT> from_polar(eT radius, eT angle) { return Point<eT>(radius * cos(angle), radius * sin(angle)); }
+	static inline Point<eT> from_cell(uint cell, uint width) { return Point<eT>(cell % width, cell / width); }
 };
 
 typedef Point<double> point;

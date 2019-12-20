@@ -28,6 +28,7 @@ PYBIND11_MODULE(qif, m) {
 		.def_readwrite("x", &point::x)
 		.def_readwrite("y", &point::y)
 		.def_static("from_polar", &point::from_polar)
+		.def_static("from_cell", &point::from_cell)
         .def(py::self + py::self)
         .def("__repr__", &point::to_string);
 
