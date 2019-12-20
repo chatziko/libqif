@@ -11,6 +11,7 @@ void init_probab_module(py::module);
 void init_metric_module(py::module);
 void init_measure_module(py::module);
 void init_mechanism_module(py::module);
+void init_utility_module(py::module);
 
 
 py::handle def_c, double_c, uint_c, rat_c, point_c;
@@ -52,6 +53,7 @@ PYBIND11_MODULE(qif, m) {
 	init_metric_module   (m.def_submodule("metric",    ""));
 	init_measure_module  (m.def_submodule("measure",   ""));
 	init_mechanism_module(m.def_submodule("mechanism", ""));
+	init_utility_module  (m.def_submodule("utility",   ""));
 
 	// numpy formatter, so that rats are nicely displayed
 	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };

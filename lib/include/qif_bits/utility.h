@@ -8,7 +8,7 @@ namespace utility {
 
 	template<typename eT>
 	eT
-	expected_distance(Metric<eT, uint> dist, const Prob<eT>& pi, const Chan<eT>& C) {
+	expected_distance(const Metric<eT, uint>& dist, const Prob<eT>& pi, const Chan<eT>& C) {
 		eT sum(0);
 		for(uint i = 0; i < C.n_rows; i++) {
 			eT sum2(0);
