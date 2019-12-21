@@ -48,7 +48,7 @@ jobs:
 
         # remove old files and copy the new ones
         rm -rf *
-        cp ../build/misc/docs/_build/html/* .
+        cp -r ../html/* .              # we saved the built docs there
         git add --all
 
         # commit and push

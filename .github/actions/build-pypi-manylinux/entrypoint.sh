@@ -15,6 +15,7 @@ cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		#
 make qif tests samples docs -j 2
 ./tests/run
 
+mv misc/docs/_build/html ..															# save in case we need to publish it
 rm -rf *
 cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..						# then compile again with the default march
 make install -j 2
