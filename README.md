@@ -30,15 +30,7 @@ print("Bayes mult-capacity", measure.bayes_vuln.mult_capacity(C))
 
 ## Documentation
 
-A list of available methods is available via `help`:
-
-```python
-import qif
-
-help(qif)
-help(qif.channel)
-...
-```
+A list of methods provided by `qif` is available [here](http://chatziko.github.io/libqif/).
 
 ## Use libqif with C++
 
