@@ -42,9 +42,9 @@ jobs:
     - name: Publish docs to gh-pages
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
       run: |
-        # chechout gh-pages branch into public
-        git worktree add -B gh-pages public gh-pages
-        cd public
+        # clone gh-pages branch
+        git clone "https://$GITHUB_ACTOR:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" --branch gh-pages gh-pages
+        cd gh-pages
 
         # remove old files and copy the new ones
         rm -rf *
@@ -52,9 +52,8 @@ jobs:
         git add --all
 
         # commit and push
-        git commit --amend -m "Publishing to gh-pages"
-        git remote add github "https://$GITHUB_ACTOR:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-        git push github gh-pages
+        git commit -m "Publishing to gh-pages"
+        git push origin gh-pages
       env:
         GH_TOKEN: ${{ secrets.gh_token }}
 
