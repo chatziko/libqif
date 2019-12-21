@@ -1,10 +1,6 @@
 
 namespace refinement {
 
-// forward declaration
-template<typename eT> eT add_metric(const Prob<eT>&, const Chan<eT>&, const Chan<eT>&, Mat<eT>&);
-
-
 // true if A is refined by B (i.e. A's leakage is >= B's)
 //
 template<typename eT = eT_def>
@@ -177,7 +173,7 @@ bool priv_refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 
 
 template<typename eT>
-eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G) {
+std::pair<eT,Mat<eT>> add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B) {
 	if(pi.n_elem != A.n_rows || A.n_rows != B.n_rows)
 		throw std::runtime_error("invalid sizes");
 
@@ -232,21 +228,14 @@ eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B, Mat<eT>&
 		throw std::runtime_error("add_metric: LP infeasible, this shouldn't happen");
 
 	// reconstrict gain function
-	G.set_size(M+N+1, K);
+	Mat<eT> G(M+N+1, K);
 	G.row(M+N).fill(eT(0));
 
 	for(uint w = 0; w < M+N; w++)
 		for(uint x = 0; x < K; x++)
 			G(w,x) = lp.solution(vars[w][x]);
 
-	return lp.objective();
-}
-
-// same, but not interested in G
-template<typename eT>
-eT add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Chan<eT>& B) {
-	Mat<eT> G;
-	return add_metric(pi, A, B, G);
+	return { lp.objective(), G };
 }
 
 

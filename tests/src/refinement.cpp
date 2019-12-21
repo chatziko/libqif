@@ -93,12 +93,12 @@ TYPED_TEST_P(RefinementTest, Add_metric) {
 
 	// cases when B refines A (cannot leak more)
 	//
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_4, t.id_4, t.noint_4), eT(1e-5), eT(0));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_4, t.id_4, t.noint_4).first, eT(1e-5), eT(0));
 
 	if(!t.is_rat) { // random channels too slow for rat, numbers become huge
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.id_10, t.crand_10), eT(1e-5), eT(0));
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.crand_10, t.noint_10), eT(1e-5), eT(0));
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.crand_10, T), eT(1e-5), eT(0));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.id_10, t.crand_10).first, eT(1e-5), eT(0));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.crand_10, t.noint_10).first, eT(1e-5), eT(0));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(0), refinement::add_metric(t.unif_10, t.crand_10, T).first, eT(1e-5), eT(0));
 	}
 
 	// this was causing simplex without Bland rule to loop!
@@ -107,7 +107,7 @@ TYPED_TEST_P(RefinementTest, Add_metric) {
 		format_rat<eT>("62/100 3/100 35/100"),
 		format_rat<eT>("1/10 2/5 1/10 2/5; 1/5 1/5 3/10 3/10; 1/2 1/10 1/10 3/10"),
 		format_rat<eT>("1/5 11/50 29/50; 1/5 2/5  2/5; 7/20 2/5 1/4")
-    ), eT(0), eT(1e-5));
+    ).first, eT(0), eT(1e-5));
 }
 
 // run the RefinementTest test-case for all types, and the RefinementTestReals only for double/float
