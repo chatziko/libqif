@@ -19,10 +19,13 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+get_filename_component(PYTHON_PATH ${PYTHON_EXECUTABLE} DIRECTORY)
+
 find_program(SPHINX_EXECUTABLE NAMES sphinx-build
   HINTS
   $ENV{SPHINX_DIR}
   HINTS ${SPHINX_ROOT}/bin
+  HINTS ${PYTHON_PATH}
   PATH_SUFFIXES bin
   DOC "Sphinx documentation generator"
 )
