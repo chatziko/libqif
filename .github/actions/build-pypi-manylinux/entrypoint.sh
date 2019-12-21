@@ -5,11 +5,14 @@ set -e
 
 cat /proc/cpuinfo
 
-# build qif, -DPYTHON_EXECUTABLE needed just for the config, cause default is python2
+# Sphinx needed for docs
+/opt/python/cp36-cp36m/bin/pip install Sphinx
+
+# build qif
 mkdir build
 cd build
 cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
-make qif tests samples -j 2
+make qif tests samples docs -j 2
 ./tests/run
 
 rm -rf *

@@ -12,9 +12,9 @@ jobs:
         submodules: recursive
 
     - name: Docker login
-      run: docker login docker.pkg.github.com --username chatziko --password "${GH_PACKAGES_PASSWORD}"
+      run: docker login docker.pkg.github.com --username chatziko --password "${GH_TOKEN}"
       env:
-        GH_PACKAGES_PASSWORD: ${{ secrets.gh_packages_password }}
+        GH_TOKEN: ${{ secrets.gh_token }}
 
     - name: Build manylinux pypi dist
       uses: ./.github/actions/build-pypi-manylinux
@@ -38,6 +38,25 @@ jobs:
       run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
       env:
         TWINE_PASSWORD: ${{ secrets.pypi_password }}
+
+    - name: Publish docs to gh-pages
+      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
+      run: |
+        # chechout gh-pages branch into public
+        git worktree add -B gh-pages public gh-pages
+        cd public
+
+        # remove old files and copy the new ones
+        rm -rf *
+        cp ../build/misc/docs/_build/html/* .
+        git add --all
+
+        # commit and push
+        git commit --amend -m "Publishing to gh-pages"
+        git remote add github "https://$GITHUB_ACTOR:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+        git push github gh-pages
+      env:
+        GH_TOKEN: ${{ secrets.gh_token }}
 
 
   # MacOS ##########################################################
