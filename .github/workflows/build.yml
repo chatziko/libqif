@@ -52,6 +52,8 @@ jobs:
         git add --all
 
         # commit and push
+        git config user.email "kostas@chatzi.org"
+        git config user.name "$GITHUB_ACTOR"
         git commit -m "Publishing to gh-pages"
         git push origin gh-pages
       env:
