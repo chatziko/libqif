@@ -5,8 +5,8 @@ set -e
 
 cat /proc/cpuinfo
 
-# Sphinx needed for docs
-/opt/python/cp36-cp36m/bin/pip install Sphinx
+# Sphinx needed for docs, numpy to import the qif module while generating docs
+/opt/python/cp36-cp36m/bin/pip install Sphinx numpy
 
 # build qif
 mkdir build
