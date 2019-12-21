@@ -19,6 +19,21 @@ py::handle def_c, double_c, uint_c, rat_c, point_c;
 
 PYBIND11_MODULE(qif, m) {
 
+	m.doc() = R"pbdoc(
+		.. autosummary::
+			:toctree: _autosummary
+			:template: template.rst
+
+			channel
+			probab
+			metric
+			measure
+			mechanism
+			utility
+
+		|
+	)pbdoc";
+
 	auto np = py::module::import("numpy");
 
 	// use np.random.randint to get a seed
