@@ -11,6 +11,7 @@ void init_probab_module(py::module);
 void init_metric_module(py::module);
 void init_measure_module(py::module);
 void init_mechanism_module(py::module);
+void init_refinement_module(py::module);
 void init_utility_module(py::module);
 
 
@@ -29,6 +30,7 @@ PYBIND11_MODULE(qif, m) {
 			metric
 			measure
 			mechanism
+			refinement
 			utility
 
 		|
@@ -67,12 +69,13 @@ PYBIND11_MODULE(qif, m) {
 	m.def("set_default_type", [](py::object t) { def_c = t; });
 
 	// initialize modules
-	init_channel_module  (m.def_submodule("channel",   ""));
-	init_probab_module   (m.def_submodule("probab",    ""));
-	init_metric_module   (m.def_submodule("metric",    ""));
-	init_measure_module  (m.def_submodule("measure",   ""));
-	init_mechanism_module(m.def_submodule("mechanism", ""));
-	init_utility_module  (m.def_submodule("utility",   ""));
+	init_channel_module   (m.def_submodule("channel",   ""));
+	init_probab_module    (m.def_submodule("probab",    ""));
+	init_metric_module    (m.def_submodule("metric",    ""));
+	init_measure_module   (m.def_submodule("measure",   ""));
+	init_mechanism_module (m.def_submodule("mechanism", ""));
+	init_refinement_module(m.def_submodule("refinement",""));
+	init_utility_module   (m.def_submodule("utility",   ""));
 
 	// numpy formatter, so that rats are nicely displayed
 	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };
