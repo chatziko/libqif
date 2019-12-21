@@ -49,6 +49,7 @@ jobs:
         # remove old files and copy the new ones
         rm -rf *
         cp -r ../html/* .              # we saved the built docs there
+        touch .nojekyll                # disable jekyll processing, cause it hides folders starting with underscore!
         git add --all
 
         # commit and push
