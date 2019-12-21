@@ -62,4 +62,11 @@ PYBIND11_MODULE(qif, m) {
 	// numpy formatter, so that rats are nicely displayed
 	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };
 	np.attr("set_printoptions")("formatter"_a = py::dict("object"_a = fmt));
+
+#ifdef QIF_VERSION
+    m.attr("__version__") = QIF_VERSION;
+#else
+    m.attr("__version__") = "dev";
+#endif
+
 }

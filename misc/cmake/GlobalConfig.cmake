@@ -29,6 +29,15 @@ endif()
 # without this the installed library has empty rpath, which confuses delocate
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
+# get QIF_VERSION from the most recent vN.N.N tag
+execute_process(COMMAND git describe --tags OUTPUT_VARIABLE GIT_TAG)
+if(${GIT_TAG} MATCHES "v([0-9.]+)")
+	set(QIF_VERSION ${CMAKE_MATCH_1})
+else()
+	set(QIF_VERSION "dev")
+endif()
+message(STATUS "Building QIF Version: ${QIF_VERSION}")
+
 # find ortools
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")	# get cmake modules from misc
 find_package(ortools)
