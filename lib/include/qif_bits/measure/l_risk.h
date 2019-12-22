@@ -78,4 +78,12 @@ Metric<eT,uint> loss_to_gain(
 	};
 }
 
+template<typename eT>
+const Metric<eT,uint> l_zero_one = metric::discrete<eT,uint>();
+
+template<typename eT>
+Mat<eT> L_zero_one(uint n) {
+	return eT(1) - g_vuln::G_id<eT>(n);
+}
+
 } // namespace measure::l_risk
