@@ -13,6 +13,7 @@ void init_measure_module(py::module);
 void init_mechanism_module(py::module);
 void init_refinement_module(py::module);
 void init_utility_module(py::module);
+void init_lp_module(py::module);
 
 
 py::handle def_c, double_c, uint_c, rat_c, point_c;
@@ -34,6 +35,7 @@ PYBIND11_MODULE(qif, m) {
 			mechanism
 			refinement
 			utility
+			lp
 
 		|
 	)pbdoc";
@@ -84,6 +86,7 @@ PYBIND11_MODULE(qif, m) {
 	init_mechanism_module (m.def_submodule("mechanism", ""));
 	init_refinement_module(m.def_submodule("refinement",""));
 	init_utility_module   (m.def_submodule("utility",   ""));
+	init_lp_module        (m.def_submodule("lp",        ""));
 
 	// numpy formatter, so that rats are nicely displayed
 	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };
