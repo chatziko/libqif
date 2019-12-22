@@ -18,14 +18,26 @@ pip install qif
 ```python
 from qif import *
 
-C = channel.randu(5)
-pi = probab.uniform(5)
+def compute_bayes(C):
+	pi = probab.uniform(C.shape[0])
 
-print("Channel:\n", C)
-print("Prior:\n", pi)
+	print("Channel:\n", C)
+	print("Prior:\n", pi)
 
-print("Bayes vulnerability", measure.bayes_vuln.posterior(pi, C))
-print("Bayes mult-capacity", measure.bayes_vuln.mult_capacity(C))
+	print("Bayes vulnerability", measure.bayes_vuln.posterior(pi, C))
+	print("Bayes mult-capacity", measure.bayes_vuln.mult_capacity(C))
+
+compute_bayes(channel.randu(5))
+
+# same, but using rational arithmetic
+qif.set_default_type(qif.rat)
+
+C = np.array([
+	[rat(1,2), rat(1,4), rat(1,4)],
+	[rat(1,6), rat(3,6), rat(2,6)],
+	[rat(1,2), rat(1,2), rat(0)],
+])
+compute_bayes(C)
 ```
 
 ## Documentation
