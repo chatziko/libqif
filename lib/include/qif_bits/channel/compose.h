@@ -1,5 +1,5 @@
 
-namespace channel::comp {
+namespace channel::compose {
 
 template<typename eT>
 inline

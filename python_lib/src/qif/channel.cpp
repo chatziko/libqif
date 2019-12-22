@@ -6,7 +6,23 @@ using namespace py::literals;
 using namespace qif;
 
 
+void init_channel_compose_module(py::module);
+
+
 void init_channel_module(py::module m) {
+
+	m.doc() = R"pbdoc(
+		.. autosummary::
+			:toctree: _autosummary
+			:template: template.rst
+
+			compose
+
+		|
+	)pbdoc";
+
+	init_channel_compose_module(m.def_submodule("compose", ""));
+
 
 	m.def("normalize",      overload<const  chan&>(channel::normalize<double>), "C"_a);
 	m.def("normalize",      overload<const rchan&>(channel::normalize<rat>   ), "C"_a);

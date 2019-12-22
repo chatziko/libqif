@@ -79,7 +79,7 @@ namespace qif {
 
 	#include "qif_bits/probab.h"
 	#include "qif_bits/channel.h"
-	#include "qif_bits/channel_comp.h"
+	#include "qif_bits/channel/compose.h"
 	#include "qif_bits/metric.h"
 	#include "qif_bits/metric_opt.h"
 
