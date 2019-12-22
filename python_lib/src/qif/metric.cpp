@@ -6,11 +6,25 @@ using namespace py::literals;
 using namespace qif;
 
 
+void init_metric_optimize_module(py::module);
+
+
 void init_metric_module(py::module m) {
 
 	m.doc() = R"pbdoc(
 		Metrics and other distance functions.
+
+		.. autosummary::
+			:toctree: _autosummary
+			:template: template.rst
+
+			optimize
+
+		|
 	)pbdoc";
+
+	init_metric_optimize_module(m.def_submodule("optimize", ""));
+
 
 	m.def("euclidean",		[](double_c_t) { return metric::euclidean<double,double>(); }, "type"_a = def_type);
 	m.def("euclidean",		[](uint_c_t  ) { return metric::euclidean<double,uint>  (); }, "type"_a = def_type);

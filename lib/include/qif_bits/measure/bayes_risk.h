@@ -32,7 +32,7 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 //
 template<typename eT>
 std::pair<eT,Prob<eT>> mult_capacity(const Chan<eT>& C, std::string method = "direct") {
-	auto [diam, x1, x2] = metric::opt::l1_diameter(C, method);
+	auto [diam, x1, x2] = metric::optimize::l1_diameter(C, method);
 
 	eT cap = equal(diam, eT(2))
 		? infinity<eT>()

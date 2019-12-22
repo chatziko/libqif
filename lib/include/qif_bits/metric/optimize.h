@@ -1,6 +1,6 @@
 // metric optimization problems
 
-namespace metric::opt {
+namespace metric::optimize {
 
 // Computes the l1-diameter of the set of C's rows.
 // Returns also the rows that produce the diameter.
@@ -69,7 +69,7 @@ std::tuple<eT,uint,uint> l1_diameter(const Chan<eT>& C, std::string method = "di
 //
 template<typename eT = eT_def>
 inline
-eT min_l2_enclosing_ball(const Chan<eT>& C, Prob<eT>& q) {
+std::pair<eT,Prob<eT>> min_l2_enclosing_ball(const Chan<eT>& C) {
 	uint M = C.n_rows,
 		 N = C.n_cols;
 
@@ -86,11 +86,11 @@ eT min_l2_enclosing_ball(const Chan<eT>& C, Prob<eT>& q) {
 	Miniball mb(N, S);
 
 	auto center_it = mb.center_begin();
-	q.set_size(N);
+	Prob<eT> q(N);
 	for(uint y = 0; y < N; y++)
 		q(y) = center_it[y];
 
-	return mb.radius();
+	return { mb.radius(), q };
 }
 
-} // namespace metric::opt
+} // namespace metric::optimize
