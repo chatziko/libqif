@@ -36,7 +36,13 @@ PYBIND11_MODULE(qif, m) {
 		|
 	)pbdoc";
 
-	auto np = py::module::import("numpy");
+	// import np, user-friendly error message if not available
+	py::module np;
+	try {
+		np = py::module::import("numpy");
+	} catch(py::error_already_set) {
+		throw std::runtime_error("numpy is required by qif");
+	}
 
 	// use np.random.randint to get a seed
 	uint seed = np.attr("random").attr("randint")(std::numeric_limits<uint>::max()).cast<uint>();		
