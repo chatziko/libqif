@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_l_risk_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		:math:`\ell`-risk (loss-based Bayes risk).
+	)pbdoc";
+
 	m.def("prior",				overload<const  chan&,              const  prob&>(l_risk::prior<double>), "G"_a, "pi"_a);
 	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(l_risk::prior<double>), "G"_a, "pi"_a);
 	m.def("prior",				overload<const rchan&,              const rprob&>(l_risk::prior<rat>   ), "G"_a, "pi"_a);

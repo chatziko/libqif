@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_bayes_vuln_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Bayes vulnerability.
+	)pbdoc";
+
 	m.def("prior",      			bayes_vuln::prior<double>, "pi"_a);
 	m.def("prior",      			bayes_vuln::prior<rat>,    "pi"_a);
 

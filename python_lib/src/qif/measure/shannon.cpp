@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_shannon_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Shannon entropy.
+	)pbdoc";
+
 	m.def("prior",      	shannon::prior<double>, "pi"_a);
 
 	m.def("posterior",     	shannon::posterior<double>, "pi"_a, "C"_a);

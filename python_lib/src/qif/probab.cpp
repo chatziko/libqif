@@ -8,6 +8,10 @@ using namespace qif;
 
 void init_probab_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Probability distributions.
+	)pbdoc";
+
 	m.def("uniform",		[](uint n, double_c_t) { return probab::uniform<double>(n); }, "n_elem"_a, "type"_a = def_type);
 	m.def("uniform",		[](uint n, rat_c_t   ) { return probab::uniform<rat>   (n); }, "n_elem"_a, "type"_a = def_type);
 

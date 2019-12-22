@@ -9,6 +9,10 @@ namespace m = qif::mechanism;
 
 void init_mechanism_bayes_risk_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Mechanism construction for Bayes risk.
+	)pbdoc";
+
 	m.def("min_loss_given_min_risk",	m::bayes_risk::min_loss_given_min_risk<double>, "pi"_a, "n_cols"_a, "min_risk"_a, "loss"_a, "hard_max_loss"_a = infinity<double>());
 	m.def("min_loss_given_min_risk",	m::bayes_risk::min_loss_given_min_risk<rat>,    "pi"_a, "n_cols"_a, "min_risk"_a, "loss"_a, "hard_max_loss"_a = infinity<rat>   ());
 

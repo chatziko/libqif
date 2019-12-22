@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_guessing_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Guessing entropy.
+	)pbdoc";
+
 	m.def("prior",      	guessing::prior<double>, "pi"_a);
 	m.def("prior",      	guessing::prior<rat>,    "pi"_a);
 

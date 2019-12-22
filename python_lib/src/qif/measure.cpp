@@ -18,6 +18,8 @@ void init_d_privacy_module(py::module);
 void init_measure_module(py::module m) {
 
 	m.doc() = R"pbdoc(
+		Vulnerability and leakage measures.
+
 		.. autosummary::
 			:toctree: _autosummary
 			:template: template.rst

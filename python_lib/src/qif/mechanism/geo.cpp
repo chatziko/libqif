@@ -9,6 +9,10 @@ namespace m = qif::mechanism;
 
 void init_mechanism_geo_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Mechanism construction for location privacy.
+	)pbdoc";
+
 	m.def("planar_laplace_draw",	m::geo::planar_laplace_draw<double>, "epsilon"_a);
 
 	m.def("planar_laplace_grid",	m::geo::planar_laplace_grid<double>, "width"_a, "height"_a, "step"_a, "epsilon"_a);

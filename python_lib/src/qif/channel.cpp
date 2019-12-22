@@ -12,6 +12,8 @@ void init_channel_compose_module(py::module);
 void init_channel_module(py::module m) {
 
 	m.doc() = R"pbdoc(
+		Channels.
+
 		.. autosummary::
 			:toctree: _autosummary
 			:template: template.rst

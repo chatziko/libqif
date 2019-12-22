@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_bayes_risk_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Bayes risk.
+	)pbdoc";
+
 	m.def("prior",      			bayes_risk::prior<double>, "pi"_a);
 	m.def("prior",      			bayes_risk::prior<rat>,    "pi"_a);
 

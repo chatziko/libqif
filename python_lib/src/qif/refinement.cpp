@@ -9,6 +9,10 @@ using namespace qif::refinement;
 
 void init_refinement_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Refinement relations.
+	)pbdoc";
+
 	// TODO: maybe change the C++ types for uniformity
 	m.def("refined_by",
 		[](const chan& A, const chan& B, std::string method) {

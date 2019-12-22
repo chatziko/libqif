@@ -9,6 +9,10 @@ using namespace qif::measure;
 
 void init_g_vuln_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		:math:`g`-vulnerability.
+	)pbdoc";
+
 	m.def("prior",				overload<const  chan&,              const  prob&>(g_vuln::prior<double>), "G"_a, "pi"_a);
 	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(g_vuln::prior<double>), "G"_a, "pi"_a);
 	m.def("prior",				overload<const rchan&,              const rprob&>(g_vuln::prior<rat>   ), "G"_a, "pi"_a);

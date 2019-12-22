@@ -9,6 +9,10 @@ using namespace qif::channel::compose;
 
 void init_channel_compose_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Channel composition.
+	)pbdoc";
+
 	m.def("parallel", 				parallel<double>, "A"_a, "B"_a);
 	m.def("parallel",		 		parallel<rat>,    "A"_a, "B"_a);
 

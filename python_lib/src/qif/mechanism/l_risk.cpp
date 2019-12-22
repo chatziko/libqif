@@ -9,6 +9,10 @@ namespace m = qif::mechanism;
 
 void init_mechanism_l_risk_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Mechanism construction for :math:`\ell`-risk.
+	)pbdoc";
+
 	m.def("min_loss_given_min_risk",	m::l_risk::min_loss_given_min_risk<double>, "pi"_a, "n_cols"_a, "n_guesses"_a, "min_risk"_a, "adv_loss"_a, "loss"_a, "hard_max_loss"_a = infinity<double>());
 	m.def("min_loss_given_min_risk",	m::l_risk::min_loss_given_min_risk<rat>,    "pi"_a, "n_cols"_a, "n_guesses"_a, "min_risk"_a, "adv_loss"_a, "loss"_a, "hard_max_loss"_a = infinity<rat>   ());
 

@@ -8,6 +8,10 @@ using namespace qif;
 
 void init_metric_module(py::module m) {
 
+	m.doc() = R"pbdoc(
+		Metrics and other distance functions.
+	)pbdoc";
+
 	m.def("euclidean",		[](double_c_t) { return metric::euclidean<double,double>(); }, "type"_a = def_type);
 	m.def("euclidean",		[](uint_c_t  ) { return metric::euclidean<double,uint>  (); }, "type"_a = def_type);
 	m.def("euclidean",		[](rat_c_t   ) { return metric::euclidean<rat,rat>      (); }, "type"_a = def_type);

@@ -18,6 +18,8 @@ void init_mechanism_d_privacy_module(py::module);
 void init_mechanism_module(py::module m) {
 
 	m.doc() = R"pbdoc(
+		Mechanism construction.
+
 		.. autosummary::
 			:toctree: _autosummary
 			:template: template.rst
