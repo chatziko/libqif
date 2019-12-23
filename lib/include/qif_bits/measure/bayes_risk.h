@@ -27,8 +27,7 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 	return pr / post;
 }
 
-// try all 2-secret sub-uniform distributions
-// (still not 100% sure whether this is true)
+// mult-capacity is given by the l1-diameter of C's rows
 //
 template<typename eT>
 std::pair<eT,Prob<eT>> mult_capacity(const Chan<eT>& C, std::string method = "direct") {

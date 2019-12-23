@@ -500,28 +500,6 @@ eT sum_column_min(const Chan<eT>& C) {
 	return arma::accu(arma::min(C, 0));
 }
 
-// Transform (pi,C) to "binary" (pibin, Cbin), modeling a system with secrets "x" and "not x",
-// where "not x" acts as the average of all secrets different than x.
-//
-template<typename eT = eT_def>
-std::pair<Prob<eT>,Chan<eT>> to_binary(const Prob<eT>& pi, const Chan<eT>& C, uint x = 0) {
-	Prob<eT> pibin(2);
-	pibin(0) = pi(x);
-	pibin(1) = 1-pi(x);
-
-	Prob<eT> picond = pi;					// pi, conditioned on the event "not x"
-	if(!qif::equal<eT>(pibin(1), eT(0))) {	// if "not x" never happens we keep picond = pi. This will give Cbin.row(0) = Cbin.row(1)
-		picond(x) = 0;
-		probab::normalize(picond);
-	}
-
-	Chan<eT> Cbin(2, C.n_cols);
-	Cbin.row(0) = C.row(x);
-	Cbin.row(1) = picond * C;		// average of all non-x rows, wrt to pi conditioned on "not x"
-
-	return std::pair(pibin, Cbin);
-}
-
 // draw an input, then an output
 template<typename eT = eT_def>
 inline

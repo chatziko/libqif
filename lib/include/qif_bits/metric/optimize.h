@@ -61,7 +61,38 @@ std::tuple<eT,uint,uint> l1_diameter(const Chan<eT>& C, std::string method = "di
 		throw std::runtime_error("invalid method: " + method);
 	}
 
-	return std::tuple(diam, res_x1, res_x2);
+	return { diam, res_x1, res_x2 };
+}
+
+// Computes the max l1-distance between the rows of A and B.
+// Returns also the rows that produce the max distance.
+//
+template<typename eT = eT_def>
+std::tuple<eT,uint,uint> l1_max_distance(const Chan<eT>& A, const Chan<eT>& B, std::string method = "direct") {
+	eT maxdist(0);
+	uint res_x1, res_x2;
+
+	if(method == "direct") {
+		auto l1 = qif::metric::l1<eT, Prob<eT>>();
+
+		for(uint x1 = 0; x1 < A.n_rows; x1++) {
+			for(uint x2 = 0; x2 < B.n_rows; x2++) {
+				eT l1_cur = l1(A.row(x1), B.row(x2));
+
+				if(less_than(maxdist, l1_cur)) {
+					maxdist = l1_cur;
+					res_x1 = x1;
+					res_x2 = x2;
+				}
+			}
+		}
+
+	} else {
+		// TODO: implement linf method like for the diameter
+		throw std::runtime_error("invalid method: " + method);
+	}
+
+	return { maxdist, res_x1, res_x2 };
 }
 
 // Computes the (unique) vector q that minimizes the max l2-distance from the rows of C.
