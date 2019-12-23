@@ -1,4 +1,4 @@
-namespace mechanism::geo {
+namespace mechanism::geo_ind {
 
 using std::cerr;
 using std::max;
@@ -210,5 +210,5 @@ planar_geometric_grid(uint width, uint height, eT step, eT epsilon) {
 	return C;
 }
 
-} // namespace mechanism
+} // namespace mechanism::geo_ind
 

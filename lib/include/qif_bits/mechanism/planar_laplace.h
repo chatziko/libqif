@@ -1,4 +1,4 @@
-namespace mechanism::geo {
+namespace mechanism::geo_ind {
 
 using std::cerr;
 using std::max;
@@ -139,5 +139,5 @@ planar_laplace_grid(uint width, uint height, eT step, eT epsilon) {
 }
 
 
-} // namespace mechanism
+} // namespace mechanism::geo_ind
 

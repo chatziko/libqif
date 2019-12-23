@@ -71,7 +71,7 @@ void generate_laplace(prob& pi, double eps, ofstream& file) {
 
 	for(uint x_i : drawn) {
 		point x = c2p_in(x_i);
-		point z = x + mechanism::geo::planar_laplace_draw(eps);
+		point z = x + mechanism::geo_ind::planar_laplace_draw(eps);
 
 		mean.add(euclid(x, z));
 
@@ -87,7 +87,7 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 
 	// for efficiency, we batch sample n secrets, and n observations drawn from (0,0). Each z is added to the corresponding origin secret
 	auto drawn_x = probab::draw(pi, samples);
-	auto drawn_z = mechanism::geo::planar_geometric_draw(cell_size_out, eps, samples);
+	auto drawn_z = mechanism::geo_ind::planar_geometric_draw(cell_size_out, eps, samples);
 
 	LargeAvg<double> mean;
 

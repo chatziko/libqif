@@ -21,8 +21,8 @@ TYPED_TEST_P(MechGeoTest, Grid) {
 
 	auto d = step * metric::grid<eT>(width);
 
-	Chan<eT> laplace = mechanism::geo::planar_laplace_grid<eT>(width, height, step, epsilon);
-	Chan<eT> geom = mechanism::geo::planar_geometric_grid<eT>(width, height, step, epsilon);
+	Chan<eT> laplace = mechanism::geo_ind::planar_laplace_grid<eT>(width, height, step, epsilon);
+	Chan<eT> geom = mechanism::geo_ind::planar_geometric_grid<eT>(width, height, step, epsilon);
 
 	// for the planar laplace, the accuracy that we get through numeric integration is not that great
 	EXPECT_PRED_FORMAT2(chan_is_proper2<eT>, laplace, eT(1e-3));
