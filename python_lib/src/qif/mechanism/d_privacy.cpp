@@ -25,4 +25,6 @@ void init_mechanism_d_privacy_module(py::module m) {
 
 	m.def("exact_distance",		m::d_privacy::exact_distance<double>, "n_rows"_a, "d"_a);
 
+	m.def("min_loss_given_d",	m::d_privacy::min_loss_given_d<double>, "pi"_a, "n_cols"_a, "d_priv"_a, "loss"_a, "vars"_a = "all", "d_priv_ch"_a = metric::never_chainable<uint>, "inf"_a = std::log(1e200));
+
 }

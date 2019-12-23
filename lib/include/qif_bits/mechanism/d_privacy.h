@@ -193,7 +193,7 @@ exact_distance(uint n, Metric<eT, uint> d) {
 }
 
 namespace aux {
-	// auxiliary, hidden from the outside
+	// auxiliary functions used by min_loss_given_d, hidden from the outside
 
 	template<typename eT>
 	Chan<eT> min_loss_given_d_all(

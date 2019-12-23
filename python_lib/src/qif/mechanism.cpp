@@ -29,7 +29,7 @@ void init_mechanism_module(py::module m) {
 			g_vuln
 			l_risk
 			shannon
-			geo
+			geo_ind
 			d_privacy
 	)pbdoc";
 
