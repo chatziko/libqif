@@ -78,10 +78,10 @@ namespace qif {
 	#include "qif_bits/geo.h"
 
 	#include "qif_bits/probab.h"
-	#include "qif_bits/channel.h"
-	#include "qif_bits/channel/compose.h"
 	#include "qif_bits/metric.h"
 	#include "qif_bits/metric/optimize.h"
+	#include "qif_bits/channel.h"
+	#include "qif_bits/channel/compose.h"
 
 	#include "qif_bits/measure/shannon.h"
 	#include "qif_bits/measure/bayes_vuln.h"

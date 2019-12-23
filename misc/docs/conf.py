@@ -117,6 +117,9 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# doesn't seem to work for the compiled extension, probably because sphinx doesn't have access to the actual source
+autodoc_member_order = 'bysource'
+
 
 # -- Options for HTML output ----------------------------------------------
 

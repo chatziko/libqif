@@ -39,9 +39,6 @@ void init_probab_module(py::module m) {
 	m.def("assert_proper",  probab::assert_proper<double>, "pi"_a);
 	m.def("assert_proper",  probab::assert_proper<rat>,    "pi"_a);
 
-	m.def("project_to_simplex", overload<const  prob&>(probab::project_to_simplex<double>), "pi"_a);
-	m.def("project_to_simplex", overload<const rprob&>(probab::project_to_simplex<rat>),    "pi"_a);
-
 	m.def("to_grid",  		probab::to_grid<double>, "pi"_a, "width"_a);
 	m.def("to_grid",  		probab::to_grid<rat>,    "pi"_a, "width"_a);
 

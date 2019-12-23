@@ -95,7 +95,7 @@ minmax_hidden_bayes(const Prob<eT>& pi, const vector<vector<Chan<eT>>>& Cs) {
 
 		// update and project back to the probability simplex
 		delta -= alpha * g;
-		delta = probab::project_to_simplex(delta);
+		delta = metric::optimize::simplex_project(delta);
 	}
 	std::cerr << "\r";
 
@@ -194,10 +194,10 @@ minmax_hidden_bayes_both(
 
 		// update and project back to the probability simplex
 		alpha += gamma * g_a;
-		alpha = probab::project_to_simplex(alpha);
+		alpha = metric::optimize::simplex_project(alpha);
 
 		delta -= gamma * g_d;
-		delta = probab::project_to_simplex(delta);
+		delta = metric::optimize::simplex_project(delta);
 	}
 
 	return delta_avg;		// TODO return both averages

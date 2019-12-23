@@ -13,9 +13,15 @@ void init_metric_optimize_module(py::module m) {
 		Metric optimization problems.
 	)pbdoc";
 
-	m.def("l1_diameter",			l1_diameter<double>, "C"_a, "method"_a = "direct");
-	m.def("l1_diameter",			l1_diameter<rat>,    "C"_a, "method"_a = "direct");
+	m.def("l1_diameter",					l1_diameter<double>, "C"_a, "method"_a = "direct");
+	m.def("l1_diameter",					l1_diameter<rat>,    "C"_a, "method"_a = "direct");
 
-	m.def("min_l2_enclosing_ball",	min_l2_enclosing_ball<double>, "C"_a);
+	m.def("l2_min_enclosing_ball",			l2_min_enclosing_ball<double>, "C"_a);
+
+	m.def("simplex_l1_min_enclosing_ball",	simplex_l1_min_enclosing_ball<double>, "C"_a, "method"_a = "lp", "in_conv_hull"_a = false);
+	m.def("simplex_l1_min_enclosing_ball",	simplex_l1_min_enclosing_ball<rat>,    "C"_a, "method"_a = "lp", "in_conv_hull"_a = false);
+
+	m.def("simplex_project", 				simplex_project<double>, "pi"_a);
+	m.def("simplex_project", 				simplex_project<rat>,    "pi"_a);
 
 }

@@ -325,21 +325,13 @@ Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch
 
 template<typename eT = eT_def>
 inline
-Chan<eT>& project_to_simplex(Chan<eT>& C, bool col_stoch = false) {
-	if(col_stoch) {
-		Prob<eT> temp(C.n_rows);
-		for(uint j = 0; j < C.n_cols; j++) {
-			temp = C.col(j).t();
-			C.col(j) = probab::project_to_simplex(temp).t();
-		}
-	} else {
-		Prob<eT> temp(C.n_cols);
-		for(uint i = 0; i < C.n_rows; i++) {
-			temp = C.row(i);
-			C.row(i) = probab::project_to_simplex(temp);
-		}
-	}
-	return C;
+void _simplex_project(Chan<eT>& C, bool col_stoch) {
+	if(col_stoch)
+		for(uint j = 0; j < C.n_cols; j++)
+			C.col(j) = metric::optimize::simplex_project((Prob<eT>)C.col(j));
+	else
+		for(uint i = 0; i < C.n_rows; i++)
+			C.row(i) = metric::optimize::simplex_project((Prob<eT>)C.row(i));
 }
 
 
@@ -373,7 +365,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 	ARMA_SET_CERR(std::cerr);
 
 	if(!X.n_cols) return X;
-	project_to_simplex(X, col_stoch);
+	_simplex_project(X, col_stoch);
 
 	// G = max l2-norm of B's rows
 	eT G(0);
@@ -450,7 +442,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 		eT alpha = f / s_norm_sq;
 		X -= alpha * S;
 
-		project_to_simplex(X, col_stoch);
+		_simplex_project(X, col_stoch);
 
 		// compute the lower bound given by the stopping criterion in section 3.4 of the lecture notes.
 		// if the bound is positive then the optimal is also positive, so the channel cannot be factorized
