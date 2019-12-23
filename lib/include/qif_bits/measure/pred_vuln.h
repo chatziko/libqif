@@ -58,6 +58,7 @@ std::pair<Prob<eT>,Chan<eT>> binary_channel(const arma::urowvec& P, const Prob<e
 	auto [rho, R, a, b] = g_vuln::g_to_bayes(G_pred<eT>(P), pi);
 
 	// for two block gain functions a,b should always be 1 and 0 respectively.
+	(void)a; (void)b;
 	assert(equal(a, eT(1)));
 	assert(equal(b, eT(0)));
 
