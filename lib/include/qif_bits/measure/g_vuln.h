@@ -262,7 +262,7 @@ std::tuple<Prob<eT>,Chan<eT>,eT,eT> g_to_bayes(Mat<eT> G, const Prob<eT>& pi) {
 		zeros = arma::find(rho2 == eT(0));
 	}
 	rho2(zeros).fill(eT(1));							// 1. We arbitrarily set them to 1 ...
-	G.each_col() /= rho2;								//    to avoid division by 0 here. The value doesn't matter since R_{w,-} is 0
+	G.each_col() /= rho2.t();							//    to avoid division by 0 here. The value doesn't matter since R_{w,-} is 0
 	G.submat(zeros, arma::uvec({0})).fill(eT(1));		// 2. The returned R needs to be a channel matrix, so we cannot have 0 rows. We just set the first column of such rows to 1
 
 	return { rho, G, a, b };
