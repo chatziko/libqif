@@ -73,6 +73,11 @@ setup(
 	author='Kostas Chatzikokolakis  ',
 	author_email='kostas@chatzi.org',
 	url='https://github.com/chatziko/libqif',
+	project_urls={
+		"Bug Tracker": "https://github.com/chatziko/libqif/issues",
+		"Documentation": "http://chatziko.github.io/libqif/",
+		"Source Code": "https://github.com/chatziko/libqif",
+	},
 	description='Quantitative Information Flow library',
 	long_description=long_description,
     long_description_content_type='text/markdown',
