@@ -16,6 +16,8 @@ make qif tests samples docs -j 2
 ./tests/run
 
 mv misc/docs/_build/html ..															# save in case we need to publish it
+touch ../html/.nojekyll																# disable jekyll processing, cause it hides folders starting with underscore!
+
 rm -rf *
 cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..						# then compile again with the default march
 make install -j 2

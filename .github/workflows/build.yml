@@ -12,9 +12,9 @@ jobs:
         submodules: recursive
 
     - name: Docker login
-      run: docker login docker.pkg.github.com --username chatziko --password "${GH_TOKEN}"
+      run: docker login docker.pkg.github.com --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
       env:
-        GH_TOKEN: ${{ secrets.gh_token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build manylinux pypi dist
       uses: ./.github/actions/build-pypi-manylinux
@@ -41,25 +41,13 @@ jobs:
 
     - name: Publish docs to gh-pages
       if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: |
-        # clone gh-pages branch
-        git clone "https://$GITHUB_ACTOR:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" --branch gh-pages gh-pages
-        cd gh-pages
-
-        # remove old files and copy the new ones
-        rm -rf *
-        cp -r ../html/* .              # we saved the built docs there
-        touch .nojekyll                # disable jekyll processing, cause it hides folders starting with underscore!
-        git add --all
-
-        # commit and push
-        git config user.email "kostas@chatzi.org"
-        git config user.name "$GITHUB_ACTOR"
-        git commit -m "Publishing to gh-pages"
-        git push origin gh-pages
+      uses: peaceiris/actions-gh-pages@v2
       env:
-        GH_TOKEN: ${{ secrets.gh_token }}
-
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./html
+      with:
+        forceOrphan: true
 
   # MacOS ##########################################################
   macos:
