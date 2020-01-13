@@ -100,10 +100,13 @@ public:
 			if(array.ndim() != ndim)
 				return false;
 
-			// for mat, we can avoid copy only if the array is in column-major order
+			// We can avoid copy only if the data are contiguous and (for mat) in column-major order.
+			// This can fail for matrices in row-major order, but also for vectors if they are created by slicing matrices.
+			const ssize_t sz = sizeof(eT);
+			no_copy = array.strides(0) == sz;
+
 			if constexpr (arma::is_Mat_only<Type>::value) {
-				const ssize_t sz = sizeof(eT);
-				no_copy = array.strides(0) == sz && array.strides(1) == sz * array.shape(0);
+				no_copy = no_copy && array.strides(1) == sz * array.shape(0);
 			}
 		}
 
