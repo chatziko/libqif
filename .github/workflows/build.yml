@@ -40,10 +40,12 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.pypi_password }}
 
     - name: Publish docs to gh-pages
-      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
+      # if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
       uses: peaceiris/actions-gh-pages@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # https://github.com/peaceiris/actions-gh-pages/issues/9
+        #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTIONS_DEPLOY_KEY: ${{ secrets.actions_deploy_key }}
         PUBLISH_BRANCH: gh-pages
         PUBLISH_DIR: ./html
       with:
