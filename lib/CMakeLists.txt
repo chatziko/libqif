@@ -40,15 +40,17 @@ endif()
 # PRIVATE, only needed for qif itself
 if("${BUILD_QIF}")
 	target_link_libraries(qif PRIVATE osqpstatic gsl mp++)		# mp++ is not really needed, we only list it to get its include_directories
+
+	if(${QIF_USE_GLPK})
+		# we use a wrapper so only qif itself needs to be linked with glpk
+		target_link_libraries(qif PRIVATE ${LIB_GLPK})
+	endif()
 endif()
 
 # INTERFACE, needed for targets _using_ qif
 target_link_libraries(qif INTERFACE gmp mp++ armadillo)
 if(${QIF_USE_ORTOOLS})
 	target_link_libraries(qif INTERFACE ortools)
-endif()
-if(${QIF_USE_GLPK})
-	target_link_libraries(qif INTERFACE ${LIB_GLPK})
 endif()
 if(UNIX AND NOT APPLE)
 	# dl and rt are needed in manylinux
