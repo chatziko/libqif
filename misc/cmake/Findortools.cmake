@@ -43,7 +43,6 @@ elseif(UNIX)
             absl_civil_time
             absl_debugging_internal
             absl_demangle_internal
-            absl_dynamic_annotations
             absl_examine_stack
             absl_failure_signal_handler
             absl_graphcycles_internal
@@ -52,7 +51,6 @@ elseif(UNIX)
             absl_int128
             absl_leak_check
             absl_malloc_internal
-            absl_optional
             absl_raw_hash_set
             absl_spinlock_wait
             absl_stacktrace
@@ -64,6 +62,7 @@ elseif(UNIX)
             absl_throw_delegate
             absl_time
             absl_time_zone
+            absl_raw_logging_internal # needs to be after absl_strings
             protobuf #protobuf
             glog #glog
             gflags #gflags
@@ -72,8 +71,12 @@ elseif(UNIX)
 
         foreach(X ${LIB_TO_FIND})
             find_library(LIB_${X} NAME ${X} PATH_SUFFIXES lib/)
-            message(STATUS "${X} lib found here : ${LIB_${X}}")
-            set(ORTOOLS_LIBRARIES ${ORTOOLS_LIBRARIES} ${LIB_${X}})
+	        if(${LIB_${X}} STREQUAL "LIB_${X}-NOTFOUND")
+                message(STATUS "${X} lib NOT FOUND")
+            else()
+                message(STATUS "${X} lib found here : ${LIB_${X}}")
+                set(ORTOOLS_LIBRARIES ${ORTOOLS_LIBRARIES} ${LIB_${X}})
+            endif()
         endforeach()
 
 

@@ -41,16 +41,16 @@ cd armadillo-9.800.3
 make install
 
 # ortools
-# The C++ binary package of ortools is for CentOS 7, so we do a hack: we only copy the header files and static libs...
+# The C++ binary package of ortools is for CentOS 8, so we do a hack: we only copy the header files and static libs...
 cd /tmp
-wget -nv https://github.com/google/or-tools/releases/download/v7.4/or-tools_centos-7_v7.4.7247.tar.gz
+wget -nv https://github.com/google/or-tools/releases/download/v8.1/or-tools_centos-8_v8.1.8487.tar.gz
 tar -xf or-tools*.tar.gz
 cp -r or-tools*/include /usr/local
 cp or-tools*/lib/*.a /usr/local/lib
 
 # ...and we extract the shared libraries from the python lib!
-/opt/python/cp36-cp36m/bin/pip install ortools==7.4.7247
-cp /opt/_internal/cpython-3.6.9/lib/python3.6/site-packages/ortools/.libs/* /usr/local/lib
+/opt/python/cp36-cp36m/bin/pip install ortools==8.1.8487
+cp /opt/_internal/cpython-3.6.12/lib/python3.6/site-packages/ortools/.libs/* /usr/local/lib
 ldconfig
 
 # cleanup
