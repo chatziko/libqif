@@ -66,12 +66,6 @@ jobs:
     # Build wheel for every python version
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.5'
-    - name: Build python 3.5 wheel
-      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
-
-    - uses: actions/setup-python@v1
-      with:
         python-version: '3.6'
     - name: Build python 3.6 wheel
       run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
@@ -86,6 +80,12 @@ jobs:
       with:
         python-version: '3.8'
     - name: Build python 3.8 wheel
+      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.9'
+    - name: Build python 3.9 wheel
       run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
 
 

@@ -9,7 +9,7 @@
 pip install qif
 ```
 
-- Needs `python` >= 3.5 and a `sandybridge` or later CPU
+- Needs `python` >= 3.6 and a `sandybridge` or later CPU
 - On linux `pip` >= 19 is needed (make sure to `pip install -U pip`)
 
 
