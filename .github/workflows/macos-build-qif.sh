@@ -10,7 +10,7 @@ export HOMEBREW_NO_AUTO_UPDATE=1		# faster
 
 cmake --version
 
-rm -f /usr/local/include/c++	# brew install will fail if this exists
+rm -rf /usr/local/include/c++	# brew install will fail if this exists
 
 brew update						# for recent cmake
 brew reinstall cmake
