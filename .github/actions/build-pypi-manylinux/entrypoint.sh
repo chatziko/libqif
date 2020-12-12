@@ -27,7 +27,7 @@ make install -j 2
 cd ../python_lib
 
 # binary dists for each python version
-for pyver in /opt/python/cp3{5,6,7,8}*
+for pyver in /opt/python/cp3{6,7,8,9}*
 do
 	rm -rf build
 	$pyver/bin/python setup.py bdist_wheel
