@@ -12,8 +12,6 @@ cmake --version
 
 rm -rf /usr/local/include/c++	# brew install will fail if this exists
 
-brew update						# for recent cmake
-brew reinstall cmake
 brew install gsl gmp
 
 # armadillo (manual install to use Accelerate, homebrew version uses openblas)
@@ -28,7 +26,7 @@ popd
 # or-tools
 brew unlink protobuf || true	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
 brew tap chatziko/tap
-brew install --HEAD or-tools
+brew install or-tools@8.1
 
 # build qif
 mkdir build
