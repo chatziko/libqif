@@ -12,13 +12,13 @@
 #define ARMA_SET_CERR(stream) arma::set_stream_err2(stream)
 #endif
 
-template<typename eT> const eT     def_md			= eT(0);
-template<>            const double def_md<double>	= 1e-7;
-template<>            const float  def_md<float>	= 1e-7;
+template<typename eT> inline const eT     def_md			= eT(0);
+template<>            inline const double def_md<double>	= 1e-7;
+template<>            inline const float  def_md<float>	= 1e-7;
 
-template<typename eT> const eT     def_mrd			= eT(0);
-template<>            const double def_mrd<double>	= 100 * std::numeric_limits<double>::epsilon();
-template<>            const float  def_mrd<float>	=  10 * std::numeric_limits<float >::epsilon();
+template<typename eT> inline const eT     def_mrd			= eT(0);
+template<>            inline const double def_mrd<double>	= 100 * std::numeric_limits<double>::epsilon();
+template<>            inline const float  def_mrd<float>	=  10 * std::numeric_limits<float >::epsilon();
 
 
 template<typename eT>
