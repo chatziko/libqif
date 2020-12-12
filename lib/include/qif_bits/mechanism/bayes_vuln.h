@@ -39,7 +39,7 @@ Chan<eT> min_vuln_given_max_loss(
 
 // Returns the row that, when added to C (to obtain C'), it minimizes the
 // posterior vulnerability of C'. p is the prior probability of the new row.
-// The optimal vulnerability and the row itself are returned.
+// pi are the probabilities of C's rows (should sum up to 1-p, not 1!)
 //
 template<typename eT = eT_def>
 inline
