@@ -12,8 +12,9 @@ cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		#
 make qif tests samples docs -j 2
 ./tests/run
 
-mv misc/docs/_build/html ..															# save in case we need to publish it
-touch ../html/.nojekyll																# disable jekyll processing, cause it hides folders starting with underscore!
+mkdir -p /output																	# this is copied to host's 'wheelhouse' dir by cibuildwheel. At this moment it doesn't exist yet, so create
+mv misc/docs/_build/html /output													# save in case we need to publish it
+touch /output/html/.nojekyll														# disable jekyll processing, cause it hides folders starting with underscore!
 
 rm -rf *
 cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..						# then compile again with the default march

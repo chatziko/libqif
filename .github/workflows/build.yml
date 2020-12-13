@@ -17,7 +17,7 @@ jobs:
         fetch-depth: 0    # needed for tags
 
     - name: Docker login
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+      if: matrix.os == 'ubuntu-latest'
       run: docker login docker.pkg.github.com --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,10 +47,10 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: wheels
-        path: ./wheelhouse/*.whl
+        path: ./wheelhouse/
 
 
-  # Upload wheels to PyPI ##########################################################
+  # Upload wheels to PyPI and publish docs ##########################################################
   upload_pypi:
     needs: [build_wheels]
     runs-on: ubuntu-latest
@@ -73,3 +73,15 @@ jobs:
           user: __token__
           password: ${{ secrets.test_pypi_password }}
           repository_url: https://test.pypi.org/legacy/
+
+      - name: Publish docs to gh-pages
+        if: ${{ !contains(github.event.ref, '-test') }}
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          # https://github.com/peaceiris/actions-gh-pages/issues/9
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_DEPLOY_KEY: ${{ secrets.actions_deploy_key }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./dist/html
+        with:
+          forceOrphan: true
