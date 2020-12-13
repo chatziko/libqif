@@ -23,21 +23,8 @@ jobs:
     - name: Upload wheels as artifacts
       uses: actions/upload-artifact@master
       with:
-        name: wheels-ubuntu
+        name: wheels
         path: python_lib/dist
-
-    - name: Publish distribution to Test PyPI
-      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
-      env:
-        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
-        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
-
-    - name: Publish distribution to PyPI
-      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: pip3 install setuptools && pip3 install wheel && pip3 install twine && python3 -m twine upload -u __token__ python_lib/dist/*
-      env:
-        TWINE_PASSWORD: ${{ secrets.pypi_password }}
 
     - name: Publish docs to gh-pages
       # if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
@@ -98,18 +85,29 @@ jobs:
     - name: Upload wheels as artifacts
       uses: actions/upload-artifact@master
       with:
-        name: wheels-macos
+        name: wheels
         path: python_lib/dist
 
-    - name: Publish distribution to Test PyPI
-      if: startsWith(github.event.ref, 'refs/tags/v') && contains(github.event.ref, '-test')
-      run: pip install twine && twine upload -u __token__ python_lib/dist/*
-      env:
-        TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
-        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+  # Upload wheels to PyPI ##########################################################
+  upload_pypi:
+    needs: [ubuntu, macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels
+          path: dist
 
-    - name: Publish distribution to PyPI
-      if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      run: pip install twine && twine upload -u __token__ python_lib/dist/*
-      env:
-        TWINE_PASSWORD: ${{ secrets.pypi_password }}
+      - uses: pypa/gh-action-pypi-publish@master
+        if: ${{ !contains(github.event.ref, '-test') }}
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+
+      - uses: pypa/gh-action-pypi-publish@master
+        if: contains(github.event.ref, '-test')
+        with:
+          user: __token__
+          password: ${{ secrets.test_pypi_password }}
+          repository_url: https://test.pypi.org/legacy/
