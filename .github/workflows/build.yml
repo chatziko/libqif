@@ -54,6 +54,8 @@ jobs:
   # MacOS ##########################################################
   macos:
     runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     steps:
     - name: Checkout git repository
       uses: actions/checkout@v1
