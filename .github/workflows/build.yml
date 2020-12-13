@@ -33,6 +33,7 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: docker.pkg.github.com/chatziko/libqif/manylinux:v6
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/ubuntu-build-qif.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/macos-build-qif.sh
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/delocate.pl {wheel} && cp {wheel} {dest_dir}
 
         # Workaround: cibuildwheel runs "pip wheel", which copies the python_lib dir to a temporary directory. This is
         # problematic because the code in python_lib expects to have the project root as parent dir. To workaround this
