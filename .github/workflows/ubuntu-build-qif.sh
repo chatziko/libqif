@@ -5,10 +5,6 @@ set -e
 
 cat /proc/cpuinfo
 
-# Sphinx needed for docs, numpy to import the qif module while generating docs
-# TODO: remove this after generating new docker image
-/opt/python/cp36-cp36m/bin/pip install Sphinx numpy
-
 # build qif
 mkdir build
 cd build
