@@ -2,95 +2,51 @@ name: build
 on: [push]
 
 jobs:
-  # Ubuntu ########################################################
-  ubuntu:
-    runs-on: ubuntu-latest
+  # Build wheels on all platforms ########################################################
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
     steps:
-    - name: Checkout git repository
-      uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: recursive
+        fetch-depth: 0
 
     - name: Docker login
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: docker login docker.pkg.github.com --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build manylinux pypi dist
-      uses: ./.github/actions/build-pypi-manylinux
-
-
-    - name: Upload wheels as artifacts
-      uses: actions/upload-artifact@master
-      with:
-        name: wheels
-        path: python_lib/dist
-
-    - name: Publish docs to gh-pages
-      # if: startsWith(github.event.ref, 'refs/tags/v') && !contains(github.event.ref, '-test')
-      uses: peaceiris/actions-gh-pages@v2
-      env:
-        # https://github.com/peaceiris/actions-gh-pages/issues/9
-        #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ACTIONS_DEPLOY_KEY: ${{ secrets.actions_deploy_key }}
-        PUBLISH_BRANCH: gh-pages
-        PUBLISH_DIR: ./html
-      with:
-        forceOrphan: true
-
-  # MacOS ##########################################################
-  macos:
-    runs-on: macos-latest
-    env:
-      MACOSX_DEPLOYMENT_TARGET: 10.9
-    steps:
-    - name: Checkout git repository
-      uses: actions/checkout@v1
-      with:
-        submodules: recursive
-
-    - name: Install dependencies & build qif
-      run: bash .github/workflows/macos-build-qif.sh
-
-    # Build wheel for every python version
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.6'
-    - name: Build python 3.6 wheel
-      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
-
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v2
+      name: Install Python
       with:
         python-version: '3.7'
-    - name: Build python 3.7 wheel
-      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
 
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
-    - name: Build python 3.8 wheel
-      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
+    - name: Build wheels
+      env:
+        CIBW_MANYLINUX_X86_64_IMAGE: docker.pkg.github.com/chatziko/libqif/manylinux:v5
+        CIBW_BEFORE_ALL_LINUX: bash .github/workflows/ubuntu-build-qif.sh
+        CIBW_BEFORE_ALL_MACOS: bash .github/workflows/macos-build-qif.sh
+        CIBW_ENVIRONMENT: "TMPDIR=$PWD"
+        CIBW_BUILD: "cp3?-*_x86_64"
+      run: |
+        python -m pip install cibuildwheel==1.7.1
+        python -m cibuildwheel --output-dir wheelhouse python_lib
 
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.9'
-    - name: Build python 3.9 wheel
-      run: cd python_lib && rm -rf build && pip install -U setuptools wheel && python setup.py bdist_wheel
-
-
-    - name: Delocate wheels
-      run: perl .github/workflows/delocate.pl python_lib/dist/*.whl
-
-
-    - name: Upload wheels as artifacts
-      uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v2
       with:
         name: wheels
-        path: python_lib/dist
+        path: ./wheelhouse/*.whl
+
 
   # Upload wheels to PyPI ##########################################################
   upload_pypi:
-    needs: [ubuntu, macos]
+    needs: [build_wheels]
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags/v')
     steps:
