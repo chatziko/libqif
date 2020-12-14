@@ -53,5 +53,8 @@ cp or-tools*/lib/*.a /usr/local/lib
 cp /opt/_internal/cpython-3.6.12/lib/python3.6/site-packages/ortools/.libs/* /usr/local/lib
 ldconfig
 
+# Sphinx needed for docs, numpy to import the qif module while generating docs
+/opt/python/cp36-cp36m/bin/pip install Sphinx numpy
+
 # cleanup
 rm -rf /tmp/*

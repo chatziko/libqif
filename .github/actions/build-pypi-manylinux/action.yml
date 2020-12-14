@@ -1,4 +1,0 @@
-name: 'build-pypi-manylinux'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
