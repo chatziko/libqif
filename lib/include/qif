@@ -68,7 +68,7 @@ namespace fastemd {
 
 namespace qif {
 	#include "qif_bits/types.h"
-	#include "qif_bits/aux.h"
+	#include "qif_bits/lib_aux.h"
 	#include "qif_bits/wrapper.h"
 	#include "qif_bits/range.hpp"
 
