@@ -6,6 +6,8 @@ project(libqif)
 # create qif target that either builds shared lib, or uses the system one
 #
 if("${BUILD_QIF}")
+    find_package(GSL REQUIRED)
+
 	# build armadillo in dir 'armadillo'
 	set(CMAKE_UNITY_BUILD OFF)								# never use unity for armadillo, it breaks
 	add_subdirectory(../external/armadillo armadillo EXCLUDE_FROM_ALL)
@@ -37,14 +39,14 @@ else()
 	endif()
 
 	add_library(qif INTERFACE)
-	target_link_libraries(qif INTERFACE ${QIF_PATH})					# targets using qif will link to the system qif
+	target_link_libraries(qif INTERFACE ${QIF_PATH})							# targets using qif will link to the system qif
 endif()
 
 # linked libraries
 #
 # PRIVATE, only needed for qif itself
 if("${BUILD_QIF}")
-	target_link_libraries(qif PRIVATE osqpstatic gsl armadillo mp++)		# armadillo/mp++ are not really needed, we only list then to get their include_directories
+	target_link_libraries(qif PRIVATE osqpstatic GSL::gsl armadillo mp++)		# armadillo/mp++ are not really needed, we only list then to get their include_directories
 
 	if(${QIF_USE_GLPK})
 		# we use a wrapper so only qif itself needs to be linked with glpk
