@@ -32,14 +32,6 @@ cd gmp-6.1.2
 ./configure --build=sandybridge-pc-linux-gnu
 make install
 
-# armadillo
-cd /tmp
-wget -nv http://sourceforge.net/projects/arma/files/armadillo-9.800.3.tar.xz
-tar -xf armadillo*.tar.xz
-cd armadillo-9.800.3
-./configure
-make install
-
 # ortools
 # The C++ binary package of ortools is for CentOS 8, so we do a hack: we only copy the header files and static libs...
 cd /tmp

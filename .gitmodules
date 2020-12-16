@@ -16,3 +16,6 @@
 [submodule "external/pybind11"]
 	path = external/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "external/armadillo"]
+	path = external/armadillo
+	url = https://gitlab.com/chatziko/armadillo-code.git

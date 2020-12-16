@@ -6,13 +6,18 @@ project(libqif)
 # create qif target that either builds shared lib, or uses the system one
 #
 if("${BUILD_QIF}")
-	# build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
-	set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks
-	add_subdirectory(../external/osqp osqp EXCLUDE_FROM_ALL)
+	# build armadillo in dir 'armadillo'
+	set(CMAKE_UNITY_BUILD OFF)								# never use unity for armadillo, it breaks
+	add_subdirectory(../external/armadillo armadillo EXCLUDE_FROM_ALL)
 	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
 	# build mp++ in dir 'mppp'
 	add_subdirectory(../external/mppp mppp EXCLUDE_FROM_ALL)
+
+	# build osqp in dir 'osqp', don't include targets in 'all' (we'll only depend on osqpstatic)
+	set(CMAKE_UNITY_BUILD OFF)								# never use unity for osqp, it breaks
+	add_subdirectory(../external/osqp osqp EXCLUDE_FROM_ALL)
+	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
 	file(GLOB LIB_SOURCES src/*.cpp)							# get all src/*.cpp files in LIB_SOURCES
 	add_library(qif SHARED ${LIB_SOURCES})						# libqif, depends on all src/*.cpp files
@@ -39,7 +44,7 @@ endif()
 #
 # PRIVATE, only needed for qif itself
 if("${BUILD_QIF}")
-	target_link_libraries(qif PRIVATE osqpstatic gsl mp++)		# mp++ is not really needed, we only list it to get its include_directories
+	target_link_libraries(qif PRIVATE osqpstatic gsl armadillo mp++)		# armadillo/mp++ are not really needed, we only list then to get their include_directories
 
 	if(${QIF_USE_GLPK})
 		# we use a wrapper so only qif itself needs to be linked with glpk
@@ -48,7 +53,7 @@ if("${BUILD_QIF}")
 endif()
 
 # INTERFACE, needed for targets _using_ qif
-target_link_libraries(qif INTERFACE gmp mp++ armadillo)
+target_link_libraries(qif INTERFACE gmp armadillo mp++)
 if(${QIF_USE_ORTOOLS})
 	target_link_libraries(qif INTERFACE ortools)
 endif()
@@ -104,6 +109,9 @@ if("${BUILD_QIF}")	# can only install if we built
 		PATTERN "_*" EXCLUDE)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/ DESTINATION "include")
 
+	# install armadillo's includes
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/armadillo/tmp/include/ DESTINATION "include")
+
 	# install mp++'s includes, they have to be globally installed cause mp++ uses #include<...>
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../external/mppp/include/ DESTINATION "include")
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mppp/include/ DESTINATION "include")
@@ -114,7 +122,7 @@ if("${BUILD_QIF}")	# can only install if we built
 	# install miniball's includes under qif_bits/miniball
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../external/miniball/cpp/main/ DESTINATION "include/qif_bits/miniball")
 
-	install(TARGETS qif mp++
+	install(TARGETS qif armadillo mp++
 		ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 		LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 endif()
