@@ -73,7 +73,6 @@ arrayops::copy<rat>(rat* dest, const rat* src, const uword n_elem) {
 
 // conversion from strings 
 //
-#if ARMA_VERSION_MAJOR > 8 || (ARMA_VERSION_MAJOR == 8 && ARMA_VERSION_MINOR >= 400)
 template<>
 inline
 bool
@@ -81,7 +80,6 @@ diskio::convert_token(rat& val, const std::string& token) {
 	val = token;
 	return true;
 }
-#endif
 
 } // namespace arma
 
