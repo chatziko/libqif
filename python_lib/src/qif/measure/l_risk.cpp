@@ -44,11 +44,11 @@ void init_l_risk_module(py::module m) {
 	m.def("loss_to_gain",		l_risk::loss_to_gain<double>, "n_secrets"_a, "n_guesses"_a, "l"_a);
 	m.def("loss_to_gain",		l_risk::loss_to_gain<rat>,    "n_secrets"_a, "n_guesses"_a, "l"_a);
 
-	m.def("l_zero_one",			[](double_c_t) { return l_risk::l_zero_one<double>; }, "type"_a = def_type);
-	m.def("l_zero_one",			[](rat_c_t   ) { return l_risk::l_zero_one<rat>;    }, "type"_a = def_type);
+	m.def("l_zero_one",			[](double_c_t) { return l_risk::l_zero_one<double>; }, "type"_a = def_type());
+	m.def("l_zero_one",			[](rat_c_t   ) { return l_risk::l_zero_one<rat>;    }, "type"_a = def_type());
 
-	m.def("L_zero_one",			[](uint n, double_c_t) { return l_risk::L_zero_one<double>(n); }, "n_rows"_a, "type"_a = def_type);
-	m.def("L_zero_one",			[](uint n, rat_c_t   ) { return l_risk::L_zero_one<rat>(n);    }, "n_rows"_a, "type"_a = def_type);
+	m.def("L_zero_one",			[](uint n, double_c_t) { return l_risk::L_zero_one<double>(n); }, "n_rows"_a, "type"_a = def_type());
+	m.def("L_zero_one",			[](uint n, rat_c_t   ) { return l_risk::L_zero_one<rat>(n);    }, "n_rows"_a, "type"_a = def_type());
 
 
 }

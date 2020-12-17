@@ -13,8 +13,8 @@ void init_pred_vuln_module(py::module m) {
 		Vulnerability of guessing a predicate of the secret.
 	)pbdoc";
 
-	m.def("G_pred",			[](const arma::urowvec& P, double_c_t) { return pred_vuln::G_pred<double>(P); }, "P"_a, "type"_a = def_type);
-	m.def("G_pred",			[](const arma::urowvec& P, rat_c_t   ) { return pred_vuln::G_pred<rat>   (P); }, "P"_a, "type"_a = def_type);
+	m.def("G_pred",			[](const arma::urowvec& P, double_c_t) { return pred_vuln::G_pred<double>(P); }, "P"_a, "type"_a = def_type());
+	m.def("G_pred",			[](const arma::urowvec& P, rat_c_t   ) { return pred_vuln::G_pred<rat>   (P); }, "P"_a, "type"_a = def_type());
 
 	m.def("prior",      	pred_vuln::prior<double>, "P"_a, "pi"_a);
 	m.def("prior",      	pred_vuln::prior<rat>,    "P"_a, "pi"_a);

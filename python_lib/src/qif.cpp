@@ -48,8 +48,8 @@ PYBIND11_MODULE(qif, m) {
 		throw std::runtime_error("numpy is required by qif");
 	}
 
-	// use np.random.randint to get a seed
-	uint seed = np.attr("random").attr("randint")(std::numeric_limits<uint>::max()).cast<uint>();		
+	// use np.random.randint to get a seed. Use int32_t instead of uint, cause numpy uses int32 for some reason on windows!
+	uint seed = np.attr("random").attr("randint")(std::numeric_limits<int32_t>::max()).cast<uint>();
 	arma::arma_rng::set_seed(seed);
 
 	// Init mp++'s pybind11 integration
