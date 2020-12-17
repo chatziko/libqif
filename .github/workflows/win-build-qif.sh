@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Install gsl & mpir (GMP alternative for windows) via vcpkg
+/c/vcpkg/vcpkg install gsl:x64-windows
+/c/vcpkg/vcpkg install mpir:x64-windows
+# /c/vcpkg/vcpkg integrate install
+
+# Install openblas
+curl https://github.com/xianyi/OpenBLAS/releases/download/v0.3.10/OpenBLAS-0.3.10-x64.zip -L --output openblas.zip
+(mkdir openblas && cd openblas && unzip openblas.zip)
+cp openblas/bin/libopenblas.dll /usr/local/lib/openblas.dll
+cp openblas/lib/libopenblas.dll.a /usr/local/lib/openblas.lib
+
+# Install ortols
+curl https://github.com/google/or-tools/releases/download/v8.1/or-tools_VisualStudio2019-64bit_v8.1.8487.zip -L --output or-tools.zip
+unzip or-tools.zip
+cp -r or-tools*/include /usr/local
+cp or-tools*/lib/*.lib /usr/local/lib
