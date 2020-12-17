@@ -67,7 +67,7 @@ arma_hot
 arma_inline
 void
 arrayops::copy<rat>(rat* dest, const rat* src, const uword n_elem) {
-	for(uint i = 0; i < n_elem; i++)
+	for(uint32_t i = 0; i < n_elem; i++)
 		dest[i] = src[i];
 }
 
@@ -79,6 +79,15 @@ bool
 diskio::convert_token(rat& val, const std::string& token) {
 	val = token;
 	return true;
+}
+
+// This is called from constructors taking fill:: arguments (even if fill::randn is never used).
+// And _only_ when ARMA_USE_EXTERN_CXX11_RNG == false (which is the case in MSVC)
+template<>
+inline
+void
+arma_rng_cxx98::randn_dual_val(rat&, rat&) {
+	throw "not implemented";
 }
 
 } // namespace arma
