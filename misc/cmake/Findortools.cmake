@@ -7,6 +7,7 @@ if(WIN32)
         set(ORTOOLS_DEFINITIONS /DNOMINMAX -DUSE_CBC -DUSE_CLP -DUSE_BOP -DUSE_GLOP)
 
         add_library(ortools::ortools STATIC IMPORTED GLOBAL)
+        add_library(ortools ALIAS ortools::ortools)
         set_target_properties(ortools::ortools PROPERTIES IMPORTED_LOCATION ${ORTOOLS_LIBRARIES} )
         target_include_directories(ortools::ortools INTERFACE ${ORTOOLS_INCLUDE_DIRS})
         target_link_libraries(ortools::ortools INTERFACE ${ORTOOLS_LIBRARIES})

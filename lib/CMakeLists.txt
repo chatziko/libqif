@@ -21,8 +21,8 @@ if("${BUILD_QIF}")
 	add_subdirectory(../external/osqp osqp EXCLUDE_FROM_ALL)
 	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
-	file(GLOB LIB_SOURCES src/*.cpp)							# get all src/*.cpp files in LIB_SOURCES
-	add_library(qif SHARED ${LIB_SOURCES})						# libqif, depends on all src/*.cpp files
+	file(GLOB LIB_SOURCES src/*.cpp)		# get all src/*.cpp files in LIB_SOURCES
+	add_library(qif ${LIB_SOURCES})			# libqif, depends on all src/*.cpp files. SHARED/STATIC is decided based on BUILD_SHARED_LIBS (see GlobalConfig.cmake)
 
 	target_include_directories(qif PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" include)
 
@@ -33,10 +33,7 @@ if("${BUILD_QIF}")
 
 else()
 	# using existing qif
-	find_library(QIF_PATH NAME qif PATH_SUFFIXES lib/)
-	if(${QIF_PATH} STREQUAL "QIF_PATH-NOTFOUND")
-		message(FATAL_ERROR "QIF_BUILD is not set, but libqif is not installed in the system")
-	endif()
+	find_library(QIF_PATH NAME qif PATH_SUFFIXES lib/ REQUIRED)
 
 	add_library(qif INTERFACE)
 	target_link_libraries(qif INTERFACE ${QIF_PATH})							# targets using qif will link to the system qif
@@ -46,8 +43,11 @@ endif()
 #
 # PRIVATE, only needed for qif itself
 if("${BUILD_QIF}")
-	target_link_libraries(qif PRIVATE osqpstatic GSL::gsl armadillo mp++)		# armadillo/mp++ are not really needed, we only list then to get their include_directories
+	target_link_libraries(qif PRIVATE osqpstatic GSL::gsl armadillo mp++)	# armadillo/mp++ are not really needed, we only list then to get their include_directories
 
+	if(${QIF_USE_ORTOOLS})
+		target_link_libraries(qif PRIVATE ortools)							# also listed to get its include_directories
+	endif()
 	if(${QIF_USE_GLPK})
 		# we use a wrapper so only qif itself needs to be linked with glpk
 		target_link_libraries(qif PRIVATE ${LIB_GLPK})
@@ -55,7 +55,7 @@ if("${BUILD_QIF}")
 endif()
 
 # INTERFACE, needed for targets _using_ qif
-target_link_libraries(qif INTERFACE gmp armadillo mp++)
+target_link_libraries(qif INTERFACE armadillo mp++)
 if(${QIF_USE_ORTOOLS})
 	target_link_libraries(qif INTERFACE ortools)
 endif()
@@ -70,7 +70,12 @@ endif()
 #    are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
 # * we build for march=sandybridge by default, can be changed with -DMARCH=...
 #
-target_compile_options(qif INTERFACE -Wall -Wextra -pedantic -march=$<IF:$<BOOL:${MARCH}>,${MARCH},sandybridge> -fPIC -pthread)
+target_compile_options(qif INTERFACE -Wall)
+if(MSVC)
+	target_compile_options(qif INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX>)
+else()
+	target_compile_options(qif INTERFACE -Wextra -pedantic -fPIC -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},sandybridge>)
+endif()
 target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
 
 if("${BUILD_QIF}")

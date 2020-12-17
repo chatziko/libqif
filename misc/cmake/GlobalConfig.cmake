@@ -20,10 +20,22 @@ endif()
 set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Build SHARED lib on Linux/macOS STATIC on MSVC
+if(MSVC)
+	option(BUILD_SHARED_LIBS "" OFF)
+else()
+	option(BUILD_SHARED_LIBS "" ON)
+endif()
+
 # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
 if(APPLE)
 	link_directories(/usr/local/lib)
 	include_directories(/usr/local/include)
+endif()
+
+# MSVC workarounds: NOMINMAX removes the min/max macros. SEB_DEBUG_H prevents miniball\cpp\main\Seb_debug.h from loading (uses POSIX headers)
+if(MSVC)
+	add_definitions(-DNOMINMAX -DSEB_DEBUG_H)
 endif()
 
 # without this the installed library has empty rpath, which confuses delocate
