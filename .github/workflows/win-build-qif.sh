@@ -5,9 +5,14 @@
 /c/vcpkg/vcpkg install mpir:x64-windows
 # /c/vcpkg/vcpkg integrate install
 
+echo pwd
+pwd
+echo ls -lh /
+ls -lh /
+
 # Install openblas
 curl https://github.com/xianyi/OpenBLAS/releases/download/v0.3.10/OpenBLAS-0.3.10-x64.zip -L --output openblas.zip
-(mkdir openblas && cd openblas && unzip openblas.zip)
+(mkdir openblas && cd openblas && unzip ../openblas.zip)
 cp openblas/bin/libopenblas.dll /usr/local/lib/openblas.dll
 cp openblas/lib/libopenblas.dll.a /usr/local/lib/openblas.lib
 
