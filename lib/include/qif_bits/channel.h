@@ -164,7 +164,7 @@ Mat<eT> posteriors(const Chan<eT>& C, const Prob<eT>& pi = {}) {
 
 // returns the hyper produced by C and pi
 //
-#undef hyper;	// MSVC adds this
+#undef hyper	// MSVC adds this
 template<typename eT = eT_def>
 inline
 std::pair<Prob<eT>,Mat<eT>> hyper(const Chan<eT>& C, const Prob<eT>& pi) {
