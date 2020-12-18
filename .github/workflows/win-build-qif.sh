@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# the source tree contains two symlinks to directories. In windows, directory symlinks are
-# different than file symlinks, and git creates file symlinks. So we delete them, and create
-# directory symlinks instead.
-pushd lib/include/qif_bits
-rm miniball osqp
-cmd.exe /c 'mklink /D miniball ..\..\..\external\miniball\cpp\main'
-cmd.exe /c 'mklink /D osqp ..\..\..\external\osqp\include'
-popd
-
 # Install gsl & mpir (GMP alternative for windows) via vcpkg
 /c/vcpkg/vcpkg install gsl:x64-windows
 /c/vcpkg/vcpkg install mpir:x64-windows
