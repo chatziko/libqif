@@ -12,6 +12,7 @@
 #include <mp++/extra/pybind11.hpp>
 #include <qif>
 
+using qif::uint;
 
 template<typename... Args>
 constexpr auto overload = pybind11::overload_cast<Args...>;	// for selecting member of overloaded function
@@ -23,7 +24,12 @@ struct uint_c_t {};
 struct rat_c_t {};
 struct point_c_t {};
 
-const pybind11::object def_type = pybind11::cast(1);
+// Use a function with a static variable, instead of a global const, to workaround a MSVC issue
+// https://github.com/pybind/pybind11/issues/2493
+inline pybind11::object def_type() {
+	static pybind11::object def_type = pybind11::cast(1);
+    return def_type;
+}
 
 
 namespace pybind11::detail {
@@ -32,28 +38,28 @@ template <> struct type_caster<double_c_t> {
 public:
 	PYBIND11_TYPE_CASTER(double_c_t, _("class[double]"));
 	bool load(handle src, bool) {
-		return (src.is(def_type) ? def_c : src).is(double_c);
+		return (src.is(def_type()) ? def_c : src).is(double_c);
 	}
 };
 template <> struct type_caster<uint_c_t> {
 public:
 	PYBIND11_TYPE_CASTER(uint_c_t, _("class[uint]"));
 	bool load(handle src, bool) {
-		return (src.is(def_type) ? def_c : src).is(uint_c);
+		return (src.is(def_type()) ? def_c : src).is(uint_c);
 	}
 };
 template <> struct type_caster<rat_c_t> {
 public:
 	PYBIND11_TYPE_CASTER(rat_c_t, _("class[fraction]"));
 	bool load(handle src, bool) {
-		return (src.is(def_type) ? def_c : src).is(rat_c);
+		return (src.is(def_type()) ? def_c : src).is(rat_c);
 	}
 };
 template <> struct type_caster<point_c_t> {
 public:
 	PYBIND11_TYPE_CASTER(point_c_t, _("class[point]"));
 	bool load(handle src, bool) {
-		return (src.is(def_type) ? def_c : src).is(point_c);
+		return (src.is(def_type()) ? def_c : src).is(point_c);
 	}
 };
 

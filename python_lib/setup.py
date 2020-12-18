@@ -58,7 +58,7 @@ class CMakeBuild(build_ext):
 
 
 # use the most recent vN.N.N tag as the version
-tag = subprocess.check_output('git describe --tags; exit 0', stderr=subprocess.DEVNULL, shell=True).decode("utf-8")
+tag = subprocess.check_output('git describe --tags || exit 0', stderr=subprocess.DEVNULL, shell=True).decode("utf-8")
 m = re.match(r"v([\d.]+)", tag)
 version = m.group(1) if m else 'dev'
 

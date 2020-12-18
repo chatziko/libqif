@@ -5,12 +5,7 @@
 #define VAR_NAME_VALUE(var) #var "="  VALUE(var)
 //#pragma message(VAR_NAME_VALUE(ARMA_USE_CXX11))
 
-// armadillo 8.0 changed set_stream2 to set_cerr_stream
-#ifdef ARMA_COUT_STREAM
 #define ARMA_SET_CERR(stream) arma::set_cerr_stream(stream)
-#else
-#define ARMA_SET_CERR(stream) arma::set_stream_err2(stream)
-#endif
 
 template<typename eT> inline const eT     def_md			= eT(0);
 template<>            inline const double def_md<double>	= 1e-7;

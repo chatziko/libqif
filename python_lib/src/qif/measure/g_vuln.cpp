@@ -41,11 +41,11 @@ void init_g_vuln_module(py::module m) {
 	m.def("add_capacity",		g_vuln::add_capacity<double>, "pi"_a, "C"_a, "one_spanning_g"_a = false);
 	m.def("add_capacity",		g_vuln::add_capacity<rat>,    "pi"_a, "C"_a, "one_spanning_g"_a = false);
 
-	m.def("g_id",				[](double_c_t) { return g_vuln::g_id<double>; }, "type"_a = def_type);
-	m.def("g_id",				[](rat_c_t   ) { return g_vuln::g_id<rat>;    }, "type"_a = def_type);
+	m.def("g_id",				[](double_c_t) { return g_vuln::g_id<double>; }, "type"_a = def_type());
+	m.def("g_id",				[](rat_c_t   ) { return g_vuln::g_id<rat>;    }, "type"_a = def_type());
 
-	m.def("G_id",				[](uint n, double_c_t) { return g_vuln::G_id<double>(n); }, "n_rows"_a, "type"_a = def_type);
-	m.def("G_id",				[](uint n, rat_c_t   ) { return g_vuln::G_id<rat>(n);    }, "n_rows"_a, "type"_a = def_type);
+	m.def("G_id",				[](uint n, double_c_t) { return g_vuln::G_id<double>(n); }, "n_rows"_a, "type"_a = def_type());
+	m.def("G_id",				[](uint n, rat_c_t   ) { return g_vuln::G_id<rat>(n);    }, "n_rows"_a, "type"_a = def_type());
 
 	m.def("g_add",				g_vuln::g_add<double>, "G1"_a, "G2"_a);
 	m.def("g_add",				g_vuln::g_add<rat>,    "G1"_a, "G2"_a);

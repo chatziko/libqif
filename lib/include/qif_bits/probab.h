@@ -143,7 +143,7 @@ inline
 bool is_uniform(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
 	eT v = eT(1) / (int)pi.n_cols;
 	for(uint j = 0; j < pi.n_cols; j++)
-		if(!equal(v, pi(j), eT(0), mrd))
+		if(!qif::equal(v, pi(j), eT(0), mrd))
 			return false;
 
 	return true;
@@ -163,7 +163,7 @@ bool is_proper(const Prob<eT>& pi, const eT& mrd = def_mrd<eT>) {
 	}
 
 	// sum should be 1
-	if(!equal(sum, eT(1), def_md<eT>, mrd))
+	if(!qif::equal(sum, eT(1), def_md<eT>, mrd))
 		return false;
 
 	return true;

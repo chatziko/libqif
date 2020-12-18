@@ -32,6 +32,7 @@ using std::string;
 template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 
 // emulate enums with strings, it's easier
+#undef ERROR	// MSVC adds this
 namespace Status { const auto OPTIMAL = "OPTIMAL", INFEASIBLE = "INFEASIBLE", UNBOUNDED = "UNBOUNDED", INFEASIBLE_OR_UNBOUNDED = "INFEASIBLE_OR_UNBOUNDED", ERROR = "ERROR"; }
 namespace Method { const auto AUTO = "AUTO", SIMPLEX_PRIMAL = "SIMPLEX_PRIMAL", SIMPLEX_DUAL = "SIMPLEX_DUAL", INTERIOR = "INTERIOR"; }					// AUTO: whatever is best
 namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
