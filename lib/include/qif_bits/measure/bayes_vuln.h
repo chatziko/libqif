@@ -45,7 +45,7 @@ template<typename eT>
 arma::ucolvec strategy(const Prob<eT>& pi, const Chan<eT>& C) {
 	channel::check_prior_size(pi, C);
 
-	arma::ucolvec strategy(pi.n_elem);
+	arma::ucolvec strategy(C.n_cols);
 	for(uint y = 0; y < C.n_cols; y++)
 		(trans(pi) % C.col(y)).max( strategy.at(y) );
 
