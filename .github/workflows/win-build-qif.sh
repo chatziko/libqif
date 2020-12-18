@@ -3,7 +3,6 @@
 # Install gsl & mpir (GMP alternative for windows) via vcpkg
 /c/vcpkg/vcpkg install gsl:x64-windows
 /c/vcpkg/vcpkg install mpir:x64-windows
-# /c/vcpkg/vcpkg integrate install
 
 # Install openblas
 mkdir -p /usr/local/lib /usr/local/include
