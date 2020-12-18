@@ -25,6 +25,18 @@ if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (U
 	target_precompile_headers(qif_module REUSE_FROM qif)
 endif()
 
+# on windows, copy required dlls (mp++.dll and libopenblas.dll) to the target dir
+if(MSVC)
+	find_library(OPENBLAS_PATH NAME libopenblas PATH_SUFFIXES lib/ REQUIRED)
+	string(REPLACE .lib .dll OPENBLAS_PATH ${OPENBLAS_PATH})	#  find_library finds the .lib, we need the .dll
+
+	add_custom_command(
+		TARGET qif_module POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy
+				$<TARGET_FILE:mp++> ${OPENBLAS_PATH}
+				$<TARGET_FILE_DIR:qif_module>)
+endif()
+
 # run test script
 # add_custom_target(python_test DEPENDS python)
 # add_custom_command(TARGET python_test COMMAND PYTHONPATH=. python3 ../../python/tests/test.py)
