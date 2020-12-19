@@ -42,11 +42,12 @@ def hash_filename(filepath, blocksize=65536):
 
 def find_dll_dependencies(dll_filepath, lib_dir, tabs=""):
     print(tabs, "find_dll_dependencies", dll_filepath, lib_dir)
+    dlls = [x.lower() for x in os.listdir(lib_dir)]
     dll_deps = {}
     for entry in pefile.PE(dll_filepath).DIRECTORY_ENTRY_IMPORT:
         entry_name = entry.dll.decode("utf-8")
-        if entry_name in os.listdir(lib_dir):
-            print(tabs, "    entry", entry_name,  entry_name in os.listdir(lib_dir) )
+        print(tabs, "    entry", entry_name,  entry_name.lower() in dlls )
+        if entry_name.lower() in dlls:
             dll_deps.setdefault(
                 os.path.basename(dll_filepath), set()).add(entry_name)
             nested_dll_deps = find_dll_dependencies(
