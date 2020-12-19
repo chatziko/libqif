@@ -27,13 +27,13 @@ endif()
 
 # on windows, copy required dlls (mp++.dll and libopenblas.dll) to the target dir
 if(MSVC)
-	find_library(OPENBLAS_PATH NAME libopenblas PATH_SUFFIXES lib/ REQUIRED)
-	string(REPLACE .lib .dll OPENBLAS_PATH ${OPENBLAS_PATH})	#  find_library finds the .lib, we need the .dll
+	find_file(OPENBLAS_PATH NAME libopenblas.dll PATH_SUFFIXES lib/ REQUIRED)
+	find_file(MSVPC140_PATH NAME msvcp140.dll REQUIRED)
 
 	add_custom_command(
 		TARGET qif_module POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy
-				$<TARGET_FILE:mp++> ${OPENBLAS_PATH}
+				$<TARGET_FILE:mp++> ${OPENBLAS_PATH} ${MSVPC140_PATH}
 				$<TARGET_FILE_DIR:qif_module>)
 endif()
 
