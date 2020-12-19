@@ -6,6 +6,7 @@
 # - The dlls of the original wheel is used if -d is not provided
 # - The original dlls from the source wheel are _not_ copied in the target wheel
 # - <name>.libs is prefixes also in the dependencies of dlls
+# - msvcp140.dll filename is not hashed, to use the system's version, if available
 
 
 
@@ -28,6 +29,11 @@ from machomachomangler.pe import redll
 
 
 def hash_filename(filepath, blocksize=65536):
+    # don't hash msvcp140.dll, to use the system's version, if available
+    # print("hash_filename", filepath.lower())
+    if "msvcp140.dll" in filepath.lower():
+        return os.path.basename(filepath)
+
     hasher = hashlib.sha256()
 
     with open(filepath, "rb") as afile:
@@ -101,7 +107,7 @@ if(args.DLL_DIR is None):
 with zipfile.ZipFile(args.WHEEL_FILE, "r") as wheel:
     print("==", wheel.namelist())
     wheel.extractall(old_wheel_dir)
-    wheel.extractall(new_wheel_dir, [name for name in wheel.namelist() if not name.endswith(".dll")])
+    wheel.extractall(new_wheel_dir, [name for name in wheel.namelist() if not name.lower().endswith(".dll")])
     pyd_rel_paths = [os.path.normpath(path)
                      for path in wheel.namelist() if path.endswith(".pyd")]
 
