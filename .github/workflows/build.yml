@@ -31,10 +31,10 @@ jobs:
       env:
         CIBW_BUILD: "cp3[6789]-*_x86_64 cp3[6789]-win_amd64"
         CIBW_MANYLINUX_X86_64_IMAGE: docker.pkg.github.com/chatziko/libqif/manylinux:v6
-        CIBW_BEFORE_ALL_LINUX: bash .github/workflows/ubuntu-build-qif.sh
-        CIBW_BEFORE_ALL_MACOS: bash .github/workflows/macos-build-qif.sh
-        CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/win-build-qif.sh
-        CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/delocate.pl {wheel} && cp {wheel} {dest_dir}
+        CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
+        CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
+        CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare-build-windows.sh
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/repair-wheel-macos.pl {wheel} && cp {wheel} {dest_dir}
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
 
         # Workaround: cibuildwheel runs "pip wheel", which copies the python_lib dir to a temporary directory. This is
