@@ -44,7 +44,7 @@ PYBIND11_MODULE(qif, m) {
 	py::module np;
 	try {
 		np = py::module::import("numpy");
-	} catch(py::error_already_set) {
+	} catch(py::error_already_set&) {
 		throw std::runtime_error("numpy is required by qif");
 	}
 
