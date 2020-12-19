@@ -9,7 +9,7 @@ include(../misc/cmake/GlobalConfig.cmake)
 add_subdirectory(../lib lib)
 
 # build pybind11
-set(PYBIND11_PYTHON_VERSION 3.5)	# require at least python 3.5
+set(PYBIND11_PYTHON_VERSION 3.6)	# require at least python 3.6
 add_subdirectory(../external/pybind11 pybind11)
 
 # build qif python module
