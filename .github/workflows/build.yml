@@ -35,6 +35,7 @@ jobs:
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/macos-build-qif.sh
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/win-build-qif.sh
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/delocate.pl {wheel} && cp {wheel} {dest_dir}
+        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
 
         # Workaround: cibuildwheel runs "pip wheel", which copies the python_lib dir to a temporary directory. This is
         # problematic because the code in python_lib expects to have the project root as parent dir. To workaround this

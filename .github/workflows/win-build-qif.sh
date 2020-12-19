@@ -22,4 +22,7 @@ cp -r or-tools*/include /usr/local
 cp or-tools*/lib/*.lib /usr/local/lib
 popd
 
+# Install depedencies of repair-wheel-windows.py
+pip install pefile machomachomangler
+
 echo Ready to build the modules
