@@ -43,10 +43,10 @@ class CMakeBuild(build_ext):
 			cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
 			if sys.maxsize > 2**32:
 				cmake_args += ['-A', 'x64']
-			build_args += ['--', '/m']
+			build_args += ['--', '/p:CL_MPcount=2']		# see https://gitlab.kitware.com/cmake/cmake/-/issues/20564
 		else:
 			cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-			build_args += ['--', '-j2']
+			build_args += ['--parallel']
 
 		env = os.environ.copy()
 		env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
