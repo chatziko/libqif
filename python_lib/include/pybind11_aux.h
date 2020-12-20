@@ -273,7 +273,7 @@ public:
 		objs->reserve(src.n_elem);
 
 		for(auto& q : src)
-			objs->push_back(pybind11::cast<rat>(q).release().ptr());
+			objs->push_back(pybind11::cast(q).release().ptr());
 
 		capsule base(objs, [](void *o) {
 			auto objs = static_cast<std::vector<PyObject*>*>(o);
