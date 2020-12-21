@@ -24,11 +24,11 @@ void init_probab_module(py::module m) {
 	m.def("normalize",      overload<const  prob&>(probab::normalize<double>), "pi"_a);
 	m.def("normalize",      overload<const rprob&>(probab::normalize<rat>   ), "pi"_a);
 
-	m.def("draw",     		overload<const  prob&>(probab::draw<double>), "pi"_a);
-	m.def("draw",     		overload<const rprob&>(probab::draw<rat>),    "pi"_a);
+	m.def("sample",     	overload<const  prob&>(probab::sample<double>), "pi"_a);
+	m.def("sample",     	overload<const rprob&>(probab::sample<rat>),    "pi"_a);
 
-	m.def("draw",     		overload<const  prob&, uint>(probab::draw<double>), "pi"_a, "n_samples"_a);
-	m.def("draw",     		overload<const rprob&, uint>(probab::draw<rat>),    "pi"_a, "n_samples"_a);
+	m.def("sample",    		overload<const  prob&, uint>(probab::sample<double>), "pi"_a, "n_samples"_a);
+	m.def("sample",    		overload<const rprob&, uint>(probab::sample<rat>),    "pi"_a, "n_samples"_a);
 
 	m.def("is_uniform",     probab::is_uniform<double>, "pi"_a, "mrd"_a = def_mrd<double>);
 	m.def("is_uniform",     probab::is_uniform<rat>,    "pi"_a, "mrd"_a = rat(0));

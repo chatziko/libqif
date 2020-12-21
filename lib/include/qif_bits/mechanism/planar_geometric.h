@@ -9,9 +9,9 @@ double inverse_cumulative_gamma(double epsilon, double p);
 int bound(int val, int min_val, int max_val);
 
 
-// -- For drawing -----------------------------------------------
+// -- For sampling -----------------------------------------------
 
-// draw from a planar geometric centered at (0,0) (if origin is different, just add it to the result)
+// sample from a planar geometric centered at (0,0) (if origin is different, just add it to the result)
 //
 template<typename eT = eT_def>
 eT
@@ -36,7 +36,7 @@ _planar_geometric_coeff(eT cell_size, eT eps) {
 
 template<typename eT = eT_def>
 Point<eT>
-planar_geometric_draw(eT cell_size, eT eps) {
+planar_geometric_sample(eT cell_size, eT eps) {
 	auto euclid = metric::euclidean<double, Point<eT>>();
 	double coeff = _planar_geometric_coeff<eT>(cell_size, eps);
 
@@ -61,7 +61,7 @@ planar_geometric_draw(eT cell_size, eT eps) {
 // efficient batch sampling
 template<typename eT = eT_def>
 std::vector<Point<eT>>
-planar_geometric_draw(eT cell_size, eT eps, uint n) {
+planar_geometric_sample(eT cell_size, eT eps, uint n) {
 	auto euclid = metric::euclidean<double, Point<eT>>();
 	double coeff = _planar_geometric_coeff<eT>(cell_size, eps);
 

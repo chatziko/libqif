@@ -501,32 +501,32 @@ eT sum_column_min(const Chan<eT>& C) {
 	return arma::accu(arma::min(C, 0));
 }
 
-// draw an input, then an output
+// sample an input, then an output
 template<typename eT = eT_def>
 inline
-std::pair<uint,uint> draw(const Chan<eT>& C, const Prob<eT>& pi) {
-	uint x = probab::draw<eT>(pi);
-	uint y = probab::draw<eT>(C.row(x));
+std::pair<uint,uint> sample(const Chan<eT>& C, const Prob<eT>& pi) {
+	uint x = probab::sample<eT>(pi);
+	uint y = probab::sample<eT>(C.row(x));
 	return { x, y };
 }
 
 // efficient batch sampling via the joint distribution
 template<typename eT = eT_def>
 inline
-Mat<uint> draw(const Chan<eT>& C, const Prob<eT>& pi, uint n) {
+Mat<uint> sample(const Chan<eT>& C, const Prob<eT>& pi, uint n) {
 	// build the joint	
 	Mat<eT> J = C;
 	J.each_col() %= pi.t();
 
-	// draw from it (note that prbab::draw just needs an iterable object, and the drawn indexes are the positions in the iteration)
-	Row<uint> drawn = probab::draw(J, n);
+	// sample from it (note that prbab::sample just needs an iterable object, and the sampled indexes are the positions in the iteration)
+	Row<uint> sampled = probab::sample(J, n);
 
 	Mat<uint> res(n, 2);
 	for(uint i = 0; i < n; i++) {
-		// J is iterated by probab::draw column-by-column. The index we get need to be converted to
+		// J is iterated by probab::sample column-by-column. The index we get need to be converted to
 		// indexes for i and j
 		//
-		uint joint_i = drawn(i);
+		uint joint_i = sampled(i);
 		res(i, 0) = joint_i % J.n_rows;
 		res(i, 1) = joint_i / J.n_rows;
 	}

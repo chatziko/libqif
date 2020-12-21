@@ -87,11 +87,11 @@ Prob<eT> normalize(const Prob<eT>& pi) {
 }
 
 
-// draw from pi. Allow pi to be anything iterable
+// sample from pi. Allow pi to be anything iterable
 //
 template<typename eT = eT_def, typename T = Prob<eT>>
 inline
-uint draw(const T& pi) {
+uint sample(const T& pi) {
 	eT p = rng::randu<eT>();
 
 	eT accu(0);
@@ -105,11 +105,11 @@ uint draw(const T& pi) {
 	return pi.n_cols - 1;
 }
 
-// draw multiple samples efficiently (with a single iteration over pi)
+// sample multiple samples efficiently (with a single iteration over pi)
 //
 template<typename eT = eT_def, typename T = Prob<eT>>
 inline
-Row<uint> draw(const T& pi, uint n) {
+Row<uint> sample(const T& pi, uint n) {
 	// we need n numbers uniformly sampled in [0,1]. Sort them and keep the indexes of the sorted list in 'order'
 	Row<eT> ps(n);
 	ps.randu();

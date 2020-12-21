@@ -71,10 +71,10 @@ void init_channel_module(py::module m) {
 	m.def("sum_column_min", channel::sum_column_min<double>, "C"_a);
 	m.def("sum_column_min", channel::sum_column_min<rat>,    "C"_a);
 
-	m.def("draw",     		overload<const  chan&, const  prob&>(channel::draw<double>), "C"_a, "pi"_a);
-	m.def("draw",     		overload<const rchan&, const rprob&>(channel::draw<rat>),    "C"_a, "pi"_a);
+	m.def("sample",     		overload<const  chan&, const  prob&>(channel::sample<double>), "C"_a, "pi"_a);
+	m.def("sample",     		overload<const rchan&, const rprob&>(channel::sample<rat>),    "C"_a, "pi"_a);
 
-	m.def("draw",     		overload<const  chan&, const  prob&, uint>(channel::draw<double>), "C"_a, "pi"_a, "n_samples"_a);
-	m.def("draw",     		overload<const rchan&, const rprob&, uint>(channel::draw<rat>),    "C"_a, "pi"_a, "n_samples"_a);
+	m.def("sample",     		overload<const  chan&, const  prob&, uint>(channel::sample<double>), "C"_a, "pi"_a, "n_samples"_a);
+	m.def("sample",     		overload<const rchan&, const rprob&, uint>(channel::sample<rat>),    "C"_a, "pi"_a, "n_samples"_a);
 
 }
