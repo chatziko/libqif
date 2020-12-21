@@ -15,8 +15,8 @@ void init_probab_module(py::module m) {
 	m.def("uniform",		[](uint n, double_c_t) { return probab::uniform<double>(n); }, "n_elem"_a, "type"_a = def_type());
 	m.def("uniform",		[](uint n, rat_c_t   ) { return probab::uniform<rat>   (n); }, "n_elem"_a, "type"_a = def_type());
 
-	m.def("dirac",			[](uint n, uint x, double_c_t) { return probab::dirac<double>(n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type());
-	m.def("dirac",			[](uint n, uint x, rat_c_t   ) { return probab::dirac<rat>   (n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type());
+	m.def("point",			[](uint n, uint x, double_c_t) { return probab::point<double>(n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type());
+	m.def("point",			[](uint n, uint x, rat_c_t   ) { return probab::point<rat>   (n, x); }, "n_elem"_a, "x"_a = 0, "type"_a = def_type());
 
 	m.def("randu",			[](uint n, double_c_t) { return probab::randu<double>(n); }, "n_elem"_a, "type"_a = def_type());
 	m.def("randu",			[](uint n, rat_c_t   ) { return probab::randu<rat>   (n); }, "n_elem"_a, "type"_a = def_type());

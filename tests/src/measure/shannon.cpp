@@ -15,7 +15,7 @@ TYPED_TEST_P(ShannonTest, Entropy) {
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, 1, shannon::prior(t.unif_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::prior(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::prior(t.point_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0.721928094887362, shannon::prior(t.pi1));
 }
 
@@ -24,15 +24,15 @@ TYPED_TEST_P(ShannonTest, Cond_entropy) {
 	BaseTest<eT>& t = *this;
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.point_2, t.id_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.pi1, t.id_2));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.point_10, t.id_10));
 	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.pi2, t.id_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, qif::log2(10.0), shannon::posterior(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, 0, shannon::posterior(t.point_10, t.noint_10));
 
 	Prob<eT> pi = probab::randu<eT>(10);
 	EXPECT_PRED_FORMAT2(equal2<eT>, shannon::prior(pi), shannon::posterior(pi, t.noint_10));

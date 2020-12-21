@@ -131,9 +131,9 @@ TYPED_TEST_P(MetricTest, Total_variation) {
 	auto tv = metric::total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), tv(t.unif_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), tv(t.dirac_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, tv(t.unif_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, tv(t.dirac_4, t.unif_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), tv(t.point_4, t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, tv(t.unif_4, t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, tv(t.point_4, t.unif_4));
 }
 
 TYPED_TEST_P(MetricTest, Convex_separation) {
@@ -143,10 +143,10 @@ TYPED_TEST_P(MetricTest, Convex_separation) {
 	auto bed = metric::convex_separation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), bed(t.unif_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), bed(t.dirac_4, t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), bed(t.point_4, t.point_4));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), bed(t.unif_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), bed(t.dirac_4, t.unif_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), bed(t.unif_4, t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1), bed(t.point_4, t.unif_4));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/eT(14), bed(t.unif_4, t.pi5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/eT(14), bed(t.pi5, t.unif_4));
@@ -159,10 +159,10 @@ TYPED_TEST_P(MetricTestReals, Multiplicative_distance) {
 	auto mtv = metric::mult_total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), mtv(t.unif_4, t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), mtv(t.dirac_4, t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0), mtv(t.point_4, t.point_4));
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), mtv(t.unif_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), mtv(t.dirac_4, t.unif_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), mtv(t.unif_4, t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(), mtv(t.point_4, t.unif_4));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mtv(t.unif_4, t.pi5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mtv(t.pi5, t.unif_4));
@@ -191,21 +191,21 @@ TYPED_TEST_P(MetricTest, Kantorovich) {
 		eT mrd = is_double && !use_lp ? eT(1e-5) : def_mrd<eT>;
 
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.unif_4, t.unif_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.dirac_4, t.dirac_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.unif_4, t.dirac_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.dirac_4, t.unif_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_disc(t.point_4, t.point_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.unif_4, t.point_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/4, kant_cur_disc(t.point_4, t.unif_4));
 
 		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_euclid(t.unif_4, t.unif_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_euclid(t.dirac_4, t.dirac_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.unif_4, t.dirac_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.dirac_4, t.unif_4));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.unif_10, t.dirac_10));
-		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.dirac_10, t.unif_10));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),   kant_cur_euclid(t.point_4, t.point_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.unif_4, t.point_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(3)/2, kant_cur_euclid(t.point_4, t.unif_4));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.unif_10, t.point_10));
+		EXPECT_PRED_FORMAT2(equal2<eT>, eT(9)/2, kant_cur_euclid(t.point_10, t.unif_10));
 
 		for(uint i = 0; i < 3; i++) {
-			// distance of dirac dists is the same as the distance between the corresponding elements
-			EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_cur_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
-			EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_cur_euclid(t.dirac_4, probab::dirac<eT>(4, i)), eT(0), mrd);
+			// distance of point dists is the same as the distance between the corresponding elements
+			EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), kant_cur_disc  (t.point_4, probab::point<eT>(4, i)));
+			EXPECT_PRED_FORMAT4(equal4<eT>, euclid(0, i), kant_cur_euclid(t.point_4, probab::point<eT>(4, i)), eT(0), mrd);
 		}
 
 		// kantorovich over the discrete metric = total variation
@@ -246,23 +246,23 @@ TYPED_TEST_P(MetricTestReals, Mult_kantorovich) {
 		 mtv			= metric::mult_total_variation<eT, Prob<eT>>();
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),              mkant_disc(t.unif_4,  t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),              mkant_disc(t.dirac_4, t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(),     mkant_disc(t.unif_4,  t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(),     mkant_disc(t.dirac_4, t.unif_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),              mkant_disc(t.point_4, t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(),     mkant_disc(t.unif_4,  t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, infinity<eT>(),     mkant_disc(t.point_4, t.unif_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mkant_disc(t.unif_4,  t.pi5));
 	EXPECT_PRED_FORMAT2(equal2<eT>, std::log(0.7/0.25), mkant_disc(t.pi5,     t.unif_4));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),                  mkant_euclid(t.unif_4,   t.unif_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),                  mkant_euclid(t.dirac_4,  t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.unif_4,   t.dirac_4));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.dirac_4,  t.unif_4));
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.unif_10,  t.dirac_10), 1e-12, 0);
-	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.dirac_10, t.unif_10), 1e-12, 0);
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(0),                  mkant_euclid(t.point_4,  t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.unif_4,   t.point_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2.0538953374413045), mkant_euclid(t.point_4,  t.unif_4));
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.unif_10,  t.point_10), 1e-12, 0);
+	EXPECT_PRED_FORMAT4(equal4<eT>, eT(7.156044651432), mkant_euclid(t.point_10, t.unif_10), 1e-12, 0);
 
 	for(uint i = 0; i < 3; i++) {
-		// distance of dirac dists is the same as the distance between the corresponding elements
-		EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), mkant_disc  (t.dirac_4, probab::dirac<eT>(4, i)));
-		EXPECT_PRED_FORMAT2(equal2<eT>, euclid(0, i), mkant_euclid(t.dirac_4, probab::dirac<eT>(4, i)));
+		// distance of point dists is the same as the distance between the corresponding elements
+		EXPECT_PRED_FORMAT2(equal2<eT>, disc  (0, i), mkant_disc  (t.point_4, probab::point<eT>(4, i)));
+		EXPECT_PRED_FORMAT2(equal2<eT>, euclid(0, i), mkant_euclid(t.point_4, probab::point<eT>(4, i)));
 	}
 
 	// mult kantorovich over the discrete metric (with inf value) = mult total variation

@@ -18,7 +18,7 @@ TYPED_TEST_P(BayesTest, Vulnerability) {
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(5)/10, bayes_vuln::prior(t.unif_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, bayes_vuln::prior(t.unif_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::prior(t.dirac_4));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::prior(t.point_4));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(8)/10, bayes_vuln::prior(t.pi1));
 }
 
@@ -27,15 +27,15 @@ TYPED_TEST_P(BayesTest, Post_vulnerability) {
 	BaseTest<eT>& t = *this;
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.unif_2, t.id_2));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_2, t.id_2));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.point_2, t.id_2));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.pi1, t.id_2));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.unif_10, t.id_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_10, t.id_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.point_10, t.id_10));
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.pi2, t.id_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1)/10, bayes_vuln::posterior(t.unif_10, t.noint_10));
-	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.dirac_10, t.noint_10));
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),    bayes_vuln::posterior(t.point_10, t.noint_10));
 
 	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_vuln::prior(t.pi2), bayes_vuln::posterior(t.pi2, t.noint_10));
 

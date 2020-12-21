@@ -18,16 +18,16 @@ inline Prob<eT> uniform(uint n) {
 
 template<typename eT = eT_def>
 inline
-void dirac(Prob<eT>& pi, uint i = 0) {
+void point(Prob<eT>& pi, uint i = 0) {
 	pi.zeros();
 	pi.at(i) = eT(1);
 }
 
 template<typename eT = eT_def>
 inline
-Prob<eT> dirac(uint n, uint i = 0) {
+Prob<eT> point(uint n, uint i = 0) {
 	Prob<eT> pi(n);
-	dirac(pi, i);
+	point(pi, i);
 	return pi;		// separate return to allow move semantics!
 }
 

@@ -56,10 +56,10 @@ TYPED_TEST_P(ProbTest, Dirac) {
 	typedef TypeParam eT;
 
 	Prob<eT> pi(4);
-	dirac(pi);
+	probab::point(pi);
 	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, "1 0 0 0");
 
-	pi = probab::dirac<eT>(4, 2);
+	pi = probab::point<eT>(4, 2);
 	EXPECT_PRED_FORMAT2(prob_equal2<eT>, pi, "0 0 1 0");
 }
 
