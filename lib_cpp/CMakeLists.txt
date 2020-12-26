@@ -23,7 +23,9 @@ if("${BUILD_QIF}")
 
 	file(GLOB LIB_SOURCES src/*.cpp)								# get all src/*.cpp files in LIB_SOURCES
 	add_library(qif_cpp ${LIB_SOURCES})								# libqif_cpp, depends on all src/*.cpp files. SHARED/STATIC is decided based on BUILD_SHARED_LIBS (see GlobalConfig.cmake)
-	set_target_properties(qif_cpp PROPERTIES OUTPUT_NAME "qif")		# the target is named "qif_cpp", the library is named just "qif"
+	set_target_properties(qif_cpp PROPERTIES
+		OUTPUT_NAME "qif"											# the target is named "qif_cpp", the library is named just "qif"
+		CXX_VISIBILITY_PRESET hidden)								# good practice to keep names hidden. Also for uniformity with qif_python.
 
 	target_include_directories(qif_cpp PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" include)
 

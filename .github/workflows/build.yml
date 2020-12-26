@@ -34,7 +34,9 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare-build-windows.sh
-        CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/repair-wheel-macos.pl {wheel} && cp {wheel} {dest_dir}
+
+        CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -L /.libs -w {dest_dir} {wheel}  # -L /.libs puts the libs under "qif/.libs"
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -v -w {dest_dir} {wheel}            # --require-archs x86_64 (this throws error for some reason)
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: pip install pefile machomachomangler && python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
 
         # Workaround: cibuildwheel runs "pip wheel", which copies the lib_python dir to a temporary directory. This is
