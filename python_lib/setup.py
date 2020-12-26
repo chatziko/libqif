@@ -10,9 +10,10 @@ from distutils.version import LooseVersion
 
 
 class CMakeExtension(Extension):
-	def __init__(self, name, sourcedir=''):
+	def __init__(self, name, target, sourcedir=''):
 		Extension.__init__(self, name, sources=[])
 		self.sourcedir = os.path.abspath(sourcedir)
+		self.target = target
 
 
 class CMakeBuild(build_ext):
@@ -54,7 +55,7 @@ class CMakeBuild(build_ext):
 		if not os.path.exists(self.build_temp):
 			os.makedirs(self.build_temp)
 		subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
-		subprocess.check_call(['cmake', '--build', '.', '-t', os.path.basename(ext.name)] + build_args, cwd=self.build_temp)
+		subprocess.check_call(['cmake', '--build', '.', '-t', ext.target] + build_args, cwd=self.build_temp)
 
 
 # use the most recent vN.N.N tag as the version
@@ -81,11 +82,12 @@ setup(
 	description='Quantitative Information Flow library',
 	long_description=long_description,
     long_description_content_type='text/markdown',
-	# packages=[''],
+	packages=['qif'],
+	package_dir={'': 'src'},
 	install_requires=[
 		'numpy',
 	],
-	ext_modules=[CMakeExtension('qif_module')],
+	ext_modules=[CMakeExtension('qif/_qif', target='qif_module')],
 	cmdclass=dict(build_ext=CMakeBuild),
 	zip_safe=False,
 	# test_suite='tests/test.py',
