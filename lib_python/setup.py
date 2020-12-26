@@ -87,7 +87,7 @@ setup(
 	install_requires=[
 		'numpy',
 	],
-	ext_modules=[CMakeExtension('qif/_qif', target='qif_module')],
+	ext_modules=[CMakeExtension('qif/_qif', target='qif_python')],
 	cmdclass=dict(build_ext=CMakeBuild),
 	zip_safe=False,
 	# test_suite='tests/test.py',

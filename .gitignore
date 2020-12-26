@@ -15,6 +15,6 @@ samples/scribble
 build*/
 .vscode
 .vstags
-python_lib/dist
+lib_python/dist
 *.egg-info
 __pycache__

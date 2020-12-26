@@ -5,8 +5,8 @@ include(../misc/cmake/GlobalHead.cmake)
 project(libqif)
 include(../misc/cmake/GlobalConfig.cmake)
 
-# If this dir is the root, we need to include qif (if not qif is already loaded, and add_subdirectory will do nothing)
-add_subdirectory(../lib lib)
+# If this dir is the root, we need to include qif (if not, then qif is already loaded, and add_subdirectory will do nothing)
+add_subdirectory(../lib_cpp lib_cpp)
 
 # build pybind11
 set(PYBIND11_PYTHON_VERSION 3.6)	# require at least python 3.6
@@ -19,15 +19,15 @@ endif()
 
 # build qif python module
 file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
-pybind11_add_module(qif_module ${CPP_SOURCES})
+pybind11_add_module(qif_python ${CPP_SOURCES})
 
-set_target_properties(qif_module PROPERTIES OUTPUT_NAME "_qif")		# the cpp module is build as "_qif", then imported by __init__.py
-target_link_libraries(qif_module PRIVATE qif)
-target_include_directories(qif_module PRIVATE include)
+set_target_properties(qif_python PROPERTIES OUTPUT_NAME "_qif")		# the cpp module is build as "_qif", then imported by __init__.py
+target_link_libraries(qif_python PRIVATE qif_cpp)
+target_include_directories(qif_python PRIVATE include)
 
 # enable precompiled headers in cmake >= 3.16.0, EXCEPT on linux/clang
 if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-	target_precompile_headers(qif_module REUSE_FROM qif)
+	target_precompile_headers(qif_python REUSE_FROM qif_cpp)
 endif()
 
 # copy .py files to the output dir (preserving directories)
@@ -39,10 +39,10 @@ if(MSVC)
 	find_file(MSVPC140_PATH NAME msvcp140.dll REQUIRED)
 
 	add_custom_command(
-		TARGET qif_module POST_BUILD
+		TARGET qif_python POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy
 				$<TARGET_FILE:mp++> ${OPENBLAS_PATH} ${MSVPC140_PATH}
-				$<TARGET_FILE_DIR:qif_module>)
+				$<TARGET_FILE_DIR:qif_python>)
 endif()
 
 # run test script

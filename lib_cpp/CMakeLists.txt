@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(libqif)
 
-# create qif target that either builds shared lib, or uses the system one
+# create qif_cpp target that either builds shared lib, or uses the system one
 #
 if("${BUILD_QIF}")
     find_package(GSL REQUIRED)
@@ -21,67 +21,68 @@ if("${BUILD_QIF}")
 	add_subdirectory(../external/osqp osqp EXCLUDE_FROM_ALL)
 	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
-	file(GLOB LIB_SOURCES src/*.cpp)		# get all src/*.cpp files in LIB_SOURCES
-	add_library(qif ${LIB_SOURCES})			# libqif, depends on all src/*.cpp files. SHARED/STATIC is decided based on BUILD_SHARED_LIBS (see GlobalConfig.cmake)
+	file(GLOB LIB_SOURCES src/*.cpp)								# get all src/*.cpp files in LIB_SOURCES
+	add_library(qif_cpp ${LIB_SOURCES})								# libqif_cpp, depends on all src/*.cpp files. SHARED/STATIC is decided based on BUILD_SHARED_LIBS (see GlobalConfig.cmake)
+	set_target_properties(qif_cpp PROPERTIES OUTPUT_NAME "qif")		# the target is named "qif_cpp", the library is named just "qif"
 
-	target_include_directories(qif PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" include)
+	target_include_directories(qif_cpp PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" include)
 
 	# enable precompiled headers in cmake >= 3.16.0
 	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-		target_precompile_headers(qif PRIVATE include/precompiled.h)
+		target_precompile_headers(qif_cpp PRIVATE include/precompiled.h)
 	endif()
 
 else()
 	# using existing qif
 	find_library(QIF_PATH NAME qif PATH_SUFFIXES lib/ REQUIRED)
 
-	add_library(qif INTERFACE)
-	target_link_libraries(qif INTERFACE ${QIF_PATH})							# targets using qif will link to the system qif
+	add_library(qif_cpp INTERFACE)
+	target_link_libraries(qif_cpp INTERFACE ${QIF_PATH})							# targets using qif_cpp will link to the system qif
 endif()
 
 # linked libraries
 #
-# PRIVATE, only needed for qif itself
+# PRIVATE, only needed for qif_cpp itself
 if("${BUILD_QIF}")
-	target_link_libraries(qif PRIVATE osqpstatic GSL::gsl armadillo mp++)	# armadillo/mp++ are not really needed, we only list then to get their include_directories
+	target_link_libraries(qif_cpp PRIVATE osqpstatic GSL::gsl armadillo mp++)	# armadillo/mp++ are not really needed, we only list then to get their include_directories
 
 	if(${QIF_USE_ORTOOLS})
-		target_link_libraries(qif PRIVATE ortools)							# also listed to get its include_directories
+		target_link_libraries(qif_cpp PRIVATE ortools)							# also listed to get its include_directories
 	endif()
 	if(${QIF_USE_GLPK})
-		# we use a wrapper so only qif itself needs to be linked with glpk
-		target_link_libraries(qif PRIVATE ${LIB_GLPK})
+		# we use a wrapper so only qif_cpp itself needs to be linked with glpk
+		target_link_libraries(qif_cpp PRIVATE ${LIB_GLPK})
 	endif()
 endif()
 
-# INTERFACE, needed for targets _using_ qif
-target_link_libraries(qif INTERFACE armadillo mp++)
+# INTERFACE, needed for targets _using_ qif_cpp
+target_link_libraries(qif_cpp INTERFACE armadillo mp++)
 if(${QIF_USE_ORTOOLS})
-	target_link_libraries(qif INTERFACE ortools)
+	target_link_libraries(qif_cpp INTERFACE ortools)
 endif()
 if(UNIX AND NOT APPLE)
 	# dl and rt are needed in manylinux
-	target_link_libraries(qif INTERFACE ${CMAKE_DL_LIBS} rt)
+	target_link_libraries(qif_cpp INTERFACE ${CMAKE_DL_LIBS} rt)
 endif()
 
 # compiler options
 #
-# * -fPIC and qif_EXPORTS are set automatically by cmake. We explicitely list them here as INTERFACE, so that they
-#    are inherited by all targets that depend on qif, so that qif's precompiled header can be reused for them.
+# * -fPIC and qif_cpp_EXPORTS are set automatically by cmake. We explicitely list them here as INTERFACE, so that they
+#    are inherited by all targets that depend on qif_cpp, so that qif_cpp's precompiled header can be reused for them.
 # * we build for march=sandybridge by default, can be changed with -DMARCH=...
 #
-target_compile_options(qif INTERFACE -Wall)
+target_compile_options(qif_cpp INTERFACE -Wall)
 if(MSVC)
-	target_compile_options(qif INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX>)
+	target_compile_options(qif_cpp INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX>)
 else()
-	target_compile_options(qif INTERFACE -Wextra -pedantic -fPIC -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},sandybridge>)
+	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -fPIC -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},sandybridge>)
 endif()
-target_compile_definitions(qif INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_EXPORTS)
+target_compile_definitions(qif_cpp INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG> qif_cpp_EXPORTS)
 
 if("${BUILD_QIF}")
-	# if we're building qif, copy to PRIVATE so that they are used also for qif itself
-	target_compile_options    (qif PRIVATE $<TARGET_PROPERTY:qif,INTERFACE_COMPILE_OPTIONS>)
-	target_compile_definitions(qif PRIVATE $<TARGET_PROPERTY:qif,INTERFACE_COMPILE_DEFINITIONS>)
+	# if we're building qif_cpp, copy to PRIVATE so that they are used also for qif_cpp itself
+	target_compile_options    (qif_cpp PRIVATE $<TARGET_PROPERTY:qif_cpp,INTERFACE_COMPILE_OPTIONS>)
+	target_compile_definitions(qif_cpp PRIVATE $<TARGET_PROPERTY:qif_cpp,INTERFACE_COMPILE_DEFINITIONS>)
 endif()
 
 # config file
@@ -129,7 +130,7 @@ if("${BUILD_QIF}")	# can only install if we built
 	# install miniball's includes under qif_bits/miniball
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../external/miniball/cpp/main/ DESTINATION "include/qif_bits/miniball")
 
-	install(TARGETS qif armadillo mp++
+	install(TARGETS qif_cpp armadillo mp++
 		ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 		LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 endif()

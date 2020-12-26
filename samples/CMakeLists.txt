@@ -6,8 +6,8 @@ project(libqif)
 include(../misc/cmake/GlobalConfig.cmake)
 include(../misc/cmake/BackwardCpp.cmake)
 
-# If this dir is the root, we need to include qif (if not qif is already loaded, and add_subdirectory will do nothing)
-add_subdirectory(../lib lib)
+# If this dir is the root, we need to include qif_cpp (if not, then qif_cpp is already loaded, and add_subdirectory will do nothing)
+add_subdirectory(../lib_cpp lib_cpp)
 
 add_custom_target(samples)							# "samples" target, depends on all samples
 
@@ -20,12 +20,12 @@ foreach(DIR ${SUBDIRS})
 	set(DEST ${DIR})
 
 	add_executable(${DEST} ${SOURCES} ${BACKWARD_ENABLE})
-	target_link_libraries(${DEST} qif)								# link sample against libqif
+	target_link_libraries(${DEST} qif_cpp)							# link sample against libqif
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
 	# enable precompiled headers in cmake >= 3.16.0
 	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-		target_precompile_headers(${DEST} REUSE_FROM qif)
+		target_precompile_headers(${DEST} REUSE_FROM qif_cpp)
 	endif()
 
 	add_dependencies(samples ${DEST})

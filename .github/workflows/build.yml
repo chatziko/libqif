@@ -37,8 +37,8 @@ jobs:
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: perl .github/workflows/repair-wheel-macos.pl {wheel} && cp {wheel} {dest_dir}
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: pip install pefile machomachomangler && python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
 
-        # Workaround: cibuildwheel runs "pip wheel", which copies the python_lib dir to a temporary directory. This is
-        # problematic because the code in python_lib expects to have the project root as parent dir. To workaround this
+        # Workaround: cibuildwheel runs "pip wheel", which copies the lib_python dir to a temporary directory. This is
+        # problematic because the code in lib_python expects to have the project root as parent dir. To workaround this
         # we pass the project root as TMPDIR, which causes "pip wheel" to create its temp dir inside the project root,
         # so its parent will be the project root as expected!
         CIBW_ENVIRONMENT: "TMPDIR=$PWD"
@@ -46,12 +46,12 @@ jobs:
         # Windows CMAKE configuration
         # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg
         # CMAKE_PREFIX_PATH     find the libraries installed in git bash's /usr/local
-        # BUILD_QIF             force to re-build qif when building the qif_module (the default is to use the system's qif)
+        # BUILD_QIF             force to re-build qif_cpp when building qif_python (the default is to use the system's qif)
         CIBW_ENVIRONMENT_WINDOWS: "TMPDIR=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
 
       run: |
         python -m pip install cibuildwheel==1.7.1
-        python -m cibuildwheel --output-dir wheelhouse python_lib
+        python -m cibuildwheel --output-dir wheelhouse lib_python
         mkdir wheelhouse/dist && mv wheelhouse/*.whl wheelhouse/dist/
 
     - uses: actions/upload-artifact@v2
