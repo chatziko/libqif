@@ -97,12 +97,12 @@ repaired_wheel = os.path.join(os.path.abspath(args.WHEEL_DIR), wheel_name)
 old_wheel_dir = tempfile.mkdtemp()
 new_wheel_dir = tempfile.mkdtemp()
 package_name = wheel_name.split("-")[0]
-bundle_name = package_name + ".libs"
+bundle_name = package_name + "/.libs"
 bundle_path = os.path.join(new_wheel_dir, bundle_name)
 os.makedirs(bundle_path)
 
 if(args.DLL_DIR is None):
-    args.DLL_DIR = old_wheel_dir
+    args.DLL_DIR = old_wheel_dir + "/" + package_name
 
 with zipfile.ZipFile(args.WHEEL_FILE, "r") as wheel:
     print("==", wheel.namelist())

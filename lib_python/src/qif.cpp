@@ -19,7 +19,7 @@ void init_lp_module(py::module);
 py::handle def_c, double_c, uint_c, rat_c, point_c;
 
 
-PYBIND11_MODULE(qif, m) {
+PYBIND11_MODULE(_qif, m) {
 
 	m.doc() = R"pbdoc(
 		Quantitative Information Flow library.
