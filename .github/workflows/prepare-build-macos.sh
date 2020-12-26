@@ -23,8 +23,8 @@ brew install or-tools@8.1
 mkdir build
 cd build
 cmake -DMARCH=x86-64 ..			# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
-make qif tests samples -j 2
-./tests/run
+make qif_cpp tests_cpp samples -j 2
+./tests_cpp/run
 
 rm -rf *
 cmake ..						# then compile again with the default march

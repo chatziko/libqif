@@ -4,7 +4,7 @@ project(libqif)
 
 include(../misc/cmake/BackwardCpp.cmake)
 
-add_custom_target(tests)												# for 'make tests'
+add_custom_target(tests_cpp)											# for 'make tests_cpp'
 
 if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is checked out
 
@@ -22,6 +22,6 @@ if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is 
 		target_precompile_headers(run REUSE_FROM qif_cpp)
 	endif()
 
-	add_dependencies(tests run)
+	add_dependencies(tests_cpp run)
 
 endif()

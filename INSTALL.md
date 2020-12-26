@@ -98,8 +98,8 @@ sudo make install
 
 To run the tests
 ```bash
-make tests
-./tests/run
+make tests_cpp
+./tests_cpp/run
 ```
 
 To build the samples:
@@ -134,10 +134,3 @@ sudo cmake --build . --target install
 sudo cp -r dependencies/install/* /usr/local
 ```
 
-### Repository structure:
-
-* `inc`: headers
-* `src`: sources
-* `tests`: test cases
-* `samples`: sample programs
-* `external`: external libs (googletest)
