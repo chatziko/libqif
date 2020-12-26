@@ -23,5 +23,6 @@ if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is 
 	endif()
 
 	add_dependencies(tests_cpp run)
+	add_test(NAME tests_cpp COMMAND run)
 
 endif()
