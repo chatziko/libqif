@@ -23,10 +23,5 @@ foreach(DIR ${SUBDIRS})
 	target_link_libraries(${DEST} qif_cpp)							# link sample against libqif
 	add_backward(${DEST})											# add stuff required by backward-cpp
 
-	# enable precompiled headers in cmake >= 3.16.0
-	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-		target_precompile_headers(${DEST} REUSE_FROM qif_cpp)
-	endif()
-
 	add_dependencies(samples ${DEST})
 endforeach()

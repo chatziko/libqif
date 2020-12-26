@@ -25,11 +25,6 @@ set_target_properties(qif_python PROPERTIES OUTPUT_NAME "_qif")		# the cpp modul
 target_link_libraries(qif_python PRIVATE qif_cpp)
 target_include_directories(qif_python PRIVATE include)
 
-# enable precompiled headers in cmake >= 3.16.0, EXCEPT on linux/clang
-if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0" AND NOT (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-	target_precompile_headers(qif_python REUSE_FROM qif_cpp)
-endif()
-
 # copy .py files to the output dir (preserving directories)
 file(COPY src/qif DESTINATION . FILES_MATCHING PATTERN "*.py")
 

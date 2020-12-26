@@ -17,11 +17,6 @@ if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is 
 	target_include_directories(run PRIVATE include)
 	add_backward(run)													# add stuff required by backward-cpp
 
-	# enable precompiled headers in cmake >= 3.16.0
-	if("${BUILD_QIF}" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
-		target_precompile_headers(run REUSE_FROM qif_cpp)
-	endif()
-
 	add_dependencies(tests_cpp run)
 	add_test(NAME tests_cpp COMMAND run)
 
