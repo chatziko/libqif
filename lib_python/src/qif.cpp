@@ -21,32 +21,7 @@ py::handle def_c, double_c, uint_c, rat_c, point_c;
 
 PYBIND11_MODULE(_qif, m) {
 
-	m.doc() = R"pbdoc(
-		Quantitative Information Flow library.
-
-		.. autosummary::
-			:toctree: _autosummary
-			:template: template.rst
-
-			channel
-			probab
-			metric
-			measure
-			mechanism
-			refinement
-			utility
-			lp
-
-		|
-	)pbdoc";
-
-	// import np, user-friendly error message if not available
-	py::module np;
-	try {
-		np = py::module::import("numpy");
-	} catch(py::error_already_set&) {
-		throw std::runtime_error("numpy is required by qif");
-	}
+	py::module np = py::module::import("numpy");
 
 	// use np.random.randint to get a seed. Use int32_t instead of uint, cause numpy uses int32 for some reason on windows!
 	uint seed = np.attr("random").attr("randint")(std::numeric_limits<int32_t>::max()).cast<uint>();
@@ -65,14 +40,10 @@ PYBIND11_MODULE(_qif, m) {
         .def(py::self + py::self)
         .def("__repr__", &point::to_string);
 
-	m.attr("double") = np.attr("float64");
-	m.attr("uint")   = np.attr("uint64");
-	m.attr("rat")    = py::module::import("fractions").attr("Fraction");
-
 	// global class references
-	double_c = m.attr("double");
-	uint_c   = m.attr("uint");
-	rat_c    = m.attr("rat");
+	double_c = np.attr("float64");
+	uint_c   = np.attr("uint32");
+	rat_c    = py::module::import("fractions").attr("Fraction");
 	point_c  = m.attr("point");
 	def_c    = double_c;
 
@@ -87,10 +58,6 @@ PYBIND11_MODULE(_qif, m) {
 	init_refinement_module(m.def_submodule("refinement",""));
 	init_utility_module   (m.def_submodule("utility",   ""));
 	init_lp_module        (m.def_submodule("lp",        ""));
-
-	// numpy formatter, so that rats are nicely displayed
-	std::function<py::object(py::object)> fmt = [](py::object x) { return py::str(x); };
-	np.attr("set_printoptions")("formatter"_a = py::dict("object"_a = fmt));
 
 #ifdef QIF_VERSION
     m.attr("__version__") = QIF_VERSION;
