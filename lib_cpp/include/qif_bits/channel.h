@@ -171,6 +171,13 @@ std::pair<Prob<eT>,Mat<eT>> hyper(const Chan<eT>& C, const Prob<eT>& pi) {
 	Prob<eT> outer = pi * C;
 	Mat<eT> inners = C;
 
+	// remove zero probability columns
+	for(int i = outer.n_elem - 1; i >= 0; i--)	// inverse order to avoid changing the index
+		if(qif::equal(outer(i), eT(0))) {
+			inners.shed_col(i);
+			outer.shed_col(i);
+		}
+
 	inners.each_col() %= pi.t();	// creates the joint
 	inners.each_row() /= outer;		// normalizes each column into the posterior
 
@@ -192,13 +199,6 @@ std::pair<Prob<eT>,Mat<eT>> hyper(const Chan<eT>& C, const Prob<eT>& pi) {
 		} else
 			first = col;
 	}
-
-	// remove zero probability columns
-	for(int i = outer.n_elem - 1; i >= 0; i--)	// inverse order to avoid changing the index
-		if(qif::equal(outer(i), eT(0))) {
-			inners.shed_col(i);
-			outer.shed_col(i);
-		}
 
 	return { outer, inners };
 }
