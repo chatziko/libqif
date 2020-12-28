@@ -36,7 +36,7 @@ from ._qif import __version__, point, set_default_type		# other stuff
 # data type aliases
 from numpy import float64 as double
 from fractions import Fraction as rat
-from numpy import int32 as uint
+from numpy import uint32 as uint
 
 # numpy formatter, so that rats are nicely displayed
 numpy.set_printoptions(formatter={ "object": str })
