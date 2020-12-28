@@ -17,22 +17,6 @@ void init_mechanism_d_privacy_module(py::module);
 
 void init_mechanism_module(py::module m) {
 
-	m.doc() = R"pbdoc(
-		Mechanism construction.
-
-		.. autosummary::
-			:toctree: _autosummary
-			:template: template.rst
-
-			bayes_vuln
-			bayes_risk
-			g_vuln
-			l_risk
-			shannon
-			geo_ind
-			d_privacy
-	)pbdoc";
-
 	init_mechanism_bayes_vuln_module(m.def_submodule("bayes_vuln", ""));
 	init_mechanism_bayes_risk_module(m.def_submodule("bayes_risk", ""));
 	init_mechanism_g_vuln_module    (m.def_submodule("g_vuln",     ""));

@@ -1,0 +1,13 @@
+"""
+Metric optimization problems.
+"""
+from .. import typing as t
+
+def l1_diameter(C: t.ndarray, method: str = 'direct') -> t.Tuple[t.FloatOrRat, int, int]: ...
+
+def l2_min_enclosing_ball(C: t.ndarray) -> t.Tuple[float, t.ndarray]: ...
+
+def simplex_l1_min_enclosing_ball(C: t.ndarray, method: str = 'lp', in_conv_hull: bool = False) -> t.Tuple[t.FloatOrRat, t.ndarray]: ...
+
+def simplex_project(pi: t.ndarray) -> t.ndarray: ...
+
