@@ -18,4 +18,4 @@
 	url = https://github.com/pybind/pybind11.git
 [submodule "external/armadillo"]
 	path = external/armadillo
-	url = https://gitlab.com/chatziko/armadillo-code.git
+	url = https://gitlab.com/conradsnicta/armadillo-code.git
