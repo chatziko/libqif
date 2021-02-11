@@ -18,13 +18,13 @@ from . import typing as t
 #
 from . import ( # packages
     channel as channel,
+    metric as metric,
     measure as measure,
     mechanism as mechanism
 )
 from . import ( # modules
     probab as probab,
     refinement as refinement,
-    metric as metric,
     utility as utility,
     lp as lp
 )

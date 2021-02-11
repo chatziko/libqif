@@ -29,7 +29,7 @@ except:
 # To make the code cleaner, we follow the standard python approach and create packages for
 # these, and import their contents in the corresponding __init__.py.
 #
-from . import channel, metric, measure						# packages
+from . import channel, metric, measure, mechanism			# packages
 from ._qif import probab, refinement, utility, lp			# modules
 from ._qif import __version__, point, set_default_type		# other stuff
 
