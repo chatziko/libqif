@@ -17,7 +17,7 @@ void init_mechanism_d_privacy_module(py::module m) {
 
 	m.def("geometric",			m::d_privacy::geometric<double>, "n_rows"_a, "epsilon"_a = 1, "n_cols"_a = 0, "first_x"_a = 0, "first_y"_a = 0);
 
-	m.def("geometric",			m::d_privacy::exponential<double>, "n_rows"_a, "d"_a, "n_cols"_a = 0);
+	m.def("exponential",		m::d_privacy::exponential<double>, "n_rows"_a, "d"_a, "n_cols"_a = 0);
 
 	m.def("randomized_response",m::d_privacy::randomized_response<double>, "n_rows"_a, "epsilon"_a = 1, "n_cols"_a = 0);
 
