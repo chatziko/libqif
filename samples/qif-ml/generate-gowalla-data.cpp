@@ -3,6 +3,7 @@
 #include <iostream>
 #include "getopt.h"
 using namespace qif;
+using namespace qif::measure;
 using namespace std;
 
 
@@ -39,17 +40,17 @@ void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 
 	// generate mechanism
 	prob out = probab::uniform(width_out * width_out);
-	chan C = shannon::min_distortion(pi, out, eps/2 * d_inout, 1e-5, 1e-5);
+	chan C = mechanism::shannon::max_entropy_given_same_loss(pi, out, eps/2 * d_inout, 1e-5, 1e-5);
 
 	file2 << C;
 
-	// draw
-	arma::Mat<uint> drawn = channel::draw(pi, C, samples);
+	// sample
+	arma::Mat<uint> sampled = channel::sample(C, pi, samples);
 	LargeAvg<double> mean;
 
 	for(uint i = 0; i < samples; i++) {
-		uint x_i = drawn(i,0);
-		uint z_i = drawn(i,1);
+		uint x_i = sampled(i,0);
+		uint z_i = sampled(i,1);
 		point x = c2p_in(x_i);
 		point z = c2p_out(z_i);
 
@@ -60,17 +61,17 @@ void generate_arimoto(prob& pi, double eps, ofstream &file, ofstream &file2) {
 
 	std::cout << "arimoto sampled utility: " << mean.value() << "\n";
 	std::cout << "arimoto exact utility: " << utility::expected_distance(d_inout, pi, C) << "\n";
-	std::cout << "arimoto bayes risk: " << (1-bayes::post_vulnerability(pi, C)) << "\n";
+	std::cout << "arimoto bayes risk: " << (1-bayes_vuln::posterior(pi, C)) << "\n";
 }
 
 void generate_laplace(prob& pi, double eps, ofstream& file) {
 
-	auto drawn = probab::draw(pi, samples);
+	auto sampled = probab::sample(pi, samples);
 	LargeAvg<double> mean;
 
-	for(uint x_i : drawn) {
+	for(uint x_i : sampled) {
 		point x = c2p_in(x_i);
-		point z = x + mechanism::planar_laplace_draw(eps);
+		point z = x + mechanism::geo_ind::planar_laplace_sample(eps);
 
 		mean.add(euclid(x, z));
 
@@ -84,16 +85,16 @@ void generate_geometric(prob& pi, double eps, ofstream& file) {
 
 	uint out_of_grid = width_out * width_out;		// extra observation meaning "we got outside"
 
-	// for efficiency, we batch sample n secrets, and n observations drawn from (0,0). Each z is added to the corresponding origin secret
-	auto drawn_x = probab::draw(pi, samples);
-	auto drawn_z = mechanism::planar_geometric_draw(cell_size_out, eps, samples);
+	// for efficiency, we batch sample n secrets, and n observations sampled from (0,0). Each z is added to the corresponding origin secret
+	auto sampled_x = probab::sample(pi, samples);
+	auto sampled_z = mechanism::geo_ind::planar_geometric_sample(cell_size_out, eps, samples);
 
 	LargeAvg<double> mean;
 
 	for(uint i = 0; i < samples; i++) {
-		uint x_i = drawn_x(i);
+		uint x_i = sampled_x(i);
 		point x = c2p_in(x_i);
-		point z = x + drawn_z[i];		// drawn_z's are drawn from (0,0), so add x
+		point z = x + sampled_z[i];		// sampled_z's are sampled from (0,0), so add x
 
 		// map z back to output grid
 		uint z_i;
@@ -167,7 +168,7 @@ int main(int argc, char** argv) {
 	ofstream file;
 	ofstream file2;
 
-	// draw from different mechanisms for all levels
+	// sample from different mechanisms for all levels
 	for(double l : levels) {
 		double eps = log(l)/100;
 

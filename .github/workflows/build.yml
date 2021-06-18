@@ -1,0 +1,97 @@
+name: build
+on: [push]
+
+jobs:
+  # Build wheels on all platforms ########################################################
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0    # needed for tags
+
+    - name: Docker login
+      if: matrix.os == 'ubuntu-latest'
+      run: docker login docker.pkg.github.com --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: actions/setup-python@v2
+      name: Install Python
+      with:
+        python-version: '3.7'
+
+    - name: Build wheels
+      env:
+        CIBW_BUILD: "cp3[6789]-*_x86_64 cp3[6789]-win_amd64"
+        CIBW_MANYLINUX_X86_64_IMAGE: docker.pkg.github.com/chatziko/libqif/manylinux:v6
+        CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
+        CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
+        CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare-build-windows.sh
+
+        CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -L /.libs -w {dest_dir} {wheel}  # -L /.libs puts the libs under "qif/.libs"
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -v -w {dest_dir} {wheel}            # --require-archs x86_64 (this throws error for some reason)
+        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: pip install pefile machomachomangler && python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
+
+        # Workaround: cibuildwheel runs "pip wheel", which copies the lib_python dir to a temporary directory. This is
+        # problematic because the code in lib_python expects to have the project root as parent dir. To workaround this
+        # we pass the project root as TMPDIR, which causes "pip wheel" to create its temp dir inside the project root,
+        # so its parent will be the project root as expected!
+        CIBW_ENVIRONMENT: "TMPDIR=$PWD"
+
+        # Windows CMAKE configuration
+        # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg
+        # CMAKE_PREFIX_PATH     find the libraries installed in git bash's /usr/local
+        # BUILD_QIF             force to re-build qif_cpp when building qif_python (the default is to use the system's qif)
+        CIBW_ENVIRONMENT_WINDOWS: "TMPDIR=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
+
+      run: |
+        python -m pip install cibuildwheel==1.7.1
+        python -m cibuildwheel --output-dir wheelhouse lib_python
+        mkdir wheelhouse/dist && mv wheelhouse/*.whl wheelhouse/dist/
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: ./wheelhouse/
+
+
+  # Upload wheels to PyPI and publish docs ##########################################################
+  upload_pypi:
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+
+      - uses: pypa/gh-action-pypi-publish@master
+        if: ${{ !contains(github.event.ref, '-test') }}
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+
+      - uses: pypa/gh-action-pypi-publish@master
+        if: contains(github.event.ref, '-test')
+        with:
+          user: __token__
+          password: ${{ secrets.test_pypi_password }}
+          repository_url: https://test.pypi.org/legacy/
+
+      - name: Publish docs to gh-pages
+        if: ${{ !contains(github.event.ref, '-test') }}
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          # https://github.com/peaceiris/actions-gh-pages/issues/9
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_DEPLOY_KEY: ${{ secrets.actions_deploy_key }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./html
+        with:
+          forceOrphan: true

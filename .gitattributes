@@ -1,0 +1,2 @@
+lib_cpp/include/qif_bits/miniball symlink=dir
+lib_cpp/include/qif_bits/osqp symlink=dir

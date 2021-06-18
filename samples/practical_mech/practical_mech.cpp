@@ -8,6 +8,7 @@ using std::string;
 
 #include "qif"
 using namespace qif;
+using namespace qif::measure;
 
 typedef std::map<string, prob> probdict;
 
@@ -77,7 +78,7 @@ void print_mech(string name, const chan& C, const prob& pi_global, mat& priors, 
 	cout << ": " << arma::mean(errors) << ", " << arma::median(errors);
 	cout << "\n";
 
-	chan R = channel::deterministic<double>(l::strategy(Loss, pi_global, C), Loss.n_rows);
+	chan R = channel::deterministic<double>(l_risk::strategy(Loss, pi_global, C), Loss.n_rows);
 	chan CR = C * R;
 
 	cout << name << " with remap";
@@ -101,7 +102,7 @@ void print_mech2(string name, const chan& C, const probdict& globals, mat& prior
 
 		chan M = g.second.is_empty()
 			? C
-			: C * channel::deterministic<double>(l::strategy(Loss, g.second, C), Loss.n_rows);
+			: C * channel::deterministic<double>(l_risk::strategy(Loss, g.second, C), Loss.n_rows);
 
 		for(uint i = 0; i < priors.n_rows; i++) {
 			prob pi = priors.row(i);
@@ -149,7 +150,7 @@ void compare_noisy_remaps() {
 	auto dx_c = metric::grid(width_c, geo_d_c);	// distance on grid from distance on points
 	auto loss   = dx;
 	auto loss_c = dx_c;
-	mat Loss = l::metric_to_mat(loss, n_inputs);
+	mat Loss = metric::to_distance_matrix(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;
@@ -157,21 +158,21 @@ void compare_noisy_remaps() {
 //		std::cout << "\n\n----------------------------\neps: ln("
 //			<< alpha << ")/0.1 = " << eps << "\n";
 
-//		chan opt_c = mechanism::optimal_utility<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
+//		chan opt_c = mechanism::d_privacy::min_loss_given_d<double>(pi_global_c, n_outputs_c, eps * dx_c, loss_c);
 //		chan opt = scale_geo_mechanism(opt_c, width_c, factor);
 //		print_mech("optimal", opt, pi_global, priors, Loss);
 //		opt.clear();
 //		opt_c.clear();
 
-//		chan tight = mechanism::tight_constraints(n_inputs, eps * dx);
+//		chan tight = mechanism::d_privacy::tight_constraints(n_inputs, eps * dx);
 //		print_mech2(std::to_string(alpha)+"-tight", tight, pi_global, pi_global_n, priors, Loss);
 //		tight.clear();
 
-		chan laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);
+		chan laplace = mechanism::geo_ind::planar_laplace_grid<double>(width, height, cell_size, eps);
 		print_mech2(std::to_string(alpha)+"-laplace", laplace, globals, priors, Loss);
 		laplace.clear();
 
-		chan geom = mechanism::planar_geometric_grid<double>(width, height, cell_size, eps);
+		chan geom = mechanism::geo_ind::planar_geometric_grid<double>(width, height, cell_size, eps);
 		print_mech2(std::to_string(alpha)+"-geometric", geom, globals, priors, Loss);
 		geom.clear();
 	}
@@ -205,7 +206,7 @@ int coarse() {
 
 	auto dx   = metric::grid(width,   geo_d  );	// distance on grid from distance on points
 	auto loss   = dx;
-	mat Loss = l::metric_to_mat(loss, n_inputs);
+	mat Loss = metric::to_distance_matrix(loss, n_inputs);
 
 	for(double alpha : alphas) {
 		double eps = std::log(alpha) / 0.1;
@@ -213,7 +214,7 @@ int coarse() {
 		std::cout << "\n\n----------------------------\neps: ln("
 			<< alpha << ")/0.1 = " << eps << "\n";
 
-		chan opt = mechanism::optimal_utility<double>(pi_global, n_outputs, eps * dx, loss);
+		chan opt = mechanism::d_privacy::min_loss_given_d<double>(pi_global, n_outputs, eps * dx, loss);
 		if(opt.is_empty())
 			continue;
 		std::cout << alpha << ", c[0,0]: " << opt(0,0) << "\n";
@@ -221,19 +222,19 @@ int coarse() {
 		print_mech("optimal", opt, pi_global, priors, Loss);
 		opt.clear();
 
-		chan tight = mechanism::tight_constraints(n_inputs, eps * dx);
+		chan tight = mechanism::d_privacy::tight_constraints(n_inputs, eps * dx);
 		print_mech("tight", tight, pi_global, priors, Loss);
 		tight.clear();
 
-		chan laplace = mechanism::planar_laplace_grid<double>(width, height, cell_size, eps);
-		cout << "laplace smallest eps " << mechanism::smallest_epsilon(laplace, dx) << "\n";
+		chan laplace = mechanism::geo_ind::planar_laplace_grid<double>(width, height, cell_size, eps);
+		cout << "laplace smallest eps " << measure::d_privacy::smallest_epsilon(laplace, dx) << "\n";
 		print_mech("laplace", laplace, pi_global, priors, Loss);
 		std::cout << laplace;
 		laplace.clear();
 
-		chan geom = mechanism::planar_geometric_grid<double>(width, height, cell_size, eps);
+		chan geom = mechanism::geo_ind::planar_geometric_grid<double>(width, height, cell_size, eps);
 		print_mech("geometric", geom, pi_global, priors, Loss);
-		cout << "geom smallest eps " << mechanism::smallest_epsilon(geom, dx) << "\n";
+		cout << "geom smallest eps " << measure::d_privacy::smallest_epsilon(geom, dx) << "\n";
 		std::cout << geom;
 		geom.clear();
 	}

@@ -4,3 +4,18 @@
 [submodule "external/backward-cpp"]
 	path = external/backward-cpp
 	url = https://github.com/bombela/backward-cpp.git
+[submodule "external/osqp"]
+	path = external/osqp
+	url = https://github.com/oxfordcontrol/osqp
+[submodule "external/miniball"]
+	path = external/miniball
+	url = https://github.com/hbf/miniball.git
+[submodule "external/mppp"]
+	path = external/mppp
+	url = https://github.com/bluescarni/mppp
+[submodule "external/pybind11"]
+	path = external/pybind11
+	url = https://github.com/pybind/pybind11.git
+[submodule "external/armadillo"]
+	path = external/armadillo
+	url = https://gitlab.com/conradsnicta/armadillo-code.git

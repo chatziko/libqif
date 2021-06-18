@@ -7,6 +7,7 @@ using std::cerr;
 
 #include "qif"
 using namespace qif;
+using namespace qif::measure;
 
 
 int main(int argc, char** argv) {
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
 
 	// compute remap and print
 	//
-	chan R = channel::deterministic<double>(l::strategy(L, pi, C), L.n_rows);
+	chan R = channel::deterministic<double>(l_risk::strategy(L, pi, C), L.n_rows);
 	chan CR = C * R;
 
 	cout.setf(std::ios::fixed);

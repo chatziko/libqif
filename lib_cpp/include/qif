@@ -1,0 +1,116 @@
+// vim: syntax=cpp
+#ifndef _QIF_qif_h_
+#define _QIF_qif_h_
+
+// heavy stuff should also go to precompiled.h
+#include <functional>	// std::function
+#include <armadillo>
+#include <vector>
+#include <cassert>
+#define _USE_MATH_DEFINES	// for PI
+#include <cmath>
+#include <set>
+#include <list>
+#include <map>
+#include <unordered_map>
+#include <tuple>
+#include <utility>
+#include <iterator>		// needed by
+#include <type_traits>	// range.hpp
+
+// configuration. use <...> to load the cmake-processed file from the bin dir (not the raw file from the source dir)
+#include <qif_bits/config.h>
+
+// mp++, for rats
+// NEEDS TO BE BEFORE OSQP because the latter defines a c_max macro
+#include <mp++/mp++.hpp>
+
+// Google OR-tools (has to be *before* OSQP for some crazy reason)
+#ifdef QIF_USE_ORTOOLS
+#undef USE_GLOP			// USE_GLOP,USE_CLP are automatically enabled when compiling via cmake, but they are
+#undef USE_CLP			// not enabled in the ortools headers, so we force them here
+#define USE_GLOP
+#define USE_CLP
+#include <ortools/linear_solver/linear_solver.h>
+#include <ortools/linear_solver/linear_solver.pb.h>
+#endif
+
+// GLPK
+#ifdef QIF_USE_GLPK
+#include <glpk.h>
+#endif
+
+// OSQP
+// Note: in the source include dir, qif_bits/osqp is a symlink to external/osqp/include.
+// When installed, osqp's includes are copied to qif_bits/osqp
+#pragma GCC diagnostic push		// ignore warnings in osqp code
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#include "qif_bits/osqp/osqp.h"
+#pragma GCC diagnostic pop
+
+// miniball
+// Note: in the source include dir, qif_bits/miniball is a symlink to external/miniball/cpp/main.
+// When installed, miniball's includes are copied to qif_bits/miniball
+#include "qif_bits/miniball/Seb.h"
+
+namespace fastemd {
+	// ignore warnings in FastEMD code
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-compare"
+	#ifndef __clang__
+	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+	#endif
+
+	#include "qif_bits/FastEMD/emd_hat.hpp"
+
+	#pragma GCC diagnostic pop
+}
+
+namespace qif {
+	#include "qif_bits/types.h"
+	#include "qif_bits/lib_aux.h"
+	#include "qif_bits/wrapper.h"
+	#include "qif_bits/range.hpp"
+
+	#include "qif_bits/rng.h"
+	#include "qif_bits/LinearProgram.h"
+	#include "qif_bits/QuadraticProgram.h"
+	#include "qif_bits/geo.h"
+
+	#include "qif_bits/probab.h"
+	#include "qif_bits/metric.h"
+	#include "qif_bits/metric/optimize.h"
+	#include "qif_bits/channel.h"
+	#include "qif_bits/channel/compose.h"
+
+	#include "qif_bits/measure/shannon.h"
+	#include "qif_bits/measure/bayes_vuln.h"
+	#include "qif_bits/measure/bayes_risk.h"
+	#include "qif_bits/measure/g_vuln.h"
+	#include "qif_bits/measure/l_risk.h"
+	#include "qif_bits/measure/pred_vuln.h"
+	#include "qif_bits/measure/pred_risk.h"
+	#include "qif_bits/measure/guessing.h"
+	#include "qif_bits/measure/d_privacy.h"
+
+	#include "qif_bits/mechanism/d_privacy.h"
+	#include "qif_bits/mechanism/g_vuln.h"
+	#include "qif_bits/mechanism/l_risk.h"
+	#include "qif_bits/mechanism/bayes_vuln.h"
+	#include "qif_bits/mechanism/bayes_risk.h"
+	#include "qif_bits/mechanism/planar_laplace.h"
+	#include "qif_bits/mechanism/planar_geometric.h"
+	#include "qif_bits/mechanism/shannon.h"
+
+	#include "qif_bits/refinement.h"
+	#include "qif_bits/utility.h"
+	#include "qif_bits/games.h"
+	#include "qif_bits/gowalla.h"
+	#include "qif_bits/plot.h"
+}
+
+// patchs the arma namespace to rupport rat, needs to be outside qif
+#include "qif_bits/arma_rat.h"
+
+
+#endif

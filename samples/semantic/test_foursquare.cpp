@@ -1,6 +1,7 @@
 #include "qif"
 #include <math.h>       /* log */
 using namespace qif;
+using namespace qif::measure;
 
 using std::cout;
 using std::string;
@@ -46,16 +47,16 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	string areadataset = area + "-" + dataset;
 
 	chan laplace;
-	/*laplace = mechanism::planar_laplace_grid<double>(3,3,1, 0.5);
+	/*laplace = mechanism::geo_ind::planar_laplace_grid<double>(3,3,1, 0.5);
 	cout << laplace << "\n";
 	laplace.save("temp/laplace-"+std::to_string(0.5)+".mat");*/
-	/*laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);		
+	/*laplace = mechanism::geo_ind::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);		
 	cout << "ok" << "\n";
 	laplace.save("temp/laplace-"+std::to_string(eps)+".mat");*/
 	
 	if(!laplace.load("temp_foursquare/laplace-"+std::to_string(eps)+".mat")) {
 
-		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
+		laplace = mechanism::geo_ind::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
 		
 		cout << "ok created laplace" << "\n";
 		laplace.save("temp_foursquare/laplace-"+std::to_string(eps)+".mat");
@@ -84,7 +85,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	{
 		cout << "Creating strategy" << "\n";
 
-		auto strategy = l::strategy(L, prior_global, laplace);
+		auto strategy = l_risk::strategy(L, prior_global, laplace);
 
 		cout << "Strategy done!" << "\n";
 		strategy.save("temp_foursquare/strategy-"+std::to_string(eps)+".mat");
@@ -118,16 +119,16 @@ void compute_laplace_privacy_seml(string area, string dataset, string priv_metri
 	string areadataset = area + "-" + dataset;
 
 	chan laplace;
-	/*laplace = mechanism::planar_laplace_grid<double>(3,3,1, 0.5);
+	/*laplace = mechanism::geo_ind::planar_laplace_grid<double>(3,3,1, 0.5);
 	cout << laplace << "\n";
 	laplace.save("temp/laplace-"+std::to_string(0.5)+".mat");*/
-	/*laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);		
+	/*laplace = mechanism::geo_ind::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);		
 	cout << "ok" << "\n";
 	laplace.save("temp/laplace-"+std::to_string(eps)+".mat");*/
 	
 	if(!laplace.load("temp_foursquare/laplace-"+std::to_string(eps)+".mat")) {
 
-		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
+		laplace = mechanism::geo_ind::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
 		
 		cout << "ok created laplace" << "\n";
 		laplace.save("temp_foursquare/laplace-"+std::to_string(eps)+".mat");
@@ -156,7 +157,7 @@ void compute_laplace_privacy_seml(string area, string dataset, string priv_metri
 	{
 		cout << "Creating strategy" << "\n";
 
-		auto strategy = l::strategy(L, prior_global, laplace);
+		auto strategy = l_risk::strategy(L, prior_global, laplace);
 
 		cout << "Strategy done!" << "\n";
 		strategy.save("temp_foursquare/strategy-"+std::to_string(eps)+"-"+seml+".mat");

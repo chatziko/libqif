@@ -1,6 +1,7 @@
 #include "qif"
 
 using namespace qif;
+using namespace qif::measure;
 
 using std::cout;
 using std::string;
@@ -19,7 +20,7 @@ double utility_to_epsilon(string dataset, string util_metric) {
 
 	double eps = util_metric == "euclidean"
 		? 2.0 / utility
-		: mechanism::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
+		: mechanism::geo_ind::inverse_cumulative_gamma(stod(util_metric.replace(0, 7, "")), utility);
 
 	cout << "utility for " << dataset << "/" << util_metric << ": " << utility << ", eps: " << eps << "\n";
 
@@ -85,7 +86,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 		Metric<double, uint> d = metric::from_distance_matrix(dist);
 
 
-		elastic = mechanism::exponential(dist.n_rows, d);
+		elastic = mechanism::d_privacy::exponential(dist.n_rows, d);
 		elastic.save("temp/elastic-"+area+".bin");
 
 		dist.reset();
@@ -103,7 +104,7 @@ void compute_elastic_privacy(string area, string dataset, string priv_metric) {
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l::strategy(L, prior_global, elastic);
+	auto strategy = l_risk::strategy(L, prior_global, elastic);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/elastic-" + areadataset + "-" + priv_metric);
@@ -127,7 +128,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	chan laplace;
 	if(!laplace.load("temp/laplace-"+std::to_string(eps)+".bin")) {
 
-		laplace = mechanism::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
+		laplace = mechanism::geo_ind::planar_laplace_grid<double>(grid_size, grid_size, cell_width, eps);
 		laplace.save("temp/laplace-"+std::to_string(eps)+".bin");
 	}
 	uint n = laplace.n_rows;
@@ -143,7 +144,7 @@ void compute_laplace_privacy(string area, string dataset, string priv_metric, do
 	L.resize(n, n);
 	create_l(area, dataset, priv_metric, L);
 
-	auto strategy = l::strategy(L, prior_global, laplace);
+	auto strategy = l_risk::strategy(L, prior_global, laplace);
 
 	std::ofstream myfile;
 	myfile.open("generated_data/laplace-" + areadataset + "-" + priv_metric);

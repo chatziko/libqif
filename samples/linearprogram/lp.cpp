@@ -6,9 +6,42 @@
 using namespace qif::lp;
 using namespace std;
 
-typedef MatrixEntry<double> ME;
+typedef double eT;
 
 int main() {
+	// force link with cblas (TODO: investigate)
+	arma::mat m = "";
+	eT d = arma::cdot(m,m);
+	d=d;
+
+
+	// LinearProrgam solves the linear program
+	// {min/max} dot(c,x)
+	// subject to A x {>=|==|<=} b
+	// x >= 0
+	//
+	eT inf = qif::infinity<eT>();
+	LinearProgram<eT> lp;
+
+
+	// auto v = lp.make_var(-inf, inf);
+	// lp.set_obj_coeff(v, 1);
+	// auto c = lp.make_con(-5, 5);
+	// lp.set_con_coeff(c, v, 1);
+	// lp.maximize = false;
+	// bool s = lp.solve();
+	// cout
+	// 	<< "solved: " << s << "\n"
+	// 	<< "\nstatus: " << lp.status
+	// 	<< "\nmethod: " << lp.method
+	// 	<< "\nsolution:\n" << lp.solution()
+	// 	<< "\nobjective: " << lp.objective()
+	// 	<< "\n";
+	// return 0;
+
+
+
+
 	/*
 	maximize –2x + 5y, subject to: 
 	x <= 200 
@@ -18,72 +51,31 @@ int main() {
 	x + y >= 200 
 	Solution 650 given for (x,y) = (100,170)
 	*/
-
-	// LinearProrgam solves the linear program
-	// {min/max} dot(c,x)
-	// subject to A x {>=|==|<=} b
-	// x >= 0
-	//
-	LinearProgram<double> lp;
 	lp.maximize = true;
 
+	auto x = lp.make_var(100, 200);
+	auto y = lp.make_var(80, 170);
 	// cost function
-	lp.c.set_size(2);
-	lp.c(0) = -2;
-	lp.c(1) = 5;
+	lp.set_obj_coeff(x, -2);
+	lp.set_obj_coeff(y, 5);
 
-	// coefficients
-	lp.b.set_size(5);
-	lp.b(0) = 200;
-	lp.b(1) = 100;
-	lp.b(2) = 170;
-	lp.b(3) = 80;
-	lp.b(4) = 200;
-
-	// sense
-	lp.sense.set_size(5);
-	lp.sense(0) = lp.sense(2) = '<';
-	lp.sense(1) = lp.sense(3) = lp.sense(4) = '>';
-
-	// matrix A is:
-	// 1 0
-	// 1 0
-	// 0 1
-	// 0 1
-	// 1 1
-	// batch insert (non-zero entries):
-	std::list<ME> entries;
-	entries.push_back(ME(0, 0, 1));	// A(0,0) = 1
-	entries.push_back(ME(1, 0, 1));
-	entries.push_back(ME(2, 1, 1));
-	entries.push_back(ME(3, 1, 1));
-	entries.push_back(ME(4, 0, 1));
-	entries.push_back(ME(4, 1, 1));
-	lp.fill_A(entries);
-
-	// same thing but much slower
-//	lp.A.set_size(5, 2);
-//	lp.A(0,0) = 1;
-//	lp.A(1,0) = 1;
-//	lp.A(2,1) = 1;
-//	lp.A(3,1) = 1;
-//	lp.A(4,0) = 1;
-//	lp.A(4,1) = 1;
+	auto con = lp.make_con(200, inf);
+	lp.set_con_coeff(con, x, 1);
+	lp.set_con_coeff(con, y, 1);
 
 	// methods: simplex_primal, simplex_dual, interior
-	lp.method = method_t::simplex_primal;
-	lp.glp_msg_level = msg_level_t::on;
+	lp.method = Method::SIMPLEX_DUAL;
+	lp.msg_level = MsgLevel::ON;
 
+	lp.solver = Solver::GLOP;
 	bool solved = lp.solve();
-
-	cout << lp.A;
-	cout << lp.status;
 	cout
 		<< "solved: " << solved
 		<< "\nstatus: " << lp.status
 		<< "\nmethod: " << lp.method
-		<< "\nsolution:\n" << lp.x
-		<< "\noptimum: " << lp.optimum()
+		<< "\nsolver: " << lp.solver
+		<< "\nsolution:\n" << lp.solution()
+		<< "\nobjective: " << lp.objective()
 		<< "\n";
 }
 
