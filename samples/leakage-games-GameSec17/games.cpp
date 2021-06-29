@@ -60,8 +60,10 @@ vector<vector<chan>> read_channels(string path_template) {
 			path << path_template << "-" << a << "-" << d;
 
 			Cs[a].push_back(chan());
-			if(!Cs[a][d].load(path.str()))
+			if(!Cs[a][d].load(path.str())) {
+				std::cerr << "cannot load " << path.str() << "\n";
 				throw std::runtime_error("cannot load " + path.str());
+			}
 		}
 	}
 
@@ -198,8 +200,12 @@ void compare_methods(string path_template) {
 
 void dp_game(string path_template) {
 	auto Cs = read_channels(path_template);
-	// auto Cs = rand_channels(1, 50, 50, 50);
+	//auto Cs = rand_channels(1, 5, 5, 5);
 	uint n_adv = Cs.size();
+	if(n_adv == 0) {
+		cout << "no channels were read\n";
+		return;
+	}
 	uint n_def = Cs[0].size();
 
 	cout << "adv strategies: " << n_adv << "\n";
