@@ -215,10 +215,10 @@ minmax_hidden_bayes_both(
 
 		// update and project back to the probability simplex
 		alpha += gamma * g_a;
-		alpha = probab::project_to_simplex(alpha);
+		alpha = metric::optimize::simplex_project(alpha);
 
 		delta -= gamma * g_d;
-		delta = probab::project_to_simplex(delta);
+		delta = metric::optimize::simplex_project(delta);
 	}
 	std::cerr << "\r";
 
@@ -265,7 +265,7 @@ minmax_hidden_bayes_both2(
 
 		// update 1
 		delta1 -= gamma * g;
-		delta1 = probab::project_to_simplex(delta1);
+		delta1 = metric::optimize::simplex_project(delta1);
 
 		// update and project back to the probability simplex
 		alpha += gamma * g_a;
@@ -278,6 +278,104 @@ minmax_hidden_bayes_both2(
 
 	return std::pair<eT, Prob<eT>>(f_avg.value(), delta_avg);	// TODO return also alpha_avg?
 }
+
+
+template<typename eT>
+std::pair<eT, Prob<eT>>
+dp_hidden_lp(const vector<Chan<eT>>& Cs) {
+
+	uint n_def = Cs.size();
+	uint n_rows = Cs[0].n_rows;
+	uint n_cols = Cs[0].n_cols;
+
+	// start with uniform dist
+	Prob<eT> delta = probab::uniform<eT>(n_def);
+	Chan<eT> C(n_rows, n_cols);
+
+	while(true) {
+		// create current matrix
+		C.fill(eT(0));
+		for(uint i = 0; i < n_def; i++)
+			C += delta(i) * Cs[i];
+
+		// compute lambda
+		eT lambda(0);
+		for(uint x1 = 0; x1 < n_rows; x1++)
+		for(uint x2 = 0; x2 < n_rows; x2++)
+		for(uint y = 0; y < n_cols; y++)
+			lambda = max(lambda, C(x1,y) / C(x2,y));
+
+		// solve lp	
+		lp::LinearProgram<eT> lp;
+
+		auto z = lp.make_var(-infinity<eT>());
+		auto delta_v = lp.make_vars(n_def, eT(0));
+
+		// minimize z
+		lp.maximize = false;
+		lp.set_obj_coeff(z, 1);
+
+		// sum_i delta(i) = 1
+		auto con = lp.make_con(eT(1), eT(1));
+		for(uint i = 0; i < n_def; i++)
+			lp.set_con_coeff(con, delta_v[i], eT(1));
+
+		// for each x,x',y
+		//   z >= sum_i C_i(x,y) gamma(i)  - lambda( sum_i C_i(x',y) gamma(i) )      <=>
+		//   z >= sum_i [C_i(x,y) - lambda C_i(x',y)] gamma(i)
+		//
+		for(uint x1 = 0; x1 < n_rows; x1++) {
+		for(uint x2 = 0; x2 < n_rows; x2++) {
+			if(x1 == x2)
+				continue;
+
+			for(uint y = 0; y < n_cols; y++) {
+				auto con = lp.make_con(-infinity<eT>(), eT(0));
+
+				lp.set_con_coeff(con, z, eT(-1));
+
+				for(uint i = 0; i < n_def; i++)
+					lp.set_con_coeff(con, delta_v[i], Cs[i](x1,y) - lambda * Cs[i](x2, y));
+			}
+		}}
+
+		// ready to solve
+		lp.msg_level = lp::MsgLevel::ON;
+		if(!lp.solve())
+			throw std::runtime_error("problem should be solvable");
+		std::cout << "SOLVED: lambda: " << lambda << ", F(lambda):" << lp.objective() << "\n";
+
+		for(uint i = 0; i < n_def; i++)
+			delta(i) = lp.solution(delta_v[i]);
+
+		// stop if the objective function reaches 0
+		if(equal(lp.objective(), eT(0), eT(1e-5)))
+			return std::pair<eT, Prob<eT>>(lambda, delta);
+	}
+}
+
+template<typename eT>
+std::tuple<eT, uint, Prob<eT>>
+dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
+
+	auto [ max, delta_max ] = dp_hidden_lp(Cs[0]);
+	uint alpha_max = 0;
+
+	uint n_adv = Cs.size();
+	for(uint a = 1; a < n_adv; a++) {
+		auto [ res, delta ] = dp_hidden_lp(Cs[a]);
+
+		if(less_than(max, res)) {
+			max = res;
+			alpha_max = a;
+			delta_max = delta;
+		}
+	}
+
+	return std::tuple<eT, uint, Prob<eT>>(max, alpha_max, delta_max);
+}
+
+
 
 
 } // namespace games
