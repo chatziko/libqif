@@ -200,7 +200,7 @@ void compare_methods(string path_template) {
 
 void dp_game(string path_template) {
 	auto Cs = read_channels(path_template);
-	//auto Cs = rand_channels(1, 5, 5, 5);
+	// auto Cs = rand_channels(10, 10, 50, 50);
 	uint n_adv = Cs.size();
 	if(n_adv == 0) {
 		cout << "no channels were read\n";
@@ -211,10 +211,9 @@ void dp_game(string path_template) {
 	cout << "adv strategies: " << n_adv << "\n";
 	cout << "def strategies: " << n_def << "\n";
 
-	auto [res, alpha, delta] = games::dp_hidden(Cs);
+	auto [res, delta] = games::dp_hidden(Cs);
 
 	cout << "result: " << res << "\n";
-	cout << "adv strategy: " << alpha << "\n";
 	cout << "def strategy: " << delta << "\n";
 }
 

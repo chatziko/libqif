@@ -356,7 +356,7 @@ dp_hidden_lp(const vector<Chan<eT>>& Cs) {
 
 template<typename eT>
 std::tuple<eT, uint, Prob<eT>>
-dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
+dp_hidden_wrong(const vector<vector<Chan<eT>>>& Cs) {
 
 	auto [ max, delta_max ] = dp_hidden_lp(Cs[0]);
 	uint alpha_max = 0;
@@ -373,6 +373,84 @@ dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
 	}
 
 	return std::tuple<eT, uint, Prob<eT>>(max, alpha_max, delta_max);
+}
+
+template<typename eT>
+std::pair<eT, Prob<eT>>
+dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
+
+	uint n_adv = Cs.size();
+	uint n_def = Cs[0].size();
+	uint n_rows = Cs[0][0].n_rows;
+	uint n_cols = Cs[0][0].n_cols;
+
+	// start with uniform dist
+	Prob<eT> delta = probab::uniform<eT>(n_def);
+	Chan<eT> C(n_rows, n_cols);
+
+	while(true) {
+		// compute lambda
+		eT lambda(0);
+		for(uint a = 0; a < n_adv; a++) {
+			// create matrix C_{a,delta}
+			C.fill(eT(0));
+			for(uint d = 0; d < n_def; d++)
+				C += delta(d) * Cs[a][d];
+
+			for(uint x1 = 0; x1 < n_rows; x1++)
+			for(uint x2 = 0; x2 < n_rows; x2++)
+			for(uint y = 0; y < n_cols; y++)
+				lambda = max(lambda, C(x1,y) / C(x2,y));
+		}
+
+		// solve lp	
+		lp::LinearProgram<eT> lp;
+
+		auto z = lp.make_var(-infinity<eT>());
+		auto delta_v = lp.make_vars(n_def, eT(0));
+
+		// minimize z
+		lp.maximize = false;
+		lp.set_obj_coeff(z, 1);
+
+		// sum_i delta(i) = 1
+		auto con = lp.make_con(eT(1), eT(1));
+		for(uint i = 0; i < n_def; i++)
+			lp.set_con_coeff(con, delta_v[i], eT(1));
+
+		// for each a,x,x',y
+		//   z >= sum_d C_a,d(x,y) gamma(i)  - lambda( sum_d C_a,d(x',y) delta(d) )      <=>
+		//   z >= sum_d [C_a,d(x,y) - lambda C_a,d(x',y)] delta(d)
+		//
+		for(uint a = 0; a < n_adv; a++) {
+		for(uint x1 = 0; x1 < n_rows; x1++) {
+		for(uint x2 = 0; x2 < n_rows; x2++) {
+			if(x1 == x2)
+				continue;
+
+			for(uint y = 0; y < n_cols; y++) {
+				auto con = lp.make_con(-infinity<eT>(), eT(0));
+
+				lp.set_con_coeff(con, z, eT(-1));
+
+				for(uint d = 0; d < n_def; d++)
+					lp.set_con_coeff(con, delta_v[d], Cs[a][d](x1,y) - lambda * Cs[a][d](x2, y));
+			}
+		}}}
+
+		// ready to solve
+		lp.msg_level = lp::MsgLevel::ON;
+		if(!lp.solve())
+			throw std::runtime_error("problem should be solvable");
+		std::cout << "SOLVED: lambda: " << lambda << ", F(lambda):" << lp.objective() << "\n";
+
+		for(uint i = 0; i < n_def; i++)
+			delta(i) = lp.solution(delta_v[i]);
+
+		// stop if the objective function reaches 0
+		if(equal(lp.objective(), eT(0), eT(1e-5)))
+			return std::pair<eT, Prob<eT>>(lambda, delta);
+	}
 }
 
 
