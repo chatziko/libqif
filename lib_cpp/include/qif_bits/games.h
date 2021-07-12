@@ -381,17 +381,18 @@ dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
 
 	uint n_adv = Cs.size();
 	uint n_def = Cs[0].size();
-	uint n_rows = Cs[0][0].n_rows;
-	uint n_cols = Cs[0][0].n_cols;
 
 	// start with uniform dist
 	Prob<eT> delta = probab::uniform<eT>(n_def);
-	Chan<eT> C(n_rows, n_cols);
 
 	while(true) {
 		// compute lambda
 		eT lambda(0);
 		for(uint a = 0; a < n_adv; a++) {
+			uint n_rows = Cs[a][0].n_rows;
+			uint n_cols = Cs[a][0].n_cols;
+			Chan<eT> C(n_rows, n_cols);
+
 			// create matrix C_{a,delta}
 			C.fill(eT(0));
 			for(uint d = 0; d < n_def; d++)
@@ -423,20 +424,24 @@ dp_hidden(const vector<vector<Chan<eT>>>& Cs) {
 		//   z >= sum_d [C_a,d(x,y) - lambda C_a,d(x',y)] delta(d)
 		//
 		for(uint a = 0; a < n_adv; a++) {
-		for(uint x1 = 0; x1 < n_rows; x1++) {
-		for(uint x2 = 0; x2 < n_rows; x2++) {
-			if(x1 == x2)
-				continue;
+			uint n_rows = Cs[a][0].n_rows;
+			uint n_cols = Cs[a][0].n_cols;
 
-			for(uint y = 0; y < n_cols; y++) {
-				auto con = lp.make_con(-infinity<eT>(), eT(0));
+			for(uint x1 = 0; x1 < n_rows; x1++) {
+			for(uint x2 = 0; x2 < n_rows; x2++) {
+				if(x1 == x2)
+					continue;
 
-				lp.set_con_coeff(con, z, eT(-1));
+				for(uint y = 0; y < n_cols; y++) {
+					auto con = lp.make_con(-infinity<eT>(), eT(0));
 
-				for(uint d = 0; d < n_def; d++)
-					lp.set_con_coeff(con, delta_v[d], Cs[a][d](x1,y) - lambda * Cs[a][d](x2, y));
+					lp.set_con_coeff(con, z, eT(-1));
+
+					for(uint d = 0; d < n_def; d++)
+						lp.set_con_coeff(con, delta_v[d], Cs[a][d](x1,y) - lambda * Cs[a][d](x2, y));
+				}
 			}
-		}}}
+		}}
 
 		// ready to solve
 		lp.msg_level = lp::MsgLevel::ON;
