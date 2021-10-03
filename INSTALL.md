@@ -67,7 +67,6 @@ If OR-Tools are used you also need to link with `-lortools`.
 Prerequisites
 
 * [CMake](http://www.cmake.org/)
-* [Armadillo](http://arma.sourceforge.net/)
 * [GMP](https://gmplib.org/)
 * [GSL](http://www.gnu.org/software/gsl/)
 * A C++17 compliant compiler (eg g++ or clang)
@@ -79,7 +78,7 @@ Optionally
 
 On Ubuntu, these can be installed with:
 ```bash
-sudo apt-get install g++ cmake libarmadillo-dev libgmp-dev libglpk-dev libgsl0-dev
+sudo apt-get install g++ cmake libgmp-dev libglpk-dev libgsl0-dev
 ```
 
 Get the code (note the `--recursive` to fetch the submodules).
