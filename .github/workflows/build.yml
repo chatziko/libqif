@@ -81,12 +81,9 @@ jobs:
 
       - name: Publish docs to gh-pages
         if: ${{ !contains(github.event.ref, '-test') }}
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          # https://github.com/peaceiris/actions-gh-pages/issues/9
-          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTIONS_DEPLOY_KEY: ${{ secrets.actions_deploy_key }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: ./html
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          forceOrphan: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force_orphan: true
+          publish_branch: gh-pages
+          publish_dir: ./html
