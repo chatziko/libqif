@@ -16,11 +16,6 @@ jobs:
         submodules: recursive
         fetch-depth: 0    # needed for tags
 
-    - name: Docker login
-      if: matrix.os == 'ubuntu-latest'
-      run: docker login docker.pkg.github.com --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - uses: actions/setup-python@v2
       name: Install Python
@@ -29,8 +24,8 @@ jobs:
 
     - name: Build wheels
       env:
-        CIBW_BUILD: "cp3[6789]-*_x86_64 cp3[6789]-win_amd64"
-        CIBW_MANYLINUX_X86_64_IMAGE: docker.pkg.github.com/chatziko/libqif/manylinux:v6
+        CIBW_BUILD: "cp3{7,8,9,10}-{manylinux_x86_64,macosx_x86_64,win_amd64}"
+        CIBW_MANYLINUX_X86_64_IMAGE: ghcr.io/chatziko/libqif/manylinux:v8
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare-build-windows.sh
@@ -52,7 +47,7 @@ jobs:
         CIBW_ENVIRONMENT_WINDOWS: "TMPDIR=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
 
       run: |
-        python -m pip install cibuildwheel==1.7.1
+        python -m pip install cibuildwheel==2.5.0
         python -m cibuildwheel --output-dir wheelhouse lib_python
         mkdir wheelhouse/dist && mv wheelhouse/*.whl wheelhouse/dist/
 

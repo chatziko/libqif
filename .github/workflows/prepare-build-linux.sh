@@ -8,7 +8,7 @@ cat /proc/cpuinfo
 # build qif
 mkdir build
 cd build
-cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..		# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
+cmake -DMARCH=x86-64 -DPYTHON_EXECUTABLE=/opt/python/cp37-cp37m/bin/python ..		# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
 make qif_cpp tests_cpp samples docs -j 2
 ./tests_cpp/run
 
@@ -17,5 +17,5 @@ mv misc/docs/_build/html /output													# save in case we need to publish i
 touch /output/html/.nojekyll														# disable jekyll processing, cause it hides folders starting with underscore!
 
 rm -rf *
-cmake -DPYTHON_EXECUTABLE=/opt/python/cp36-cp36m/bin/python ..						# then compile again with the default march
+cmake -DPYTHON_EXECUTABLE=/opt/python/cp37-cp37m/bin/python ..						# then compile again with the default march
 make install -j 2
