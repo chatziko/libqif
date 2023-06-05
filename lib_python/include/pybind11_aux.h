@@ -282,7 +282,7 @@ public:
 			delete objs;
 		});
 
-		return array("O", shape, strides, &(*objs)[0], base).release();
+		return array(pybind11::dtype("O"), shape, strides, &(*objs)[0], base).release();
 	}
 };
 

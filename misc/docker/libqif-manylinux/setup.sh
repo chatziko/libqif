@@ -32,12 +32,12 @@ cp -r or-tools*/include /usr/local
 cp or-tools*/lib/*.a /usr/local/lib
 
 # ...and we extract the shared libraries from the python lib!
-/opt/python/cp37-cp37m/bin/pip install ortools==8.1.8487
-cp /opt/_internal/cpython-3.7.13/lib/python3.7/site-packages/ortools/.libs/* /usr/local/lib
+/opt/python/cp38-cp38/bin/pip install ortools==8.1.8487
+cp /opt/_internal/cpython-3.8.16/lib/python3.8/site-packages/ortools/.libs/* /usr/local/lib
 ldconfig
 
 # Sphinx needed for docs, numpy to import the qif module while generating docs
-/opt/python/cp37-cp37m/bin/pip install Sphinx numpy
+/opt/python/cp38-cp38/bin/pip install Sphinx numpy
 
 # cleanup
 rm -rf /tmp/*
