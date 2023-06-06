@@ -30,9 +30,9 @@ def compute_bayes(C):
 compute_bayes(channel.randu(5))
 
 # same, but using rational arithmetic
-qif.set_default_type(qif.rat)
+set_default_type(rat)
 
-C = np.array([
+C = numpy.array([
 	[rat(1,2), rat(1,4), rat(1,4)],
 	[rat(1,6), rat(3,6), rat(2,6)],
 	[rat(1,2), rat(1,2), rat(0)],
