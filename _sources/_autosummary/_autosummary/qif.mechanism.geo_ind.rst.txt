@@ -1,0 +1,8 @@
+qif.mechanism.geo_ind
+==========================
+
+.. automodule:: qif.mechanism.geo_ind
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

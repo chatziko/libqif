@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>qif.channel.compose &#8212; qif 1.2.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="qif.probab" href="../qif.probab.html" />
+    <link rel="prev" title="qif.channel" href="../qif.channel.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qif.channel.compose">
+<span id="qif-channel-compose"></span><h1>qif.channel.compose<a class="headerlink" href="#module-qif.channel.compose" title="Permalink to this heading">¶</a></h1>
+<p>Channel composition.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.channel.compose.parallel">
+<span class="sig-prename descclassname"><span class="pre">qif.channel.compose.</span></span><span class="sig-name descname"><span class="pre">parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.channel.compose.parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>parallel(A: Mat&lt;double&gt;, B: Mat&lt;double&gt;) -&gt; Mat&lt;double&gt;</p></li>
+<li><p>parallel(A: Mat&lt;rat&gt;, B: Mat&lt;rat&gt;) -&gt; Mat&lt;rat&gt;</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.channel.compose.repeated_independent">
+<span class="sig-prename descclassname"><span class="pre">qif.channel.compose.</span></span><span class="sig-name descname"><span class="pre">repeated_independent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.channel.compose.repeated_independent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>repeated_independent(C: Mat&lt;double&gt;, n: int) -&gt; Mat&lt;double&gt;</p></li>
+<li><p>repeated_independent(C: Mat&lt;rat&gt;, n: int) -&gt; Mat&lt;rat&gt;</p></li>
+</ol>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">qif</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../qif.channel.html">qif.channel</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">qif.channel.compose</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#qif.channel.compose.parallel"><code class="docutils literal notranslate"><span class="pre">parallel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qif.channel.compose.repeated_independent"><code class="docutils literal notranslate"><span class="pre">repeated_independent()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.assert_proper"><code class="docutils literal notranslate"><span class="pre">assert_proper()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.deterministic"><code class="docutils literal notranslate"><span class="pre">deterministic()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.factorize"><code class="docutils literal notranslate"><span class="pre">factorize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.hyper"><code class="docutils literal notranslate"><span class="pre">hyper()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.identity"><code class="docutils literal notranslate"><span class="pre">identity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.is_proper"><code class="docutils literal notranslate"><span class="pre">is_proper()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.iterative_bayesian_update"><code class="docutils literal notranslate"><span class="pre">iterative_bayesian_update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.left_factorize"><code class="docutils literal notranslate"><span class="pre">left_factorize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.no_interference"><code class="docutils literal notranslate"><span class="pre">no_interference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.posterior"><code class="docutils literal notranslate"><span class="pre">posterior()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.posteriors"><code class="docutils literal notranslate"><span class="pre">posteriors()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.randu"><code class="docutils literal notranslate"><span class="pre">randu()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.reduced"><code class="docutils literal notranslate"><span class="pre">reduced()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.sample"><code class="docutils literal notranslate"><span class="pre">sample()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qif.channel.html#qif.channel.sum_column_min"><code class="docutils literal notranslate"><span class="pre">sum_column_min()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.probab.html">qif.probab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.metric.html">qif.metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.measure.html">qif.measure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.mechanism.html">qif.mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.refinement.html">qif.refinement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.utility.html">qif.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qif.lp.html">qif.lp</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../qif.channel.html">qif.channel</a><ul>
+      <li>Previous: <a href="../qif.channel.html" title="previous chapter">qif.channel</a></li>
+      <li>Next: <a href="../qif.probab.html" title="next chapter">qif.probab</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../_sources/_autosummary/_autosummary/qif.channel.compose.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

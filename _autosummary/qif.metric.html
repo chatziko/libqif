@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>qif.metric &#8212; qif 1.2.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="qif.metric.optimize" href="_autosummary/qif.metric.optimize.html" />
+    <link rel="prev" title="qif.probab" href="qif.probab.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qif.metric">
+<span id="qif-metric"></span><h1>qif.metric<a class="headerlink" href="#module-qif.metric" title="Permalink to this heading">¶</a></h1>
+<p>Metrics and other distance functions.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/qif.metric.optimize.html#module-qif.metric.optimize" title="qif.metric.optimize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize</span></code></a></p></td>
+<td><p>Metric optimization problems.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.convex_separation">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">convex_separation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.convex_separation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.convex_separation_quasi">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">convex_separation_quasi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.convex_separation_quasi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.discrete">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.metric.discrete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>discrete(type: class[double] = 1) -&gt; Callable[[float, float], float]</p></li>
+<li><p>discrete(type: class[uint] = 1) -&gt; Callable[[int, int], float]</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.euclidean">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">euclidean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.metric.euclidean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>euclidean(type: class[double] = 1) -&gt; Callable[[float, float], float]</p></li>
+<li><p>euclidean(type: class[uint] = 1) -&gt; Callable[[int, int], float]</p></li>
+<li><p>euclidean(type: class[fraction] = 1) -&gt; Callable[[mppp::rational&lt;1&gt;, mppp::rational&lt;1&gt;], mppp::rational&lt;1&gt;]</p></li>
+<li><p>euclidean(type: class[point] = 1) -&gt; Callable[[qif._qif.point, qif._qif.point], float]</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.euclidean_chain">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">euclidean_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.metric.euclidean_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>euclidean_chain(type: class[double] = 1) -&gt; Callable[[float, float], bool]</p></li>
+<li><p>euclidean_chain(type: class[uint] = 1) -&gt; Callable[[int, int], bool]</p></li>
+<li><p>euclidean_chain(type: class[fraction] = 1) -&gt; Callable[[mppp::rational&lt;1&gt;, mppp::rational&lt;1&gt;], bool]</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.from_distance_matrix">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">from_distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0:</span> <span class="pre">Mat&lt;double&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.from_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.kantorovich">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">kantorovich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.kantorovich" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.l1">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">l1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.l1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.l2">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">l2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.l2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.max">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.min">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.mirror">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.mirror" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.mult_kantorovich">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">mult_kantorovich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.mult_kantorovich" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.mult_reals">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">mult_reals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type:</span> <span class="pre">class[double]</span> <span class="pre">=</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.mult_reals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.mult_total_variation">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">mult_total_variation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.mult_total_variation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.scale">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qif.metric.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>scale(arg0: Callable[[float, float], float], arg1: float) -&gt; Callable[[float, float], float]</p></li>
+<li><p>scale(arg0: Callable[[mppp::rational&lt;1&gt;, mppp::rational&lt;1&gt;], mppp::rational&lt;1&gt;], arg1: mppp::rational&lt;1&gt;) -&gt; Callable[[mppp::rational&lt;1&gt;, mppp::rational&lt;1&gt;], mppp::rational&lt;1&gt;]</p></li>
+<li><p>scale(arg0: Callable[[Row&lt;double&gt;, Row&lt;double&gt;], float], arg1: float) -&gt; Callable[[Row&lt;double&gt;, Row&lt;double&gt;], float]</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.threshold">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.threshold_inf">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">threshold_inf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qif.metric.threshold_inf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.to_distance_matrix">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">to_distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mat&lt;double&gt;</span></span></span><a class="headerlink" href="#qif.metric.to_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qif.metric.total_variation">
+<span class="sig-prename descclassname"><span class="pre">qif.metric.</span></span><span class="sig-name descname"><span class="pre">total_variation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable[[Row&lt;double&gt;,</span> <span class="pre">Row&lt;double&gt;],</span> <span class="pre">float]</span></span></span><a class="headerlink" href="#qif.metric.total_variation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">qif</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="qif.channel.html">qif.channel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qif.probab.html">qif.probab</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">qif.metric</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/qif.metric.optimize.html">qif.metric.optimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.convex_separation"><code class="docutils literal notranslate"><span class="pre">convex_separation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.convex_separation_quasi"><code class="docutils literal notranslate"><span class="pre">convex_separation_quasi()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.discrete"><code class="docutils literal notranslate"><span class="pre">discrete()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.euclidean"><code class="docutils literal notranslate"><span class="pre">euclidean()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.euclidean_chain"><code class="docutils literal notranslate"><span class="pre">euclidean_chain()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.from_distance_matrix"><code class="docutils literal notranslate"><span class="pre">from_distance_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.kantorovich"><code class="docutils literal notranslate"><span class="pre">kantorovich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.l1"><code class="docutils literal notranslate"><span class="pre">l1()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.l2"><code class="docutils literal notranslate"><span class="pre">l2()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.max"><code class="docutils literal notranslate"><span class="pre">max()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.min"><code class="docutils literal notranslate"><span class="pre">min()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.mirror"><code class="docutils literal notranslate"><span class="pre">mirror()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.mult_kantorovich"><code class="docutils literal notranslate"><span class="pre">mult_kantorovich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.mult_reals"><code class="docutils literal notranslate"><span class="pre">mult_reals()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.mult_total_variation"><code class="docutils literal notranslate"><span class="pre">mult_total_variation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.scale"><code class="docutils literal notranslate"><span class="pre">scale()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.threshold"><code class="docutils literal notranslate"><span class="pre">threshold()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.threshold_inf"><code class="docutils literal notranslate"><span class="pre">threshold_inf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.to_distance_matrix"><code class="docutils literal notranslate"><span class="pre">to_distance_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qif.metric.total_variation"><code class="docutils literal notranslate"><span class="pre">total_variation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qif.measure.html">qif.measure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qif.mechanism.html">qif.mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qif.refinement.html">qif.refinement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qif.utility.html">qif.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qif.lp.html">qif.lp</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="qif.probab.html" title="previous chapter">qif.probab</a></li>
+      <li>Next: <a href="_autosummary/qif.metric.optimize.html" title="next chapter">qif.metric.optimize</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/_autosummary/qif.metric.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

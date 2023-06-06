@@ -1,0 +1,8 @@
+﻿qif.metric
+==========================
+
+.. automodule:: qif.metric
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

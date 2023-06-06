@@ -1,0 +1,8 @@
+﻿qif.lp
+==========================
+
+.. automodule:: qif.lp
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

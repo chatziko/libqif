@@ -1,0 +1,8 @@
+﻿qif.probab
+==========================
+
+.. automodule:: qif.probab
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

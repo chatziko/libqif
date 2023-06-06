@@ -1,0 +1,8 @@
+qif.measure.shannon
+==========================
+
+.. automodule:: qif.measure.shannon
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

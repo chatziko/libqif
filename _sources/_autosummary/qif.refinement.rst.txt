@@ -1,0 +1,8 @@
+﻿qif.refinement
+==========================
+
+.. automodule:: qif.refinement
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

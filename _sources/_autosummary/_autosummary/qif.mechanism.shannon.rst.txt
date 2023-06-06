@@ -1,0 +1,8 @@
+qif.mechanism.shannon
+==========================
+
+.. automodule:: qif.mechanism.shannon
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

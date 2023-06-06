@@ -1,0 +1,8 @@
+qif.channel.compose
+==========================
+
+.. automodule:: qif.channel.compose
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

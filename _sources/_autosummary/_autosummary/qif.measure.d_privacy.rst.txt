@@ -1,0 +1,8 @@
+qif.measure.d_privacy
+==========================
+
+.. automodule:: qif.measure.d_privacy
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:
