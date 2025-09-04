@@ -1,5 +1,7 @@
 #!/bin/bash
 
+python -m pip install --upgrade "build>=1.0" "pyproject_hooks>=1.0" "pip>=24.0"
+
 # Install gsl & mpir (GMP alternative for windows) via vcpkg
 /c/vcpkg/vcpkg install gsl:x64-windows
 /c/vcpkg/vcpkg install mpir:x64-windows
