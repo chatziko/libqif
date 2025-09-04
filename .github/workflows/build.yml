@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         # os: [ubuntu-latest, macos-13, windows-latest]
-        os: [windows-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -52,7 +52,7 @@ jobs:
         # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg
         # CMAKE_PREFIX_PATH     find the libraries installed in git bash's /usr/local
         # BUILD_QIF             force to re-build qif_cpp when building qif_python (the default is to use the system's qif)
-        CIBW_ENVIRONMENT_WINDOWS: "TMPDIR=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
+        CIBW_ENVIRONMENT_WINDOWS: "TMP=. TEMP=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
 
       run: |
         python -m pip install cibuildwheel==3.1.4
