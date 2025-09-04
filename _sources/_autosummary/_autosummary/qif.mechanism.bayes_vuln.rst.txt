@@ -1,0 +1,8 @@
+qif.mechanism.bayes_vuln
+==========================
+
+.. automodule:: qif.mechanism.bayes_vuln
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

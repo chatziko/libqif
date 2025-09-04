@@ -1,0 +1,8 @@
+﻿qif.utility
+==========================
+
+.. automodule:: qif.utility
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

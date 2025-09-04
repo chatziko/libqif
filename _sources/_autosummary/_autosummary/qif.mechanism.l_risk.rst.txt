@@ -1,0 +1,8 @@
+qif.mechanism.l_risk
+==========================
+
+.. automodule:: qif.mechanism.l_risk
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

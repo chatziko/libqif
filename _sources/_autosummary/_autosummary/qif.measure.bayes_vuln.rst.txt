@@ -1,0 +1,8 @@
+qif.measure.bayes_vuln
+==========================
+
+.. automodule:: qif.measure.bayes_vuln
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

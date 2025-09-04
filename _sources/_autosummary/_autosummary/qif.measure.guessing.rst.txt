@@ -1,0 +1,8 @@
+qif.measure.guessing
+==========================
+
+.. automodule:: qif.measure.guessing
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

@@ -1,0 +1,8 @@
+qif.metric.optimize
+==========================
+
+.. automodule:: qif.metric.optimize
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

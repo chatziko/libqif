@@ -1,0 +1,8 @@
+qif.measure.pred_vuln
+==========================
+
+.. automodule:: qif.measure.pred_vuln
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:

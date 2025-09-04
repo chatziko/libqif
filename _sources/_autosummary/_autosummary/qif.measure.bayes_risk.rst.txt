@@ -1,0 +1,8 @@
+qif.measure.bayes_risk
+==========================
+
+.. automodule:: qif.measure.bayes_risk
+   :members:
+   :undoc-members:
+   :private-members:
+   :imported-members:
