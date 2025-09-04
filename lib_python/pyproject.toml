@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+  "setuptools>=61",
+  "wheel",
+  "pyproject_hooks>=1.0.0"   # ensures absolute control-dir paths on Windows
+]
+build-backend = "setuptools.build_meta"
