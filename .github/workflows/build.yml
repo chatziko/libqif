@@ -36,10 +36,7 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
         CIBW_BEFORE_ALL_WINDOWS: >
-          python - <<'PY'
-            import os, sys
-            print("CWD before:", os.getcwd())
-          PY
+          bash -c "echo BEFORE; pwd"
           ; python -m pip install --upgrade "pip>=24.0" "build>=1.0.0" "pyproject_hooks>=1.0.0"
           ; bash .github/workflows/prepare-build-windows.sh
 
