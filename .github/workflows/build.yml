@@ -49,6 +49,8 @@ jobs:
         # so its parent will be the project root as expected!
         CIBW_ENVIRONMENT: "TMPDIR=$PWD"
 
+        CIBW_ENVIRONMENT_MACOS: "TMPDIR=$PWD MACOSX_DEPLOYMENT_TARGET=13.0"
+
         # Windows CMAKE configuration
         # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg
         # CMAKE_PREFIX_PATH     find the libraries installed in git bash's /usr/local
