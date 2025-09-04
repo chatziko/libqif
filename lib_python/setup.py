@@ -8,6 +8,8 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
+print("SETUP.PY CWD:", os.getcwd())
+
 
 class CMakeExtension(Extension):
 	def __init__(self, name, target, sourcedir=''):
