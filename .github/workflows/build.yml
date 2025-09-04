@@ -24,8 +24,8 @@ jobs:
         python-version: '3.13'
 
     # we need an old cmake to avoid issues with armadillo. this is only for windows/macos, on linux we install it in the docker image
-    - name: Install CMake
-      uses: ssrobins/install-cmake@v1
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.18.6'
 
