@@ -37,6 +37,7 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare-build-windows.sh
+        CIBW_BEFORE_BUILD_WINDOWS: python -m pip install --upgrade "pip>=24.2" "setuptools>=68" "wheel"
 
         CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -L /.libs -w {dest_dir} {wheel}  # -L /.libs puts the libs under "qif/.libs"
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -v -w {dest_dir} {wheel}            # --require-archs x86_64 (this throws error for some reason)
