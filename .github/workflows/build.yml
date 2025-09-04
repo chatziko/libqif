@@ -23,6 +23,12 @@ jobs:
       with:
         python-version: '3.13'
 
+    # we need an old cmake to avoid issues with armadillo. this is only for windows/macos, on linux we install it in the docker image
+    - name: Install CMake
+      uses: ssrobins/install-cmake@v1
+      with:
+        cmake-version: '3.18.6'
+
     - name: Build wheels
       env:
         CIBW_BUILD: "cp3{9,10,11,12,13,14}-{manylinux_x86_64,macosx_x86_64,win_amd64}"
