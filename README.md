@@ -11,7 +11,7 @@ pip install qif
 
 - Needs `haswell` or later CPU (AVX2)
 - `python` versions supported: 3.11 to 3.15
-- MacOS: 15 or later (x86_64)
+- MacOS: 15 or later (x86_64 and arm64)
 
 
 ## A sample program

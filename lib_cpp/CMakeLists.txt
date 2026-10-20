@@ -33,6 +33,10 @@ else()
 
 	add_library(qif_cpp INTERFACE)
 	target_link_libraries(qif_cpp INTERFACE ${QIF_PATH})							# targets using qif_cpp will link to the system qif
+
+	# mp++ headers include gmp.h, which is not in the default include path everywhere (eg homebrew on arm64)
+	find_path(GMP_INCLUDE_DIR NAMES gmp.h REQUIRED)
+	target_include_directories(qif_cpp INTERFACE ${GMP_INCLUDE_DIR})
 endif()
 
 # linked libraries
@@ -61,14 +65,17 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # compiler options
-# * we build for march=haswell (AVX2 on MSVC) by default, can be changed with -DMARCH=... (-DARCH=... on MSVC)
+# * on x86 we build for march=haswell (AVX2 on MSVC) by default, can be changed with -DMARCH=... (-DARCH=... on MSVC)
 #
 target_compile_options(qif_cpp INTERFACE -Wall)
 if(MSVC)
 	target_compile_options(qif_cpp INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX2>)
 	target_compile_definitions(qif_cpp INTERFACE _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)	# don't crash if an older msvcp140.dll is loaded
 else()
-	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},haswell>)
+	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -pthread)
+	if(MARCH OR CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+		target_compile_options(qif_cpp INTERFACE -march=$<IF:$<BOOL:${MARCH}>,${MARCH},haswell>)
+	endif()
 endif()
 target_compile_definitions(qif_cpp INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG>)
 

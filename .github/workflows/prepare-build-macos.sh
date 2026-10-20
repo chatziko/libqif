@@ -30,10 +30,11 @@ done
 # build qif
 mkdir build
 cd build
-cmake -DMARCH=x86-64 ..			# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
+# the gh-actions vm crashes with march=native,sandybridge or haswell, so use x86-64 just for the tests
+cmake $([ $(uname -m) = x86_64 ] && echo -DMARCH=x86-64) ..
 make qif_cpp tests_cpp samples -j 2
 ./tests_cpp/run
 
 rm -rf *
 cmake ..						# then compile again with the default march
-make install -j 2
+sudo make install -j 2			# /usr/local is not writable on arm64 runners (homebrew is in /opt/homebrew)
