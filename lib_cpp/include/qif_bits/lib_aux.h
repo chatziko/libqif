@@ -19,8 +19,9 @@ template<>            inline const float  def_mrd<float>	=  10 * std::numeric_li
 template<typename eT>
 inline bool equal(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT& mrd = def_mrd<eT>) {
 	if constexpr (std::is_same<eT, double>::value || std::is_same<eT, float>::value) {
-		// mixed absolute/relative error comparison. We use absolute for comparisons with 0.0, and relative for
-		// positive numbers. Absolute error can be forced by passing max_rel_diff == 0.0. We also consider inf == inf.
+		// mixed absolute/relative error comparison. We use absolute (md) for comparisons with 0.0, and mrd
+		// otherwise: as an absolute error for numbers up to 1, relative to the largest number above 1. Absolute
+		// error can be forced by passing mrd == 0.0. We also consider inf == inf.
 		// see: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 		//
 		if(x == y) return true;
@@ -32,7 +33,7 @@ inline bool equal(const eT& x, const eT& y, const eT& md = def_md<eT>, const eT&
 
 		return largest == std::numeric_limits<eT>::infinity()
 			? false
-			: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd);
+			: diff <= (x == 0.0 || y == 0.0 || mrd == 0.0 ? md : mrd * std::max(largest, eT(1)));
 
 	} else {
 		// default comparison using ==
