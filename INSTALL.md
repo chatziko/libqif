@@ -4,10 +4,10 @@ These instructions are for installing `libqif` to use with C++. For python, see 
 
 ## Install via Homebrew
 
-The easiest way to install libqif (especially on macOS) is via [Homebrew](http://brew.sh/):
+The easiest way to install libqif (on macOS or Linux) is via [Homebrew](https://brew.sh/), which also installs all
+dependencies (including OR-Tools):
 ```bash
-brew tap chatziko/tap
-brew install --HEAD libqif
+brew install --HEAD chatziko/tap/libqif
 brew test --HEAD libqif
 ```
 
@@ -16,20 +16,8 @@ To upgrade to the latest version:
 brew reinstall libqif
 ```
 
-__On Linux__: Homebrew is also available [on linux](http://linuxbrew.sh/).
-You need to use some compiler supporting c++17, eg
-```
-brew install -cc=gcc-9 --HEAD libqif
-```
-It installs everything under ```/home/linuxbrew/.linuxbrew```, so you need
-to either configure your system to use libraries from there, or symlink
-eveything under ```/usr/local```:
-
-```bash
-sudo ln -s /home/linuxbrew/.linuxbrew/include/qif* /usr/local/include/
-sudo ln -s /home/linuxbrew/.linuxbrew/lib/libqif* /usr/local/lib/
-sudo ldconfig
-```
+Homebrew installs everything under its prefix (`brew --prefix`), eg `/opt/homebrew` on Apple Silicon or
+`/home/linuxbrew/.linuxbrew` on Linux, so you need to pass this prefix to the compiler (see below).
 
 ## Compile a sample program
 
@@ -55,20 +43,24 @@ g++ test.cpp -std=c++17 -lqif -larmadillo -lgmp -lmp++ -o test
 
 # or with clang
 clang++ test.cpp -std=c++17 -lqif -larmadillo -lgmp -lmp++ -o test
+
+# if installed via Homebrew
+g++ test.cpp -std=c++17 -I$(brew --prefix)/include -L$(brew --prefix)/lib -lqif -larmadillo -lgmp -lmp++ -o test
 ```
 
 You can find more sample programs in the [samples](https://github.com/chatziko/libqif/tree/master/samples) directory.
 
-In macOS 10.4 you might also need `-L/usr/local/lib`.
-If OR-Tools are used you also need to link with `-lortools`.
+If libqif was built with OR-Tools you also need to link with `-lortools`.
 
 ## Build libqif from source
 
 Prerequisites
 
-* [CMake](http://www.cmake.org/)
+* [CMake](https://cmake.org/) >= 3.24
 * [GMP](https://gmplib.org/)
-* [GSL](http://www.gnu.org/software/gsl/)
+* [GSL](https://www.gnu.org/software/gsl/)
+* BLAS/LAPACK (eg [OpenBLAS](https://www.openblas.net/))
+* Python 3 (with headers)
 * A C++17 compliant compiler (eg g++ or clang)
 
 Optionally
@@ -78,7 +70,7 @@ Optionally
 
 On Ubuntu, these can be installed with:
 ```bash
-sudo apt-get install g++ cmake libgmp-dev libglpk-dev libgsl0-dev
+sudo apt-get install g++ cmake libgmp-dev libgsl-dev libopenblas-dev python3-dev libglpk-dev
 ```
 
 Get the code (note the `--recursive` to fetch the submodules).
@@ -93,6 +85,11 @@ cmake ..
 make
 sudo make install
 ```
+
+Notes:
+* With CMake 4 you need to pass `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` (required by the included armadillo).
+* On x86, libqif is compiled with `-march=haswell` by default (requires AVX2). Use eg `-DMARCH=native`
+  to optimize for your CPU.
 
 To run the tests
 ```bash
@@ -111,24 +108,14 @@ make samples
 Several libqif methods can use OR-Tools for linear optimization and network flow.
 When installing via Homebrew, OR-Tools are installed automatically.
 
-When installing manually, you should install OR-Tools before compiling libif.
-The easiest way is to locate the `.tar.gz` file for your system in the
-[OR-Tools binary distributions](https://developers.google.com/optimization/install/cpp/#binary-distributions),
-then install it by simply copying the libraries and header files under `/usr/local` :
+When installing manually, you should install OR-Tools (version 9) before compiling libqif.
+The easiest way is to download the C++ `.tar.gz` (or `.zip`) file for your system from the
+[OR-Tools releases](https://github.com/google/or-tools/releases), extract it, and pass its location to cmake:
+```bash
+sudo mkdir /opt/ortools
+wget -O - <binary-distribution-url> | sudo tar -xzf - -C /opt/ortools --strip-components=1
+cmake -DCMAKE_PREFIX_PATH=/opt/ortools ..
 ```
-wget <binary-distribution-url> | tar -xzf -
-sudo cp -r ortools*/{lib,include} /usr/local/
-```
-
-Alternatively, you can
-[install OR-Tools from source via cmake](https://github.com/google/or-tools/blob/stable/cmake/README.md#building-or-tools-with-cmake).
-The instructions in that link are dated, a method that has been tested is below:
-```
-git clone https://github.com/google/or-tools --depth 1 --branch=v7.2
-mkdir or-tools/build && cd or-tools/build
-
-cmake -DBUILD_DEPS:BOOL=ON ..
-sudo cmake --build . --target install
-sudo cp -r dependencies/install/* /usr/local
-```
-
+(when compiling your own programs, also pass `-I/opt/ortools/include -L/opt/ortools/lib -lortools`)
+OR-Tools is found via the `ortoolsConfig.cmake` file it provides, so an OR-Tools installed in any standard location
+(eg via a package manager, or built from source) also works.
