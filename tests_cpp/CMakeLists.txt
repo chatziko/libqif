@@ -6,7 +6,7 @@ include(../misc/cmake/BackwardCpp.cmake)
 
 add_custom_target(tests_cpp)											# for 'make tests_cpp'
 
-if(EXISTS "../external/googletest/CMakeLists.txt")						# only if googletest is checked out
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../external/googletest/CMakeLists.txt")						# only if googletest is checked out
 
 	add_subdirectory(../external/googletest googletest)					# build googletest in dir 'googletest'
 
