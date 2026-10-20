@@ -80,13 +80,13 @@ jobs:
           pattern: wheels-*
           merge-multiple: true
 
-      - uses: pypa/gh-action-pypi-publish@master
+      - uses: pypa/gh-action-pypi-publish@release/v1
         if: ${{ !contains(github.event.ref, '-test') }}
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
 
-      - uses: pypa/gh-action-pypi-publish@master
+      - uses: pypa/gh-action-pypi-publish@release/v1
         if: contains(github.event.ref, '-test')
         with:
           user: __token__
