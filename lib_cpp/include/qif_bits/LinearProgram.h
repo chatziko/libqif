@@ -457,9 +457,7 @@ bool LinearProgram<eT>::ortools() {
 #else
 	using namespace operations_research;
 
-	// ortools uses flags USE_<SOLVER> to enable the various solvers, but they don't seem to be "saved" in the headers
-	// installed in the systme, instead the user is expected to pass them. Here we assume that USE_GLOP/USE_CLP are always
-	// set (infact they are set in the qif header if USE_ORTOOLS is set). For the others (GUROBI/CPLEX), the user should
+	// GLOP/CLP are always available in the ortools binaries. For the others (GUROBI/CPLEX), the user should
 	// probably set -DUSE_<SOLVER> when compiling (not tested).
 	//
 	MPSolver::OptimizationProblemType ptype;

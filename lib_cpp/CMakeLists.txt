@@ -42,7 +42,7 @@ if("${BUILD_QIF}")
 	target_link_libraries(qif_cpp PRIVATE osqpstatic GSL::gsl armadillo mp++)	# armadillo/mp++ are not really needed, we only list then to get their include_directories
 
 	if(${QIF_USE_ORTOOLS})
-		target_link_libraries(qif_cpp PRIVATE ortools)							# also listed to get its include_directories
+		target_link_libraries(qif_cpp PRIVATE ortools::ortools)						# also listed to get its include_directories
 	endif()
 	if(${QIF_USE_GLPK})
 		# we use a wrapper so only qif_cpp itself needs to be linked with glpk
@@ -53,7 +53,7 @@ endif()
 # INTERFACE, needed for targets _using_ qif_cpp
 target_link_libraries(qif_cpp INTERFACE armadillo mp++)
 if(${QIF_USE_ORTOOLS})
-	target_link_libraries(qif_cpp INTERFACE ortools)
+	target_link_libraries(qif_cpp INTERFACE ortools::ortools)
 endif()
 if(UNIX AND NOT APPLE)
 	# dl and rt are needed in manylinux

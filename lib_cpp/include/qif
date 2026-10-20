@@ -27,10 +27,6 @@
 
 // Google OR-tools (has to be *before* OSQP for some crazy reason)
 #ifdef QIF_USE_ORTOOLS
-#undef USE_GLOP			// USE_GLOP,USE_CLP are automatically enabled when compiling via cmake, but they are
-#undef USE_CLP			// not enabled in the ortools headers, so we force them here
-#define USE_GLOP
-#define USE_CLP
 #include <ortools/linear_solver/linear_solver.h>
 #include <ortools/linear_solver/linear_solver.pb.h>
 #endif

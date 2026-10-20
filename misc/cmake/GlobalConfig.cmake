@@ -52,7 +52,7 @@ message(STATUS "Building QIF Version: ${QIF_VERSION}")
 
 # find ortools
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")	# get cmake modules from misc
-find_package(ortools)
+find_package(ortools CONFIG QUIET)							# ortoolsConfig.cmake, installed by ortools
 if(ortools_FOUND)
 	message(STATUS "Found ortools")
 	set(QIF_USE_ORTOOLS 1)									# this will be used in qif_bits/config.h
