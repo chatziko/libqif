@@ -1,5 +1,15 @@
 name: build
-on: [push]
+
+# Each push builds a single linux wheel (cp313), which also runs the C++ tests and builds the docs.
+# The full build (all platforms and python versions) runs on release tags (v*), and manually via "Run workflow".
+on:
+  push:
+  workflow_dispatch:
+
+# cancel the previous run of the same branch (but never release runs)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 env:
   # built manually, bump the tag when misc/docker/libqif-manylinux changes:
@@ -14,7 +24,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-15-intel, macos-15, windows-latest]
+        os: ${{ fromJSON((startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
+              && '["ubuntu-latest", "macos-15-intel", "macos-15", "windows-latest"]'
+              || '["ubuntu-latest"]') }}
       fail-fast: false
 
     steps:
@@ -38,8 +50,10 @@ jobs:
     - name: Build wheels
       env:
         CMAKE_POLICY_VERSION_MINIMUM: '3.5'     # cmake 4 refuses armadillo's old CMakeLists.txt without this
-        CIBW_TEST_COMMAND: python -c "import qif; print(qif.__file__)"
-        CIBW_BUILD: "cp3{11,12,13,14,15}-{manylinux_x86_64,macosx_x86_64,macosx_arm64,win_amd64}"
+        CIBW_TEST_COMMAND: python {project}/.github/workflows/test-wheel.py
+        CIBW_BUILD: ${{ (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
+                      && 'cp3{11,12,13,14,15}-{manylinux_x86_64,macosx_x86_64,macosx_arm64,win_amd64}'
+                      || 'cp313-manylinux_x86_64' }}
         CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.MANYLINUX_IMAGE }}
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare-build-macos.sh
