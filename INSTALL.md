@@ -8,7 +8,7 @@ The easiest way to install libqif (on macOS or Linux) is via [Homebrew](https://
 dependencies (including OR-Tools):
 ```bash
 brew install --HEAD chatziko/tap/libqif
-brew test --HEAD libqif
+brew test libqif
 ```
 
 To upgrade to the latest version:
