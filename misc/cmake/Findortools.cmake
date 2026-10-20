@@ -68,6 +68,7 @@ elseif(UNIX)
             glog #glog
             gflags #gflags
             ortools #ortools
+            z # zlib, needed by CoinUtils
         )
 
         foreach(X ${LIB_TO_FIND})

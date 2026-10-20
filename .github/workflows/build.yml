@@ -8,8 +8,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-13, windows-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-15-intel, windows-latest]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v2
@@ -23,8 +23,16 @@ jobs:
       with:
         python-version: '3.13'
 
+    # cmake >= 4.2 is needed for the runner's Visual Studio (linux gets cmake from the docker image)
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '4.2.x'
+
     - name: Build wheels
       env:
+        CMAKE_POLICY_VERSION_MINIMUM: '3.5'     # cmake 4 refuses armadillo's old CMakeLists.txt without this
+        CIBW_TEST_COMMAND: python -c "import qif; print(qif.__file__)"
         CIBW_BUILD: "cp3{9,10,11,12,13,14}-{manylinux_x86_64,macosx_x86_64,win_amd64}"
         CIBW_MANYLINUX_X86_64_IMAGE: ghcr.io/chatziko/libqif/manylinux:v11
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare-build-linux.sh
@@ -35,17 +43,14 @@ jobs:
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -v -w {dest_dir} {wheel}            # --require-archs x86_64 (this throws error for some reason)
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: pip install pefile machomachomangler && python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
 
-        # Workaround: cibuildwheel runs "pip wheel", which copies the lib_python dir to a temporary directory. This is
-        # problematic because the code in lib_python expects to have the project root as parent dir. To workaround this
-        # we pass the project root as TMPDIR, which causes "pip wheel" to create its temp dir inside the project root,
-        # so its parent will be the project root as expected!
-        CIBW_ENVIRONMENT: "TMPDIR=$PWD"
+        # the brew libraries (gsl, gmp) are built for the runner's macos version
+        CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=15.0"
 
         # Windows CMAKE configuration
         # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg
         # CMAKE_PREFIX_PATH     find the libraries installed in git bash's /usr/local
         # BUILD_QIF             force to re-build qif_cpp when building qif_python (the default is to use the system's qif)
-        CIBW_ENVIRONMENT_WINDOWS: "TMPDIR=. CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
+        CIBW_ENVIRONMENT_WINDOWS: "CMAKE_TOOLCHAIN_FILE='C:/vcpkg/scripts/buildsystems/vcpkg.cmake' CMAKE_PREFIX_PATH='C:/Program Files/Git/usr/local' BUILD_QIF=1"
 
       run: |
         python -m pip install cibuildwheel==3.1.4
@@ -54,6 +59,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
+        name: wheels-${{ matrix.os }}
         path: ./wheelhouse/
 
 
@@ -65,7 +71,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v5
         with:
-          name: artifact
+          pattern: wheels-*
+          merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@master
         if: ${{ !contains(github.event.ref, '-test') }}

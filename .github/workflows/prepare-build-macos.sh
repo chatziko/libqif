@@ -17,6 +17,7 @@ brew install gsl gmp
 # or-tools
 brew unlink protobuf || true	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
 brew tap chatziko/tap
+brew trust chatziko/tap				# homebrew refuses to load formulae from untrusted taps
 brew install or-tools@8.1
 
 # build qif

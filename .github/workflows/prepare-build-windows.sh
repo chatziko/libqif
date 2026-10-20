@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Install gsl & mpir (GMP alternative for windows) via vcpkg
+# Install gsl & gmp via vcpkg
 /c/vcpkg/vcpkg install gsl:x64-windows
-/c/vcpkg/vcpkg install mpir:x64-windows
+/c/vcpkg/vcpkg install gmp:x64-windows
 
 # Install openblas
 # Note: armadillo searches it as 'openblas' but in the resulting wheel it needs to be 'libopenblas', so we create both

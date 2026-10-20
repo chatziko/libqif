@@ -10,9 +10,8 @@ pip install qif
 ```
 
 - Needs `sandybridge` or later CPU
-- `python` versions supported:
-  - Linux: 3.9 to 3.14
-  - Windows / MacOS: 3.9 to 3.11
+- `python` versions supported: 3.9 to 3.14
+- MacOS: 15 or later (x86_64)
 
 
 ## A sample program
