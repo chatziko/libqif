@@ -59,7 +59,7 @@ cp -r or-tools*/{lib,include} /usr/local
 ldconfig
 
 # Sphinx needed for docs, numpy to import the qif module while generating docs
-/opt/python/cp39-cp39/bin/pip install Sphinx numpy
+/opt/python/cp311-cp311/bin/pip install Sphinx numpy
 
 # cleanup
 rm -rf /tmp/*
