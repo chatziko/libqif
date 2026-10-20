@@ -60,13 +60,13 @@ Prerequisites
 * [GMP](https://gmplib.org/)
 * [GSL](https://www.gnu.org/software/gsl/)
 * BLAS/LAPACK (eg [OpenBLAS](https://www.openblas.net/))
-* Python 3 (with headers)
 * A C++17 compliant compiler (eg g++ or clang)
 
 Optionally
 
 * [OR-Tools](https://developers.google.com/optimization/) (recommended)
 * [GLPK](https://www.gnu.org/software/glpk/)
+* Python 3 with headers (only for building the python library)
 
 On Ubuntu, these can be installed with:
 ```bash
