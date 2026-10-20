@@ -56,7 +56,10 @@ TYPED_TEST_P(BayesRiskTest, Mult_capacity) {
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1),          bayes_risk::mult_capacity(t.noint_10).first);
 	EXPECT_PRED_FORMAT2(equal2<eT>, eT(2),          bayes_risk::mult_capacity(t.c1).first);
 
-	EXPECT_PRED_FORMAT2(equal2<eT>, bayes_risk::mult_leakage(t.unif_2, t.crand_2), bayes_risk::mult_capacity(t.crand_2).first); // max_mult_leakage is given for 2-secret uniform prior
+	// max_mult_leakage is given for 2-secret uniform prior. The two are computed differently, for floats the error can be large if crand_2 has
+	// near-zero elements (large capacity), so we use a larger relative tolerance
+	eT mrd = std::is_same<eT, float>::value ? eT(1e-5) : def_mrd<eT>;
+	EXPECT_PRED_FORMAT4(equal4<eT>, bayes_risk::mult_leakage(t.unif_2, t.crand_2), bayes_risk::mult_capacity(t.crand_2).first, def_md<eT>, mrd);
 }
 
 
