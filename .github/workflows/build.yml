@@ -67,6 +67,7 @@ jobs:
         python -m pip install cibuildwheel==4.3.1
         python -m cibuildwheel --output-dir wheelhouse lib_python
         mkdir wheelhouse/dist && mv wheelhouse/*.whl wheelhouse/dist/
+        python .github/workflows/check-wheel-record.py "wheelhouse/dist/*.whl"     # PyPI requires wheel contents to match RECORD
 
     - uses: actions/upload-artifact@v4
       with:
