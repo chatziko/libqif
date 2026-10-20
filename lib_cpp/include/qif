@@ -27,6 +27,13 @@
 
 // Google OR-tools (has to be *before* OSQP for some crazy reason)
 #ifdef QIF_USE_ORTOOLS
+#ifndef OR_PROTO_DLL		// normally set by ortools' cmake target, define it for programs compiled without cmake
+#ifdef _MSC_VER
+#define OR_PROTO_DLL __declspec(dllimport)
+#else
+#define OR_PROTO_DLL
+#endif
+#endif
 #include <ortools/linear_solver/linear_solver.h>
 #include <ortools/linear_solver/linear_solver.pb.h>
 #endif
