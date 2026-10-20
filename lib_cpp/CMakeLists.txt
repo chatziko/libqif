@@ -61,13 +61,13 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # compiler options
-# * we build for march=sandybridge by default, can be changed with -DMARCH=...
+# * we build for march=haswell (AVX2 on MSVC) by default, can be changed with -DMARCH=... (-DARCH=... on MSVC)
 #
 target_compile_options(qif_cpp INTERFACE -Wall)
 if(MSVC)
-	target_compile_options(qif_cpp INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX>)
+	target_compile_options(qif_cpp INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX2>)
 else()
-	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},sandybridge>)
+	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},haswell>)
 endif()
 target_compile_definitions(qif_cpp INTERFACE $<$<CONFIG:Release>:ARMA_NO_DEBUG>)
 

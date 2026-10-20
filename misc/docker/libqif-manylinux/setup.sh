@@ -12,20 +12,21 @@ yum install -y \
     gcc-toolset-10-libstdc++-devel
 
 # openblas
-wget -nv https://github.com/xianyi/OpenBLAS/archive/v0.3.20.zip
-unzip v0.3.20
-cd OpenBLAS-0.3.20
-make TARGET=SANDYBRIDGE
-make install PREFIX=/usr/local
+wget -nv https://github.com/OpenMathLib/OpenBLAS/archive/v0.3.34.zip
+unzip v0.3.34
+cd OpenBLAS-0.3.34
+make -j$(nproc) DYNAMIC_ARCH=1									# kernels for all CPUs, selected at runtime
+make install DYNAMIC_ARCH=1 PREFIX=/usr/local
 ln -s /usr/local/lib/libopenblas.so /usr/local/lib/liblapack.so		# openblas actually contains a lapack
 ln -s /usr/local/lib/libopenblas.a /usr/local/lib/liblapack.a		# implementation, we just need symlinks to find it
 
 # gmp
 cd /tmp
-wget -nv https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz
+wget -nv https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz		# gmplib.org blocks CI runners
 tar -xf gmp*.tar.xz
 cd gmp-6.2.1
-./configure --build=sandybridge-pc-linux-gnu
+./configure --enable-fat										# code for all CPUs, selected at runtime
+make -j$(nproc)
 make install
 
 # install an old cmake, cause the armadillo we use has an old CMakeLists.txt

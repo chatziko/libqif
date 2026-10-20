@@ -9,7 +9,7 @@
 pip install qif
 ```
 
-- Needs `sandybridge` or later CPU
+- Needs `haswell` or later CPU (AVX2)
 - `python` versions supported: 3.9 to 3.14
 - MacOS: 15 or later (x86_64)
 
