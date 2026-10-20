@@ -83,6 +83,7 @@ setup(
 	description='Quantitative Information Flow library',
 	long_description=long_description,
     long_description_content_type='text/markdown',
+	python_requires='>=3.11',
 	packages=find_packages('src'),
 	package_dir={'': 'src'},
     package_data={

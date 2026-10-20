@@ -91,7 +91,7 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.test_pypi_password }}
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
 
       - name: Publish docs to gh-pages
         if: ${{ !contains(github.event.ref, '-test') }}
