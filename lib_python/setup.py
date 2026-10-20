@@ -6,7 +6,6 @@ import subprocess
 
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
-from distutils.version import LooseVersion
 
 
 class CMakeExtension(Extension):
@@ -25,8 +24,8 @@ class CMakeBuild(build_ext):
 							   ", ".join(e.name for e in self.extensions))
 
 		if platform.system() == "Windows":
-			cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-			if cmake_version < '3.1.0':
+			cmake_version = tuple(int(x) for x in re.search(r'version\s*(\d+)\.(\d+)', out.decode()).groups())
+			if cmake_version < (3, 1):
 				raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
 		for ext in self.extensions:
@@ -35,7 +34,9 @@ class CMakeBuild(build_ext):
 	def build_extension(self, ext):
 		extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 		cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-					  '-DPYTHON_EXECUTABLE=' + sys.executable]
+					  '-DPYTHON_EXECUTABLE=' + sys.executable,
+					  '-DPython3_EXECUTABLE=' + sys.executable,	# used by FindPython3, otherwise it might pick a different python
+					  '-DPython_EXECUTABLE=' + sys.executable]
 
 		cfg = 'Debug' if self.debug else 'Release'
 		build_args = ['--config', cfg]
