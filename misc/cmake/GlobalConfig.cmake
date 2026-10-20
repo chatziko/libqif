@@ -16,9 +16,16 @@ if(NOT CMAKE_UNITY_BUILD AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
 	# set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
 endif()
 
-# use c++17
-set(CMAKE_CXX_STANDARD 17)												# easier method for setting c++17
+# use c++17 (c++20 on MSVC, ortools is built with c++20 there)
+if(MSVC)
+	set(CMAKE_CXX_STANDARD 20)
+else()
+	set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# keep the rpath of linked libs outside the build tree (eg ortools in /opt/ortools) when installing
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
 # Build SHARED lib on Linux/macOS STATIC on MSVC
 if(MSVC)

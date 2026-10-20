@@ -14,11 +14,18 @@ rm -rf /usr/local/include/c++	# brew install will fail if this exists
 
 brew install gsl gmp
 
-# or-tools
-brew unlink protobuf || true	# unlink protobuf if present so that it doesn't conflict with the one installed by or-tools
-brew tap chatziko/tap
-brew trust chatziko/tap				# homebrew refuses to load formulae from untrusted taps
-brew install or-tools@8.1
+# or-tools, in /opt/ortools (CMAKE_PREFIX_PATH is set in build.yml)
+brew unlink protobuf abseil || true	# unlink if present so that they don't conflict with the ones included in or-tools
+curl -L https://github.com/google/or-tools/releases/download/v9.15/or-tools_$(uname -m)_macOS-26.2_cpp_v9.15.6755.tar.gz --output or-tools.tar.gz
+export CMAKE_PREFIX_PATH=/opt/ortools
+sudo mkdir -p /opt/ortools
+sudo tar -xzf or-tools.tar.gz -C /opt/ortools --strip-components=1
+rm or-tools.tar.gz
+for lib in /opt/ortools/lib/*.dylib; do	# ortools' dylibs load each other via @rpath, but have no rpath (needed by delocate)
+	[ -L "$lib" ] && continue
+	sudo install_name_tool -add_rpath @loader_path "$lib" 2>/dev/null || true
+	sudo codesign --force -s - "$lib"
+done
 
 # build qif
 mkdir build

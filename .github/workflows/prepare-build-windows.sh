@@ -15,11 +15,10 @@ cp openblas/bin/libopenblas.dll /usr/local/lib/libopenblas.dll
 cp openblas/lib/libopenblas.dll.a /usr/local/lib/openblas.lib
 cp openblas/lib/libopenblas.dll.a /usr/local/lib/libopenblas.lib
 
-# Install ortols
-curl https://github.com/google/or-tools/releases/download/v8.1/or-tools_VisualStudio2019-64bit_v8.1.8487.zip -L --output or-tools.zip
-7z x or-tools.zip
-cp -r or-tools*/include /usr/local
-cp or-tools*/lib/*.lib /usr/local/lib
+# Install ortools
+curl https://github.com/google/or-tools/releases/download/v9.15/or-tools_x64_VisualStudio2022_cpp_v9.15.6755.zip -L --output or-tools.zip
+7z x or-tools.zip > /dev/null
+cp -r or-tools_*/* /usr/local
 popd
 
 echo Ready to build the modules

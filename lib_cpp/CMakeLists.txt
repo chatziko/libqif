@@ -66,6 +66,7 @@ endif()
 target_compile_options(qif_cpp INTERFACE -Wall)
 if(MSVC)
 	target_compile_options(qif_cpp INTERFACE /permissive- /arch:$<IF:$<BOOL:${ARCH}>,${ARCH},AVX2>)
+	target_compile_definitions(qif_cpp INTERFACE _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)	# don't crash if an older msvcp140.dll is loaded
 else()
 	target_compile_options(qif_cpp INTERFACE -Wextra -pedantic -pthread -march=$<IF:$<BOOL:${MARCH}>,${MARCH},haswell>)
 endif()

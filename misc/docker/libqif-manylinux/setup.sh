@@ -29,16 +29,18 @@ cd gmp-6.2.1
 make -j$(nproc)
 make install
 
-# install an old cmake, cause the armadillo we use has an old CMakeLists.txt
-curl -LO https://github.com/Kitware/CMake/releases/download/v3.18.6/cmake-3.18.6-Linux-x86_64.sh
-chmod +x cmake-3.18.6-Linux-x86_64.sh
-./cmake-3.18.6-Linux-x86_64.sh --skip-license --prefix=/usr/local
+# cmake 3.x, cmake 4 refuses armadillo's old CMakeLists.txt. ortools needs >= 3.24
+curl -LO https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh
+chmod +x cmake-3.31.6-linux-x86_64.sh
+./cmake-3.31.6-linux-x86_64.sh --skip-license --prefix=/usr/local
 
-# ortools
+# ortools, in /opt/ortools (CMAKE_PREFIX_PATH is set in Dockerfile)
 cd /tmp
-wget -nv 'https://github.com/google/or-tools/releases/download/v8.1/or-tools_centos-8_v8.1.8487.tar.gz'
-tar -xf or-tools*.tar.gz
-cp -r or-tools*/{lib,include} /usr/local
+wget -nv 'https://github.com/google/or-tools/releases/download/v9.15/or-tools_x86_64_AlmaLinux-8.10_cpp_v9.15.6755.tar.gz'
+mkdir -p /opt/ortools
+tar -xf or-tools*.tar.gz -C /opt/ortools --strip-components=1
+echo /opt/ortools/lib64 >  /etc/ld.so.conf.d/ortools.conf		# for auditwheel
+echo /opt/ortools/lib   >> /etc/ld.so.conf.d/ortools.conf
 
 #### In the past we used this hack, not sure exactly why ####################
 #

@@ -5,7 +5,7 @@ env:
   # built manually, bump the tag when misc/docker/libqif-manylinux changes:
   #   docker build --pull -t ghcr.io/chatziko/libqif/manylinux:vN misc/docker/libqif-manylinux
   #   docker push ghcr.io/chatziko/libqif/manylinux:vN
-  MANYLINUX_IMAGE: ghcr.io/chatziko/libqif/manylinux:v13
+  MANYLINUX_IMAGE: ghcr.io/chatziko/libqif/manylinux:v14
 
 jobs:
   # Build wheels on all platforms ########################################################
@@ -47,10 +47,15 @@ jobs:
 
         CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -L /.libs -w {dest_dir} {wheel}  # -L /.libs puts the libs under "qif/.libs"
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -v -w {dest_dir} {wheel}            # --require-archs x86_64 (this throws error for some reason)
-        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: pip install pefile machomachomangler && python .github/workflows/repair-wheel-windows.py {wheel} -w {dest_dir}
+        # delvewheel: use mp++.dll already in the wheel (--ignore-existing) and vendor its dependencies (--analyze-existing).
+        # dlls: msvcp140 from System32 (the newest), ortools in usr/local/bin, openblas in usr/local/lib, gsl/gmp from vcpkg
+        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
+          pip install delvewheel &&
+          delvewheel repair --ignore-existing --analyze-existing -w {dest_dir} {wheel}
+          --add-path "C:/Windows/System32;C:/Program Files/Git/usr/local/bin;C:/Program Files/Git/usr/local/lib;C:/vcpkg/installed/x64-windows/bin"
 
         # the brew libraries (gsl, gmp) are built for the runner's macos version
-        CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=15.0"
+        CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=15.0 CMAKE_PREFIX_PATH=/opt/ortools"
 
         # Windows CMAKE configuration
         # CMAKE_TOOLCHAIN_FILE  find the libraries installed via vcpkg

@@ -30,16 +30,12 @@ target_include_directories(qif_python PRIVATE include)
 # copy .py files to the output dir (preserving directories)
 file(COPY src/qif DESTINATION . FILES_MATCHING PATTERN "*.py")
 
-# on windows, copy required dlls (mp++.dll and libopenblas.dll) to the target dir
+# on windows, copy mp++.dll (built in the build tree) to the target dir. All other dlls are added to the wheel by
+# delvewheel (see build.yml)
 if(MSVC)
-	find_file(OPENBLAS_PATH NAME libopenblas.dll PATH_SUFFIXES lib/ REQUIRED)
-	find_file(MSVPC140_PATH NAME msvcp140.dll REQUIRED)
-
 	add_custom_command(
 		TARGET qif_python POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
-				$<TARGET_FILE:mp++> ${OPENBLAS_PATH} ${MSVPC140_PATH}
-				$<TARGET_FILE_DIR:qif_python>)
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:mp++> $<TARGET_FILE_DIR:qif_python>)
 endif()
 
 # run test script
