@@ -18,3 +18,4 @@ build*/
 lib_python/dist
 *.egg-info
 __pycache__
+.direnv
