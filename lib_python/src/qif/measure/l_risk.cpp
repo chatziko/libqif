@@ -13,30 +13,30 @@ void init_l_risk_module(py::module m) {
 		:math:`\ell`-risk (loss-based Bayes risk).
 	)pbdoc";
 
-	m.def("prior",				overload<const  chan&,              const  prob&>(l_risk::prior<double>), "G"_a, "pi"_a);
-	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(l_risk::prior<double>), "G"_a, "pi"_a);
-	m.def("prior",				overload<const rchan&,              const rprob&>(l_risk::prior<rat>   ), "G"_a, "pi"_a);
-	m.def("prior",				overload<const Metric<rat,uint>&,   const rprob&>(l_risk::prior<rat>   ), "G"_a, "pi"_a);
+	m.def("prior",				overload<const  chan&,              const  prob&>(l_risk::prior<double>), "L"_a, "pi"_a);
+	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(l_risk::prior<double>), "l"_a, "pi"_a);
+	m.def("prior",				overload<const rchan&,              const rprob&>(l_risk::prior<rat>   ), "L"_a, "pi"_a);
+	m.def("prior",				overload<const Metric<rat,uint>&,   const rprob&>(l_risk::prior<rat>   ), "l"_a, "pi"_a);
 
-	m.def("posterior",			overload<const  chan&,              const  prob&,const  chan&>(l_risk::posterior<double>), "G"_a, "pi"_a, "C"_a);
-	m.def("posterior",			overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::posterior<double>), "g"_a, "pi"_a, "C"_a);
-	m.def("posterior",			overload<const rchan&,              const rprob&,const rchan&>(l_risk::posterior<rat>   ), "G"_a, "pi"_a, "C"_a);
-	m.def("posterior",			overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::posterior<rat>   ), "g"_a, "pi"_a, "C"_a);
+	m.def("posterior",			overload<const  chan&,              const  prob&,const  chan&>(l_risk::posterior<double>), "L"_a, "pi"_a, "C"_a);
+	m.def("posterior",			overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::posterior<double>), "l"_a, "pi"_a, "C"_a);
+	m.def("posterior",			overload<const rchan&,              const rprob&,const rchan&>(l_risk::posterior<rat>   ), "L"_a, "pi"_a, "C"_a);
+	m.def("posterior",			overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::posterior<rat>   ), "l"_a, "pi"_a, "C"_a);
 
-	m.def("add_leakage",		overload<const  chan&,              const  prob&,const  chan&>(l_risk::add_leakage<double>), "G"_a, "pi"_a, "C"_a);
-	m.def("add_leakage",		overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::add_leakage<double>), "g"_a, "pi"_a, "C"_a);
-	m.def("add_leakage",		overload<const rchan&,              const rprob&,const rchan&>(l_risk::add_leakage<rat>   ), "G"_a, "pi"_a, "C"_a);
-	m.def("add_leakage",		overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::add_leakage<rat>   ), "g"_a, "pi"_a, "C"_a);
+	m.def("add_leakage",		overload<const  chan&,              const  prob&,const  chan&>(l_risk::add_leakage<double>), "L"_a, "pi"_a, "C"_a);
+	m.def("add_leakage",		overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::add_leakage<double>), "l"_a, "pi"_a, "C"_a);
+	m.def("add_leakage",		overload<const rchan&,              const rprob&,const rchan&>(l_risk::add_leakage<rat>   ), "L"_a, "pi"_a, "C"_a);
+	m.def("add_leakage",		overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::add_leakage<rat>   ), "l"_a, "pi"_a, "C"_a);
 
-	m.def("mult_leakage",		overload<const  chan&,              const  prob&,const  chan&>(l_risk::mult_leakage<double>), "G"_a, "pi"_a, "C"_a);
-	m.def("mult_leakage",		overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::mult_leakage<double>), "g"_a, "pi"_a, "C"_a);
-	m.def("mult_leakage",		overload<const rchan&,              const rprob&,const rchan&>(l_risk::mult_leakage<rat>   ), "G"_a, "pi"_a, "C"_a);
-	m.def("mult_leakage",		overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::mult_leakage<rat>   ), "g"_a, "pi"_a, "C"_a);
+	m.def("mult_leakage",		overload<const  chan&,              const  prob&,const  chan&>(l_risk::mult_leakage<double>), "L"_a, "pi"_a, "C"_a);
+	m.def("mult_leakage",		overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::mult_leakage<double>), "l"_a, "pi"_a, "C"_a);
+	m.def("mult_leakage",		overload<const rchan&,              const rprob&,const rchan&>(l_risk::mult_leakage<rat>   ), "L"_a, "pi"_a, "C"_a);
+	m.def("mult_leakage",		overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::mult_leakage<rat>   ), "l"_a, "pi"_a, "C"_a);
 
-	m.def("strategy",			overload<const  chan&,              const  prob&,const  chan&>(l_risk::strategy<double>), "G"_a, "pi"_a, "C"_a);
-	m.def("strategy",			overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::strategy<double>), "g"_a, "pi"_a, "C"_a);
-	m.def("strategy",			overload<const rchan&,              const rprob&,const rchan&>(l_risk::strategy<rat>   ), "G"_a, "pi"_a, "C"_a);
-	m.def("strategy",			overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::strategy<rat>   ), "g"_a, "pi"_a, "C"_a);
+	m.def("strategy",			overload<const  chan&,              const  prob&,const  chan&>(l_risk::strategy<double>), "L"_a, "pi"_a, "C"_a);
+	m.def("strategy",			overload<const Metric<double,uint>&,const  prob&,const  chan&>(l_risk::strategy<double>), "l"_a, "pi"_a, "C"_a);
+	m.def("strategy",			overload<const rchan&,              const rprob&,const rchan&>(l_risk::strategy<rat>   ), "L"_a, "pi"_a, "C"_a);
+	m.def("strategy",			overload<const Metric<rat,uint>&,   const rprob&,const rchan&>(l_risk::strategy<rat>   ), "l"_a, "pi"_a, "C"_a);
 
 	m.def("add_capacity",		l_risk::add_capacity<double>, "pi"_a, "C"_a, "one_spanning_g"_a = false);
 	m.def("add_capacity",		l_risk::add_capacity<rat>,    "pi"_a, "C"_a, "one_spanning_g"_a = false);

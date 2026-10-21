@@ -14,9 +14,9 @@ void init_g_vuln_module(py::module m) {
 	)pbdoc";
 
 	m.def("prior",				overload<const  chan&,              const  prob&>(g_vuln::prior<double>), "G"_a, "pi"_a);
-	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(g_vuln::prior<double>), "G"_a, "pi"_a);
+	m.def("prior",				overload<const Metric<double,uint>&,const  prob&>(g_vuln::prior<double>), "g"_a, "pi"_a);
 	m.def("prior",				overload<const rchan&,              const rprob&>(g_vuln::prior<rat>   ), "G"_a, "pi"_a);
-	m.def("prior",				overload<const Metric<rat,uint>&,   const rprob&>(g_vuln::prior<rat>   ), "G"_a, "pi"_a);
+	m.def("prior",				overload<const Metric<rat,uint>&,   const rprob&>(g_vuln::prior<rat>   ), "g"_a, "pi"_a);
 
 	m.def("posterior",			overload<const  chan&,              const  prob&,const  chan&>(g_vuln::posterior<double>), "G"_a, "pi"_a, "C"_a);
 	m.def("posterior",			overload<const Metric<double,uint>&,const  prob&,const  chan&>(g_vuln::posterior<double>), "g"_a, "pi"_a, "C"_a);
