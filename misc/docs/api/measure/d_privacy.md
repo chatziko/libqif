@@ -16,7 +16,7 @@ Only `double` is supported.
 .. autofunction:: prior
 
    A prior vulnerability, :math:`\max_{x,x'} |\ln \pi_x - \ln \pi_{x'}| / d(x,x')`. Its additive max-case capacity
-   (the maximum over all priors of :math:`\max_y V(p_{X|y}) - V(\pi)`) equals :py:func:`smallest_epsilon`.
+   (the maximum over all priors of :math:`\max_y V(p_{X|y}) - V(\pi)`) equals :py:func:`smallest_epsilon` [CFP19].
 ```
 
 ```{eval-rst}
@@ -30,3 +30,9 @@ Only `double` is supported.
 
    The smallest :math:`\varepsilon` such that ``C`` satisfies :math:`\varepsilon d`-privacy.
 ```
+
+## References
+
+[CFP19]
+: K. Chatzikokolakis, N. Fernandes, C. Palamidessi. *Comparing systems: max-case refinement orders and
+  application to differential privacy*. CSF 2019.
