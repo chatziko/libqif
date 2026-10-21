@@ -47,7 +47,7 @@ arma::ucolvec strategy(const Prob<eT>& pi, const Chan<eT>& C) {
 
 	arma::ucolvec strategy(C.n_cols);
 	for(uint y = 0; y < C.n_cols; y++)
-		(trans(pi) % C.col(y)).max( strategy.at(y) );
+		strategy.at(y) = (trans(pi) % C.col(y)).index_max();
 
 	return strategy;
 }

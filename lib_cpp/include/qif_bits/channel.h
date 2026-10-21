@@ -367,10 +367,9 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 
 	// Solve B * X = A, if no solution exists then A is not factorizable
 	//
-	std::ostream nullstream(0);				// temporarily disable
-	ARMA_SET_CERR(nullstream);				// error messages
-	arma::solve(X, B, A);
-	ARMA_SET_CERR(std::cerr);
+	auto cerr_buf = std::cerr.rdbuf(nullptr);	// temporarily disable armadillo's
+	arma::solve(X, B, A);						// warnings (printed to std::cerr)
+	std::cerr.rdbuf(cerr_buf);
 
 	if(!X.n_cols) return X;
 	_simplex_project(X, col_stoch);

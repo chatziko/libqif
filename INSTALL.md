@@ -87,7 +87,7 @@ sudo make install
 ```
 
 Notes:
-* With CMake 4 you need to pass `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` (required by the included armadillo).
+* With CMake 4 you need to pass `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` (required by the included osqp).
 * On x86, libqif is compiled with `-march=haswell` by default (requires AVX2). Use eg `-DMARCH=native`
   to optimize for your CPU.
 
