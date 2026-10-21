@@ -42,7 +42,7 @@ Bayes risk $1 - V_1(\pi)$ is the probability that the adversary guesses the secr
    where ``pi`` is a prior achieving it.
 
    The capacity is :math:`1/(1 - \frac12 \max_{x,x'} \lVert C_{x,-} - C_{x',-}\rVert_1)`, achieved by the uniform
-   prior on the two secrets :math:`x, x'` whose rows are furthest apart. With ``method="direct"`` all pairs of rows are
+   prior on the two secrets :math:`x, x'` whose rows are furthest apart [CCPT23]. With ``method="direct"`` all pairs of rows are
    compared; ``method="linf"`` uses an embedding in :math:`\ell_\infty`, faster when ``C`` has few columns.
 ```
 
@@ -51,3 +51,9 @@ Bayes risk $1 - V_1(\pi)$ is the probability that the adversary guesses the secr
 
    The optimal guess for each observation (same as :py:func:`qif.measure.bayes_vuln.strategy`).
 ```
+
+## References
+
+[CCPT23]
+: K. Chatzikokolakis, G. Cherubin, C. Palamidessi, C. Troncoso. *Bayes security: A not so average metric*.
+  CSF 2023.

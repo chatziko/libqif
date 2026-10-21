@@ -49,7 +49,7 @@ $1$ minus the vulnerability of {doc}`pred_vuln`; for instance $U(\pi) = \min(\pi
    where ``pi`` is a prior achieving it.
 
    The capacity is :math:`1/(1 - \frac12 \max_{x \in P, x' \notin P} \lVert C_{x,-} - C_{x',-}\rVert_1)`, achieved by
-   the uniform prior on :math:`x, x'`. Only ``method="direct"`` is available.
+   the uniform prior on :math:`x, x'` [ACP25]. Only ``method="direct"`` is available.
 ```
 
 ```{eval-rst}
@@ -57,3 +57,9 @@ $1$ minus the vulnerability of {doc}`pred_vuln`; for instance $U(\pi) = \min(\pi
 
    Same as :py:func:`qif.measure.pred_vuln.binary_channel`.
 ```
+
+## References
+
+[ACP25]
+: A. Athanasiou, K. Chatzikokolakis, C. Palamidessi. *Self-Defense: Optimal QIF Solutions and Application to
+  Website Fingerprinting*. CSF 2025.

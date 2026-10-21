@@ -49,7 +49,7 @@ over the secrets. This is $g$-vulnerability for the two-block gain function, who
    where ``pi`` is a prior achieving it.
 
    The capacity is :math:`1 + \frac12 \max_{x \in P, x' \notin P} \lVert C_{x,-} - C_{x',-}\rVert_1`, achieved by the
-   uniform prior on :math:`x, x'`. Only ``method="direct"`` is available.
+   uniform prior on :math:`x, x'` [ACP25]. Only ``method="direct"`` is available.
 ```
 
 ```{eval-rst}
@@ -60,3 +60,9 @@ over the secrets. This is $g$-vulnerability for the two-block gain function, who
    ``C`` on :math:`P` and on :math:`\overline P` (weighted by ``pi``). The vulnerability of :math:`P` under ``(pi, C)``
    equals the Bayes vulnerability under ``(pi_bin, C_bin)``.
 ```
+
+## References
+
+[ACP25]
+: A. Athanasiou, K. Chatzikokolakis, C. Palamidessi. *Self-Defense: Optimal QIF Solutions and Application to
+  Website Fingerprinting*. CSF 2025.
