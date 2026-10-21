@@ -22,7 +22,7 @@ eT mult_leakage(const Prob<eT>& pi, const Chan<eT>& C) {
 	if(equal(pr, eT(0))) return eT(1);
 	
 	eT post = posterior(pi, C);
-	if(equal(pr, eT(0))) return infinity<eT>();
+	if(equal(post, eT(0))) return infinity<eT>();
 
 	return pr / post;
 }

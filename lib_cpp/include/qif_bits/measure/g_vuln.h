@@ -200,9 +200,9 @@ Mat<eT> g_add(const Mat<eT>& G1, const Mat<eT>& G2) {
 	return G;
 }
 
-// g such that Vg(pi) = Vg'(pi,C)
-//
-// 20191216: Is this really independend of pi? It seems to work only for uniform!
+// g' such that Vg'(pi) = Vg[pi,C] for all pi. The actions of g' are the strategies S: Y -> W, with
+// g'(S,x) = sum_y C[x,y] g(S(y),x). This works for any pi, since Vg[pi,C] = sum_y max_w sum_x pi[x] C[x,y] g(w,x)
+// and the max can be taken independently for each y.
 //
 template<typename eT>
 Mat<eT> g_from_posterior(const Mat<eT>& G, const Chan<eT>& C) {
