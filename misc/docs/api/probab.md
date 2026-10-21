@@ -42,7 +42,7 @@ default is `0`.
 ```{eval-rst}
 .. autofunction:: sample
 
-   Draws an element :math:`x` from ``pi`` (written :math:`X{:\in}\pi` in the book). Returns a single element,
+   Draws an element :math:`x` from ``pi``. Returns a single element,
    or an array of ``n_samples`` independent samples.
 ```
 

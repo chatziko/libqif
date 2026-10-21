@@ -5,16 +5,28 @@
 
 `qif.measure.d_privacy`
 
+For a metric $d$ on secrets, a channel $C$ satisfies $d$-privacy if
+$C_{x,y} \le e^{d(x,x')} C_{x',y}$ for all secrets $x,x'$ and observations $y$. When the secrets are databases
+and $d = \varepsilon d_H$, with $d_H$ the Hamming distance, this is standard $\varepsilon$-differential privacy.
+Only `double` is supported.
+
 ## Functions
 
 ```{eval-rst}
 .. autofunction:: prior
+
+   The ":math:`d`-vulnerability" :math:`\max_{x,x'} |\ln \pi_x - \ln \pi_{x'}| / d(x,x')` of the prior. Its max-case
+   capacity coincides with :py:func:`smallest_epsilon`.
 ```
 
 ```{eval-rst}
 .. autofunction:: is_private
+
+   Whether ``C`` satisfies ``d``-privacy.
 ```
 
 ```{eval-rst}
 .. autofunction:: smallest_epsilon
+
+   The smallest :math:`\varepsilon` such that ``C`` satisfies :math:`\varepsilon d`-privacy.
 ```
