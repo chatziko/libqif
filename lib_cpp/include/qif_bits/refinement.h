@@ -225,7 +225,7 @@ std::pair<eT,Mat<eT>> add_metric(const Prob<eT>& pi, const Chan<eT>& A, const Ch
 
 	// ready
 	if(!lp.solve())
-		throw std::runtime_error("add_metric: LP infeasible, this shouldn't happen");
+		throw std::runtime_error("add_metric: LP failed with status " + lp.status + ", this shouldn't happen");
 
 	// reconstrict gain function
 	Mat<eT> G(M+N+1, K);

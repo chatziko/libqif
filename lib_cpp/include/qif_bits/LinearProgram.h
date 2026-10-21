@@ -35,7 +35,7 @@ template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 #undef ERROR	// MSVC adds this
 namespace Status { const auto OPTIMAL = "OPTIMAL", INFEASIBLE = "INFEASIBLE", UNBOUNDED = "UNBOUNDED", INFEASIBLE_OR_UNBOUNDED = "INFEASIBLE_OR_UNBOUNDED", ERROR = "ERROR"; }
 namespace Method { const auto AUTO = "AUTO", SIMPLEX_PRIMAL = "SIMPLEX_PRIMAL", SIMPLEX_DUAL = "SIMPLEX_DUAL", INTERIOR = "INTERIOR"; }					// AUTO: whatever is best
-namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
+namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", HIGHS = "HIGHS", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
 namespace MsgLevel { const auto OFF = "OFF", ERR = "ERR", ON = "ON", ALL = "ALL"; }
 
 
@@ -91,7 +91,7 @@ class LinearProgram {
 		Col<eT> sol;			// solution
 
 		bool glpk();
-		bool ortools();
+		bool ortools(const string& s);
 		bool internal_solver();
 		bool simplex();
 
@@ -252,20 +252,25 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	// AUTO: internal for rat, GLPK for Interior, CLP if available, otherwise GLPK
-	auto s = solver;
+	// AUTO: internal for rat. For interior point: HiGHS or CLP (ortools) if available, otherwise GLPK (the internal
+	// solver doesn't support it). Otherwise CLP (ortools) if available, otherwise GLPK, otherwise internal.
+	// (CLP was the most robust in our tests, GLOP fails on badly-scaled programs, eg d-privacy with large epsilon)
+	string s = solver;
 	if(s == Solver::AUTO) {
 		if(is_rat) {
 			s = Solver::INTERNAL;
 		} else if(method == Method::INTERIOR) {
-			#ifdef QIF_USE_GLPK
+			#ifdef QIF_USE_ORTOOLS
+			s = operations_research::MPSolver::SupportsProblemType(operations_research::MPSolver::HIGHS_LINEAR_PROGRAMMING)
+				? Solver::HIGHS : Solver::CLP;
+			#elif defined(QIF_USE_GLPK)
 			s = Solver::GLPK;
 			#else
-			s = Solver::INTERNAL;
+			throw std::runtime_error("interior point method needs ortools or glpk");
 			#endif
 		} else {
 			#ifdef QIF_USE_ORTOOLS
-			s = Solver::GLOP;
+			s = Solver::CLP;
 			#elif defined(QIF_USE_GLPK)
 			s = Solver::GLPK;
 			#else
@@ -280,7 +285,7 @@ bool LinearProgram<eT>::solve() {
 	return
 		s == Solver::GLPK ? glpk() :
 		s == Solver::INTERNAL ? internal_solver() :
-		ortools();		// make sure that AUTO in ortools() is treated in the same way as here!
+		ortools(s);
 }
 
 // internal solver, uses simplex() after cloning and converting to canonical form. Mostly useful for rats
@@ -448,7 +453,7 @@ bool LinearProgram<eT>::glpk() {
 }
 
 template<typename eT>
-bool LinearProgram<eT>::ortools() {
+bool LinearProgram<eT>::ortools(const string& s) {
 	if(is_rat)
 		std::cout << "\nWARNING: using OR-tools with rat. This will convert to double so it's not exact.\n\n";
 
@@ -457,36 +462,20 @@ bool LinearProgram<eT>::ortools() {
 #else
 	using namespace operations_research;
 
-	// GLOP/CLP are always available in the ortools binaries. For the others (GUROBI/CPLEX), the user should
-	// probably set -DUSE_<SOLVER> when compiling (not tested).
+	// GLOP/CLP/HiGHS are included in the ortools binaries. GUROBI is loaded dynamically by ortools upon use (it needs
+	// to be installed and licensed). CPLEX needs ortools to be compiled with USE_CPLEX.
 	//
-	MPSolver::OptimizationProblemType ptype;
-	if(solver ==  Solver::AUTO || solver ==  Solver::GLOP) {
-		ptype = MPSolver::GLOP_LINEAR_PROGRAMMING;
+	MPSolver::OptimizationProblemType ptype =
+		s == Solver::GLOP   ? MPSolver::GLOP_LINEAR_PROGRAMMING :
+		s == Solver::CLP    ? MPSolver::CLP_LINEAR_PROGRAMMING :
+		s == Solver::HIGHS  ? MPSolver::HIGHS_LINEAR_PROGRAMMING :
+		s == Solver::GUROBI ? MPSolver::GUROBI_LINEAR_PROGRAMMING :
+		s == Solver::CPLEX  ? MPSolver::CPLEX_LINEAR_PROGRAMMING :
+		throw std::runtime_error("unknown solver: " + s);
 
-	} else if(solver == Solver::CLP) {
-		ptype = MPSolver::CLP_LINEAR_PROGRAMMING;
+	if(!MPSolver::SupportsProblemType(ptype))
+		throw std::runtime_error("solver " + s + " is not available in ortools");
 
-	} else if(solver == Solver::GUROBI) {
-		#ifdef USE_GUROBI
-		ptype = MPSolver::GUROBI_LINEAR_PROGRAMMING;
-		break;
-		#else
-		throw std::runtime_error("GUROBI not enabled, please compile ortools with GUROBI and use -DUSE_GUROBI");
-		#endif
-
-	} else if(solver == Solver::CPLEX) {
-		#ifdef USE_CPLEX
-		ptype = MPSolver::CP:EX_LINEAR_PROGRAMMING;
-		break;
-		#else
-		throw std::runtime_error("CPLEX not enabled, please compile ortools with GUROBI and use -DUSE_CPLEX");
-		#endif
-
-	} else {
-		// GLPK/INTERNAL are handled by other methods
-		throw std::runtime_error("shouldn't arrive here");
-	}
 	MPSolver orsolver("libqif", ptype);
 
 	eT inf = infinity<eT>();
