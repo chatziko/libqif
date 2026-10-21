@@ -20,8 +20,10 @@ _stub_cache = {}
 
 
 def _stubs_dir():
-	# the stubs are next to the module in an installed wheel, but not in the cmake build dir
-	return os.environ.get('QIF_STUBS_DIR') or os.path.dirname(os.path.dirname(qif.__file__))
+	# QIF_STUBS_DIR is set by cmake (which builds from a copy of the docs), otherwise use the repository's stubs
+	# if available (eg docs/build.sh), falling back to the ones installed with the module
+	repo = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'lib_python', 'src')
+	return os.environ.get('QIF_STUBS_DIR') or (repo if os.path.isdir(repo) else os.path.dirname(os.path.dirname(qif.__file__)))
 
 
 def _stub_functions(module):

@@ -1,0 +1,5 @@
+# docs dependencies, see build.sh. qif is the released version from PyPI (no need to compile the library)
+qif
+sphinx
+myst-parser
+furo

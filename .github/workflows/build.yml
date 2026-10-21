@@ -1,6 +1,6 @@
 name: build
 
-# Each push builds a single linux wheel (cp313), which also runs the C++ tests and builds the docs.
+# Each push builds a single linux wheel (cp313), which also runs the C++ tests and builds the docs (as a check, they are published by Cloudflare Pages, see misc/docs/build.sh).
 # The full build (all platforms and python versions) runs on release tags (v*), and manually via "Run workflow".
 on:
   push:
@@ -89,7 +89,7 @@ jobs:
         path: ./wheelhouse/
 
 
-  # Upload wheels to PyPI and publish docs ##########################################################
+  # Upload wheels to PyPI ##########################################################
   upload_pypi:
     needs: [build_wheels]
     runs-on: ubuntu-latest
@@ -112,12 +112,3 @@ jobs:
           user: __token__
           password: ${{ secrets.test_pypi_password }}
           repository-url: https://test.pypi.org/legacy/
-
-      - name: Publish docs to gh-pages
-        if: ${{ !contains(github.event.ref, '-test') }}
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          force_orphan: true
-          publish_branch: gh-pages
-          publish_dir: ./html

@@ -17,10 +17,6 @@ cmake -DMARCH=x86-64 -DPython3_EXECUTABLE=/opt/python/cp311-cp311/bin/python -DP
 make qif_cpp tests_cpp samples docs -j 2
 ./tests_cpp/run
 
-mkdir -p /output																	# this is copied to host's 'wheelhouse' dir by cibuildwheel. At this moment it doesn't exist yet, so create
-mv misc/docs/_build/html /output													# save in case we need to publish it
-touch /output/html/.nojekyll														# disable jekyll processing, cause it hides folders starting with underscore!
-
 rm -rf *
 cmake -DPython3_EXECUTABLE=/opt/python/cp311-cp311/bin/python -DPYTHON_EXECUTABLE=/opt/python/cp311-cp311/bin/python ..						# then compile again with the default march
 make install -j 2

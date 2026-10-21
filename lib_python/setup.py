@@ -77,7 +77,7 @@ setup(
 	url='https://github.com/chatziko/libqif',
 	project_urls={
 		"Bug Tracker": "https://github.com/chatziko/libqif/issues",
-		"Documentation": "http://chatziko.github.io/libqif/",
+		"Documentation": "https://libqif.chatzi.org/",
 		"Source Code": "https://github.com/chatziko/libqif",
 	},
 	description='Quantitative Information Flow library',

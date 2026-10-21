@@ -3,13 +3,11 @@
 # The pages are written in markdown (MyST), function signatures come from autodoc (see _ext/qif_docs.py).
 
 import os
-import re
-import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('_ext'))
 
-# fail early if the qif module cannot be imported (it's in PYTHONPATH), otherwise autodoc silently produces empty docs
+# fail early if the qif module cannot be imported (from PyPI, or in PYTHONPATH when built via cmake), otherwise autodoc silently produces empty docs
 import qif
 
 # -- General configuration ------------------------------------------------
@@ -31,10 +29,7 @@ project = 'qif'
 author = 'Kostas Chatzikokolakis'
 copyright = author
 
-tag = subprocess.check_output('git describe --tags; exit 0', stderr=subprocess.DEVNULL, shell=True).decode("utf-8")
-m = re.match(r"v([\d.]+)", tag)
-version = m.group(1) if m else 'dev'
-release = version
+version = release = qif.__version__     # 'dev' when built from source
 
 # -- MyST -----------------------------------------------------------------
 

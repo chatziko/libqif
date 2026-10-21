@@ -43,7 +43,7 @@ compute_bayes(C)
 
 ## Documentation
 
-A list of methods provided by `qif` is available [here](http://chatziko.github.io/libqif/).
+The documentation is available at [libqif.chatzi.org](https://libqif.chatzi.org/).
 
 ## Use libqif with C++
 
