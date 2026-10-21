@@ -32,11 +32,11 @@ PYBIND11_MODULE(_qif, m) {
 
 	// Types
     py::class_<point>(m, "point")
-		.def(py::init<double,double>())
+		.def(py::init<double,double>(), "x"_a, "y"_a)
 		.def_readwrite("x", &point::x)
 		.def_readwrite("y", &point::y)
-		.def_static("from_polar", &point::from_polar)
-		.def_static("from_cell", &point::from_cell)
+		.def_static("from_polar", &point::from_polar, "radius"_a, "angle"_a)
+		.def_static("from_cell", &point::from_cell, "cell"_a, "width"_a)
         .def(py::self + py::self)
         .def("__repr__", &point::to_string);
 
