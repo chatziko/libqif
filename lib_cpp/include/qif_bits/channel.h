@@ -200,6 +200,13 @@ std::pair<Prob<eT>,Mat<eT>> hyper(const Chan<eT>& C, const Prob<eT>& pi) {
 			first = col;
 	}
 
+	// delete the zero-probability cols left by the merging (inverse order to avoid changing the index)
+	for(int i = outer.n_elem - 1; i >= 0; i--)
+		if(outer(i) == eT(0)) {
+			inners.shed_col(i);
+			outer.shed_col(i);
+		}
+
 	return { outer, inners };
 }
 

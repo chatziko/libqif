@@ -150,6 +150,24 @@ TYPED_TEST_P(ChanTest, LeftFactorize) {
 	EXPECT_PRED_FORMAT4(chan_equal4<eT>, A, Z1, eT(1e-4), eT(0));		// default is subgrad method, with tolerance 1e-4
 }
 
+TYPED_TEST_P(ChanTest, Hyper) {
+	typedef TypeParam eT;
+
+	// cols 1,2 give the same posterior, col 3 has zero probability
+	eT h = eT(1)/2;
+	Chan<eT> C = { {eT(1), eT(0), eT(0), eT(0)}, {eT(0), h, h, eT(0)}, {eT(0), h, h, eT(0)} };
+	Prob<eT> pi = probab::uniform<eT>(3);
+
+	auto [outer, inners] = hyper(C, pi);
+	EXPECT_EQ(2u, outer.n_elem);
+	EXPECT_EQ(2u, inners.n_cols);
+	EXPECT_PRED_FORMAT2(prob_equal2<eT>, Prob<eT>({ eT(1)/3, eT(2)/3 }), outer);
+
+	Chan<eT> R = reduced(C);
+	EXPECT_EQ(2u, R.n_cols);
+	EXPECT_PRED_FORMAT2(chan_equal2<eT>, Chan<eT>("1 0; 0 1; 0 1"), R);
+}
+
 TYPED_TEST_P(ChanTest, BayesianUpdate) {
 	typedef TypeParam eT;
 	BaseTest<eT>& t = *this;
@@ -176,7 +194,7 @@ TYPED_TEST_P(ChanTest, BayesianUpdate) {
 
 // run ChanTest for all types, ChanTestReals only for native types
 //
-REGISTER_TYPED_TEST_SUITE_P(ChanTest, Construct, Identity, Randu, Factorize, LeftFactorize, BayesianUpdate);
+REGISTER_TYPED_TEST_SUITE_P(ChanTest, Construct, Identity, Randu, Factorize, LeftFactorize, Hyper, BayesianUpdate);
 REGISTER_TYPED_TEST_SUITE_P(ChanTestReals, FactorizeSubgrad);
 
 INSTANTIATE_TYPED_TEST_SUITE_P(Chan, ChanTest, AllTypes);
