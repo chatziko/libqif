@@ -15,8 +15,8 @@ Only `double` is supported.
 ```{eval-rst}
 .. autofunction:: prior
 
-   The ":math:`d`-vulnerability" :math:`\max_{x,x'} |\ln \pi_x - \ln \pi_{x'}| / d(x,x')` of the prior. Its max-case
-   capacity coincides with :py:func:`smallest_epsilon`.
+   A prior vulnerability, :math:`\max_{x,x'} |\ln \pi_x - \ln \pi_{x'}| / d(x,x')`. Its additive max-case capacity
+   (the maximum over all priors of :math:`\max_y V(p_{X|y}) - V(\pi)`) equals :py:func:`smallest_epsilon`.
 ```
 
 ```{eval-rst}
