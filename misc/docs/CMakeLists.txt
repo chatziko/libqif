@@ -15,6 +15,7 @@ include(../cmake/UseSphinxDoc.cmake)
 add_sphinx_doc(
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	PYTHONPATH ${CMAKE_CURRENT_BINARY_DIR}/../../lib_python
+	STUBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../lib_python/src		# signatures are taken from the .pyi stubs
 	TARGET_NAME docs
 )
 add_dependencies(docs qif_python)

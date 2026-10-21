@@ -1,5 +1,5 @@
 """
-Mechanism construction for :math:`g`-vulnerabiliy.
+Mechanism construction for :math:`g`-vulnerability.
 """
 from .. import typing as t
 

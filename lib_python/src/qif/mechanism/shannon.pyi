@@ -1,5 +1,5 @@
 """
-Mechanism construction for Shannon enropy.
+Mechanism construction for Shannon entropy.
 """
 from .. import typing as t
 

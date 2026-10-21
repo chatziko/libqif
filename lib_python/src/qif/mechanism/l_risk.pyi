@@ -1,4 +1,4 @@
-"""
+r"""
 Mechanism construction for :math:`\ell`-risk.
 """
 from .. import typing as t

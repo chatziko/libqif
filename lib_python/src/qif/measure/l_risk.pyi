@@ -1,4 +1,4 @@
-"""
+r"""
 :math:`\ell`-risk (loss-based Bayes risk).
 """
 from .. import typing as t

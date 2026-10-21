@@ -6,6 +6,7 @@ function(add_sphinx_doc)
   set(oneValueArgs
     SOURCE_DIR
     PYTHONPATH
+    STUBS_DIR
     TARGET_NAME
   )
   set(multiValueArgs)
@@ -23,7 +24,7 @@ function(add_sphinx_doc)
       rm -rf ${CMAKE_CURRENT_BINARY_DIR}/_build/ &&
       mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/_build/ &&
       cp -r ${SPHINX_DOC_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/_build/sources &&
-      PYTHONPATH=${SPHINX_DOC_PYTHONPATH} ${SPHINX_EXECUTABLE}
+      PYTHONPATH=${SPHINX_DOC_PYTHONPATH} QIF_STUBS_DIR=${SPHINX_DOC_STUBS_DIR} ${SPHINX_EXECUTABLE}
          -q
          -b html
          -d ${CMAKE_CURRENT_BINARY_DIR}/_build/doctrees

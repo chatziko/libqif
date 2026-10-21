@@ -17,6 +17,8 @@
           python = pkgs.python3.withPackages (ps: with ps; [
             numpy
             sphinx
+            myst-parser
+            furo
           ]);
 
           # ortoolsConfig.cmake calls find_dependency on these. Take them from or-tools' own inputs

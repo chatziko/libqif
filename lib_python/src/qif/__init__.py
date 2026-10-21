@@ -1,20 +1,5 @@
 """
 Quantitative Information Flow library.
-
-.. autosummary::
-	:toctree: _autosummary
-	:template: template.rst
-
-	channel
-	probab
-	metric
-	measure
-	mechanism
-	refinement
-	utility
-	lp
-
-|
 """
 
 try:

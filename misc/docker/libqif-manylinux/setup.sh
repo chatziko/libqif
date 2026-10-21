@@ -61,7 +61,7 @@ echo /opt/ortools/lib   >> /etc/ld.so.conf.d/ortools.conf
 ldconfig
 
 # Sphinx needed for docs, numpy to import the qif module while generating docs
-/opt/python/cp311-cp311/bin/pip install Sphinx numpy
+/opt/python/cp311-cp311/bin/pip install Sphinx myst-parser furo numpy
 
 # cleanup
 rm -rf /tmp/*
