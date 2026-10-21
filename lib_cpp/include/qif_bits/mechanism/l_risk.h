@@ -18,7 +18,7 @@ Chan<eT> min_loss_given_min_risk(
 	auto adv_gain = measure::l_risk::loss_to_gain(pi.n_elem, n_guesses, adv_loss);
 	eT max_vuln = adv_gain(0,0) + adv_loss(0,0) - min_risk;		// gain(0,0) + loss(0,0) is the ceiling
 
-	return g_vuln::min_loss_given_max_vuln(pi, n_cols, pi.n_elem, max_vuln, adv_gain, loss, hard_max_loss);
+	return g_vuln::min_loss_given_max_vuln(pi, n_cols, n_guesses, max_vuln, adv_gain, loss, hard_max_loss);
 }
 
 // Returns the mechanism having the largest Rl[pi,C] given the E[u_loss] <= max_loss constraint.
@@ -35,7 +35,7 @@ Chan<eT> max_risk_given_max_loss(
 ) {
 	auto adv_gain = measure::l_risk::loss_to_gain(pi.n_elem, n_guesses, adv_loss);
 
-	return g_vuln::min_vuln_given_max_loss(pi, n_cols, pi.n_elem, max_loss, adv_gain, loss, hard_max_loss);
+	return g_vuln::min_vuln_given_max_loss(pi, n_cols, n_guesses, max_loss, adv_gain, loss, hard_max_loss);
 }
 
 } // namespace mechanism::l_risk
