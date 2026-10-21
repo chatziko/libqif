@@ -186,8 +186,8 @@ manhattan_chain() {
 
 template<typename R = R_def>
 Metric<R, uint>
-from_distance_matrix(Mat<R>& M) {
-	return [&M](const uint& a, const uint& b) -> R {
+from_distance_matrix(const Mat<R>& M) {
+	return [M](const uint& a, const uint& b) -> R {		// capture a copy, M might be a temporary
 		return M(a, b);
 	};
 }

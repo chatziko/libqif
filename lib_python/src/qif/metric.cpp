@@ -29,18 +29,18 @@ void init_metric_module(py::module m) {
 	m.def("mult_reals",		[](double_c_t) { return metric::mult_reals<double,double>(); }, "type"_a = def_type());
 
 	// TODO: Maybe do metric manipulation at the python level to treat all types together
-	m.def("scale",  				metric::scale<double,double>);
-	m.def("scale",  				metric::scale<rat,rat>);
-	m.def("scale",  				metric::scale<double,prob>);
+	m.def("scale",  				metric::scale<double,double>, "d"_a, "coeff"_a);
+	m.def("scale",  				metric::scale<rat,rat>, "d"_a, "coeff"_a);
+	m.def("scale",  				metric::scale<double,prob>, "d"_a, "coeff"_a);
 
-	m.def("min",	  				metric::min<double,double>);
-	m.def("max",	  				metric::max<double,double>);
-	m.def("mirror",	  				metric::mirror<double,double>);
-	m.def("threshold", 				metric::threshold<double,double>);
-	m.def("threshold_inf",			metric::threshold_inf<double,double>);
+	m.def("min",	  				metric::min<double,double>, "d1"_a, "d2"_a);
+	m.def("max",	  				metric::max<double,double>, "d1"_a, "d2"_a);
+	m.def("mirror",	  				metric::mirror<double,double>, "d"_a);
+	m.def("threshold", 				metric::threshold<double,double>, "d"_a, "thres"_a);
+	m.def("threshold_inf",			metric::threshold_inf<double,double>, "d"_a, "thres"_a);
 
-	m.def("from_distance_matrix",	metric::from_distance_matrix<double>);
-	m.def("to_distance_matrix",		metric::to_distance_matrix<double>);
+	m.def("from_distance_matrix",	metric::from_distance_matrix<double>, "M"_a);
+	m.def("to_distance_matrix",		metric::to_distance_matrix<double>, "d"_a, "n_rows"_a, "n_cols"_a = 0);
 
 	m.def("l1",						metric::l1<double,prob>);
 	m.def("l2"		,				metric::l2<double,prob>);
@@ -49,7 +49,7 @@ void init_metric_module(py::module m) {
 	m.def("mult_total_variation",	metric::mult_total_variation<double,prob>);
 	m.def("convex_separation_quasi",metric::convex_separation_quasi<double,prob>);
 	m.def("convex_separation",		metric::convex_separation<double,prob>);
-	m.def("kantorovich",			metric::kantorovich<double,prob>);
-	m.def("mult_kantorovich",		metric::mult_kantorovich<double,prob>);
+	m.def("kantorovich",			metric::kantorovich<double,prob>, "d"_a);
+	m.def("mult_kantorovich",		metric::mult_kantorovich<double,prob>, "d"_a);
 
 }
