@@ -28,16 +28,7 @@ void init_metric_module(py::module m) {
 
 	m.def("mult_reals",		[](double_c_t) { return metric::mult_reals<double,double>(); }, "type"_a = def_type());
 
-	// TODO: Maybe do metric manipulation at the python level to treat all types together
-	m.def("scale",  				metric::scale<double,double>, "d"_a, "coeff"_a);
-	m.def("scale",  				metric::scale<rat,rat>, "d"_a, "coeff"_a);
-	m.def("scale",  				metric::scale<double,prob>, "d"_a, "coeff"_a);
-
-	m.def("min",	  				metric::min<double,double>, "d1"_a, "d2"_a);
-	m.def("max",	  				metric::max<double,double>, "d1"_a, "d2"_a);
-	m.def("mirror",	  				metric::mirror<double,double>, "d"_a);
-	m.def("threshold", 				metric::threshold<double,double>, "d"_a, "thres"_a);
-	m.def("threshold_inf",			metric::threshold_inf<double,double>, "d"_a, "thres"_a);
+	// scale, min, max, mirror, threshold, threshold_inf are implemented in python (metric/__init__.py)
 
 	m.def("from_distance_matrix",	metric::from_distance_matrix<double>, "M"_a);
 	m.def("to_distance_matrix",		metric::to_distance_matrix<double>, "d"_a, "n_rows"_a, "n_cols"_a = 0);
