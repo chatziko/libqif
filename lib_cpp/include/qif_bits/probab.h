@@ -188,16 +188,16 @@ inline bool equal(const Prob<eT>& A, const Prob<eT>& B, const eT& md = def_md<eT
 	return true;
 }
 
-// Takes a probability pi on a grid of given width.
-// Returns a grid representation of that probability.
+// Takes a probability pi on the cells of a grid of given width, where cell (x,y) has index y*width+x
+// (as in Point::from_cell). Returns the grid as a matrix with width columns, element (y,x) being pi(y*width+x).
 //
 template<typename eT = eT_def>
 Mat<eT> to_grid(const Prob<eT>& pi, uint width) {
-	return arma::trans(arma::reshape(pi, pi.n_elem / width, width));
+	return arma::trans(arma::reshape(pi, width, pi.n_elem / width));
 }
 
-// Vectorizes a probability on a grid.
-// Element (i,j) is mapped to i+j*width.
+// Vectorizes a probability on a grid (inverse of to_grid).
+// Element (y,x) is mapped to y*width+x, where width = grid.n_cols.
 //
 template<typename eT = eT_def>
 Prob<eT> from_grid(const Mat<eT>& grid) {

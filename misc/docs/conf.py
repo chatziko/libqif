@@ -24,7 +24,7 @@ extensions = [
 
 source_suffix = {'.md': 'markdown', '.rst': 'restructuredtext'}
 master_doc = 'index'
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', '_notes']
 language = 'en'
 
 project = 'qif'
