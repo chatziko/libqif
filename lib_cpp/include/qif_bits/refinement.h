@@ -125,13 +125,6 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	return res;
 }
 
-// same, without R
-template<typename eT>
-bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G) {
-	Chan<eT> R;
-	return refined_by<eT>(A, B, G, R);
-}
-
 
 
 // true if A is max-case refined by B (i.e. A's max-case leakage is >= B's)

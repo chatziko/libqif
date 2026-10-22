@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Python: more consistent argument names.
 - Upgraded Armadillo to 15.6.2 and OSQP to 1.0.0. CMake 4 works without extra flags.
 
+### Removed
+- C++: `refinement::refined_by(A, B, G)`, use `refined_by(A, B, G, R)` instead.
+- C++: `metric::threshold_bin`.
+
 ### Fixed
 - `mechanism.l_risk` ignored `n_guesses`.
 - `channel.left_factorize` failed for matrices with 1000 or more elements (and `channel.factorize` with `col_stoch` using the subgradient method).

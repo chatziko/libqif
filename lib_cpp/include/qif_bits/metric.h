@@ -114,17 +114,6 @@ threshold(Metric<R, T> d, R thres) {
 	};
 }
 
-// 0 if below threshold t, 1 otherwise (technically not a metric)
-// Kostas: is this used somewhere?
-//
-template<typename R = R_def, typename T>
-Metric<R, T>
-threshold_bin(Metric<R, T> d, R thres) {
-	return [d, thres](const T& a, const T& b) -> R {
-		return less_than(d(a, b), thres) ? R(0) : R(1);
-	};
-}
-
 // inf if above threshold t, same as d otherwise (technically not a metric)
 //
 template<typename R = R_def, typename T>
