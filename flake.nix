@@ -16,6 +16,7 @@
           # Use the default python3: or-tools propagates python3 packages into PYTHONPATH.
           python = pkgs.python3.withPackages (ps: with ps; [
             numpy
+            pytest
             sphinx
             myst-parser
             furo
