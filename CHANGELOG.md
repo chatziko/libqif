@@ -9,8 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - New documentation site at [libqif.chatzi.org](https://libqif.chatzi.org), with one page per module.
 - `qif.lp`: HiGHS solver.
 - `method` argument in `channel.factorize`, `channel.left_factorize` (`"lp"`, `"subgrad"`) and `metric.kantorovich` (`"lp"`, `"fastemd"`).
+- `bayes_vuln.mult_capacity_bound_cap` in python.
+- `metric.manhattan` in python, `rat` support in `metric.l1`, `total_variation`, `convex_separation(_quasi)`, `kantorovich`, `from_distance_matrix` and `to_distance_matrix`.
 
 ### Changed
+- `metric.euclidean(uint)` and `metric.discrete(uint)` return distances of the default type (`rat` after `set_default_type(rat)`, previously always `double`).
 - `qif.lp`: the default solver is CLP (instead of GLOP), and HiGHS for interior point.
 - `qif.metric`: the combinators work for metrics on any domain.
 - `channel.hyper` removes zero-probability columns, `bayes_risk.mult_leakage` returns `inf` for zero posterior risk.

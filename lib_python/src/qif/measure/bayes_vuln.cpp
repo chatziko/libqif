@@ -30,6 +30,8 @@ void init_bayes_vuln_module(py::module m) {
 	m.def("mult_capacity",  		bayes_vuln::mult_capacity<double>, "C"_a);
 	m.def("mult_capacity",  		bayes_vuln::mult_capacity<rat>,    "C"_a);
 
+	m.def("mult_capacity_bound_cap",bayes_vuln::mult_capacity_bound_cap<double>, "C"_a, "n"_a);
+
 	m.def("strategy",  				bayes_vuln::strategy<double>, "pi"_a, "C"_a);
 	m.def("strategy",  				bayes_vuln::strategy<rat>,    "pi"_a, "C"_a);
 

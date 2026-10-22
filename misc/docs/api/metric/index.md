@@ -11,6 +11,11 @@ secrets (indices $0,\ldots,n{-}1$), on numbers, on {py:class}`qif.point`, or on 
 constructed functions are not strictly metrics (for instance they are not symmetric), but are still useful as
 distances.
 
+Distances are of the default type (see {py:func}`qif.set_default_type`): metrics on secrets (`uint`) return `double`
+or `rat` distances accordingly, and the functions constructing metrics on distributions take a `type` argument
+(`double` or `rat`), defaulting to the default type. Functions that need logarithms or square roots are only available
+for `double`.
+
 ```{toctree}
 :maxdepth: 1
 
@@ -22,8 +27,8 @@ optimize
 ```{eval-rst}
 .. autofunction:: euclidean
 
-   The Euclidean metric :math:`|a - b|` on numbers (``double``, ``rat``) or secrets (``uint``), or the Euclidean
-   distance between two points (``point``), depending on ``type``.
+   The Euclidean metric :math:`|a - b|` on numbers (``double``, ``rat``) or secrets (``uint``, with distances of the
+   default type), or the Euclidean distance between two points (``point``), depending on ``type``.
 ```
 
 ```{eval-rst}
@@ -33,6 +38,12 @@ optimize
    chain :math:`a = e_1, \ldots, e_k = b` of intermediate elements with :math:`d(a,b) = \sum_i d(e_i, e_{i+1})`. For
    secrets (``uint``) this holds for all :math:`a, b` with :math:`|a - b| \neq 1`; for other types it is always false.
    Used by :py:func:`qif.mechanism.d_privacy.min_loss_given_d` to skip redundant constraints.
+```
+
+```{eval-rst}
+.. autofunction:: manhattan
+
+   The Manhattan distance :math:`|a_x - b_x| + |a_y - b_y|` between two points (:py:class:`qif.point`).
 ```
 
 ```{eval-rst}
@@ -148,7 +159,7 @@ optimize
    :math:`f` with :math:`|f(x) - f(x')| \le d(x,x')`. With ``method="fastemd"`` (the default ``"auto"``) it is computed
    with the FastEMD algorithm, which requires ``d`` to be a metric and has limited precision (about ``1e-5``
    relative). ``method="lp"`` uses linear programming instead: slower, but more precise, and ``d`` can be any
-   distance function.
+   distance function. For ``rat`` only ``"lp"`` is available (and used by ``"auto"``).
 ```
 
 ```{eval-rst}
