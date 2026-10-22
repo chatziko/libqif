@@ -62,6 +62,7 @@ jobs:
         cmake-version: '4.2.x'
 
     - name: Build wheels
+      shell: bash     # on windows the default is pwsh, which does not stop when cibuildwheel fails
       env:
         CIBW_TEST_REQUIRES: pytest
         CIBW_TEST_COMMAND: python {project}/.github/workflows/test-wheel.py && python -m pytest {project}/tests -p no:cacheprovider
