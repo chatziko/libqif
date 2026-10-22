@@ -336,7 +336,7 @@ inline
 void _simplex_project(Chan<eT>& C, bool col_stoch) {
 	if(col_stoch)
 		for(uint j = 0; j < C.n_cols; j++)
-			C.col(j) = metric::optimize::simplex_project((Prob<eT>)C.col(j));
+			C.col(j) = metric::optimize::simplex_project((Prob<eT>)C.col(j).t()).t();
 	else
 		for(uint i = 0; i < C.n_rows; i++)
 			C.row(i) = metric::optimize::simplex_project((Prob<eT>)C.row(i));
