@@ -18,9 +18,22 @@ env:
   MANYLINUX_IMAGE: ghcr.io/chatziko/libqif/manylinux:v15
 
 jobs:
+  # On release tags, check that the latest version in CHANGELOG.md matches the tag (before spending time on wheels)
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+      if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-test')
+
+    - name: Check CHANGELOG.md
+      if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-test')
+      run: bash .github/workflows/changelog-section.sh "${GITHUB_REF_NAME#v}"
+
+
   # Build wheels on all platforms ########################################################
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    needs: [changelog]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -30,7 +43,7 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
         fetch-depth: 0    # needed for tags
@@ -93,7 +106,11 @@ jobs:
     needs: [build_wheels]
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags/v')
+    permissions:
+      contents: write     # for creating the GitHub release
     steps:
+      - uses: actions/checkout@v5     # for CHANGELOG.md (before downloading the wheels, checkout cleans the dir)
+
       - uses: actions/download-artifact@v5
         with:
           pattern: wheels-*
@@ -111,3 +128,12 @@ jobs:
           user: __token__
           password: ${{ secrets.test_pypi_password }}
           repository-url: https://test.pypi.org/legacy/
+
+      # GitHub release (not for test tags), with the CHANGELOG.md section of the version as notes, and the wheels
+      - name: GitHub release
+        if: ${{ !contains(github.event.ref, '-test') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bash .github/workflows/changelog-section.sh "${GITHUB_REF_NAME#v}" > release-notes.md
+          gh release create "$GITHUB_REF_NAME" dist/*.whl --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md
