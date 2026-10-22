@@ -132,11 +132,11 @@ jobs:
           password: ${{ secrets.test_pypi_password }}
           repository-url: https://test.pypi.org/legacy/
 
-      # GitHub release (not for test tags), with the CHANGELOG.md section of the version as notes, and the wheels
+      # GitHub release (not for test tags), with the CHANGELOG.md section of the version as notes (no wheels, they are on PyPI)
       - name: GitHub release
         if: ${{ !contains(github.event.ref, '-test') }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           bash .github/workflows/changelog-section.sh "${GITHUB_REF_NAME#v}" > release-notes.md
-          gh release create "$GITHUB_REF_NAME" dist/*.whl --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md
