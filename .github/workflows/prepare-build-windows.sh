@@ -8,7 +8,7 @@
 # Note: armadillo searches it as 'openblas' but in the resulting wheel it needs to be 'libopenblas', so we create both
 mkdir -p /usr/local/lib /usr/local/include
 pushd /tmp
-curl https://github.com/xianyi/OpenBLAS/releases/download/v0.3.10/OpenBLAS-0.3.10-x64.zip -L --output openblas.zip
+curl https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.34/OpenBLAS-0.3.34-x64.zip -L --output openblas.zip
 (mkdir openblas && cd openblas && 7z x ../openblas.zip)
 cp openblas/bin/libopenblas.dll /usr/local/lib/openblas.dll
 cp openblas/bin/libopenblas.dll /usr/local/lib/libopenblas.dll
