@@ -15,7 +15,7 @@ env:
   # built manually, bump the tag when misc/docker/libqif-manylinux changes:
   #   docker build --pull -t ghcr.io/chatziko/libqif/manylinux:vN misc/docker/libqif-manylinux
   #   docker push ghcr.io/chatziko/libqif/manylinux:vN
-  MANYLINUX_IMAGE: ghcr.io/chatziko/libqif/manylinux:v14
+  MANYLINUX_IMAGE: ghcr.io/chatziko/libqif/manylinux:v15
 
 jobs:
   # Build wheels on all platforms ########################################################

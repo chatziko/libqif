@@ -22,17 +22,17 @@ ln -s /usr/local/lib/libopenblas.a /usr/local/lib/liblapack.a		# implementation,
 
 # gmp
 cd /tmp
-wget -nv https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz		# gmplib.org blocks CI runners
+wget -nv https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz		# gmplib.org blocks CI runners
 tar -xf gmp*.tar.xz
-cd gmp-6.2.1
+cd gmp-6.3.0
 ./configure --enable-fat										# code for all CPUs, selected at runtime
 make -j$(nproc)
 make install
 
-# cmake 3.x, cmake 4 refuses armadillo's old CMakeLists.txt. ortools needs >= 3.24
-curl -LO https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh
-chmod +x cmake-3.31.6-linux-x86_64.sh
-./cmake-3.31.6-linux-x86_64.sh --skip-license --prefix=/usr/local
+# cmake (ortools needs >= 3.24)
+curl -LO https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-linux-x86_64.sh
+chmod +x cmake-4.4.4-linux-x86_64.sh
+./cmake-4.4.4-linux-x86_64.sh --skip-license --prefix=/usr/local
 
 # ortools, in /opt/ortools (CMAKE_PREFIX_PATH is set in Dockerfile)
 cd /tmp

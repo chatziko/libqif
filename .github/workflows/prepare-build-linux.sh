@@ -5,9 +5,6 @@ set -e		# stop on any error
 
 cat /proc/cpuinfo
 
-# docs dependencies, already in images >= v15 (see setup.sh), installed here for older ones
-/opt/python/cp311-cp311/bin/pip install Sphinx myst-parser furo numpy
-
 # build qif
 # Python3_EXECUTABLE/PYTHON_EXECUTABLE are needed only for docs (python module / sphinx-build), they need to match the version used to install
 # Sphinx in the libqif-manylinux container (see setup.sh)
