@@ -40,7 +40,7 @@ void init_metric_module(py::module m) {
 	m.def("mult_total_variation",	metric::mult_total_variation<double,prob>);
 	m.def("convex_separation_quasi",metric::convex_separation_quasi<double,prob>);
 	m.def("convex_separation",		metric::convex_separation<double,prob>);
-	m.def("kantorovich",			metric::kantorovich<double,prob>, "d"_a);
+	m.def("kantorovich",			metric::kantorovich<double,prob>, "d"_a, "method"_a = "auto");
 	m.def("mult_kantorovich",		metric::mult_kantorovich<double,prob>, "d"_a);
 
 }

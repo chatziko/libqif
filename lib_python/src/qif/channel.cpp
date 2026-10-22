@@ -60,12 +60,11 @@ void init_channel_module(py::module m) {
 		"C"_a, "out"_a, "start"_a = py::none(), "max_diff"_a = py::none(), "max_iter"_a = 0
 	);
 
-	// TODO: add "method" to factorize
-	m.def("factorize",   	channel::factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false);
-	m.def("factorize",   	channel::factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false);
+	m.def("factorize",   	channel::factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
+	m.def("factorize",   	channel::factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
 
-	m.def("left_factorize", channel::left_factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false);
-	m.def("left_factorize", channel::left_factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false);
+	m.def("left_factorize", channel::left_factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
+	m.def("left_factorize", channel::left_factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
 
 	m.def("sum_column_min", channel::sum_column_min<double>, "C"_a);
 	m.def("sum_column_min", channel::sum_column_min<rat>,    "C"_a);

@@ -110,15 +110,17 @@ compose
 .. autofunction:: factorize
 
    Returns a channel :math:`X` such that :math:`A = BX`, or an empty matrix if none exists. If
-   ``col_stoch`` is true, :math:`X` is required to be column-stochastic instead. Solved by linear programming
-   (or a subgradient method for large ``double`` matrices).
+   ``col_stoch`` is true, :math:`X` is required to be column-stochastic instead. With ``method="lp"`` it is solved by
+   linear programming, with ``method="subgrad"`` by a subgradient method (not available for ``rat``, and only
+   accurate up to about ``1e-4``). The default ``method="auto"`` uses the subgradient method for large ``double``
+   matrices and linear programming otherwise.
 ```
 
 ```{eval-rst}
 .. autofunction:: left_factorize
 
    Returns a channel :math:`X` such that :math:`A = XB`, or an empty matrix if none exists
-   (see :py:func:`factorize`).
+   (see :py:func:`factorize`, including for ``method``).
 ```
 
 ```{eval-rst}

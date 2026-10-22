@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - New documentation site at [libqif.chatzi.org](https://libqif.chatzi.org), with one page per module.
 - `qif.lp`: HiGHS solver.
+- `method` argument in `channel.factorize`, `channel.left_factorize` (`"lp"`, `"subgrad"`) and `metric.kantorovich` (`"lp"`, `"fastemd"`).
 
 ### Changed
 - `qif.lp`: the default solver is CLP (instead of GLOP), and HiGHS for interior point.

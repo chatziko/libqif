@@ -455,18 +455,27 @@ kantorovich_fastemd(Metric<R, uint> d) {
 	};
 }
 
-//  kantorovich. use FastEMD for doubles, LP for all others
+//  kantorovich. method: "lp" (kantorovich_lp), "fastemd" (kantorovich_fastemd, only for double),
+//  or "auto" (FastEMD for doubles, LP for all others)
 //
 template<typename R = R_def, typename T>
 inline
 Metric<R, T>
-kantorovich(Metric<R, uint> d) {
+kantorovich(Metric<R, uint> d, const std::string& method = "auto") {
 	static_assert(is_Prob<T>::value, "only defined on probability distributions");
+
+	if(method == "lp")
+		return kantorovich_lp<R, T>(d);
+
+	if(method != "auto" && method != "fastemd")
+		throw std::runtime_error("invalid method: " + method);
 
 	if constexpr (std::is_same<T, prob>::value) {
 		return kantorovich_fastemd<double, prob>(d);
 
 	} else {
+		if(method == "fastemd")
+			throw std::runtime_error("fastemd method only available for double");
 		return kantorovich_lp<R, T>(d);
 	}
 }

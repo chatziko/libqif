@@ -474,10 +474,24 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 }
 
 // Returns a channel X such that A = B X
+// method: "lp" (factorize_lp), "subgrad" (factorize_subgrad, not for rat), or "auto" (subgrad for large non-rat matrices, lp otherwise)
 //
 template<typename eT = eT_def>
 inline
-Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const std::string& method = "auto") {
+	if(method == "lp")
+		return factorize_lp(A, B, col_stoch);
+
+	if(method == "subgrad") {
+		if constexpr (std::is_same<eT, rat>::value)
+			throw std::runtime_error("subgrad method not available for rat");
+		else
+			return factorize_subgrad(A, B, col_stoch);
+	}
+
+	if(method != "auto")
+		throw std::runtime_error("invalid method: " + method);
+
 	if constexpr (!std::is_same<eT, rat>::value) {
 		// subgradient is usually facter for larger matrices, but sometimes for small ones it is _very_ slow
 		if (A.n_elem >= 1000)
@@ -487,14 +501,14 @@ Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = 
 }
 
 
-// Returns a channel X such that A = X B
+// Returns a channel X such that A = X B (method: see factorize)
 //
 template<typename eT = eT_def>
 inline
-Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+Chan<eT> left_factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const std::string& method = "auto") {
 	// A = X B if A^t = B^t X^t, so we use factorize asking for an "inversly"-stochastic matrix
 	//
-	Chan<eT> X = factorize((Chan<eT>)A.t(), (Chan<eT>)B.t(), !col_stoch);
+	Chan<eT> X = factorize((Chan<eT>)A.t(), (Chan<eT>)B.t(), !col_stoch, method);
 	arma::inplace_trans(X);
 	return X;
 }

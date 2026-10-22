@@ -145,8 +145,10 @@ optimize
    The Kantorovich lifting of a metric ``d`` on secrets to a metric on distributions: the minimum cost of transforming
    :math:`a` into :math:`b` by moving probability mass, where moving a unit of mass from :math:`i` to :math:`j` costs
    :math:`d(i,j)`. Equivalently, the maximum of :math:`|\sum_x a_x f(x) - \sum_x b_x f(x)|` over all functions
-   :math:`f` with :math:`|f(x) - f(x')| \le d(x,x')`. Computed with the FastEMD algorithm for ``double`` (which
-   requires ``d`` to be a metric), and by linear programming otherwise.
+   :math:`f` with :math:`|f(x) - f(x')| \le d(x,x')`. With ``method="fastemd"`` (the default ``"auto"``) it is computed
+   with the FastEMD algorithm, which requires ``d`` to be a metric and has limited precision (about ``1e-5``
+   relative). ``method="lp"`` uses linear programming instead: slower, but more precise, and ``d`` can be any
+   distance function.
 ```
 
 ```{eval-rst}
