@@ -70,7 +70,7 @@ inline eT max(const eT& a, const eT& b) {
 template<typename eT>
 inline eT infinity() {
 	if constexpr (std::is_same<eT, rat>::value) {
-		return rat(std::numeric_limits<long>::max(), 1);			// is this sufficiently large?
+		return rat(std::numeric_limits<int64_t>::max(), 1);		// is this sufficiently large? (not long, which is 32-bit on windows)
 
 	} else if constexpr (std::numeric_limits<eT>::has_infinity) {
 		return std::numeric_limits<eT>::infinity();

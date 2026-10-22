@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - `mechanism.l_risk` ignored `n_guesses`.
 - Windows: functions using linear system solving (`channel.factorize` with the subgradient method, `left_factorize` for large channels, `mechanism.d_privacy.tight_constraints`) failed, the wheels were built without LAPACK.
+- `rat` infinity (e.g. `bayes_risk.mult_capacity` of channels with zero risk) was `2^31-1` on Windows, `2^63-1` elsewhere.
 - `channel.left_factorize` failed for matrices with 1000 or more elements (and `channel.factorize` with `col_stoch` using the subgradient method).
 - `channel.iterative_bayesian_update` and `channel.posteriors` silently computed in `double` for `rat` arguments, unless all optional arguments were given.
 
