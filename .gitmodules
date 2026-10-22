@@ -22,3 +22,12 @@
 [submodule "external/qdldl"]
 	path = external/qdldl
 	url = https://github.com/osqp/qdldl.git
+[submodule "external/soplex"]
+	path = external/soplex
+	url = https://github.com/scipopt/soplex
+[submodule "external/boost-multiprecision"]
+	path = external/boost-multiprecision
+	url = https://github.com/boostorg/multiprecision
+[submodule "external/boost-config"]
+	path = external/boost-config
+	url = https://github.com/boostorg/config

@@ -28,7 +28,25 @@ if("${BUILD_QIF}")
 	add_subdirectory(../external/osqp osqp EXCLUDE_FROM_ALL)
 	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
 
+	# build soplex (exact rational LP solver) in dir 'soplex', we only depend on libsoplex-pic.
+	# soplex needs Boost.Multiprecision, which we provide in standalone mode from the submodules (see misc/cmake/boost-standalone).
+	# Disable optional dependencies, we only need GMP (MPFR/QUADMATH are for precision boosting, which also works without them)
+	set(CMAKE_UNITY_BUILD OFF)
+	set(Boost_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../misc/cmake/boost-standalone" CACHE PATH "" FORCE)
+	# (*_FOUND might be already set by other find_package calls, eg ZLIB by ortools, and soplex would then use them)
+	foreach(opt ZLIB MPFR QUADMATH PAPILO)
+		set(${opt} OFF CACHE BOOL "" FORCE)
+	endforeach()
+	foreach(found ZLIB_FOUND MPFR_FOUND Quadmath_FOUND PAPILO_FOUND)
+		set(${found} FALSE)
+	endforeach()
+	set(GMP ON CACHE BOOL "" FORCE)
+	set(BOOST ON CACHE BOOL "" FORCE)
+	add_subdirectory(../external/soplex soplex EXCLUDE_FROM_ALL)
+	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
+
 	file(GLOB LIB_SOURCES src/*.cpp)								# get all src/*.cpp files in LIB_SOURCES
+	set_source_files_properties(src/soplex.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)	# keep soplex headers out of the other sources
 	add_library(qif_cpp ${LIB_SOURCES})								# libqif_cpp, depends on all src/*.cpp files. SHARED/STATIC is decided based on BUILD_SHARED_LIBS (see GlobalConfig.cmake)
 	set_target_properties(qif_cpp PROPERTIES OUTPUT_NAME "qif")		# the target is named "qif_cpp", the library is named just "qif"
 
@@ -52,6 +70,7 @@ endif()
 # PRIVATE, only needed for qif_cpp itself
 if("${BUILD_QIF}")
 	target_link_libraries(qif_cpp PRIVATE osqpstatic GSL::gsl armadillo mp++)	# armadillo/mp++ are not really needed, we only list then to get their include_directories
+	target_link_libraries(qif_cpp PRIVATE libsoplex-pic)						# soplex is only used in src/soplex.cpp, its headers are not exposed
 
 	if(${QIF_USE_ORTOOLS})
 		target_link_libraries(qif_cpp PRIVATE ortools::ortools)						# also listed to get its include_directories

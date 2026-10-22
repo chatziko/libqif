@@ -17,18 +17,20 @@ for instance `qif.lp.defaults.solver = "CLP"`.
    .. attribute:: solver
       :value: "AUTO"
 
-      The solver to use: ``"INTERNAL"`` (a simplex implementation, which also supports ``rat``), ``"GLPK"``,
+      The solver to use: ``"SOPLEX"`` (`SoPlex <https://soplex.zib.de/>`_, which solves programs exactly, for both
+      ``rat`` and ``double``), ``"INTERNAL"`` (a simple simplex implementation, which also supports ``rat``), ``"GLPK"``,
       ``"GLOP"``, ``"CLP"``, ``"HIGHS"``, ``"GUROBI"`` or ``"CPLEX"`` (the last five via OR-Tools; ``"GUROBI"``
       needs Gurobi to be installed, ``"CPLEX"`` needs OR-Tools to be compiled with CPLEX support). Which ones are
       available depends on how qif was built; the packages on PyPI include OR-Tools (with GLOP, CLP and HiGHS) but
-      not GLPK. With ``"AUTO"``, ``rat`` programs use ``"INTERNAL"``; ``double`` ones use ``"CLP"`` (or ``"GLPK"``,
+      not GLPK. With ``"AUTO"``, ``rat`` programs use ``"SOPLEX"``; ``double`` ones use ``"CLP"`` (or ``"GLPK"``,
       ``"INTERNAL"`` if OR-Tools is not available), and ``"HIGHS"`` for the ``"INTERIOR"`` method.
 
    .. attribute:: method
       :value: "AUTO"
 
       The method to use: ``"SIMPLEX_PRIMAL"``, ``"SIMPLEX_DUAL"``, ``"INTERIOR"`` (interior point), or ``"AUTO"``
-      (chosen by the solver). The ``"INTERNAL"`` solver only supports ``"SIMPLEX_PRIMAL"``.
+      (chosen by the solver). The ``"INTERNAL"`` solver only supports ``"SIMPLEX_PRIMAL"``, and ``"SOPLEX"`` does
+      not support ``"INTERIOR"``.
 
    .. attribute:: presolve
       :value: True
