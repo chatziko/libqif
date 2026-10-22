@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - `mechanism.l_risk` ignored `n_guesses`.
+- `channel.iterative_bayesian_update` and `channel.posteriors` silently computed in `double` for `rat` arguments, unless all optional arguments were given.
 
 ## [1.4.0] - 2026-10-20
 

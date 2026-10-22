@@ -38,7 +38,8 @@ void init_channel_module(py::module m) {
 	m.def("posterior",      channel::posterior<rat>,    "C"_a, "pi"_a, "col"_a);
 
 	m.def("posteriors",     channel::posteriors<double>, "C"_a, "pi"_a = prob());
-	m.def("posteriors",     channel::posteriors<rat>,    "C"_a, "pi"_a /* = rprob() */);	// this causes a weird "vector out of range" error on windows.
+	m.def("posteriors",     channel::posteriors<rat>,    "C"_a, "pi"_a);
+	m.def("posteriors",     [](const rchan& C) { return channel::posteriors<rat>(C); }, "C"_a);	// pi = rprob() default causes a weird "vector out of range" error on windows.
 
 	m.def("hyper",     		channel::hyper<double>, "C"_a, "pi"_a);
 	m.def("hyper",     		channel::hyper<rat>,    "C"_a, "pi"_a);
@@ -47,7 +48,17 @@ void init_channel_module(py::module m) {
 	m.def("reduced",   		channel::reduced<rat>,    "C"_a);
 
 	m.def("iterative_bayesian_update", channel::iterative_bayesian_update<double>, "C"_a, "out"_a, "start"_a = prob(),        "max_diff"_a = 1e-6, "max_iter"_a = 0);
-	m.def("iterative_bayesian_update", channel::iterative_bayesian_update<rat>,    "C"_a, "out"_a, "start"_a /* = rprob() */, "max_diff"_a = 1e-6, "max_iter"_a = 0);
+	// For rat, use None defaults: start = rprob() causes a weird "vector out of range" error on windows, and a double max_diff
+	// makes this overload fail to match, so calls with rat arguments would silently fall back to the double one.
+	m.def("iterative_bayesian_update",
+		[](const rchan& C, const rprob& out, py::object start, py::object max_diff, uint max_iter) {
+			return channel::iterative_bayesian_update<rat>(C, out,
+				start.is_none()    ? rprob()          : start.cast<rprob>(),
+				max_diff.is_none() ? rat(1, 1000000)  : max_diff.cast<rat>(),
+				max_iter);
+		},
+		"C"_a, "out"_a, "start"_a = py::none(), "max_diff"_a = py::none(), "max_iter"_a = 0
+	);
 
 	// TODO: add "method" to factorize
 	m.def("factorize",   	channel::factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false);
