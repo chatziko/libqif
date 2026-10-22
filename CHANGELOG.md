@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `qif.lp`: SoPlex solver, solves programs exactly (both `rat` and `double`).
+
+### Changed
+- `qif.lp`: `rat` programs are solved with SoPlex by default (instead of the internal simplex), which is much faster on larger programs.
+
 ## [1.5.0] - 2026-10-22
 
 ### Added

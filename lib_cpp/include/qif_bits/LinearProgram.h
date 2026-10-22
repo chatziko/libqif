@@ -35,7 +35,7 @@ template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 #undef ERROR	// MSVC adds this
 namespace Status { const auto OPTIMAL = "OPTIMAL", INFEASIBLE = "INFEASIBLE", UNBOUNDED = "UNBOUNDED", INFEASIBLE_OR_UNBOUNDED = "INFEASIBLE_OR_UNBOUNDED", ERROR = "ERROR"; }
 namespace Method { const auto AUTO = "AUTO", SIMPLEX_PRIMAL = "SIMPLEX_PRIMAL", SIMPLEX_DUAL = "SIMPLEX_DUAL", INTERIOR = "INTERIOR"; }					// AUTO: whatever is best
-namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", HIGHS = "HIGHS", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
+namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", SOPLEX = "SOPLEX", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", HIGHS = "HIGHS", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
 namespace MsgLevel { const auto OFF = "OFF", ERR = "ERR", ON = "ON", ALL = "ALL"; }
 
 
@@ -91,6 +91,7 @@ class LinearProgram {
 		Col<eT> sol;			// solution
 
 		bool glpk();
+		bool soplex();
 		bool ortools(const string& s);
 		bool internal_solver();
 		bool simplex();
@@ -252,13 +253,13 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	// AUTO: internal for rat. For interior point: HiGHS or CLP (ortools) if available, otherwise GLPK (the internal
+	// AUTO: SoPlex (exact) for rat. For interior point: HiGHS or CLP (ortools) if available, otherwise GLPK (the internal
 	// solver doesn't support it). Otherwise CLP (ortools) if available, otherwise GLPK, otherwise internal.
 	// (CLP was the most robust in our tests, GLOP fails on badly-scaled programs, eg d-privacy with large epsilon)
 	string s = solver;
 	if(s == Solver::AUTO) {
 		if(is_rat) {
-			s = Solver::INTERNAL;
+			s = Solver::SOPLEX;
 		} else if(method == Method::INTERIOR) {
 			#ifdef QIF_USE_ORTOOLS
 			s = operations_research::MPSolver::SupportsProblemType(operations_research::MPSolver::HIGHS_LINEAR_PROGRAMMING)
@@ -285,6 +286,7 @@ bool LinearProgram<eT>::solve() {
 	return
 		s == Solver::GLPK ? glpk() :
 		s == Solver::INTERNAL ? internal_solver() :
+		s == Solver::SOPLEX ? soplex() :
 		ortools(s);
 }
 
@@ -307,6 +309,43 @@ bool LinearProgram<eT>::internal_solver() {
 		sol = lp.original_solution();
 
 	return res;
+}
+
+// solve the program using SoPlex. The program is solved exactly (in rationals), for both rat and double.
+// For double, the coefficients are converted exactly to rat, and the exact solution is rounded back to double.
+template<typename eT>
+bool LinearProgram<eT>::soplex() {
+	if(method == Method::INTERIOR)
+		throw std::runtime_error("soplex does not support the interior point method");
+
+	std::vector<rat> sol_r;
+
+	if constexpr (std::is_same<eT, rat>::value) {
+		status = wrapper::soplex_solve(maximize, method, presolve, msg_level, obj_coeff, con_coeff, var_lb, var_ub, con_lb, con_ub, sol_r);
+
+	} else {
+		const eT inf = infinity<eT>();
+		auto to_rat = [&](const std::vector<eT>& v) {
+			std::vector<rat> res(v.size());
+			for(uint i = 0; i < v.size(); i++)
+				res[i] = v[i] == inf ? infinity<rat>() : v[i] == -inf ? -infinity<rat>() : rat(v[i]);
+			return res;
+		};
+		std::map<std::pair<uint,uint>,rat> con_coeff_r;
+		for(auto& [key, val] : con_coeff)
+			con_coeff_r.emplace_hint(con_coeff_r.end(), key, rat(val));
+
+		status = wrapper::soplex_solve(maximize, method, presolve, msg_level, to_rat(obj_coeff), con_coeff_r,
+			to_rat(var_lb), to_rat(var_ub), to_rat(con_lb), to_rat(con_ub), sol_r);
+	}
+
+	if(status == Status::OPTIMAL) {
+		sol.set_size(n_var);
+		for(uint j = 0; j < n_var; j++)
+			sol(j) = eT(sol_r[j]);
+	}
+
+	return status == Status::OPTIMAL;
 }
 
 // solve the program using GLPK (directly, not through ortools)

@@ -8,7 +8,7 @@ class LinearProgramTest : public BaseTest<eT> {
 	public:
 		void SetUp() override {
 			// construct method/solver/presolve combinations to test
-			std::list<string> solvers = { Solver::INTERNAL };
+			std::list<string> solvers = { Solver::INTERNAL, Solver::SOPLEX };
 			#ifdef QIF_USE_ORTOOLS
 				solvers.push_back(Solver::GLOP);
 				solvers.push_back(Solver::CLP);
@@ -27,7 +27,8 @@ class LinearProgramTest : public BaseTest<eT> {
 				// some combinations are not valid
 				if(method == Method::INTERIOR && (presolve || solver == Solver::GLOP || solver == Solver::CLP)) continue; // interior: no presolver, no GLOP support, unstable with CLP
 				if(solver == Solver::INTERNAL && (presolve || method != Method::SIMPLEX_PRIMAL)               ) continue; // internal solver: only simplex_primal/no presolve
-				if(this->is_rat               && solver != Solver::INTERNAL                                   ) continue; // rat: only internal solver
+				if(solver == Solver::SOPLEX   && method == Method::INTERIOR                                   ) continue; // soplex: no interior point
+				if(this->is_rat               && solver != Solver::INTERNAL && solver != Solver::SOPLEX       ) continue; // rat: only exact solvers
 
 				combs.push_back(std::tuple(method, solver, presolve));
 			}}}

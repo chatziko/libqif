@@ -31,6 +31,18 @@ int glp_free_env(void);
 #endif
 
 
+// SoPlex methods ///////////////////////////////////////////////////////////////
+
+// Solves the LP exactly using SoPlex (implemented in src/soplex.cpp, so that soplex/boost headers are not exposed).
+// Program and arguments are as in lp::LinearProgram: con_coeff is a map <col,row> => value, infinite bounds are
+// +-infinity<rat>(). Returns one of lp::Status, and the solution in sol (if OPTIMAL).
+std::string soplex_solve(bool maximize, const std::string& method, bool presolve, const std::string& msg_level,
+	const std::vector<rat>& obj_coeff, const std::map<std::pair<uint,uint>,rat>& con_coeff,
+	const std::vector<rat>& var_lb, const std::vector<rat>& var_ub,
+	const std::vector<rat>& con_lb, const std::vector<rat>& con_ub,
+	std::vector<rat>& sol);
+
+
 // OSQP methods /////////////////////////////////////////////////////////////////
 
 void osqp_set_default_settings(OSQPSettings *settings);
