@@ -6,29 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- New documentation site at [libqif.chatzi.org](https://libqif.chatzi.org): Markdown (MyST) pages with one page per
-  module, covering `qif.probab`, `qif.channel`, `qif.measure`, `qif.metric`, `qif.refinement`, `qif.mechanism`,
-  `qif.utility`, `qif.lp` and the basics (types, `set_default_type`, `point`).
+- New documentation site at [libqif.chatzi.org](https://libqif.chatzi.org), with one page per module.
 - `qif.lp`: HiGHS solver.
 
 ### Changed
-- `qif.lp`: the `AUTO` solver uses CLP instead of GLOP (GLOP silently failed on badly-scaled programs, eg d-privacy
-  with large epsilon), and HiGHS (or CLP) for interior point, when OR-Tools is available. Unavailable solvers give
-  a clear error.
-- `qif.metric`: the metric combinators are implemented in Python, so they work for metrics on any domain.
-  `from_distance_matrix` captures a copy of the matrix.
-- `channel.hyper` removes the zero-probability columns.
-- `measure.bayes_risk.mult_leakage` returns `inf` when the posterior risk is 0.
-- `equal` uses a relative tolerance proportional to the magnitude for numbers above 1.
-- Python: more consistent argument names (the loss argument of `l_risk` is `L`/`l`, the metric argument of
-  `g_vuln.prior` is `g`, argument names for `point` and the `metric` functions).
-- Upgraded dependencies: Armadillo 15.6.2, OSQP 1.0.0 (with QDLDL 0.1.9), googletest 1.18.0.
-- CMake 4 works without `-DCMAKE_POLICY_VERSION_MINIMUM`.
+- `qif.lp`: the default solver is CLP (instead of GLOP), and HiGHS for interior point.
+- `qif.metric`: the combinators work for metrics on any domain.
+- `channel.hyper` removes zero-probability columns, `bayes_risk.mult_leakage` returns `inf` for zero posterior risk.
+- Python: more consistent argument names.
+- Upgraded Armadillo to 15.6.2 and OSQP to 1.0.0. CMake 4 works without extra flags.
 
 ### Fixed
-- `mechanism.l_risk` passes `n_guesses` to `g_vuln`.
-- The order of the `from_polar` arguments in the Python stubs.
-- An off-by-one in the allocation of sparse matrices passed to OSQP.
+- `mechanism.l_risk` ignored `n_guesses`.
 
 ## [1.4.0] - 2026-10-20
 
