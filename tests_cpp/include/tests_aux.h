@@ -31,29 +31,8 @@ string format_num(string s) {
 }
 
 
-// for tests, change num strings like "5/10 1/10" to "0.5 0.1"
-//
-template<typename eT>
-inline
-string format_rat(string s) {
-	if constexpr (!std::is_same<eT, rat>::value) {
-		std::smatch m;
-		std::regex e("(\\d+)/(\\d+)");
-
-		while(std::regex_search(s, m, e)) {
-			string num = m[1];
-			string den = m[2];
-			string r = std::to_string(to_double(rat(std::stoi(num), std::stoi(den))));
-			s = s.replace(m.position(), m.length(), r);
-		}
-	}
-	return s;
-}
-
-
 typedef ::testing::Types<double, float, rat> AllTypes;
 typedef ::testing::Types<double, float> NativeTypes;
-typedef ::testing::Types<rat> RatTypes;
 
 // define a type-parametrized test case (https://code.google.com/p/googletest/wiki/AdvancedGuide)
 template <typename eT>
@@ -119,56 +98,5 @@ inline ::testing::AssertionResult chan_equal4(const char* x_expr, const char* y_
 		? ::testing::AssertionSuccess()
 		: ::testing::AssertionFailure() << "channels " << x_expr << " and " << y_expr << " are not equal with md: " << md_expr << ", mrd: " << mrd_expr << "\n" << x_expr << ":\n" << x << y_expr << ":\n" << y;
 }
-
-template<typename eT>
-inline ::testing::AssertionResult chan_is_proper1(const char* x_expr, const Chan<eT>& x) {
-	return channel::is_proper<eT>(x)
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper channel\n" << x_expr << ":\n" << x;
-}
-
-template<typename eT>
-inline ::testing::AssertionResult chan_is_proper2(const char* x_expr, const char* mrd_expr, const Chan<eT>& x, const eT& mrd) {
-	return channel::is_proper<eT>(x, mrd)
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper channel (mrd: " << mrd_expr << ")\n" << x_expr << ":\n" << x;
-}
-
-template<typename eT>
-inline ::testing::AssertionResult chan_is_proper_size3(const char* x_expr, const char* n_rows_expr, const char* n_cols_expr, const Chan<eT>& x, const uint& n_rows, const uint& n_cols) {
-	return channel::is_proper<eT>(x) && x.n_rows == n_rows && x.n_cols == n_cols
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper " << n_rows_expr << " x " << n_cols_expr << " (" << n_rows << " x " << n_cols << ") channel\n" << x_expr << ":\n" << x;
-}
-
-// ----- probability distributions -------
-template<typename eT>
-inline ::testing::AssertionResult prob_equal2(const char* x_expr, const char* y_expr, const Prob<eT>& x, const Prob<eT>& y) {
-	return probab::equal<eT>(x, y)
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << "prob distributions " << x_expr << " and " << y_expr << " are not equal\n" << x_expr << ":" << x << "\n" << y_expr << ": " << y << "\n";
-}
-
-template<typename eT>
-inline ::testing::AssertionResult prob_equal4(const char* x_expr, const char* y_expr, const char* md_expr, const char* mrd_expr, const Prob<eT>& x, const Prob<eT>& y, const eT& md, const eT& mrd) {
-	return probab::equal<eT>(x, y, md, mrd)
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << "prob distributions " << x_expr << " and " << y_expr << " are not equal with md: " << md_expr << ", mrd: " << mrd_expr << "\n" << x_expr << ": " << x << "\n" << y_expr << ": " << y;
-}
-
-template<typename eT>
-inline ::testing::AssertionResult prob_is_proper1(const char* x_expr, const Prob<eT>& x) {
-	return probab::is_proper<eT>(x)
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution\n" << x_expr << ": " << x << "\n";
-}
-
-template<typename eT>
-inline ::testing::AssertionResult prob_is_proper_size2(const char* x_expr, const char* n_cols_expr, const Chan<eT>& x, const uint& n_cols) {
-	return probab::is_proper<eT>(x) && x.n_cols == n_cols
-		? ::testing::AssertionSuccess()
-		: ::testing::AssertionFailure() << x_expr << " is not a proper probability distribution of size " << n_cols_expr << " == " << n_cols << "\n" << x_expr << ": " << x << "\n";
-}
-
 
 #endif

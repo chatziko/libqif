@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `channel.hyper` removes zero-probability columns, `bayes_risk.mult_leakage` returns `inf` for zero posterior risk.
 - Python: more consistent argument names.
 - Upgraded Armadillo to 15.6.2 and OSQP to 1.0.0. CMake 4 works without extra flags.
+- Tests are in python (`tests/`, pytest), `tests_cpp` only covers C++ internals (LP/QP solvers, `equal`).
 
 ### Removed
 - C++: `refinement::refined_by(A, B, G)`, use `refined_by(A, B, G, R)` instead.
