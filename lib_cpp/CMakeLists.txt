@@ -9,6 +9,10 @@ if("${BUILD_QIF}")
     find_package(GSL REQUIRED)
 
 	# build armadillo in dir 'armadillo'
+	# On windows we use the official OpenBLAS binaries, which include LAPACK, but armadillo cannot detect it
+	if(WIN32)
+		set(OPENBLAS_PROVIDES_LAPACK ON CACHE BOOL "OpenBLAS provides LAPACK functions")
+	endif()
 	set(CMAKE_UNITY_BUILD OFF)								# never use unity for armadillo, it breaks
 	add_subdirectory(../external/armadillo armadillo EXCLUDE_FROM_ALL)
 	set(CMAKE_UNITY_BUILD ${DEFAULT_UNITY_BUILD})
