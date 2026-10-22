@@ -2,6 +2,7 @@ name: build
 
 # Each push builds a single linux wheel (cp313), which also runs the C++ tests and builds the docs (as a check, they are published by Cloudflare Pages, see misc/docs/build.sh).
 # The full build (all platforms and python versions) runs on release tags (v*), and manually via "Run workflow".
+# Each built wheel is tested with the python tests (tests/) and test-wheel.py.
 on:
   push:
   workflow_dispatch:
@@ -62,7 +63,8 @@ jobs:
 
     - name: Build wheels
       env:
-        CIBW_TEST_COMMAND: python {project}/.github/workflows/test-wheel.py
+        CIBW_TEST_REQUIRES: pytest
+        CIBW_TEST_COMMAND: python {project}/.github/workflows/test-wheel.py && python -m pytest {project}/tests -p no:cacheprovider
         CIBW_BUILD: ${{ (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
                       && 'cp3{11,12,13,14,15}-{manylinux_x86_64,macosx_x86_64,macosx_arm64,win_amd64}'
                       || 'cp313-manylinux_x86_64' }}

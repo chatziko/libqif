@@ -1,4 +1,5 @@
-# Test the qif wheels published on PyPI: install on all platforms and python versions, run test-wheel.py
+# Test the qif wheels published on PyPI: install on all platforms and python versions, run test-wheel.py and the python tests
+# (tests/ of the installed version's tag, so that they match the published code; older versions have no tests/)
 name: test-pypi
 
 on:
@@ -32,7 +33,22 @@ jobs:
 
     - name: Install qif
       shell: bash
-      run: python -m pip install --only-binary qif "qif${{ inputs.version && format('=={0}', inputs.version) || '' }}"
+      run: python -m pip install pytest --only-binary qif "qif${{ inputs.version && format('=={0}', inputs.version) || '' }}"
+
+    - name: Get installed version
+      id: qif
+      shell: bash
+      run: echo "version=$(python -c 'import importlib.metadata as m; print(m.version("qif"))')" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/checkout@v4
+      with:
+        ref: v${{ steps.qif.outputs.version }}
+        path: release
+        sparse-checkout: tests
+        sparse-checkout-cone-mode: false
 
     - name: Test
-      run: python .github/workflows/test-wheel.py
+      shell: bash
+      run: |
+        python .github/workflows/test-wheel.py
+        if [ -d release/tests ]; then python -m pytest release/tests -p no:cacheprovider; else echo "no tests/ in v${{ steps.qif.outputs.version }}"; fi
