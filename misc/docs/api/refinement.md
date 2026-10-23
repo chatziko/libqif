@@ -31,7 +31,8 @@ checks refinement and some variants of it, and measures how much $B$ can leak mo
    :math:`V_G[\vartheta\triangleright A] < V_G[\vartheta\triangleright B]` for the uniform prior :math:`\vartheta`.
    The counter-example is checked directly, so a false answer is always correct (up to rounding errors).
 
-   Only ``method="project_qp"`` (the default ``"auto"``) gives a witness, so this is ``double`` only.
+   Only ``method="project_lp"`` and ``"project_qp"`` give a witness. The default ``"auto"`` uses ``"project_qp"``
+   for ``double`` and ``"project_lp"`` for ``rat`` (for which both the answer and the witness are exact).
 ```
 
 ```{eval-rst}

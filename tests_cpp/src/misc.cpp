@@ -88,3 +88,14 @@ TEST(MiscTest, Equal) {
 }
 
 
+
+TEST(MiscTest, RatMinMax) {
+	// armadillo's min/max start from std::numeric_limits<eT>::lowest()/max(), which are 0 for rat unless overridden
+	rmat neg = { { rat(-1), rat(-3) }, { rat(-2, 3), rat(-5) } };
+	rmat pos = { { rat(1), rat(3) }, { rat(2, 3), rat(5) } };
+
+	EXPECT_EQ(rat(-2, 3), neg.max());
+	EXPECT_EQ(rat(2, 3), pos.min());
+	EXPECT_EQ(rat(-2, 3), rmat(arma::max(neg))(0));
+	EXPECT_EQ(rat(2, 3), rmat(arma::min(pos))(0));
+}

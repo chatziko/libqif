@@ -20,7 +20,7 @@ def test_randu(eT):
 	assert_proper_chan(channel.randu(5), 5, 5)
 	assert_proper_chan(channel.randu(4, 6), 4, 6)
 
-@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp", "lp", "subgrad"])	# lp, subgrad: deprecated names
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_lp", "project_qp", "lp", "subgrad"])	# lp, subgrad: deprecated names
 def test_factorize(eT, t, method):
 	if method in ("project_subgrad", "project_qp", "subgrad") and eT is rat:
 		with pytest.raises(RuntimeError, match="not available for rat"):
@@ -73,7 +73,7 @@ def test_factorize_invalid_method(eT, t):
 		with pytest.raises(RuntimeError, match="subgrad method not available for rat"):
 			channel.factorize(t.id_4, t.id_4, method="subgrad")
 
-@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp"])
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_lp", "project_qp"])
 def test_left_factorize(eT, t, method):
 	if method in ("project_subgrad", "project_qp") and eT is rat:
 		pytest.skip(method + " not available for rat")

@@ -7,8 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - `qif.lp`: SoPlex solver, solves programs exactly (both `rat` and `double`).
-- `channel.factorize`, `left_factorize`: `"project_qp"` method (Euclidean projection by quadratic programming).
-- `refinement.refined_by_witness`, returns a counter-example gain function when refinement fails (replaces `refined_by(..., method="project")`).
+- `channel.factorize`, `left_factorize`: `"project_qp"` (Euclidean projection by quadratic programming) and `"project_lp"` (Manhattan projection by linear programming, exact for `rat`) methods.
+- `refinement.refined_by_witness`, returns a counter-example gain function when refinement fails (replaces `refined_by(..., method="project")`). Works also for `rat` (exactly).
 - `method` argument in `refinement.max_refined_by`.
 
 ### Changed
@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - C++: `channel::factorize_lp`, `factorize_subgrad` renamed to `factorize_solve_lp`, `factorize_project_subgrad`.
 
 ### Fixed
+- `rat` matrices: `max()` of negative values and `min()` of positive values returned 0.
 - `channel.factorize` with the subgradient method could run forever on non-factorizable channels (wrong stopping bound).
 
 ## [1.5.0] - 2026-10-22

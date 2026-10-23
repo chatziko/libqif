@@ -265,6 +265,8 @@ std::pair<Prob<eT>, uint> iterative_bayesian_update(const Chan<eT>& C, const Pro
 // none exists. The available methods are:
 // - solve_lp:        solves the equations A = B X as a linear program
 // - project_subgrad: projects A to { B X } wrt the max-norm, by a subgradient method (double only, precision ~1e-4)
+// - project_lp:      projects A to { B X } wrt the manhattan norm, by linear programming. When no X exists, it also
+//                    gives a witness H (see factorize_is_witness).
 // - project_qp:      projects A to { B X } wrt the euclidean norm, by quadratic programming (double only). When no X
 //                    exists, it also gives a witness H (see factorize_is_witness).
 
@@ -518,6 +520,134 @@ Chan<eT> factorize_project_subgrad(const Chan<eT>& A, const Chan<eT>& B, const b
 	return X;
 }
 
+// project_lp method: computes the projection C = BX of A to { BX } wrt the manhattan norm (see Boyd 8.1.2). If C = A
+// (exactly for rat, up to the solver's precision for double) X is returned. Otherwise an empty matrix is returned, and
+// H is a witness showing that A != BX for all X (see factorize_is_witness).
+//
+// The projection is computed by the LP
+//   min sum_mn E_mn   s.t.  -E <= A - BX <= E,  X row (or column) stochastic
+// and the witness by its dual. Since |A-C|_1 = max_{|H| <= 1} <H,A-C>, the distance is
+//   min_X max_{|H| <= 1} <H,A-BX> = max_{|H| <= 1} <H,A> - max_X <H,BX>
+// and max_X <H,BX> = sum_r max_n (B^T H)_rn for row-stochastic X (sum_n max_r (B^T H)_rn for column-stochastic X).
+// So the dual LP is
+//   max <H,A> - sum t   s.t.  t_r >= (B^T H)_rn for all r,n  (t_n for column-stochastic X),  -1 <= H <= 1
+// and when the optimum (the distance) is positive, H is a witness.
+//
+template<typename eT = eT_def>
+Chan<eT> factorize_project_lp(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& H, const bool col_stoch = false) {
+	// A: M x N
+	// B: M x R
+	// X: R x N   unknowns
+	//
+	uint M = A.n_rows,
+		 N = A.n_cols,
+		 R = B.n_cols;
+
+	H.clear();
+	if(B.n_rows != M)
+		return Chan<eT>();
+
+	const eT inf = infinity<eT>();
+	Chan<eT> res(R, N);
+
+	// primal: the projection
+	{
+		lp::LinearProgram<eT> lp;
+		lp.maximize = false;
+
+		auto X = lp.make_vars(R, N, eT(0), eT(1));
+		auto E = lp.make_vars(M, N, eT(0), inf);
+
+		for(uint m = 0; m < M; m++) {
+			for(uint n = 0; n < N; n++) {
+				lp.set_obj_coeff(E[m][n], eT(1));
+
+				// E_mn - (BX)_mn >= -A_mn  and  E_mn + (BX)_mn >= A_mn
+				auto con1 = lp.make_con(-A(m,n), inf);
+				auto con2 = lp.make_con( A(m,n), inf);
+				lp.set_con_coeff(con1, E[m][n], eT(1));
+				lp.set_con_coeff(con2, E[m][n], eT(1));
+
+				for(uint r = 0; r < R; r++) {
+					lp.set_con_coeff(con1, X[r][n], -B(m,r));
+					lp.set_con_coeff(con2, X[r][n],  B(m,r));
+				}
+			}
+		}
+
+		// rows (or columns) of X sum up to 1
+		if(col_stoch) {
+			for(uint n = 0; n < N; n++) {
+				auto con = lp.make_con(eT(1), eT(1));
+				for(uint r = 0; r < R; r++)
+					lp.set_con_coeff(con, X[r][n], eT(1));
+			}
+		} else {
+			for(uint r = 0; r < R; r++) {
+				auto con = lp.make_con(eT(1), eT(1));
+				for(uint n = 0; n < N; n++)
+					lp.set_con_coeff(con, X[r][n], eT(1));
+			}
+		}
+
+		if(!lp.solve())
+			throw std::runtime_error("factorize_project_lp: LP failed (" + lp.status + "), this shouldn't happen");
+
+		for(uint r = 0; r < R; r++)
+			for(uint n = 0; n < N; n++)
+				res(r,n) = lp.solution(X[r][n]);
+
+		if(qif::equal(lp.objective(), eT(0)))
+			return res;
+	}
+
+	// dual: the witness
+	lp::LinearProgram<eT> lp;
+	lp.maximize = true;
+
+	// t is a max of entries of B^T H with |H| <= 1, so |t| <= the max column sum of B. Bounding t doesn't change the
+	// solution, but helps the solver (SoPlex fails on some rat programs with free t)
+	eT bmax = R > 0 ? eT(arma::max(arma::sum(B, 0))) : eT(0);
+	auto HH = lp.make_vars(M, N, eT(-1), eT(1));
+	auto t = lp.make_vars(col_stoch ? N : R, -bmax, bmax);
+
+	for(uint m = 0; m < M; m++)
+		for(uint n = 0; n < N; n++)
+			lp.set_obj_coeff(HH[m][n], A(m,n));
+	for(auto v : t)
+		lp.set_obj_coeff(v, eT(-1));
+
+	// t_r - (B^T H)_rn >= 0  (t_n for column-stochastic X)
+	for(uint r = 0; r < R; r++) {
+		for(uint n = 0; n < N; n++) {
+			auto con = lp.make_con(eT(0), inf);
+			lp.set_con_coeff(con, t[col_stoch ? n : r], eT(1));
+			for(uint m = 0; m < M; m++)
+				lp.set_con_coeff(con, HH[m][n], -B(m,r));
+		}
+	}
+
+	if(!lp.solve())
+		throw std::runtime_error("factorize_project_lp: dual LP failed (" + lp.status + "), this shouldn't happen");
+
+	H.set_size(M, N);
+	for(uint m = 0; m < M; m++)
+		for(uint n = 0; n < N; n++)
+			H(m,n) = lp.solution(HH[m][n]);
+
+	if(factorize_is_witness(H, A, B, col_stoch))
+		return Chan<eT>();
+
+	// For rat the dual optimum is the (positive) distance, so H is always a witness. For double, the check can fail
+	// due to rounding errors when the distance is tiny, in which case we consider A factorizable (up to precision).
+	if constexpr (std::is_same<eT, rat>::value)
+		throw std::runtime_error("factorize_project_lp: dual solution is not a witness, this shouldn't happen");
+
+	H.clear();
+	return res;
+}
+
+
 // project_qp method: computes the projection C = BX of A to { BX } wrt the euclidean norm. If C = A (up to the
 // solver's precision) X is returned. Otherwise an empty matrix is returned, and H is a witness showing that A != BX
 // for all X (see factorize_is_witness).
@@ -642,22 +772,25 @@ Chan<eT> _factorize(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>* H, const bool
 
 	constexpr bool is_rat = std::is_same<eT, rat>::value;
 
-	if(method != "auto" && method != "solve_lp" && method != "project_subgrad" && method != "project_qp")
+	if(method != "auto" && method != "solve_lp" && method != "project_subgrad" && method != "project_lp" && method != "project_qp")
 		throw std::runtime_error("invalid method: " + method);
-	if(is_rat && method != "auto" && method != "solve_lp")
+	if(is_rat && (method == "project_subgrad" || method == "project_qp"))
 		throw std::runtime_error(method + " method not available for rat");
-	if(H && method != "auto" && method != "project_qp")
+	if(H && (method == "solve_lp" || method == "project_subgrad"))
 		throw std::runtime_error(method + " method does not give a witness");
 
+	Mat<eT> H_;
+	if(method == "project_lp")
+		return factorize_project_lp(A, B, H ? *H : H_, col_stoch);
+
 	if constexpr (is_rat) {
-		if(H)
-			throw std::runtime_error("no method giving a witness is available for rat");
-		return factorize_solve_lp(A, B, col_stoch);
+		// auto or solve_lp
+		return H ? factorize_project_lp(A, B, *H, col_stoch) : factorize_solve_lp(A, B, col_stoch);
 
 	} else {
 		if(method == "auto") {
 			if(H) {
-				method = "project_qp";		// the only method giving a witness
+				method = "project_qp";		// faster than project_lp
 			} else {
 				// The subgradient method is usually fast, but can be very slow for some inputs (eg when A is close to,
 				// but not, factorizable). So we try it with a budget of iterations, and if it doesn't decide we fall back
@@ -675,15 +808,15 @@ Chan<eT> _factorize(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>* H, const bool
 		if(method == "project_subgrad")
 			return factorize_project_subgrad(A, B, col_stoch);
 
-		Mat<eT> H_;
 		return factorize_project_qp(A, B, H ? *H : H_, col_stoch);
 	}
 }
 
 // Returns a channel X such that A = B X, or an empty matrix if none exists. If col_stoch == true then the
 // returned X is column-stochastic.
-// method: "solve_lp", "project_subgrad" (not for rat), "project_qp" (not for rat), or "auto": for rat solve_lp, for
-// double project_subgrad with a budget of iterations, falling back to project_qp (or solve_lp, see _factorize).
+// method: "solve_lp", "project_subgrad" (not for rat), "project_lp", "project_qp" (not for rat), or "auto": for rat
+// solve_lp, for double project_subgrad with a budget of iterations, falling back to project_qp (or solve_lp, see
+// _factorize).
 // See factorize_* above.
 //
 template<typename eT = eT_def>
@@ -693,7 +826,7 @@ Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = 
 }
 
 // Same as factorize(A, B), also giving a witness H when no X exists (see factorize_is_witness).
-// Only for methods giving a witness: "project_qp" (and "auto", which uses project_qp).
+// Only for methods giving a witness: "project_lp", "project_qp", and "auto" (project_qp for double, project_lp for rat).
 //
 template<typename eT = eT_def>
 inline

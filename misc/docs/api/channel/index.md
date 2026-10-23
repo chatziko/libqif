@@ -115,6 +115,8 @@ compose
    - ``"solve_lp"``: solves :math:`A = BX` by linear programming (exact for ``rat``).
    - ``"project_subgrad"``: projects :math:`A` to :math:`\{BX\}` wrt the max-norm, by a subgradient method
      (``double`` only, accurate up to about ``1e-4``).
+   - ``"project_lp"``: projects :math:`A` to :math:`\{BX\}` wrt the Manhattan norm, by linear programming
+     (exact for ``rat``).
    - ``"project_qp"``: projects :math:`A` to :math:`\{BX\}` wrt the Euclidean norm, by quadratic programming
      (``double`` only, accurate up to about ``1e-5``).
    - ``"auto"`` (default): for ``double``, ``"project_subgrad"`` with a budget of iterations (it is usually fast,

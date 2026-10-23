@@ -33,6 +33,15 @@ arma_inline rat eop_core<eop_sqrt>::process<rat>(const rat val, const rat) {
 	return rat(std::sqrt(double(val)));
 }
 
+// most_neg/most_pos are the initial values of max/min (and other reductions). They use std::numeric_limits, which is
+// not specialized for rat, so they would be 0: max() of a negative matrix (or min() of a positive one) would return 0.
+// We use -/+ qif's rat infinity instead.
+//
+namespace priv {
+template<> inline rat most_neg<rat>() { return -qif::infinity<rat>(); }
+template<> inline rat most_pos<rat>() { return  qif::infinity<rat>(); }
+}
+
 // ------------------------------------------------
 
 // register as supported
