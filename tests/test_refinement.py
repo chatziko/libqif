@@ -1,34 +1,72 @@
+import pytest
 from qif import rat, refinement
 from qif.measure import g_vuln
 
 from helpers import arr, assert_arr_equal, assert_equal, num
 
 
-def test_refined_by(real_eT, rt):
+def _refinement_cases(rt):
 	T = rt.crand_10 @ rt.crand_10
 
-	# Test both methods: "factorize" (based on channel.factorize) and "project" which also returns
-	# a gain function G showing that A is not refined by B, or the factorization R.
+	# cases when B can leak more than A, and when B refines A (cannot leak more)
+	not_refined = [(rt.crand_10, rt.id_10), (rt.noint_10, rt.crand_10), (T, rt.crand_10)]
+	refined     = [(rt.id_10, rt.crand_10), (rt.crand_10, rt.noint_10), (rt.crand_10, T)]
+	return not_refined, refined
 
-	# cases when B can leak more than A
-	#
-	for A, B in [(rt.crand_10, rt.id_10), (rt.noint_10, rt.crand_10), (T, rt.crand_10)]:
-		assert not refinement.refined_by(A, B)
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp"])
+def test_refined_by(real_eT, rt, method):
+	not_refined, refined = _refinement_cases(rt)
 
-		res, G, R = refinement.refined_by(A, B, "project")
+	for A, B in not_refined:
+		assert not refinement.refined_by(A, B, method)
+	for A, B in refined:
+		assert refinement.refined_by(A, B, method)
+
+def test_refined_by_rat(eT, t):
+	if eT is not rat:
+		pytest.skip("rat only")
+
+	assert refinement.refined_by(t.id_4, t.noint_4)
+	assert not refinement.refined_by(t.noint_4, t.id_4)
+	assert refinement.refined_by(t.id_4, t.noint_4, "solve_lp")
+
+	with pytest.raises(RuntimeError, match="not available for rat"):
+		refinement.refined_by(t.id_4, t.noint_4, "project_qp")
+	with pytest.raises(RuntimeError, match="available for rat"):
+		refinement.refined_by_witness(t.id_4, t.noint_4)
+
+def test_refined_by_witness(real_eT, rt):
+	# "auto" uses project_qp, the only method giving a witness
+	not_refined, refined = _refinement_cases(rt)
+
+	for A, B in not_refined:
+		res, G, R = refinement.refined_by_witness(A, B)
 		assert not res
-		assert G.size > 0
+		assert G.size > 0 and G.min() >= 0 and G.max() <= 1
 		assert g_vuln.posterior(G, rt.unif_10, A) < g_vuln.posterior(G, rt.unif_10, B)
 
-	# cases when B refines A (cannot leak more)
-	#
-	for A, B in [(rt.id_10, rt.crand_10), (rt.crand_10, rt.noint_10), (rt.crand_10, T)]:
-		assert refinement.refined_by(A, B)
-
-		res, G, R = refinement.refined_by(A, B, "project")
+	for A, B in refined:
+		res, G, R = refinement.refined_by_witness(A, B)
 		assert res
 		assert G.size == 0
 		assert_arr_equal(A @ R, B, md=1e-3, mrd=0)
+
+	with pytest.raises(RuntimeError, match="does not give a witness"):
+		refinement.refined_by_witness(rt.id_10, rt.crand_10, "solve_lp")
+
+def test_refined_by_deprecated(real_eT, rt):
+	with pytest.warns(DeprecationWarning):
+		assert refinement.refined_by(rt.id_10, rt.crand_10, "factorize")
+
+	with pytest.warns(DeprecationWarning):
+		res, G, R = refinement.refined_by(rt.crand_10, rt.id_10, "project")
+	assert not res
+	assert G.size > 0
+
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp"])
+def test_max_refined_by(real_eT, rt, method):
+	assert refinement.max_refined_by(rt.id_10, rt.crand_10, method)
+	assert not refinement.max_refined_by(rt.noint_10, rt.id_10, method)
 
 def test_add_metric(eT, t):
 	# cases when B refines A (cannot leak more)

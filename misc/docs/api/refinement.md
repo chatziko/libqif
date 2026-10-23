@@ -15,16 +15,23 @@ checks refinement and some variants of it, and measures how much $B$ can leak mo
 ```{eval-rst}
 .. autofunction:: refined_by
 
-   Whether :math:`A \sqsubseteq B`.
+   Whether :math:`A \sqsubseteq B`, by checking whether :math:`B = AR` for some channel :math:`R` using
+   :py:func:`qif.channel.factorize` with the given ``method``.
 
-   With ``method="factorize"`` (default), it checks whether :math:`B = AR` for some channel :math:`R`, by linear
-   programming, and returns a ``bool``.
+   ``method="factorize"`` (same as ``"auto"``) and ``method="project"`` (same as :py:func:`refined_by_witness`
+   with ``"project_qp"``) are deprecated.
+```
 
-   With ``method="project"`` (``double`` only), it computes the channel :math:`R` minimizing the Euclidean distance
-   between :math:`AR` and :math:`B` (by quadratic programming), and returns ``(refined, G, R)``. If ``refined`` is
-   false, ``G`` is a counter-example: a gain matrix (with values in :math:`[0,1]`) such that
+```{eval-rst}
+.. autofunction:: refined_by_witness
+
+   Whether :math:`A \sqsubseteq B`, also giving a witness for the answer. Returns ``(refined, G, R)``: if ``refined``
+   is true, then :math:`AR = B` (up to the precision of the method) and ``G`` is empty. Otherwise ``R`` is empty and
+   ``G`` is a counter-example: a gain matrix (with values in :math:`[0,1]`) such that
    :math:`V_G[\vartheta\triangleright A] < V_G[\vartheta\triangleright B]` for the uniform prior :math:`\vartheta`.
-   Otherwise ``G`` is empty and :math:`AR = B`.
+   The counter-example is checked directly, so a false answer is always correct (up to rounding errors).
+
+   Only ``method="project_qp"`` (the default ``"auto"``) gives a witness, so this is ``double`` only.
 ```
 
 ```{eval-rst}
@@ -34,6 +41,7 @@ checks refinement and some variants of it, and measures how much $B$ can leak mo
    where :math:`C^*` is obtained from :math:`C` by normalizing its columns and transposing (its rows are the
    posteriors of :math:`C` under the uniform prior). Equivalently, :math:`\max_y V(p_{X|y})` is never larger for
    :math:`B` than for :math:`A`, for all priors and all continuous quasi-convex vulnerabilities :math:`V`.
+   ``method``: see :py:func:`qif.channel.factorize`.
 ```
 
 ```{eval-rst}

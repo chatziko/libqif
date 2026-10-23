@@ -7,9 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - `qif.lp`: SoPlex solver, solves programs exactly (both `rat` and `double`).
+- `channel.factorize`, `left_factorize`: `"project_qp"` method (Euclidean projection by quadratic programming).
+- `refinement.refined_by_witness`, returns a counter-example gain function when refinement fails (replaces `refined_by(..., method="project")`).
+- `method` argument in `refinement.max_refined_by`.
 
 ### Changed
 - `qif.lp`: `rat` programs are solved with SoPlex by default (instead of the internal simplex), which is much faster on larger programs.
+- `channel.factorize`, `left_factorize`: methods renamed to `"solve_lp"` and `"project_subgrad"` (the old names `"lp"`, `"subgrad"` still work).
+- `channel.factorize`, `left_factorize`, `refinement.refined_by`: for `double`, `method="auto"` uses the subgradient method with a budget of iterations, falling back to `"project_qp"` (or `"solve_lp"` for wide matrices). Previously it used the subgradient method without a budget for large matrices (which could be very slow) and LP otherwise.
+- `refinement.refined_by`: `method` is any `channel.factorize` method, and it always returns a `bool`. `method="factorize"` and `"project"` are deprecated.
+- `refinement.refined_by_witness` (previously `refined_by(..., "project")`): the counter-example is checked directly, so a false answer is always correct, and the QP stops as soon as one is found (~2x faster when refinement fails). `R` is empty when refinement fails.
+- C++: `channel::factorize_lp`, `factorize_subgrad` renamed to `factorize_solve_lp`, `factorize_project_subgrad`.
+
+### Fixed
+- `channel.factorize` with the subgradient method could run forever on non-factorizable channels (wrong stopping bound).
 
 ## [1.5.0] - 2026-10-22
 

@@ -110,10 +110,18 @@ compose
 .. autofunction:: factorize
 
    Returns a channel :math:`X` such that :math:`A = BX`, or an empty matrix if none exists. If
-   ``col_stoch`` is true, :math:`X` is required to be column-stochastic instead. With ``method="lp"`` it is solved by
-   linear programming, with ``method="subgrad"`` by a subgradient method (not available for ``rat``, and only
-   accurate up to about ``1e-4``). The default ``method="auto"`` uses the subgradient method for large ``double``
-   matrices and linear programming otherwise.
+   ``col_stoch`` is true, :math:`X` is required to be column-stochastic instead. ``method`` is one of:
+
+   - ``"solve_lp"``: solves :math:`A = BX` by linear programming (exact for ``rat``).
+   - ``"project_subgrad"``: projects :math:`A` to :math:`\{BX\}` wrt the max-norm, by a subgradient method
+     (``double`` only, accurate up to about ``1e-4``).
+   - ``"project_qp"``: projects :math:`A` to :math:`\{BX\}` wrt the Euclidean norm, by quadratic programming
+     (``double`` only, accurate up to about ``1e-5``).
+   - ``"auto"`` (default): for ``double``, ``"project_subgrad"`` with a budget of iterations (it is usually fast,
+     but can be very slow when :math:`A` is close to, but not, factorizable), falling back to ``"project_qp"``, or to
+     ``"solve_lp"`` when :math:`B` has more columns than rows. For ``rat``, ``"solve_lp"``.
+
+   ``"lp"`` and ``"subgrad"`` are deprecated names for ``"solve_lp"`` and ``"project_subgrad"``.
 ```
 
 ```{eval-rst}

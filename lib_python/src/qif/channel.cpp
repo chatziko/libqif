@@ -60,8 +60,12 @@ void init_channel_module(py::module m) {
 		"C"_a, "out"_a, "start"_a = py::none(), "max_diff"_a = py::none(), "max_iter"_a = 0
 	);
 
-	m.def("factorize",   	channel::factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
-	m.def("factorize",   	channel::factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
+	m.def("factorize",
+		[](const chan& A, const chan& B, bool col_stoch, const std::string& method)   { return channel::factorize(A, B, col_stoch, method); },
+		"A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
+	m.def("factorize",
+		[](const rchan& A, const rchan& B, bool col_stoch, const std::string& method) { return channel::factorize(A, B, col_stoch, method); },
+		"A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
 
 	m.def("left_factorize", channel::left_factorize<double>, "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");
 	m.def("left_factorize", channel::left_factorize<rat>,    "A"_a, "B"_a, "col_stoch"_a = false, "method"_a = "auto");

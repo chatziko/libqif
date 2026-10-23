@@ -13,36 +13,63 @@ void init_refinement_module(py::module m) {
 		Refinement relations.
 	)pbdoc";
 
-	// TODO: maybe change the C++ types for uniformity
+	// methods "factorize" and "project" are deprecated (1.5.0), "project" returns the result of refined_by_witness
+	auto refined_by_deprecated = [](std::string& method) -> bool {
+		if(method != "factorize" && method != "project")
+			return false;
+
+		std::string msg = "refined_by: method=\"" + method + "\" is deprecated, use " +
+			(method == "factorize" ? "method=\"auto\"" : "refined_by_witness(A, B, method=\"project_qp\")");
+		if(PyErr_WarnEx(PyExc_DeprecationWarning, msg.c_str(), 1) < 0)
+			throw py::error_already_set();
+
+		bool project = method == "project";
+		method = project ? "project_qp" : "auto";
+		return project;
+	};
+
 	m.def("refined_by",
-		[](const chan& A, const chan& B, std::string method) {
-			if(method == "factorize") {
-				return py::cast(refined_by(A, B));
-			} else if(method == "project") {
+		[=](const chan& A, const chan& B, std::string method) -> py::object {
+			if(refined_by_deprecated(method)) {
 				mat G; chan R;
-				bool res = refined_by(A, B, G, R);
+				bool res = refined_by(A, B, G, R, method);
 				return py::cast(std::tuple(res, G, R));
-			} else {
-				throw std::runtime_error("invalid method: " + method);
 			}
+			return py::cast(refined_by(A, B, method));
 		},
-		"A"_a, "B"_a, "method"_a = "factorize"
+		"A"_a, "B"_a, "method"_a = "auto"
 	);
 	m.def("refined_by",
-		[](const rchan& A, const rchan& B, std::string method) {
-			if(method == "factorize") {
-				return py::cast(refined_by(A, B));
-			} else if(method == "project") {
-				throw std::runtime_error("project method not available for rat (needs quadratic programming)");
-			} else {
-				throw std::runtime_error("invalid method: " + method);
+		[=](const rchan& A, const rchan& B, std::string method) -> py::object {
+			if(refined_by_deprecated(method)) {
+				rmat G; rchan R;
+				bool res = refined_by(A, B, G, R, method);
+				return py::cast(std::tuple(res, G, R));
 			}
+			return py::cast(refined_by(A, B, method));
 		},
-		"A"_a, "B"_a, "method"_a = "factorize"
+		"A"_a, "B"_a, "method"_a = "auto"
 	);
 
-	m.def("max_refined_by",  	max_refined_by<double>, "A"_a, "B"_a);
-	m.def("max_refined_by",  	max_refined_by<rat>,    "A"_a, "B"_a);
+	m.def("refined_by_witness",
+		[](const chan& A, const chan& B, const std::string& method) {
+			mat G; chan R;
+			bool res = refined_by(A, B, G, R, method);
+			return std::tuple(res, G, R);
+		},
+		"A"_a, "B"_a, "method"_a = "auto"
+	);
+	m.def("refined_by_witness",
+		[](const rchan& A, const rchan& B, const std::string& method) {
+			rmat G; rchan R;
+			bool res = refined_by(A, B, G, R, method);
+			return std::tuple(res, G, R);
+		},
+		"A"_a, "B"_a, "method"_a = "auto"
+	);
+
+	m.def("max_refined_by",  	max_refined_by<double>, "A"_a, "B"_a, "method"_a = "auto");
+	m.def("max_refined_by",  	max_refined_by<rat>,    "A"_a, "B"_a, "method"_a = "auto");
 
 	m.def("priv_refined_by", 	priv_refined_by<double>, "A"_a, "B"_a);
 

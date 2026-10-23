@@ -261,12 +261,41 @@ std::pair<Prob<eT>, uint> iterative_bayesian_update(const Chan<eT>& C, const Pro
 }
 
 
-// Returns a channel X such that A = B X
-// If col_stoch == true then the returned X is column-stochastic
+// Factorization: find a channel X such that A = B X (or column-stochastic X if col_stoch == true), or show that
+// none exists. The available methods are:
+// - solve_lp:        solves the equations A = B X as a linear program
+// - project_subgrad: projects A to { B X } wrt the max-norm, by a subgradient method (double only, precision ~1e-4)
+// - project_qp:      projects A to { B X } wrt the euclidean norm, by quadratic programming (double only). When no X
+//                    exists, it also gives a witness H (see factorize_is_witness).
+
+
+// Whether H (same size as A) proves that there is no X such that A = B X, i.e. whether <H,A> > max_X <H,BX>.
+// For row-stochastic X this means V_G(A) > V_G(B) for the gain function G = H^T and the uniform prior.
+// The check is exact for rat, and up to rounding errors for double.
+//
+template<typename eT = eT_def>
+bool factorize_is_witness(Mat<eT> H, const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+	// scale to [-1,1], so that the comparison's tolerance is relative to H
+	eT m = std::max(eT(H.max()), eT(-H.min()));
+	if(m == eT(0))
+		return false;
+	H /= m;
+
+	// max_X <H,BX> = sum_r max_n (B^T H)_rn for row-stochastic X, and sum_n max_r (B^T H)_rn for column-stochastic X
+	// For row-stochastic X we use V_G(A) = sum_n max_n' (H^T A)_n'n >= <H,A> as the left-hand side, which is still
+	// smaller than max_X <H,BX> when A = BX (post-processing cannot increase V_G).
+	//
+	eT lhs = col_stoch ? eT(arma::accu(H % A))           : eT(arma::accu(arma::max(H.t() * A)));
+	eT rhs = col_stoch ? eT(arma::accu(arma::max(B.t() * H))) : eT(arma::accu(arma::max(H.t() * B)));
+	return less_than(rhs, lhs);
+}
+
+
+// solve_lp method
 //
 template<typename eT = eT_def>
 inline
-Chan<eT> factorize_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
+Chan<eT> factorize_solve_lp(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false) {
 	// A: M x N
 	// B: M x R
 	// X: R x N   unknowns
@@ -343,13 +372,21 @@ void _simplex_project(Chan<eT>& C, bool col_stoch) {
 }
 
 
-// factorize using a subgradient method.
+// project_subgrad method: minimizes max_{i,j} |(BX)(i,j) - A(i,j)| using a subgradient method, until either the
+// minimum is (close to) 0, or a lower bound shows that it is positive.
 // see: http://see.stanford.edu/materials/lsocoee364b/02-subgrad_method_notes.pdf
+//
+// It is usually fast, but can be very slow for some inputs (eg when A is close to, but not, factorizable). If
+// max_iter > 0 and neither happens within max_iter iterations, an empty matrix is returned and *decided is set to false.
 //
 template<typename eT = eT_def>
 inline
-Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const eT max_diff = 1e-4) {
+Chan<eT> factorize_project_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const eT max_diff = 1e-4,
+	const uint max_iter = 0, bool* decided = nullptr) {
 	using arma::dot;
+
+	if(decided)
+		*decided = true;
 
 	const bool debug = false;
 
@@ -379,7 +416,7 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 	for(uint i = 0; i < M; i++)
 		G = std::max(G, arma::norm(B.row(i), 2));
 
-	const eT R = sqrt(2 * L);
+	const eT R = sqrt(2 * (col_stoch ? N : L));		// diameter of the set of row (or column) stochastic X
 		  	 //RG = R * G;
 	const eT inf = infinity<eT>();
 
@@ -391,6 +428,13 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 	eT sum1(- R * R), sum2(0);
 
 	for(k = 1; true; k++) {
+		if(max_iter && k > max_iter) {
+			X.clear();
+			if(decided)
+				*decided = false;
+			break;
+		}
+
 		// compute
 		//    f = max_{i,j} | (B*X)(i,j) - A(i,j) |
 		//      = max_{i,j,sign} sign*((B*X)(i,j) - A(i,j))     (sign in {1,-1})
@@ -453,8 +497,9 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 
 		// compute the lower bound given by the stopping criterion in section 3.4 of the lecture notes.
 		// if the bound is positive then the optimal is also positive, so the channel cannot be factorized
+		// Note: the step is alpha * S (not alpha * g), so its squared norm is alpha^2 |S|^2
 		//
-		sum1 += alpha * (2 * f - alpha * g_norm_sq);
+		sum1 += alpha * (2 * f - alpha * s_norm_sq);
 		sum2 += 2 * alpha;
 		bound = sum1 / sum2;
 
@@ -473,31 +518,187 @@ Chan<eT> factorize_subgrad(const Chan<eT>& A, const Chan<eT>& B, const bool col_
 	return X;
 }
 
-// Returns a channel X such that A = B X
-// method: "lp" (factorize_lp), "subgrad" (factorize_subgrad, not for rat), or "auto" (subgrad for large non-rat matrices, lp otherwise)
+// project_qp method: computes the projection C = BX of A to { BX } wrt the euclidean norm. If C = A (up to the
+// solver's precision) X is returned. Otherwise an empty matrix is returned, and H is a witness showing that A != BX
+// for all X (see factorize_is_witness).
+//
+// For the projection C*, H = A-C* is always a witness when C* != A (by weak duality <H,A> - max_X <H,BX> >= |H|^2),
+// and the iterates A-C_k converge to it. So we check H = A-C_k periodically while solving, and stop as soon as it is
+// a witness, without waiting for convergence.
+//
+template<typename eT = eT_def>
+Chan<eT> factorize_project_qp(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& H, const bool col_stoch = false) {
+	// A: M x N
+	// B: M x R
+	// X: R x N   unknowns
+	//
+	uint M = A.n_rows,
+		 N = A.n_cols,
+		 R = B.n_cols;
+
+	H.clear();
+	if(B.n_rows != M)
+		return Chan<eT>();
+
+	// The (squared) euclidean distance between C and A can be written as ("." is the dot product)
+	//   |C-A|_2^2 = (C-A).(C-A) = C.C -2A.C + A.A
+	// A.A is constant so we need to minimize C.C -2A.C
+	//
+	// We have 2 types of variables:
+	// - entries of C (M x N), constrained by C = BX
+	// - entries of X (R x N), constrained to be row (or column) stochastic
+	//
+	qp::QuadraticProgram<eT> qp;
+
+	auto C = qp.make_vars(M, N);
+	auto X = qp.make_vars(R, N);
+
+	// constraints for C
+	for(uint m = 0; m < M; m++) {
+		for(uint n = 0; n < N; n++) {
+			// We need to add the constraint: C_mn - sum_r B_mr X_rn = 0
+			// C_mn has coeff 1, each X_rn has coeff - B_mr, and the bounds are 0
+			//
+			auto con = qp.make_con(0, 0);
+			qp.set_con_coeff(con, C[m][n], 1);	// coeff of C_mn
+
+			for(uint r = 0; r < R; r++)
+				qp.set_con_coeff(con, X[r][n], -B(m,r));	// coeff of X_rn
+		}
+	}
+
+	// constraints for X: 0 <= X_rn <= 1
+	for(uint r = 0; r < R; r++) {
+		for(uint n = 0; n < N; n++) {
+			auto con = qp.make_con(0, 1);
+			qp.set_con_coeff(con, X[r][n], 1);
+		}
+	}
+
+	// rows (or columns) of X sum up to 1
+	if(col_stoch) {
+		for(uint n = 0; n < N; n++) {
+			auto con = qp.make_con(1, 1);
+			for(uint r = 0; r < R; r++)
+				qp.set_con_coeff(con, X[r][n], 1);
+		}
+	} else {
+		for(uint r = 0; r < R; r++) {
+			auto con = qp.make_con(1, 1);
+			for(uint n = 0; n < N; n++)
+				qp.set_con_coeff(con, X[r][n], 1);
+		}
+	}
+
+	// cost, quadratic part: C.C
+	// coeff 2 for the C variables (because of the 1/2 in the QP), 0 for the X variables
+	for(uint m = 0; m < M; m++)
+		for(uint n = 0; n < N; n++)
+			qp.set_obj_coeff(C[m][n], C[m][n], 2);
+
+	// cost, linear part: -2A.C
+	// coeffs -2A for the C variables, 0 for the X variables
+	for(uint m = 0; m < M; m++)
+		for(uint n = 0; n < N; n++)
+			qp.set_obj_coeff(C[m][n], -2 * A(m,n));
+
+	// precision of the solution (Kostas: not 100% sure here)
+	// if no value is set by the user, use 1e-5 instead of OSQP's defaults
+	if(qp::Defaults::osqp_eps_abs < 0.0)	qp.osqp_eps_abs = 1e-5;
+	if(qp::Defaults::osqp_eps_rel < 0.0)	qp.osqp_eps_rel = 1e-5;
+
+	// H = A - C for the current solution, true if it is a witness
+	auto is_witness = [&](const Col<eT>& sol) -> bool {
+		H.set_size(M, N);
+		for(uint m = 0; m < M; m++)
+			for(uint n = 0; n < N; n++)
+				H(m,n) = A(m,n) - sol(C[m][n]);
+		return factorize_is_witness(H, A, B, col_stoch);
+	};
+	qp.early_stop = is_witness;
+
+	qp.solve();
+
+	if(qp.status == qp::Status::STOPPED)
+		return Chan<eT>();		// H already set by is_witness
+	if(qp.status != qp::Status::OPTIMAL)
+		throw std::runtime_error("factorize_project_qp: QP infeasible, this shouldn't happen");
+	if(is_witness(qp.solution()))
+		return Chan<eT>();
+
+	H.clear();
+	Chan<eT> res(R, N);
+	for(uint r = 0; r < R; r++)
+		for(uint n = 0; n < N; n++)
+			res(r,n) = qp.solution(X[r][n]);
+	return res;
+}
+
+template<typename eT = eT_def>
+Chan<eT> _factorize(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>* H, const bool col_stoch, std::string method) {
+	// deprecated names (1.5.0)
+	if(method == "lp")		method = "solve_lp";
+	if(method == "subgrad")	method = "project_subgrad";
+
+	constexpr bool is_rat = std::is_same<eT, rat>::value;
+
+	if(method != "auto" && method != "solve_lp" && method != "project_subgrad" && method != "project_qp")
+		throw std::runtime_error("invalid method: " + method);
+	if(is_rat && method != "auto" && method != "solve_lp")
+		throw std::runtime_error(method + " method not available for rat");
+	if(H && method != "auto" && method != "project_qp")
+		throw std::runtime_error(method + " method does not give a witness");
+
+	if constexpr (is_rat) {
+		if(H)
+			throw std::runtime_error("no method giving a witness is available for rat");
+		return factorize_solve_lp(A, B, col_stoch);
+
+	} else {
+		if(method == "auto") {
+			if(H) {
+				method = "project_qp";		// the only method giving a witness
+			} else {
+				// The subgradient method is usually fast, but can be very slow for some inputs (eg when A is close to,
+				// but not, factorizable). So we try it with a budget of iterations, and if it doesn't decide we fall back
+				// to project_qp, or solve_lp if B has more columns than rows (the QP is slow for such B).
+				bool decided;
+				Chan<eT> X = factorize_project_subgrad(A, B, col_stoch, eT(1e-4), 10000, &decided);
+				if(decided)
+					return X;
+				method = B.n_cols > B.n_rows ? "solve_lp" : "project_qp";
+			}
+		}
+
+		if(method == "solve_lp")
+			return factorize_solve_lp(A, B, col_stoch);
+		if(method == "project_subgrad")
+			return factorize_project_subgrad(A, B, col_stoch);
+
+		Mat<eT> H_;
+		return factorize_project_qp(A, B, H ? *H : H_, col_stoch);
+	}
+}
+
+// Returns a channel X such that A = B X, or an empty matrix if none exists. If col_stoch == true then the
+// returned X is column-stochastic.
+// method: "solve_lp", "project_subgrad" (not for rat), "project_qp" (not for rat), or "auto": for rat solve_lp, for
+// double project_subgrad with a budget of iterations, falling back to project_qp (or solve_lp, see _factorize).
+// See factorize_* above.
 //
 template<typename eT = eT_def>
 inline
 Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, const bool col_stoch = false, const std::string& method = "auto") {
-	if(method == "lp")
-		return factorize_lp(A, B, col_stoch);
+	return _factorize<eT>(A, B, nullptr, col_stoch, method);
+}
 
-	if(method == "subgrad") {
-		if constexpr (std::is_same<eT, rat>::value)
-			throw std::runtime_error("subgrad method not available for rat");
-		else
-			return factorize_subgrad(A, B, col_stoch);
-	}
-
-	if(method != "auto")
-		throw std::runtime_error("invalid method: " + method);
-
-	if constexpr (!std::is_same<eT, rat>::value) {
-		// subgradient is usually facter for larger matrices, but sometimes for small ones it is _very_ slow
-		if (A.n_elem >= 1000)
-			return factorize_subgrad(A, B, col_stoch);
-	}
-	return factorize_lp(A, B, col_stoch);
+// Same as factorize(A, B), also giving a witness H when no X exists (see factorize_is_witness).
+// Only for methods giving a witness: "project_qp" (and "auto", which uses project_qp).
+//
+template<typename eT = eT_def>
+inline
+Chan<eT> factorize(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& H, const bool col_stoch = false, const std::string& method = "auto") {
+	return _factorize<eT>(A, B, &H, col_stoch, method);
 }
 
 

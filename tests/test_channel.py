@@ -20,8 +20,13 @@ def test_randu(eT):
 	assert_proper_chan(channel.randu(5), 5, 5)
 	assert_proper_chan(channel.randu(4, 6), 4, 6)
 
-@pytest.mark.parametrize("method", ["auto", "lp"])
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp", "lp", "subgrad"])	# lp, subgrad: deprecated names
 def test_factorize(eT, t, method):
+	if method in ("project_subgrad", "project_qp", "subgrad") and eT is rat:
+		with pytest.raises(RuntimeError, match="not available for rat"):
+			channel.factorize(t.id_4, t.noint_4, method=method)
+		return
+
 	# non factorizable
 	assert_proper_chan(channel.factorize(t.id_10, t.noint_10, method=method), 0, 0)
 	assert_proper_chan(channel.factorize(t.id_4,  t.noint_10, method=method), 0, 0)
@@ -32,12 +37,13 @@ def test_factorize(eT, t, method):
 	X = channel.factorize(A, B, method=method)
 
 	assert_proper_chan(X, m, n)
-	assert_arr_equal(A, B @ X)
+	assert_arr_equal(A, B @ X, md=1e-4, mrd=0)		# project_subgrad has tolerance 1e-4
+
+def test_factorize_invalid_method(eT, t):
+	with pytest.raises(RuntimeError, match="invalid method"):
+		channel.factorize(t.id_4, t.noint_4, method="foo")
 
 def test_factorize_subgrad(real_eT, rt):
-	# non factorizable
-	assert_proper_chan(channel.factorize(rt.id_10, rt.noint_10, method="subgrad"), 0, 0)
-	assert_proper_chan(channel.factorize(rt.id_4,  rt.noint_10, method="subgrad"), 0, 0)
 
 	# a "fat" B matrix with cols = 1.5 * rows seems to be a good case where the initial solution of A = B X is
 	# not a proper matrix, and needs to be improved by the subgradient method (when cols == rows or cols = 2 * rows it
@@ -46,7 +52,7 @@ def test_factorize_subgrad(real_eT, rt):
 	n, m = 10, 15
 	B = channel.randu(n, m)
 	A = B @ channel.randu(m, n)
-	X = channel.factorize(A, B, method="subgrad")
+	X = channel.factorize(A, B, method="project_subgrad")
 
 	assert_proper_chan(X, m, n)
 	assert_arr_equal(A, B @ X, md=1e-4, mrd=0)
@@ -55,7 +61,7 @@ def test_factorize_subgrad(real_eT, rt):
 	#
 	A = arr(real_eT, "0.4405 0.5595; 0.6588 0.3412")
 	B = arr(real_eT, "0.9694 0.0062 0.0244; 0.5312 0.1401 0.3287")
-	X = channel.factorize(A, B, method="subgrad")
+	X = channel.factorize(A, B, method="project_subgrad")
 
 	assert_proper_chan(X, 3, 2)
 	assert_arr_equal(A, B @ X, md=1e-4, mrd=0)
@@ -67,10 +73,10 @@ def test_factorize_invalid_method(eT, t):
 		with pytest.raises(RuntimeError, match="subgrad method not available for rat"):
 			channel.factorize(t.id_4, t.id_4, method="subgrad")
 
-@pytest.mark.parametrize("method", ["auto", "lp", "subgrad"])
+@pytest.mark.parametrize("method", ["auto", "solve_lp", "project_subgrad", "project_qp"])
 def test_left_factorize(eT, t, method):
-	if method == "subgrad" and eT is rat:
-		pytest.skip("subgrad not available for rat")
+	if method in ("project_subgrad", "project_qp") and eT is rat:
+		pytest.skip(method + " not available for rat")
 
 	# non factorizable
 	assert_proper_chan(channel.left_factorize(t.id_10, t.noint_10, method=method), 0, 0)
