@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - `qif.lp`: `rat` programs are solved with SoPlex by default (instead of the internal simplex), which is much faster on larger programs.
 - `qif.lp`: SoPlex solves `double` programs in floating point (it is the default solver when OR-Tools is not available).
+- `qif.lp`: when the solver fails (eg numerical problems on badly-scaled programs), the program is solved again with SoPlex if the solver was chosen automatically, otherwise a `RuntimeError` is raised. Previously functions using LP silently returned empty results.
 - `channel.factorize`, `left_factorize`: methods renamed to `"solve_lp"` and `"project_subgrad"` (the old names `"lp"`, `"subgrad"` still work).
 - `channel.factorize`, `left_factorize`, `refinement.refined_by`: for `double`, `method="auto"` uses the subgradient method with a budget of iterations, falling back to `"project_qp"` (or `"solve_lp"` for wide matrices). Previously it used the subgradient method without a budget for large matrices (which could be very slow) and LP otherwise.
 - `refinement.refined_by`: `method` is any `channel.factorize` method, and it always returns a `bool`. `method="factorize"` and `"project"` are deprecated.

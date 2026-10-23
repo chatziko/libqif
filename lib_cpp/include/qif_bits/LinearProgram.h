@@ -278,13 +278,29 @@ bool LinearProgram<eT>::solve() {
 		}
 	}
 
-	if(msg_level != MsgLevel::OFF)
-		std::cerr << "Solving LP with solver: " << s << "\n";
+	auto run = [&](const string& s) -> bool {
+		if(msg_level != MsgLevel::OFF)
+			std::cerr << "Solving LP with solver: " << s << "\n";
 
-	return
-		s == Solver::INTERNAL ? internal_solver() :
-		s == Solver::SOPLEX ? soplex() :
-		ortools(s);
+		return
+			s == Solver::INTERNAL ? internal_solver() :
+			s == Solver::SOPLEX ? soplex() :
+			ortools(s);
+	};
+	bool res = run(s);
+
+	// ERROR means that the solver failed (typically numerical problems, eg a badly-scaled program), not that the
+	// program is infeasible/unbounded. If the solver was chosen automatically we retry with SoPlex (the most robust in
+	// our tests), otherwise we throw, so that the failure is not mistaken for an answer.
+	if(status == Status::ERROR && solver == Solver::AUTO && s != Solver::SOPLEX && method != Method::INTERIOR) {
+		s = Solver::SOPLEX;
+		res = run(s);
+	}
+	if(status == Status::ERROR)
+		throw std::runtime_error("LP solver " + s + " failed (numerical problems? eg a badly-scaled program), try " +
+			"another solver (eg qif.lp.defaults.solver = \"SOPLEX\" in python, lp::Defaults::solver in C++)");
+
+	return res;
 }
 
 // internal solver, uses simplex() after cloning and converting to canonical form. Mostly useful for rats

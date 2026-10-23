@@ -1,6 +1,8 @@
 import math
 
-from qif import channel, metric, uint
+import pytest
+import qif
+from qif import channel, metric, probab, uint
 from qif.measure import d_privacy as measure_dp
 from qif.mechanism import d_privacy
 
@@ -125,3 +127,21 @@ def test_opt_exp_loss(real_eT, rt):
 	opt = d_privacy.min_loss_given_d(rt.unif_10, size, metric.scale(d, epsilon), bin_loss)
 
 	assert_arr_equal(rt.id_10, opt)
+
+def test_opt_exp_loss_badly_scaled(real_eT):
+	# large epsilon gives coefficients up to exp(380), CLP/HiGHS/GLOP fail on this program
+	size = 20
+	d = metric.scale(metric.euclidean(uint), 20)
+	loss = metric.euclidean(uint)
+
+	# AUTO retries with SoPlex when the chosen solver fails
+	opt = d_privacy.min_loss_given_d(probab.uniform(size), size, d, loss)
+	assert_proper_chan(opt, size, size)
+
+	# an explicitly chosen solver that fails gives an error (instead of an empty channel)
+	qif.lp.defaults.solver = "CLP"
+	try:
+		with pytest.raises(RuntimeError, match="failed|not available"):	# not available: built without OR-Tools
+			d_privacy.min_loss_given_d(probab.uniform(size), size, d, loss)
+	finally:
+		qif.lp.defaults.solver = "AUTO"

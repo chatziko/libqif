@@ -24,7 +24,8 @@ for instance `qif.lp.defaults.solver = "CLP"`.
       packages on PyPI include OR-Tools (with GLOP, CLP and HiGHS). With ``"AUTO"``, ``rat`` programs use
       ``"SOPLEX"``; ``double`` ones use ``"CLP"`` (``"SOPLEX"`` if OR-Tools is not available), and ``"HIGHS"`` for the
       ``"INTERIOR"`` method (which needs OR-Tools). For badly-scaled programs (eg d-privacy with large epsilon),
-      ``"SOPLEX"`` is more robust than the OR-Tools solvers.
+      ``"SOPLEX"`` is more robust than the OR-Tools solvers: with ``"AUTO"``, if the chosen solver fails the program
+      is solved again with ``"SOPLEX"``. If an explicitly chosen solver fails, a ``RuntimeError`` is raised.
 
    .. attribute:: method
       :value: "AUTO"
