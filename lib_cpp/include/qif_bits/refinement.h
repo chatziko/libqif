@@ -14,9 +14,11 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B) {
 
 // same as refined_by(A, B), using the method of projecting B to { AR | R } (via quadratic programming)
 // - if false, a counter-example G is given
-//   (i.e. a gain function such that A leaks strictly less than B for the uniform prior)
-// - also, the remapping channel R that minimizes the euclidean distance between AR and B is returned.
-//   When the function returns true, then AR = B holds.
+//   (i.e. a gain function such that A leaks strictly less than B for the uniform prior). The counter-example is
+//   checked directly, so a false answer is always correct (up to rounding errors), a true answer is only correct up
+//   to the precision of the QP solver.
+// - also, a remapping channel R is returned. When the function returns true, R minimizes the euclidean distance
+//   between AR and B, and AR = B holds (up to precision). When false, R is only approximately minimizing.
 //
 // Note1: It should be possible to do the same thing by projecting wrt the manhattan norm (see Boyd 8.1.2).
 //        This can be done via LP so it will likely be faster
@@ -98,24 +100,41 @@ bool refined_by(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& G, Chan<eT>& R) {
 	if(qp::Defaults::osqp_eps_abs < 0.0)	qp.osqp_eps_abs = 1e-5;
 	if(qp::Defaults::osqp_eps_rel < 0.0)	qp.osqp_eps_rel = 1e-5;
 
-	// ready
-	if(!qp.solve())
-		throw std::runtime_error("refined_by: QP infeasible, this shouldn't happen");
-
-	// add B.B to the cost function to obtained the squared distance (see the program definition above)
-	eT dist = qp.objective() + arma::dot(B, B);
-
-	bool res = equal(dist, eT(0), eT(qp.osqp_eps_abs), eT(qp.osqp_eps_rel));
-	if(res) {
-		G.clear();
-	} else {
+	// Any gain function G with V_G(B) > V_G(A) proves that B does not refine A, and the vulnerabilities can be
+	// computed directly, independently of the solver's precision. For the projection C* = AR*, G* = (B-C*)^T is such
+	// a certificate whenever C* != B (by weak duality, V_G(B) - V_G(A) >= |B-C*|^2 > 0, up to the prior factor), and
+	// the iterates G_k = (B-C_k)^T converge to G*. So we check the certificate periodically during solving, and stop
+	// as soon as it holds, without waiting for convergence.
+	//
+	auto unif = probab::uniform<eT>(Cr);
+	auto is_counterexample = [&](const Col<eT>& sol) -> bool {
 		G.set_size(Cc, Cr);
 		for(uint x = 0; x < Cr; x++)
 			for(uint z = 0; z < Cc; z++)
-				G(z,x) = B(x,z) - qp.solution(C[x][z]);
+				G(z,x) = B(x,z) - sol(C[x][z]);
 		G -= G.min();	// non-negative
-		G /= G.max();	// and in [0,1]
-	}
+		eT max = G.max();
+		if(max == eT(0))
+			return false;
+		G /= max;		// and in [0,1]
+
+		return less_than(measure::g_vuln::posterior(G, unif, A), measure::g_vuln::posterior(G, unif, B));
+	};
+	qp.early_stop = is_counterexample;
+
+	// ready
+	qp.solve();
+
+	bool res;
+	if(qp.status == qp::Status::STOPPED)
+		res = false;		// G already set by is_counterexample
+	else if(qp.status == qp::Status::OPTIMAL)
+		res = !is_counterexample(qp.solution());
+	else
+		throw std::runtime_error("refined_by: QP infeasible, this shouldn't happen");
+
+	if(res)
+		G.clear();
 
 	R.set_size(Rr, Rc);
 	for(uint y = 0; y < Rr; y++)

@@ -12,7 +12,7 @@ double      Defaults::osqp_eps_rel = -1.0;		// defaults
 
 
 std::ostream& operator<<(std::ostream& os, const Status& status) {
-	std::string s[] = { "optimal", "infeasible", "error" };
+	std::string s[] = { "optimal", "infeasible", "error", "stopped" };
 	return os << s[static_cast<uint>(status)];
 }
 

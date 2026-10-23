@@ -48,7 +48,39 @@ TYPED_TEST_P(QuadraticProgramTest, Infeasible) {
 }
 
 
-REGISTER_TYPED_TEST_SUITE_P(QuadraticProgramTest, Optimal, Infeasible);
+TYPED_TEST_P(QuadraticProgramTest, EarlyStop) {
+	typedef TypeParam eT;
+
+	QuadraticProgram<eT> qp;
+
+	// same demo as Optimal
+	qp.from_matrix(
+		format_num<eT>("4 1; 1 2"),
+		format_num<eT>("1 1"),
+		format_num<eT>("1 1; 1 0; 0 1"),
+		format_num<eT>("1 0 0"),
+		format_num<eT>("1 0.7 0.7")
+	);
+
+	// never stopping gives the same result as without early_stop
+	uint calls = 0;
+	qp.early_stop = [&](const Col<eT>& sol) { calls++; return false; };
+	qp.early_stop_interval = 1;
+
+	EXPECT_TRUE(qp.solve());
+	EXPECT_EQ(qp::Status::OPTIMAL, qp.status);
+	EXPECT_GT(calls, 0u);
+	EXPECT_PRED_FORMAT2(equal2<eT>, eT(1.88), qp.objective());
+
+	// stop at the first call
+	qp.early_stop = [&](const Col<eT>& sol) { return sol.n_elem == 2; };
+
+	EXPECT_FALSE(qp.solve());
+	EXPECT_EQ(qp::Status::STOPPED, qp.status);
+	EXPECT_EQ(2u, qp.solution().n_elem);
+}
+
+REGISTER_TYPED_TEST_SUITE_P(QuadraticProgramTest, Optimal, Infeasible, EarlyStop);
 
 INSTANTIATE_TYPED_TEST_SUITE_P(QuadraticProgram, QuadraticProgramTest, NativeTypes);
 

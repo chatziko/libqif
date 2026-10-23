@@ -6,7 +6,7 @@ using std::string;
 // the lexicographic order used by map is top-to-bottom/left-to-right
 template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 
-enum class Status { OPTIMAL, INFEASIBLE, ERROR };
+enum class Status { OPTIMAL, INFEASIBLE, ERROR, STOPPED };
 enum class Method { ADDM };
 
 std::ostream& operator<<(std::ostream& os, const Status& status);
@@ -43,6 +43,11 @@ class QuadraticProgram {
 		double osqp_alpha = Defaults::osqp_alpha;
 		double osqp_eps_abs = Defaults::osqp_eps_abs;
 		double osqp_eps_rel = Defaults::osqp_eps_rel;
+
+		// Optional early stopping: called every early_stop_interval iterations with the current (approximate)
+		// solution. If it returns true the solver stops with status STOPPED, and solution() returns that solution.
+		std::function<bool(const Col<eT>&)> early_stop;
+		uint early_stop_interval = 10;
 
 		QuadraticProgram() {}
 
@@ -263,24 +268,54 @@ bool QuadraticProgram<eT>::osqp() {
 	if(osqp_eps_abs >= 0.0) settings.eps_abs = osqp_eps_abs;
 	if(osqp_eps_rel >= 0.0) settings.eps_rel = osqp_eps_rel;
 
+	// With early_stop, we solve in chunks of early_stop_interval iterations. Each osqp_solve call continues from
+	// the previous iterates (warm start), and the current solution is passed to early_stop after each chunk.
+	const OSQPInt max_iter = settings.max_iter;
+	if(early_stop) {
+		settings.max_iter = early_stop_interval;
+		settings.warm_starting = 1;
+	}
+
 	// solve
 	OSQPSolver* solver = nullptr;
 	OSQPInt err = wrapper::osqp_setup(&solver, &P.mat, obj_coeff_lin.data(), &A.mat, con_lb.data(), con_ub.data(), n_con, n_var, &settings);
-	if(!err)
+	bool stopped = false;
+
+	auto get_solution = [&]() {
+		sol.set_size(n_var);
+		for(uint j = 0; j < n_var; j++)
+			sol.at(j) = solver->solution->x[j];
+	};
+
+	for(OSQPInt iter = 0; !err; ) {
+		// at the end of each chunk OSQP checks for approximate termination, giving OSQP_SOLVED_INACCURATE.
+		// Without early_stop this only happens after max_iter, so we treat it as OSQP_MAX_ITER_REACHED.
 		err = wrapper::osqp_solve(solver);
+		OSQPInt st = err ? 0 : solver->info->status_val;
+		if(err || !early_stop || (st != OSQP_MAX_ITER_REACHED && st != OSQP_SOLVED_INACCURATE))
+			break;
+
+		get_solution();
+		if(early_stop(sol)) {
+			stopped = true;
+			break;
+		}
+
+		iter += solver->info->iter;
+		if(iter >= max_iter)
+			break;
+	}
 
 	OSQPInt st = err ? 0 : solver->info->status_val;
 	status =
+		stopped														? Status::STOPPED :
 		st == OSQP_SOLVED											? Status::OPTIMAL :
 		st == OSQP_PRIMAL_INFEASIBLE || st == OSQP_DUAL_INFEASIBLE	? Status::INFEASIBLE :
 		Status::ERROR;
 
 	// get optimal solution
 	if(status == Status::OPTIMAL) {
-		sol.set_size(n_var);
-		for(uint j = 0; j < n_var; j++)
-			sol.at(j) = solver->solution->x[j];
-
+		get_solution();
 		obj = solver->info->obj_val;
 	}
 
