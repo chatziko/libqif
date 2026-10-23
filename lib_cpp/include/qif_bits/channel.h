@@ -761,6 +761,8 @@ Chan<eT> factorize_project_qp(const Chan<eT>& A, const Chan<eT>& B, Mat<eT>& H, 
 	for(uint r = 0; r < R; r++)
 		for(uint n = 0; n < N; n++)
 			res(r,n) = qp.solution(X[r][n]);
+
+	_simplex_project(res, col_stoch);	// the QP solution is only approximately stochastic
 	return res;
 }
 
