@@ -5,15 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-23
+
 ### Added
-- `qif.lp`: SoPlex solver, solves programs exactly (both `rat` and `double`).
+- `qif.lp`: SoPlex solver (built into libqif, always available), solves `rat` programs exactly and `double` ones in floating point.
 - `channel.factorize`, `left_factorize`: `"project_qp"` (Euclidean projection by quadratic programming) and `"project_lp"` (Manhattan projection by linear programming, exact for `rat`) methods.
 - `refinement.refined_by_witness`, returns a counter-example gain function when refinement fails (replaces `refined_by(..., method="project")`). Works also for `rat` (exactly).
 - `method` argument in `refinement.max_refined_by`.
 
 ### Changed
 - `qif.lp`: `rat` programs are solved with SoPlex by default (instead of the internal simplex), which is much faster on larger programs.
-- `qif.lp`: SoPlex solves `double` programs in floating point (it is the default solver when OR-Tools is not available).
+- `qif.lp`: SoPlex is the default solver for `double` programs when OR-Tools is not available.
 - `qif.lp`: when the solver fails (eg numerical problems on badly-scaled programs), the program is solved again with SoPlex if the solver was chosen automatically, otherwise a `RuntimeError` is raised. Previously functions using LP silently returned empty results.
 - `channel.factorize`, `left_factorize`: methods renamed to `"solve_lp"` and `"project_subgrad"` (the old names `"lp"`, `"subgrad"` still work).
 - `channel.factorize`, `left_factorize`, `refinement.refined_by`: for `double`, `method="auto"` uses the subgradient method with a budget of iterations, falling back to `"project_qp"` (or `"solve_lp"` for wide matrices). Previously it used the subgradient method without a budget for large matrices (which could be very slow) and LP otherwise.
@@ -203,7 +205,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 First tagged release: C++ library and Python bindings for quantitative information flow (channels, leakage
 measures, metrics, mechanisms, refinement), distributed as wheels on PyPI.
 
-[Unreleased]: https://github.com/chatziko/libqif/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/chatziko/libqif/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/chatziko/libqif/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/chatziko/libqif/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/chatziko/libqif/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/chatziko/libqif/compare/v1.2.4...v1.3.0
