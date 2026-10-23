@@ -65,12 +65,11 @@ Prerequisites
 Optionally
 
 * [OR-Tools](https://developers.google.com/optimization/) (recommended)
-* [GLPK](https://www.gnu.org/software/glpk/)
 * Python 3 with headers (only for building the python library)
 
 On Ubuntu, these can be installed with:
 ```bash
-sudo apt-get install g++ cmake libgmp-dev libgsl-dev libopenblas-dev python3-dev libglpk-dev
+sudo apt-get install g++ cmake libgmp-dev libgsl-dev libopenblas-dev python3-dev
 ```
 
 Get the code (note the `--recursive` to fetch the submodules).

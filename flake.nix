@@ -29,7 +29,7 @@
             (pkgs.or-tools.buildInputs ++ pkgs.or-tools.propagatedBuildInputs);
 
           # or-tools also needs GLPK, but the released packages are built without it (the official or-tools binaries
-          # don't need it). So we pass it only via GLPK_ROOT, which or-tools' FindGLPK uses but libqif's find_library doesn't.
+          # don't need it). So we pass it only via GLPK_ROOT, which or-tools' FindGLPK uses (libqif itself doesn't use GLPK).
           glpk = pkgs.lib.findFirst (d: (d.pname or "") == "glpk") null pkgs.or-tools.buildInputs;
         in {
           default = pkgs.mkShell {

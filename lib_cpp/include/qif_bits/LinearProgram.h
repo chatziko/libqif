@@ -35,7 +35,7 @@ template<typename eT> using Sparse = std::map<std::pair<uint,uint>,eT>;
 #undef ERROR	// MSVC adds this
 namespace Status { const auto OPTIMAL = "OPTIMAL", INFEASIBLE = "INFEASIBLE", UNBOUNDED = "UNBOUNDED", INFEASIBLE_OR_UNBOUNDED = "INFEASIBLE_OR_UNBOUNDED", ERROR = "ERROR"; }
 namespace Method { const auto AUTO = "AUTO", SIMPLEX_PRIMAL = "SIMPLEX_PRIMAL", SIMPLEX_DUAL = "SIMPLEX_DUAL", INTERIOR = "INTERIOR"; }					// AUTO: whatever is best
-namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", SOPLEX = "SOPLEX", GLPK = "GLPK", GLOP = "GLOP", CLP = "CLP", HIGHS = "HIGHS", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
+namespace Solver { const auto AUTO = "AUTO", INTERNAL = "INTERNAL", SOPLEX = "SOPLEX", GLOP = "GLOP", CLP = "CLP", HIGHS = "HIGHS", GUROBI = "GUROBI", CPLEX = "CPLEX"; }	// for the each application
 namespace MsgLevel { const auto OFF = "OFF", ERR = "ERR", ON = "ON", ALL = "ALL"; }
 
 
@@ -90,7 +90,6 @@ class LinearProgram {
 	protected:
 		Col<eT> sol;			// solution
 
-		bool glpk();
 		bool soplex();
 		bool ortools(const string& s);
 		bool internal_solver();
@@ -253,10 +252,13 @@ void LinearProgram<eT>::from_matrix(const arma::SpMat<eT>& A, const Col<eT>& b, 
 
 template<typename eT>
 bool LinearProgram<eT>::solve() {
-	// AUTO: SoPlex (exact) for rat. For interior point: HiGHS or CLP (ortools) if available, otherwise GLPK (the internal
-	// solver doesn't support it). Otherwise CLP (ortools) if available, otherwise GLPK, otherwise internal.
+	// AUTO: SoPlex (exact) for rat. For double: CLP (ortools) if available, otherwise SoPlex (floating point). For the
+	// interior point method: HiGHS or CLP (ortools), the other solvers don't support it.
 	// (CLP was the most robust in our tests, GLOP fails on badly-scaled programs, eg d-privacy with large epsilon)
 	string s = solver;
+	if(s == "GLPK")
+		throw std::runtime_error("the GLPK solver has been removed, use SOPLEX (or the solvers of OR-Tools) instead");
+
 	if(s == Solver::AUTO) {
 		if(is_rat) {
 			s = Solver::SOPLEX;
@@ -264,27 +266,22 @@ bool LinearProgram<eT>::solve() {
 			#ifdef QIF_USE_ORTOOLS
 			s = operations_research::MPSolver::SupportsProblemType(operations_research::MPSolver::HIGHS_LINEAR_PROGRAMMING)
 				? Solver::HIGHS : Solver::CLP;
-			#elif defined(QIF_USE_GLPK)
-			s = Solver::GLPK;
 			#else
-			throw std::runtime_error("interior point method needs ortools or glpk");
+			throw std::runtime_error("interior point method needs ortools");
 			#endif
 		} else {
 			#ifdef QIF_USE_ORTOOLS
 			s = Solver::CLP;
-			#elif defined(QIF_USE_GLPK)
-			s = Solver::GLPK;
 			#else
-			s = Solver::INTERNAL;
+			s = Solver::SOPLEX;
 			#endif
 		}
 	}
-	
+
 	if(msg_level != MsgLevel::OFF)
 		std::cerr << "Solving LP with solver: " << s << "\n";
 
 	return
-		s == Solver::GLPK ? glpk() :
 		s == Solver::INTERNAL ? internal_solver() :
 		s == Solver::SOPLEX ? soplex() :
 		ortools(s);
@@ -311,184 +308,43 @@ bool LinearProgram<eT>::internal_solver() {
 	return res;
 }
 
-// solve the program using SoPlex. The program is solved exactly (in rationals), for both rat and double.
-// For double, the coefficients are converted exactly to rat, and the exact solution is rounded back to double.
+// solve the program using SoPlex: exactly (in rationals) for rat, in floating point for other types
 template<typename eT>
 bool LinearProgram<eT>::soplex() {
 	if(method == Method::INTERIOR)
 		throw std::runtime_error("soplex does not support the interior point method");
 
-	std::vector<rat> sol_r;
-
 	if constexpr (std::is_same<eT, rat>::value) {
+		std::vector<rat> sol_r;
 		status = wrapper::soplex_solve(maximize, method, presolve, msg_level, obj_coeff, con_coeff, var_lb, var_ub, con_lb, con_ub, sol_r);
+
+		if(status == Status::OPTIMAL)
+			sol = Col<eT>(sol_r);
 
 	} else {
 		const eT inf = infinity<eT>();
-		auto to_rat = [&](const std::vector<eT>& v) {
-			std::vector<rat> res(v.size());
+		auto to_double = [&](const std::vector<eT>& v) {
+			std::vector<double> res(v.size());
 			for(uint i = 0; i < v.size(); i++)
-				res[i] = v[i] == inf ? infinity<rat>() : v[i] == -inf ? -infinity<rat>() : rat(v[i]);
+				res[i] = v[i] == inf ? infinity<double>() : v[i] == -inf ? -infinity<double>() : double(v[i]);
 			return res;
 		};
-		std::map<std::pair<uint,uint>,rat> con_coeff_r;
+		std::map<std::pair<uint,uint>,double> con_coeff_d;
 		for(auto& [key, val] : con_coeff)
-			con_coeff_r.emplace_hint(con_coeff_r.end(), key, rat(val));
+			con_coeff_d.emplace_hint(con_coeff_d.end(), key, double(val));
 
-		status = wrapper::soplex_solve(maximize, method, presolve, msg_level, to_rat(obj_coeff), con_coeff_r,
-			to_rat(var_lb), to_rat(var_ub), to_rat(con_lb), to_rat(con_ub), sol_r);
-	}
+		std::vector<double> sol_d;
+		status = wrapper::soplex_solve(maximize, method, presolve, msg_level, to_double(obj_coeff), con_coeff_d,
+			to_double(var_lb), to_double(var_ub), to_double(con_lb), to_double(con_ub), sol_d);
 
-	if(status == Status::OPTIMAL) {
-		sol.set_size(n_var);
-		for(uint j = 0; j < n_var; j++)
-			sol(j) = eT(sol_r[j]);
+		if(status == Status::OPTIMAL) {
+			sol.set_size(n_var);
+			for(uint j = 0; j < n_var; j++)
+				sol(j) = eT(sol_d[j]);
+		}
 	}
 
 	return status == Status::OPTIMAL;
-}
-
-// solve the program using GLPK (directly, not through ortools)
-template<typename eT>
-bool LinearProgram<eT>::glpk() {
-	if(is_rat)
-		std::cout << "\nWARNING: using GLPK with rat. This will convert to double so it's not exact.\n\n";
-
-#ifndef QIF_USE_GLPK
-	throw std::runtime_error("glpk not available");
-#else
-
-	// create problem
-	glp_prob *lp = wrapper::glp_create_prob();
-
-	wrapper::glp_set_obj_dir(lp, maximize ? GLP_MAX : GLP_MIN);
-
-	eT  inf = infinity<eT>();
-	eT minf = -inf;
-
-	// add variables
-	// CAREFULL: all glp indexes are 1-based
-	//
-	wrapper::glp_add_cols(lp, n_var);
-	for(uint j = 0; j < n_var; j++) {
-		eT lb = var_lb[j];
-		eT ub = var_ub[j];
-
-		int type =
-			lb == minf && ub == inf ? GLP_FR :	// free
-			lb == minf              ? GLP_UP :	// upper only
-			ub ==  inf              ? GLP_LO :	// lower only
-			lb ==   ub              ? GLP_FX :	// fixed value
-			                          GLP_DB ;	// both bounds
-
-		wrapper::glp_set_col_bnds(lp, j+1, type, to_double(lb), to_double(ub));
-
-		wrapper::glp_set_obj_coef(lp, j+1, to_double(obj_coeff[j]));				// coefficient in the cost functoin
-	}
-
-	// add constraints. glpk uses a "sparse" way of entering the rows, using
-	// flat arrays ia, ja, ar. ia[z],ja[z] are the indexes of A for the value to
-	// set, and ar[z] = A[ ia[z], ja[z] ]
-	// we add entries only for non-zero elements, it's much faster!
-	//
-	wrapper::glp_add_rows(lp, n_con);
-
-	int size = con_coeff.size();
-
-	std::vector<int>	ia(size+1),
-						ja(size+1);
-	std::vector<double> ar(size+1);
-
-	for(uint i = 0; i < n_con; i++) {
-		eT lb = con_lb[i];
-		eT ub = con_ub[i];
-
-		int type =
-			lb == minf && ub == inf ? GLP_FR :	// free
-			lb == minf              ? GLP_UP :	// upper only
-			ub ==  inf              ? GLP_LO :	// lower only
-			lb ==   ub              ? GLP_FX :	// fixed value
-			                          GLP_DB ;	// both bounds
-
-		wrapper::glp_set_row_bnds(lp, i+1, type, to_double(lb), to_double(ub));
-	}
-
-	// loop over non-zero elements of sparse array
-	int index = 1;
-	for(auto& [key, val] : con_coeff) {
-		auto& [col, row] = key;
-		ia[index] = row + 1;
-		ja[index] = col + 1;
-		ar[index] = to_double(val);
-		index++;
-	}
-
-	wrapper::glp_load_matrix(lp, size, &ia[0], &ja[0], &ar[0]);
-
-	std::map<string,int> glp_msg_levs = { { MsgLevel::OFF, GLP_MSG_OFF }, { MsgLevel::ERR, GLP_MSG_ERR }, { MsgLevel::ON, GLP_MSG_ON }, { MsgLevel::ALL, GLP_MSG_ALL } };
-	const int msg_lev = glp_msg_levs[msg_level];
-
-	// solve
-	const bool is_interior = method == Method::INTERIOR;
-	if(!is_interior) {	// simplex primal/dual
-		glp_smcp opt;
-		wrapper::glp_init_smcp(&opt);
-		opt.meth = method == Method::SIMPLEX_PRIMAL ? GLP_PRIMAL : GLP_DUALP;	// DUALP: use dual, switch to primal if it fails. DUALP is also set if method == AUTO
-		opt.msg_lev = msg_lev;							// debug info sent to terminal, default off
-		opt.presolve = presolve ? GLP_ON : GLP_OFF;		// use presolver
-
-		//glp_scale_prob(lp, GLP_SF_AUTO);	// scaling is done by the presolver
-		int glp_res = wrapper::glp_simplex(lp, &opt);
-
-		int glp_status = wrapper::glp_get_status(lp);
-		int glp_dual_st = wrapper::glp_get_dual_stat(lp);
-
-		// Note:
-		// - what we care about is the status if the primal problem
-		// - if the presolver is used, glp_simplex might return GLP_ENOPFS/GLP_ENODFS (no feas primal/dual)
-		//   while all statuses are GLP_UNDEF
-		// - if we know that the dual problem is infeasible, then the primal has to be infeasible OR unbounded
-		//   although we might not know which one
-		//
-		status =
-			glp_status == GLP_OPT								? Status::OPTIMAL :
-			glp_status == GLP_NOFEAS || glp_res == GLP_ENOPFS	? Status::INFEASIBLE :
-			glp_status == GLP_UNBND								? Status::UNBOUNDED :
-			glp_dual_st == GLP_NOFEAS || glp_res == GLP_ENODFS	? Status::INFEASIBLE_OR_UNBOUNDED :
-			Status::ERROR;
-
-	} else {
-		glp_iptcp opt;
-		wrapper::glp_init_iptcp(&opt);
-		opt.msg_lev = msg_lev;	// debug info sent to terminal, default off
-
-		wrapper::glp_interior(lp, &opt);
-
-		// NOTE: glpk's interior point returns GLP_NOFEAS also for unbounded problems,
-		//       not sure how we can check for boundedness
-		//
-		int glp_status = wrapper::glp_ipt_status(lp);
-		// std::cout << "interior status: " << (status == GLP_OPT ? "GLP_OPT" : status == GLP_NOFEAS  ? "GLP_NOFEAS" : status == GLP_INFEAS ? "GLP_INFEAS" : status == GLP_UNDEF ? "GLP_UNDEF" : "XXX") << "\n";
-		status =
-			glp_status == GLP_OPT	? Status::OPTIMAL :
-			glp_status == GLP_NOFEAS? Status::INFEASIBLE_OR_UNBOUNDED :
-									  Status::ERROR;
-	}
-
-	// get optimal solution
-	if(status == Status::OPTIMAL) {
-		sol.set_size(n_var);
-		for(uint j = 0; j < n_var; j++)
-			sol.at(j) = is_interior ? wrapper::glp_ipt_col_prim(lp, j+1) : wrapper::glp_get_col_prim(lp, j+1);
-	}
-
-	// clean
-	wrapper::glp_delete_prob(lp);
-	wrapper::glp_free_env();
-
-	return status == Status::OPTIMAL;
-
-#endif // QIF_USE_GLPK
 }
 
 template<typename eT>

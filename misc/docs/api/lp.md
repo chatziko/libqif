@@ -17,13 +17,14 @@ for instance `qif.lp.defaults.solver = "CLP"`.
    .. attribute:: solver
       :value: "AUTO"
 
-      The solver to use: ``"SOPLEX"`` (`SoPlex <https://soplex.zib.de/>`_, which solves programs exactly, for both
-      ``rat`` and ``double``), ``"INTERNAL"`` (a simple simplex implementation, which also supports ``rat``), ``"GLPK"``,
-      ``"GLOP"``, ``"CLP"``, ``"HIGHS"``, ``"GUROBI"`` or ``"CPLEX"`` (the last five via OR-Tools; ``"GUROBI"``
-      needs Gurobi to be installed, ``"CPLEX"`` needs OR-Tools to be compiled with CPLEX support). Which ones are
-      available depends on how qif was built; the packages on PyPI include OR-Tools (with GLOP, CLP and HiGHS) but
-      not GLPK. With ``"AUTO"``, ``rat`` programs use ``"SOPLEX"``; ``double`` ones use ``"CLP"`` (or ``"GLPK"``,
-      ``"INTERNAL"`` if OR-Tools is not available), and ``"HIGHS"`` for the ``"INTERIOR"`` method.
+      The solver to use: ``"SOPLEX"`` (`SoPlex <https://soplex.zib.de/>`_, which solves ``rat`` programs exactly and
+      ``double`` ones in floating point, always available), ``"INTERNAL"`` (a simple simplex implementation, which also
+      supports ``rat``), ``"GLOP"``, ``"CLP"``, ``"HIGHS"``, ``"GUROBI"`` or ``"CPLEX"`` (the last five via OR-Tools;
+      ``"GUROBI"`` needs Gurobi to be installed, ``"CPLEX"`` needs OR-Tools to be compiled with CPLEX support). The
+      packages on PyPI include OR-Tools (with GLOP, CLP and HiGHS). With ``"AUTO"``, ``rat`` programs use
+      ``"SOPLEX"``; ``double`` ones use ``"CLP"`` (``"SOPLEX"`` if OR-Tools is not available), and ``"HIGHS"`` for the
+      ``"INTERIOR"`` method (which needs OR-Tools). For badly-scaled programs (eg d-privacy with large epsilon),
+      ``"SOPLEX"`` is more robust than the OR-Tools solvers.
 
    .. attribute:: method
       :value: "AUTO"

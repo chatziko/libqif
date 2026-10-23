@@ -394,11 +394,6 @@ kantorovich_lp(Metric<R, uint> d) {
 				lp.set_con_coeff(con, vars[i][j], R(1));
 		}
 
-		// for floats, set the default solver to GLPK, CLP failed tests (numerical instability?)
-		// Kostas 19/11/12: seems ok now?
-		// if(std::is_same<R,float>::value && lp.solver == lp::Solver::AUTO)
-		// 	lp.solver = lp::Solver::GLPK;
-
 		if(!lp.solve())
 			throw std::runtime_error(std::string("Kantorovich program failed: ") +
 									 (lp.status == lp::Status::INFEASIBLE ? "infeasible" : "unbounded"));

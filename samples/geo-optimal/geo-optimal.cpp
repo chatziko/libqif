@@ -19,7 +19,7 @@ int usage() {
 		<< "constraint:    the bayesrisk, georisk or loss constraint, depending on the goal\n"
 		<< "hard_max_loss: C_xy is forced to 0 when loss(x,y) > hard_max_loss (can greatly reduce the problem size)\n"
 		<< "prior:         file with a single line containing the prior | uniform | random\n"
-		<< "solver:        CLP | GLOP | GLPK\n";
+		<< "solver:        CLP | GLOP | HIGHS | SOPLEX\n";
 	return -1;
 }
 

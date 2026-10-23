@@ -75,10 +75,6 @@ if("${BUILD_QIF}")
 	if(${QIF_USE_ORTOOLS})
 		target_link_libraries(qif_cpp PRIVATE ortools::ortools)						# also listed to get its include_directories
 	endif()
-	if(${QIF_USE_GLPK})
-		# we use a wrapper so only qif_cpp itself needs to be linked with glpk
-		target_link_libraries(qif_cpp PRIVATE ${LIB_GLPK})
-	endif()
 endif()
 
 # INTERFACE, needed for targets _using_ qif_cpp

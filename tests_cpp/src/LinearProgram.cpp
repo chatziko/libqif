@@ -15,11 +15,6 @@ class LinearProgramTest : public BaseTest<eT> {
 			#else
 				std::cerr << "\nOR-tools not found, skipping GLOP and CLP tests\n\n";
 			#endif
-			#ifdef QIF_USE_GLPK
-				solvers.push_back(Solver::GLPK);
-			#else
-				std::cerr << "\nGLPK not found, skipping GLPK tests\n\n";
-			#endif
 
 			for(string method : { Method::SIMPLEX_PRIMAL, Method::SIMPLEX_DUAL, Method::INTERIOR }) {
 			for(string solver : solvers) {
@@ -102,7 +97,7 @@ TYPED_TEST_P(LinearProgramTest, Optimal) {
 		lp.clear();
 		lp.maximize = false;
 		auto v = lp.make_var(eT(-5), infinity<eT>());
-		lp.make_con(eT(0), eT(0));		// glpk needs at least one constraint, add dummy one
+		lp.make_con(eT(0), eT(0));		// dummy constraint
 		lp.set_obj_coeff(v, eT(1));
 
 		EXPECT_TRUE(lp.solve());
@@ -182,9 +177,7 @@ TYPED_TEST_P(LinearProgramTest, Unbounded) {
 		// EXTRA conditions only for unbounded
 		if(lp.solver == Solver::GLOP || lp.solver == Solver::CLP) continue; // OR-tools/DUAL seems unstable with unbounded problems (TODO: investigae)
 
-		auto status = lp.solver != Solver::GLPK || (lp.method == Method::SIMPLEX_PRIMAL && !lp.presolve)
-				? Status::UNBOUNDED
-				: Status::INFEASIBLE_OR_UNBOUNDED;	// sometimes we just know that the problem is infeasible OR unbounded
+		auto status = Status::UNBOUNDED;
 
 		lp.maximize = false;
 		lp.from_matrix(
